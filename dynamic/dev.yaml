@@ -1,0 +1,30 @@
+tls:
+  certificates:
+    - certFile: /certs/yupiboard.localhost+1.pem
+      keyFile: /certs/yupiboard.localhost+1-key.pem
+
+http:
+  routers:
+    frontend-router:
+      rule: "Host(`yupiboard.localhost`)"
+      entrypoints:
+        - "websecure"
+      tls: true
+      service: "frontend-service"
+    backend-router:
+      rule: "Host(`api.yupiboard.localhost`)"
+      entrypoints:
+        - "websecure"
+      tls: true
+      service: "backend-service"
+
+  services:
+    frontend-service:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:5173"
+    backend-service:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8080"
+
