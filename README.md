@@ -66,7 +66,7 @@ Ensure you have `mkcert`, `docker`, `uv`, and `pnpm` installed:
 
 ```bash
 # Generate local SSL certificates and install dependencies
-make setup
+pnpm run setup
 ```
 
 Copy the environment variables template (if not already created):
@@ -78,7 +78,7 @@ cp .env.example .env
 ### 2. Start Infrastructure (Docker)
 
 ```bash
-make docker-up
+pnpm docker:up
 ```
 
 This starts the PostgreSQL, Traefik, Mailpit, and pgweb containers.
@@ -86,7 +86,7 @@ This starts the PostgreSQL, Traefik, Mailpit, and pgweb containers.
 ### 3. Run Database Migrations
 
 ```bash
-make migrate
+pnpm migrate
 ```
 
 ### 4. Start Development Mode
@@ -95,10 +95,12 @@ In separate terminals:
 
 ```bash
 # FastAPI backend (port 8080)
-make dev-backend
+pnpm dev:backend
 
 # Vite frontend (port 5173)
-make dev-frontend
+pnpm dev:frontend
+# or simply:
+pnpm dev
 ```
 
 The application is now accessible via secure local endpoints:
@@ -109,19 +111,23 @@ The application is now accessible via secure local endpoints:
 
 ---
 
-## 📜 Key Commands (Makefile)
+## 📜 Key Commands (pnpm / package.json)
 
-| Command             | Description                                                       |
-| ------------------- | ----------------------------------------------------------------- |
-| `make docker-up`    | Start PostgreSQL, Traefik, Mailpit, and pgweb in the background   |
-| `make docker-down`  | Stop Docker containers                                            |
-| `make migrate`      | Apply Alembic migrations                                          |
-| `make generate-api` | Export `openapi.json` from FastAPI and run Orval code generation  |
-| `make dev-backend`  | Start FastAPI server via `uv run fastapi dev`                     |
-| `make dev-frontend` | Start Vite dev server (`pnpm dev`)                                |
-| `make test`         | Run backend tests (`pytest`)                                      |
-| `make lint`         | Run linters: `oxlint` for React, `ruff` and `ty` for Python       |
-| `make mobile-copy`  | Build frontend and copy bundle to Capacitor                       |
+| Command              | Description                                                          |
+| -------------------- | -------------------------------------------------------------------- |
+| `pnpm run setup`     | Generate SSL certificates, install pnpm dependencies, and `uv sync`  |
+| `pnpm docker:up`     | Start PostgreSQL, Traefik, Mailpit, and pgweb in the background      |
+| `pnpm docker:down`   | Stop Docker containers                                               |
+| `pnpm docker:down:v` | Stop Docker containers and remove persistent volumes                 |
+| `pnpm migrate`       | Apply Alembic migrations                                             |
+| `pnpm generate:api`  | Export `openapi.json` from FastAPI and run Orval code generation     |
+| `pnpm dev:backend`   | Start FastAPI server via `uv run fastapi dev`                        |
+| `pnpm dev:frontend`  | Start Vite dev server (`pnpm dev`)                                   |
+| `pnpm test`          | Run backend tests (`pytest`)                                         |
+| `pnpm lint`          | Run linters: `oxlint` for React, `ruff` and `ty` for Python          |
+| `pnpm format`        | Format backend code (`ruff format`)                                  |
+| `pnpm mobile:copy`   | Build frontend and copy bundle to Capacitor                          |
+| `pnpm mobile:sync`   | Build frontend and sync Capacitor plugins/web assets                 |
 
 ---
 
