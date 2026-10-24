@@ -31,9 +31,10 @@ Production-ready monorepo for the **YupiBoard** project, featuring a three-tier 
   - Hybrid sessions: HttpOnly SameSite Cookies for web browsers + Bearer/JSON for mobile clients.
   - Google OAuth: Token verification via `google-auth`.
   - Transactional email: `fastapi-mail` with safe fallback for local development.
-- **Architecture**: Three-tier layered architecture:
+- **Architecture**: Vertical Slice (Modular) Architecture:
   ```
-  api/ (v1 routes & deps) ➔ services/ (business logic) ➔ repositories/ (CRUD & SQL) ➔ models/ + schemas/
+  core/ (infrastructure, base models, base repos, mail, security)
+  modules/ (auth, users, health — each containing models, schemas, repository, service, router, dependencies)
   ```
 - **Code Quality**: `ruff` (linter and formatter) + `ty` (static type checker) + `pytest` (async tests).
 

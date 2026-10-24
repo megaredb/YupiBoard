@@ -5,10 +5,10 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.v1.api import api_v1_router
 from app.core.config import settings
 from app.core.database import async_engine
 from app.core.exceptions import AppException
+from app.modules.router import api_router
 
 
 @asynccontextmanager
@@ -51,4 +51,4 @@ async def app_exception_handler(request: Request, exc: AppException) -> JSONResp
 
 
 # Include API routers
-app.include_router(api_v1_router)
+app.include_router(api_router)

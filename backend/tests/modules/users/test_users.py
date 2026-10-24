@@ -1,0 +1,149 @@
+import uuid
+
+import pytest
+from httpx import AsyncClient
+
+from app.core.exceptions import ForbiddenException, UnauthorizedException
+from app.core.security import create_access_token
+from app.modules.auth.dependencies import (
+    get_current_superuser,
+    get_current_verified_user,
+    get_token_from_request,
+)
+from app.modules.users.models import User
+
+
+@pytest.mark.asyncio
+async def test_get_current_user_profile(async_client: AsyncClient) -> None:
+    # Unauthorized
+    r_unauth = await async_client.get("/api/v1/users/me")
+    assert r_unauth.status_code == 401
+
+    # Register user
+    email = f"user_me_{uuid.uuid4().hex[:8]}@example.com"
+    reg = await async_client.post(
+        "/api/v1/auth/register",
+        json={"email": email, "password": "password123", "full_name": "Me User"},
+    )
+    token = reg.json()["access_token"]
+
+    # Authorized via Bearer header
+    r_auth = await async_client.get(
+        "/api/v1/users/me",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r_auth.status_code == 200
+    assert r_auth.json()["email"] == email
+
+    # Authorized via Cookie
+    r_cookie = await async_client.get(
+        "/api/v1/users/me",
+        cookies={"access_token": token},
+    )
+    assert r_cookie.status_code == 200
+    assert r_cookie.json()["email"] == email
+
+
+@pytest.mark.asyncio
+async def test_update_current_user_profile(async_client: AsyncClient) -> None:
+    email = f"update_me_{uuid.uuid4().hex[:8]}@example.com"
+    reg = await async_client.post(
+        "/api/v1/auth/register",
+        json={"email": email, "password": "password123", "full_name": "Initial Name"},
+    )
+    token = reg.json()["access_token"]
+
+    # Unauthorized PATCH
+    r_unauth = await async_client.patch(
+        "/api/v1/users/me",
+        json={"full_name": "Hacker Name"},
+    )
+    assert r_unauth.status_code == 401
+
+    # Authorized PATCH updating full_name and password
+    r_patch = await async_client.patch(
+        "/api/v1/users/me",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"full_name": "Brand New Name", "password": "brandnewpassword999"},
+    )
+    assert r_patch.status_code == 200
+    assert r_patch.json()["full_name"] == "Brand New Name"
+
+    # Verify login with new password works
+    r_login = await async_client.post(
+        "/api/v1/auth/login",
+        json={"email": email, "password": "brandnewpassword999"},
+    )
+    assert r_login.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_user_dependencies_role_checks() -> None:
+    # Test get_token_from_request with neither header nor cookie
+    with pytest.raises(UnauthorizedException):
+        await get_token_from_request(None, None)
+
+    # Test get_token_from_request with non-bearer header
+    with pytest.raises(UnauthorizedException):
+        await get_token_from_request("Basic 12345", None)
+
+    # Test get_current_verified_user
+    unverified_user = User(
+        id=uuid.uuid4(),
+        email="unverified@example.com",
+        is_active=True,
+        is_verified=False,
+    )
+    with pytest.raises(ForbiddenException):
+        await get_current_verified_user(unverified_user)
+
+    verified_user = User(
+        id=uuid.uuid4(),
+        email="verified@example.com",
+        is_active=True,
+        is_verified=True,
+    )
+    assert await get_current_verified_user(verified_user) == verified_user
+
+    # Test get_current_superuser
+    regular_user = User(
+        id=uuid.uuid4(),
+        email="regular@example.com",
+        is_active=True,
+        is_superuser=False,
+    )
+    with pytest.raises(ForbiddenException):
+        await get_current_superuser(regular_user)
+
+    superuser = User(
+        id=uuid.uuid4(),
+        email="admin@example.com",
+        is_active=True,
+        is_superuser=True,
+    )
+    assert await get_current_superuser(superuser) == superuser
+
+
+@pytest.mark.asyncio
+async def test_invalid_tokens_in_get_current_user(async_client: AsyncClient) -> None:
+    # Token with missing 'sub'
+    no_sub_token = create_access_token(subject="")
+    r1 = await async_client.get(
+        "/api/v1/users/me", headers={"Authorization": f"Bearer {no_sub_token}"}
+    )
+    assert r1.status_code == 401
+
+    # Token with invalid UUID
+    bad_uuid_token = create_access_token(subject="not-a-valid-uuid")
+    r2 = await async_client.get(
+        "/api/v1/users/me", headers={"Authorization": f"Bearer {bad_uuid_token}"}
+    )
+    assert r2.status_code == 401
+
+    # Token with non-existent user UUID
+    non_existent_uuid = str(uuid.uuid4())
+    ghost_token = create_access_token(subject=non_existent_uuid)
+    r3 = await async_client.get(
+        "/api/v1/users/me", headers={"Authorization": f"Bearer {ghost_token}"}
+    )
+    assert r3.status_code == 404
