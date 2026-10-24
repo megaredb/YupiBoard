@@ -9,7 +9,7 @@ from app.schemas.auth import (
     TokenResponse,
 )
 from app.schemas.common import HealthResponse, MessageResponse
-from app.schemas.user import UserCreate, UserRead, UserUpdate
+from app.schemas.user import PasswordChangeRequest, UserCreate, UserRead, UserUpdate
 
 __all__ = [
     "EmailVerifyRequest",
@@ -17,6 +17,7 @@ __all__ = [
     "HealthResponse",
     "LoginRequest",
     "MessageResponse",
+    "PasswordChangeRequest",
     "PasswordResetConfirmRequest",
     "PasswordResetRequest",
     "RefreshRequest",

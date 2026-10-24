@@ -13,6 +13,10 @@ export interface UserRead {
   is_verified: boolean;
   is_superuser: boolean;
   avatar_url?: string | null;
+  city?: string | null;
+  contact_info?: string | null;
+  rating_as_player: number;
+  rating_as_organizer: number;
   created_at: string;
   updated_at: string;
 }

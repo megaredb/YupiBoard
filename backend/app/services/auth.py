@@ -58,7 +58,7 @@ class AuthService:
         return access_token, refresh_token
 
     async def register(self, data: RegisterRequest) -> tuple[User, str, str]:
-        existing = await self.user_repo.get_by_email(data.email)
+        existing = await self.user_repo.get_by_email(data.email, include_deleted=True)
         if existing:
             raise ConflictException("User with this email is already registered")
 
@@ -193,9 +193,12 @@ class AuthService:
         if not email or not google_sub:
             raise BadRequestException("Missing required claims in Google token")
 
-        user = await self.user_repo.get_by_google_sub(google_sub)
-        if not user:
-            user = await self.user_repo.get_by_email(email)
+        # include soft-deleted accounts: their email/google_sub stay reserved
+        user = await self.user_repo.get_by_google_sub(google_sub, include_deleted=True)
+        if user is None:
+            user = await self.user_repo.get_by_email(email, include_deleted=True)
+            if user and user.is_deleted:
+                raise UnauthorizedException("Account is deactivated")
             if user:
                 user = await self.user_repo.update(
                     user,
@@ -213,6 +216,8 @@ class AuthService:
                     is_verified=True,
                     is_superuser=False,
                 )
+        elif user.is_deleted:
+            raise UnauthorizedException("Account is deactivated")
 
         if not user.is_active:
             raise UnauthorizedException("Account is deactivated")

@@ -60,7 +60,7 @@ async def test_update_current_user_profile(async_client: AsyncClient) -> None:
     )
     assert r_unauth.status_code == 401
 
-    # Authorized PATCH updating full_name and password
+    # Authorized PATCH; password is not a profile field and is ignored here
     r_patch = await async_client.patch(
         "/api/v1/users/me",
         headers={"Authorization": f"Bearer {token}"},
@@ -69,12 +69,16 @@ async def test_update_current_user_profile(async_client: AsyncClient) -> None:
     assert r_patch.status_code == 200
     assert r_patch.json()["full_name"] == "Brand New Name"
 
-    # Verify login with new password works
-    r_login = await async_client.post(
+    r_login_new = await async_client.post(
         "/api/v1/auth/login",
         json={"email": email, "password": "brandnewpassword999"},
     )
-    assert r_login.status_code == 200
+    assert r_login_new.status_code == 401
+    r_login_old = await async_client.post(
+        "/api/v1/auth/login",
+        json={"email": email, "password": "password123"},
+    )
+    assert r_login_old.status_code == 200
 
 
 @pytest.mark.asyncio
@@ -147,3 +151,40 @@ async def test_invalid_tokens_in_get_current_user(async_client: AsyncClient) -> 
         "/api/v1/users/me", headers={"Authorization": f"Bearer {ghost_token}"}
     )
     assert r3.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_profile_fields_and_read_only_ratings(async_client: AsyncClient) -> None:
+    email = f"profile_{uuid.uuid4().hex[:8]}@example.com"
+    reg = await async_client.post(
+        "/api/v1/auth/register",
+        json={"email": email, "password": "password123"},
+    )
+    headers = {"Authorization": f"Bearer {reg.json()['access_token']}"}
+
+    me = (await async_client.get("/api/v1/users/me", headers=headers)).json()
+    assert me["city"] is None
+    assert me["contact_info"] is None
+    assert me["rating_as_player"] == 5.0
+    assert me["rating_as_organizer"] == 5.0
+    assert "is_deleted" not in me
+
+    patched = await async_client.patch(
+        "/api/v1/users/me",
+        headers=headers,
+        json={
+            "city": "Kyiv",
+            "contact_info": "@yupi",
+            "rating_as_player": 1,
+        },
+    )
+    assert patched.status_code == 200
+    body = patched.json()
+    assert body["city"] == "Kyiv"
+    assert body["contact_info"] == "@yupi"
+    assert body["rating_as_player"] == 5.0
+
+    too_long = await async_client.patch(
+        "/api/v1/users/me", headers=headers, json={"city": "x" * 101}
+    )
+    assert too_long.status_code == 422

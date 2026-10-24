@@ -8,5 +8,6 @@
 export interface UserUpdate {
   full_name?: string | null;
   avatar_url?: string | null;
-  password?: string | null;
+  city?: string | null;
+  contact_info?: string | null;
 }
