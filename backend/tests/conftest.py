@@ -5,8 +5,8 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
-from app.api.deps import get_db
 from app.core.config import settings
+from app.core.database import get_db
 from app.main import app
 
 # Use NullPool for tests so every test gets fresh connection without event loop affinity issues
