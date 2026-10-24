@@ -41,8 +41,9 @@ def get_token_repository(session: SessionDep) -> RefreshTokenRepository:
 
 def get_user_service(
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
+    token_repo: Annotated[RefreshTokenRepository, Depends(get_token_repository)],
 ) -> UserService:
-    return UserService(user_repo)
+    return UserService(user_repo, token_repo)
 
 
 def get_auth_service(

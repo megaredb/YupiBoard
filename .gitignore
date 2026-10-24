@@ -39,3 +39,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+docs
+.claude
+graphify-out
+claude.md
