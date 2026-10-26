@@ -13,6 +13,7 @@ export * from './healthResponse.ts';
 export * from './healthResponse';
 export * from './hTTPValidationError.ts';
 export * from './hTTPValidationError';
+export * from './listUsersApiV1UsersGetParams.ts';
 export * from './loginRequest.ts';
 export * from './loginRequest';
 export * from './messageResponse.ts';

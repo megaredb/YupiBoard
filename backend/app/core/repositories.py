@@ -27,9 +27,11 @@ class BaseRepository[ModelType: Base]:
         await self.session.refresh(instance)
         return instance
 
-    async def update(self, db_obj: ModelType, **kwargs: Any) -> ModelType:
+    async def update(
+        self, db_obj: ModelType, *, exclude_none: bool = True, **kwargs: Any
+    ) -> ModelType:
         for key, value in kwargs.items():
-            if hasattr(db_obj, key) and value is not None:
+            if hasattr(db_obj, key) and not (exclude_none and value is None):
                 setattr(db_obj, key, value)
         self.session.add(db_obj)
         await self.session.flush()

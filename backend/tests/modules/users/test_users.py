@@ -60,21 +60,55 @@ async def test_update_current_user_profile(async_client: AsyncClient) -> None:
     )
     assert r_unauth.status_code == 401
 
-    # Authorized PATCH updating full_name and password
+    # Authorized PATCH updating profile fields
     r_patch = await async_client.patch(
         "/api/v1/users/me",
         headers={"Authorization": f"Bearer {token}"},
-        json={"full_name": "Brand New Name", "password": "brandnewpassword999"},
+        json={"full_name": "Brand New Name", "city": "Kyiv", "contact_info": "@yupi"},
     )
     assert r_patch.status_code == 200
-    assert r_patch.json()["full_name"] == "Brand New Name"
+    body = r_patch.json()
+    assert body["full_name"] == "Brand New Name"
+    assert body["city"] == "Kyiv"
+    assert body["contact_info"] == "@yupi"
 
-    # Verify login with new password works
-    r_login = await async_client.post(
+    # Credentials are not profile fields: password/email in PATCH are ignored
+    r_creds = await async_client.patch(
+        "/api/v1/users/me",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"password": "brandnewpassword999", "email": "other@example.com"},
+    )
+    assert r_creds.status_code == 200
+    assert r_creds.json()["email"] == email
+
+    r_login_new = await async_client.post(
         "/api/v1/auth/login",
         json={"email": email, "password": "brandnewpassword999"},
     )
-    assert r_login.status_code == 200
+    assert r_login_new.status_code == 401
+    r_login_old = await async_client.post(
+        "/api/v1/auth/login",
+        json={"email": email, "password": "password123"},
+    )
+    assert r_login_old.status_code == 200
+
+    # Explicit null clears a field, omitted fields stay untouched
+    r_clear = await async_client.patch(
+        "/api/v1/users/me",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"city": None},
+    )
+    assert r_clear.status_code == 200
+    assert r_clear.json()["city"] is None
+    assert r_clear.json()["contact_info"] == "@yupi"
+
+    # Validation of new profile fields
+    r_long = await async_client.patch(
+        "/api/v1/users/me",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"city": "x" * 101},
+    )
+    assert r_long.status_code == 422
 
 
 @pytest.mark.asyncio
@@ -147,3 +181,55 @@ async def test_invalid_tokens_in_get_current_user(async_client: AsyncClient) -> 
         "/api/v1/users/me", headers={"Authorization": f"Bearer {ghost_token}"}
     )
     assert r3.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_new_user_has_no_ratings(async_client: AsyncClient) -> None:
+    email = f"ratings_{uuid.uuid4().hex[:8]}@example.com"
+    reg = await async_client.post(
+        "/api/v1/auth/register",
+        json={"email": email, "password": "password123"},
+    )
+    assert reg.status_code == 201
+    user = reg.json()["user"]
+    assert user["rating_as_player"] is None
+    assert user["rating_as_organizer"] is None
+    assert user["city"] is None
+    assert user["contact_info"] is None
+    assert "is_deleted" not in user
+
+
+@pytest.mark.asyncio
+async def test_delete_me_frees_email_for_new_registration(
+    async_client: AsyncClient,
+) -> None:
+    email = f"delete_me_{uuid.uuid4().hex[:8]}@example.com"
+    reg = await async_client.post(
+        "/api/v1/auth/register",
+        json={"email": email, "password": "password123"},
+    )
+    old_id = reg.json()["user"]["id"]
+    headers = {"Authorization": f"Bearer {reg.json()['access_token']}"}
+
+    assert (await async_client.delete("/api/v1/users/me")).status_code == 401
+
+    r_delete = await async_client.delete("/api/v1/users/me", headers=headers)
+    assert r_delete.status_code == 204
+
+    # the deleted account no longer resolves
+    r_me = await async_client.get("/api/v1/users/me", headers=headers)
+    assert r_me.status_code == 404
+
+    r_login = await async_client.post(
+        "/api/v1/auth/login",
+        json={"email": email, "password": "password123"},
+    )
+    assert r_login.status_code == 401
+
+    # the same email can register a brand-new account
+    r_reg = await async_client.post(
+        "/api/v1/auth/register",
+        json={"email": email, "password": "newpassword123"},
+    )
+    assert r_reg.status_code == 201
+    assert r_reg.json()["user"]["id"] != old_id

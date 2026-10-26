@@ -16,7 +16,8 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     full_name: str | None = Field(default=None, max_length=255)
     avatar_url: str | None = Field(default=None, max_length=1024)
-    password: str | None = Field(default=None, min_length=8, max_length=128)
+    city: str | None = Field(default=None, max_length=100)
+    contact_info: str | None = Field(default=None, max_length=500)
 
 
 class UserRead(UserBase):
@@ -27,5 +28,9 @@ class UserRead(UserBase):
     avatar_url: str | None = None
     created_at: datetime
     updated_at: datetime
+    city: str | None = None
+    contact_info: str | None = None
+    rating_as_player: float | None = None
+    rating_as_organizer: float | None = None
 
     model_config = ConfigDict(from_attributes=True)
