@@ -1,33 +1,26 @@
 import { useState } from "react"
-import { Link, useNavigate } from "@tanstack/react-router"
+import { Link, Navigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useRegisterApiV1AuthRegisterPost } from "@/api/endpoints/auth/auth"
-import type { TokenResponse } from "@/api/model"
-import { useAuthStore } from "@/stores/auth"
+import { FormField } from "@/components/FormField"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { AlertCircle, Lock, Mail, User } from "lucide-react"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { getErrorMessage } from "@/lib/errors"
+import { useAuthStore } from "@/stores/auth"
 
+// Messages are i18n keys, translated when rendered. Limits mirror the API schema.
 const registerSchema = z
   .object({
-    full_name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.email("Enter a valid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(8, "Please confirm your password"),
+    full_name: z.string().trim().min(2, "validation.nameMin").max(255, "validation.nameMax"),
+    email: z.email("validation.email"),
+    password: z.string().min(8, "validation.passwordMin").max(128, "validation.passwordMax"),
+    confirmPassword: z.string().min(1, "validation.confirmRequired"),
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+  .refine((values) => values.password === values.confirmPassword, {
+    message: "validation.mismatch",
     path: ["confirmPassword"],
   })
 
@@ -35,145 +28,91 @@ type RegisterFormValues = z.infer<typeof registerSchema>
 
 export function RegisterPage() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
-  const setAuth = useAuthStore((state) => state.setAuth)
+  const user = useAuthStore((state) => state.user)
+  const setSession = useAuthStore((state) => state.setSession)
   const [serverError, setServerError] = useState<string | null>(null)
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
-  })
+  } = useForm<RegisterFormValues>({ resolver: zodResolver(registerSchema) })
 
   const registerMutation = useRegisterApiV1AuthRegisterPost({
     mutation: {
-      onSuccess: (data: TokenResponse) => {
-        setAuth(data.user, data.access_token, data.refresh_token)
-        navigate({ to: "/" })
-      },
-      onError: (err: unknown) => {
-        const errorResponse = err as {
-          response?: { data?: { detail?: string } }
-        }
-        const detail =
-          errorResponse?.response?.data?.detail ||
-          t("register.regFailed")
-        setServerError(detail)
-      },
+      onSuccess: (data) => setSession(data),
+      onError: (error) => setServerError(getErrorMessage(error, t("register.failed"))),
     },
   })
 
-  const onSubmit = (values: RegisterFormValues) => {
-    setServerError(null)
-    registerMutation.mutate({
-      data: {
-        email: values.email,
-        password: values.password,
-        full_name: values.full_name,
-      },
-    })
-  }
+  const fieldError = (key?: string) => (key ? t(key) : undefined)
+
+  if (user) return <Navigate to="/" replace />
 
   return (
-    <div className="max-w-md mx-auto py-12">
-      <Card className="glow-effect border-indigo-500/20">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">
-            {t("register.title")}
-          </CardTitle>
-          <CardDescription>
-            {t("register.description")}
-          </CardDescription>
-        </CardHeader>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">{t("register.title")}</CardTitle>
+      </CardHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
-            {serverError && (
-              <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center gap-2 text-rose-400 text-xs">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{serverError}</span>
-              </div>
-            )}
+      <form
+        noValidate
+        onSubmit={handleSubmit(({ full_name, email, password }) => {
+          setServerError(null)
+          registerMutation.mutate({ data: { full_name, email, password } })
+        })}
+      >
+        <CardContent className="space-y-4">
+          {serverError && (
+            <p role="alert" className="text-sm text-destructive">
+              {serverError}
+            </p>
+          )}
+          <FormField
+            label={t("register.fullName")}
+            autoComplete="name"
+            error={fieldError(errors.full_name?.message)}
+            disabled={registerMutation.isPending}
+            {...register("full_name")}
+          />
+          <FormField
+            label={t("register.email")}
+            type="email"
+            autoComplete="email"
+            error={fieldError(errors.email?.message)}
+            disabled={registerMutation.isPending}
+            {...register("email")}
+          />
+          <FormField
+            label={t("register.password")}
+            type="password"
+            autoComplete="new-password"
+            error={fieldError(errors.password?.message)}
+            disabled={registerMutation.isPending}
+            {...register("password")}
+          />
+          <FormField
+            label={t("register.confirmPassword")}
+            type="password"
+            autoComplete="new-password"
+            error={fieldError(errors.confirmPassword?.message)}
+            disabled={registerMutation.isPending}
+            {...register("confirmPassword")}
+          />
+        </CardContent>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5 text-slate-400" />
-                {t("register.fullName")}
-              </label>
-              <Input
-                placeholder={t("register.namePlaceholder")}
-                {...register("full_name")}
-                error={errors.full_name?.message}
-                disabled={registerMutation.isPending}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-slate-400" />
-                {t("register.email")}
-              </label>
-              <Input
-                type="email"
-                placeholder={t("register.emailPlaceholder")}
-                {...register("email")}
-                error={errors.email?.message}
-                disabled={registerMutation.isPending}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-slate-400" />
-                {t("register.password")}
-              </label>
-              <Input
-                type="password"
-                placeholder="••••••••"
-                {...register("password")}
-                error={errors.password?.message}
-                disabled={registerMutation.isPending}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-slate-400" />
-                {t("register.confirmPassword")}
-              </label>
-              <Input
-                type="password"
-                placeholder="••••••••"
-                {...register("confirmPassword")}
-                error={errors.confirmPassword?.message}
-                disabled={registerMutation.isPending}
-              />
-            </div>
-          </CardContent>
-
-          <CardFooter className="flex flex-col space-y-4">
-            <Button
-              type="submit"
-              className="w-full"
-              isLoading={registerMutation.isPending}
-            >
-              {t("register.submit")}
-            </Button>
-
-            <div className="text-center text-xs text-slate-400">
-              {t("register.hasAccount")}{" "}
-              <Link
-                to="/login"
-                className="text-indigo-400 hover:underline font-medium"
-              >
-                {t("register.signIn")}
-              </Link>
-            </div>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
+        <CardFooter className="mt-4 flex-col items-stretch gap-3">
+          <Button type="submit" isLoading={registerMutation.isPending}>
+            {t("register.submit")}
+          </Button>
+          <p className="text-center text-sm text-muted-foreground">
+            {t("register.hasAccount")}{" "}
+            <Link to="/login" className="text-foreground underline">
+              {t("register.login")}
+            </Link>
+          </p>
+        </CardFooter>
+      </form>
+    </Card>
   )
 }
