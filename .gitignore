@@ -39,3 +39,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Frontend generated routes
+frontend/src/routeTree.gen.ts

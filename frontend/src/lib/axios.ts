@@ -1,119 +1,84 @@
-import axios, { type AxiosError, type AxiosRequestConfig } from "axios"
+import axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from "axios"
+import type { TokenResponse } from "@/api/model"
+import { clearTokens, getAccessToken, getRefreshToken, saveTokens, tokensReady } from "@/lib/tokens"
 
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "https://api.yupiboard.localhost"
 
+export const SESSION_EXPIRED_EVENT = "auth:session-expired"
+
+const REQUEST_TIMEOUT_MS = 15_000
+const AUTH_URL_PREFIX = "/api/v1/auth/"
+
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  timeout: REQUEST_TIMEOUT_MS,
 })
 
-let isRefreshing = false
-let failedQueue: Array<{
-  resolve: (value?: unknown) => void
-  reject: (reason?: unknown) => void
-}> = []
+apiClient.interceptors.request.use(async (config) => {
+  await tokensReady
+  const token = getAccessToken()
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
 
-const processQueue = (error: AxiosError | null, token: string | null = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error)
-    } else {
-      prom.resolve(token)
+async function requestNewTokens(): Promise<void> {
+  const refreshToken = getRefreshToken()
+  try {
+    // Bare axios (not apiClient) so this call can never re-enter the interceptor.
+    const { data } = await axios.post<TokenResponse>(
+      `${API_BASE_URL}${AUTH_URL_PREFIX}refresh`,
+      refreshToken ? { refresh_token: refreshToken } : {},
+      { withCredentials: true, timeout: REQUEST_TIMEOUT_MS },
+    )
+    await saveTokens(data.access_token, data.refresh_token)
+  } catch (error) {
+    // Only an explicit rejection ends the session. Being offline or hitting a 5xx
+    // must not log the user out.
+    const status = axios.isAxiosError(error) ? error.response?.status : undefined
+    if (status === 401 || status === 403) {
+      await clearTokens()
+      window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
     }
-  })
-  failedQueue = []
+    throw error
+  }
 }
 
-// Attach access token to outgoing requests
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("access_token")
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-    return config
-  },
-  (error) => Promise.reject(error)
-)
+// One refresh at a time; concurrent 401s all wait on the same request.
+let refreshInFlight: Promise<void> | null = null
 
-// Intercept 401 and attempt automatic token refresh
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error: AxiosError) => {
-    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean }
+function refreshSession(): Promise<void> {
+  refreshInFlight ??= requestNewTokens().finally(() => {
+    refreshInFlight = null
+  })
+  return refreshInFlight
+}
 
-    if (!error.response || error.response.status !== 401 || originalRequest._retry) {
-      return Promise.reject(error)
-    }
+type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean }
 
-    const url = originalRequest.url || ""
-    if (url.includes("/api/v1/auth/login") || url.includes("/api/v1/auth/register") || url.includes("/api/v1/auth/refresh")) {
-      return Promise.reject(error)
-    }
+apiClient.interceptors.response.use(undefined, async (error: unknown) => {
+  if (!axios.isAxiosError(error)) throw error
 
-    if (isRefreshing) {
-      return new Promise((resolve, reject) => {
-        failedQueue.push({ resolve, reject })
-      })
-        .then((token) => {
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${token}`
-          }
-          return apiClient(originalRequest)
-        })
-        .catch((err) => Promise.reject(err))
-    }
-
-    originalRequest._retry = true
-    isRefreshing = true
-
-    try {
-      const storedRefreshToken = localStorage.getItem("refresh_token")
-      const refreshPayload = storedRefreshToken ? { refresh_token: storedRefreshToken } : {}
-
-      const { data } = await axios.post(
-        `${API_BASE_URL}/api/v1/auth/refresh`,
-        refreshPayload,
-        { withCredentials: true }
-      )
-
-      const newAccessToken = data.access_token
-      localStorage.setItem("access_token", newAccessToken)
-      if (data.refresh_token) {
-        localStorage.setItem("refresh_token", data.refresh_token)
-      }
-
-      if (originalRequest.headers) {
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
-      }
-
-      processQueue(null, newAccessToken)
-      return apiClient(originalRequest)
-    } catch (refreshError) {
-      processQueue(refreshError as AxiosError, null)
-      localStorage.removeItem("access_token")
-      localStorage.removeItem("refresh_token")
-      window.dispatchEvent(new Event("auth:session-expired"))
-      return Promise.reject(refreshError)
-    } finally {
-      isRefreshing = false
-    }
+  const config = error.config as RetriableConfig | undefined
+  const isAuthCall = config?.url?.startsWith(AUTH_URL_PREFIX)
+  if (error.response?.status !== 401 || !config || config._retry || isAuthCall) {
+    throw error
   }
-)
 
-/**
- * Custom Orval instance wrapper: accepts request config, returns data directly
- */
+  config._retry = true
+  try {
+    await refreshSession()
+  } catch {
+    throw error
+  }
+  return apiClient(config)
+})
+
+/** Orval mutator: accepts a request config, resolves with the response body. */
 export const customInstance = <T>(
   config: AxiosRequestConfig,
-  options?: AxiosRequestConfig
+  options?: AxiosRequestConfig,
 ): Promise<T> => {
-  return apiClient({
-    ...config,
-    ...options,
-  }).then((res) => res.data)
+  return apiClient({ ...config, ...options }).then((res) => res.data)
 }

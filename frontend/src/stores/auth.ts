@@ -1,74 +1,60 @@
 import { create } from "zustand"
-import { apiClient } from "@/lib/axios"
-import { appStorage } from "@/lib/storage"
-
-export interface User {
-  id: string
-  email: string
-  full_name?: string | null
-  avatar_url?: string | null
-  is_active: boolean
-  is_verified: boolean
-  is_superuser: boolean
-  created_at: string
-  updated_at: string
-}
+import { logoutApiV1AuthLogoutPost } from "@/api/endpoints/auth/auth"
+import { getCurrentUserProfileApiV1UsersMeGet } from "@/api/endpoints/users/users"
+import type { TokenResponse, UserRead } from "@/api/model"
+import { SESSION_EXPIRED_EVENT } from "@/lib/axios"
+import {
+  clearTokens,
+  getAccessToken,
+  getRefreshToken,
+  saveTokens,
+  tokensReady,
+} from "@/lib/tokens"
 
 interface AuthState {
-  user: User | null
-  accessToken: string | null
-  isAuthenticated: boolean
+  user: UserRead | null
+  /** True until the stored session (if any) has been checked against the API. */
   isLoading: boolean
-  setAuth: (user: User, accessToken: string, refreshToken?: string | null) => void
-  updateUser: (user: Partial<User>) => void
-  clearAuth: () => void
-  initAuth: () => Promise<void>
+  setSession: (response: TokenResponse) => Promise<void>
+  logout: () => Promise<void>
+  init: () => Promise<void>
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  accessToken: localStorage.getItem("access_token"),
-  isAuthenticated: !!localStorage.getItem("access_token"),
   isLoading: true,
 
-  setAuth: (user, accessToken, refreshToken) => {
-    appStorage.setItem("access_token", accessToken)
-    if (refreshToken) {
-      appStorage.setItem("refresh_token", refreshToken)
+  setSession: async ({ user, access_token, refresh_token }) => {
+    await saveTokens(access_token, refresh_token)
+    set({ user, isLoading: false })
+  },
+
+  logout: async () => {
+    const refreshToken = getRefreshToken()
+    try {
+      // Revokes the refresh token server-side and clears the HttpOnly cookie.
+      await logoutApiV1AuthLogoutPost(refreshToken ? { refresh_token: refreshToken } : {})
+    } catch {
+      // Server unreachable: still end the local session.
     }
-    set({ user, accessToken, isAuthenticated: true, isLoading: false })
+    await clearTokens()
+    set({ user: null })
   },
 
-  updateUser: (partial) => {
-    const current = get().user
-    if (!current) return
-    set({ user: { ...current, ...partial } })
-  },
-
-  clearAuth: () => {
-    appStorage.removeItem("access_token")
-    appStorage.removeItem("refresh_token")
-    set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false })
-  },
-
-  initAuth: async () => {
-    const token = await appStorage.getItem("access_token")
-    if (!token) {
-      set({ isLoading: false, isAuthenticated: false, user: null })
+  init: async () => {
+    await tokensReady
+    if (!getAccessToken()) {
+      set({ isLoading: false })
       return
     }
-
     try {
-      const response = await apiClient.get<User>("/api/v1/users/me")
-      set({ user: response.data, isAuthenticated: true, isLoading: false })
+      set({ user: await getCurrentUserProfileApiV1UsersMeGet(), isLoading: false })
     } catch {
-      get().clearAuth()
+      set({ isLoading: false })
     }
   },
 }))
 
-if (typeof window !== "undefined") {
-  window.addEventListener("auth:session-expired", () => {
-    useAuthStore.getState().clearAuth()
-  })
-}
+window.addEventListener(SESSION_EXPIRED_EVENT, () => {
+  useAuthStore.setState({ user: null })
+})
