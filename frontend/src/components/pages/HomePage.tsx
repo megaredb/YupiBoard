@@ -77,7 +77,7 @@ function ApiTest({ title, endpoint, run, autoRun = false }: ApiTestProps) {
             {t("home.run")}
           </Button>
           {result && (
-            <span className={cn("text-sm", result.ok ? "text-emerald-500" : "text-destructive")}>
+            <span className={cn("text-sm", result.ok ? "text-success" : "text-destructive")}>
               {verdict} · {result.ms} ms
             </span>
           )}
@@ -129,7 +129,7 @@ export function HomePage() {
   const { t } = useTranslation()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 py-8 sm:px-6">
       <Session />
 
       <div className="flex items-center justify-between gap-3">

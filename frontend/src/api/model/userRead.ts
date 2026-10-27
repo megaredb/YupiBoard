@@ -6,13 +6,26 @@
  */
 
 export interface UserRead {
-  email: string;
-  full_name?: string | null;
   id: string;
+  email: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  city?: string | null;
+  location?: string | null;
+  bio?: string | null;
+  contact_info?: string | null;
+  contacts?: string | null;
+  avatar_url?: string | null;
+  banner_url?: string | null;
+  player_rating?: number | null;
+  player_reviews_count?: number | null;
+  organizer_rating?: number | null;
+  organizer_reviews_count?: number | null;
   is_active: boolean;
   is_verified: boolean;
   is_superuser: boolean;
-  avatar_url?: string | null;
+  is_admin?: boolean;
+  status?: "Active" | "Banned" | string;
   created_at: string;
   updated_at: string;
 }

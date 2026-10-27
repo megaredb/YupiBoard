@@ -6,7 +6,14 @@
  */
 
 export interface UserUpdate {
-  full_name?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  city?: string | null;
+  location?: string | null;
+  bio?: string | null;
+  contact_info?: string | null;
+  contacts?: string | null;
   avatar_url?: string | null;
+  banner_url?: string | null;
   password?: string | null;
 }

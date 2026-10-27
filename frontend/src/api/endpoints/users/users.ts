@@ -141,8 +141,6 @@ export function useGetCurrentUserProfileApiV1UsersMeGet<TData = Awaited<ReturnTy
 
 
 
-
-
 /**
  * @summary Update Current User Profile
  */
@@ -210,3 +208,71 @@ export const useUpdateCurrentUserProfileApiV1UsersMePatch = <TError = HTTPValida
       > => {
       return useMutation(getUpdateCurrentUserProfileApiV1UsersMePatchMutationOptions(options), queryClient);
     }
+
+/**
+ * @summary Get User Profile By Id
+ */
+export const getUserProfileByIdApiV1UsersUserIdGet = (
+  userId: string,
+  options?: SecondParameter<typeof customInstance>,
+  signal?: AbortSignal
+) => {
+  return customInstance<UserRead>(
+    { url: `/api/v1/users/${userId}`, method: 'GET', signal },
+    options
+  );
+};
+
+export const getGetUserProfileByIdApiV1UsersUserIdGetQueryKey = (userId: string) => {
+  return [`/api/v1/users/${userId}`] as const;
+};
+
+export const getGetUserProfileByIdApiV1UsersUserIdGetQueryOptions = <
+  TData = Awaited<ReturnType<typeof getUserProfileByIdApiV1UsersUserIdGet>>,
+  TError = HTTPValidationError
+>(
+  userId: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getUserProfileByIdApiV1UsersUserIdGet>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getGetUserProfileByIdApiV1UsersUserIdGetQueryKey(userId);
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserProfileByIdApiV1UsersUserIdGet>>> = ({
+    signal,
+  }) => getUserProfileByIdApiV1UsersUserIdGet(userId, requestOptions, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: Boolean(userId),
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getUserProfileByIdApiV1UsersUserIdGet>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export function useGetUserProfileByIdApiV1UsersUserIdGet<
+  TData = Awaited<ReturnType<typeof getUserProfileByIdApiV1UsersUserIdGet>>,
+  TError = HTTPValidationError
+>(
+  userId: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getUserProfileByIdApiV1UsersUserIdGet>>, TError, TData>
+    >;
+    request?: SecondParameter<typeof customInstance>;
+  },
+  queryClient?: QueryClient
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetUserProfileByIdApiV1UsersUserIdGetQueryOptions(userId, options);
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+  };
+  return withQueryKey(query, queryOptions.queryKey);
+}
