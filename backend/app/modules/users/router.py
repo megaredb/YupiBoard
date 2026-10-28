@@ -1,8 +1,10 @@
+import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, Response, status
+from fastapi import APIRouter, Depends, File, Query, Response, UploadFile, status
 
 from app.core.config import settings
+from app.core.storage import BaseStorage, get_storage, process_avatar_image
 from app.core.types import UUID7
 from app.modules.auth.dependencies import get_current_superuser, get_current_user
 from app.modules.users.dependencies import get_user_service
@@ -27,6 +29,29 @@ async def update_current_user_profile(
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> UserRead:
     updated = await user_service.update_profile(current_user, data)
+    return UserRead.model_validate(updated)
+
+
+@router.post(
+    "/me/avatar",
+    response_model=UserRead,
+    summary="Upload avatar image (max 2 MB, JPEG/PNG/WebP, converted to 512x512 WebP thumbnail)",
+)
+async def upload_avatar(
+    file: Annotated[UploadFile, File(...)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    user_service: Annotated[UserService, Depends(get_user_service)],
+    storage: Annotated[BaseStorage, Depends(get_storage)],
+) -> UserRead:
+    file_bytes = await file.read()
+    processed_bytes, content_type, ext = process_avatar_image(file_bytes)
+    filename = f"avatars/{current_user.id}_{uuid.uuid7().hex}.{ext}"
+    avatar_url = await storage.save(
+        processed_bytes, filename=filename, content_type=content_type
+    )
+    updated = await user_service.update_profile(
+        current_user, UserUpdate(avatar_url=avatar_url)
+    )
     return UserRead.model_validate(updated)
 
 

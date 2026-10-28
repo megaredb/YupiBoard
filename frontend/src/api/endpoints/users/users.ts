@@ -24,6 +24,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  BodyUploadAvatarApiV1UsersMeAvatarPost,
   HTTPValidationError,
   ListUsersApiV1UsersGetParams,
   UserRead,
@@ -275,6 +276,75 @@ export const useDeleteCurrentUserApiV1UsersMeDelete = <TError = HTTPValidationEr
         TContext
       > => {
       return useMutation(getDeleteCurrentUserApiV1UsersMeDeleteMutationOptions(options), queryClient);
+    }
+    /**
+ * @summary Upload avatar image (max 2 MB, JPEG/PNG/WebP, converted to 512x512 WebP thumbnail)
+ */
+export const uploadAvatarApiV1UsersMeAvatarPost = (
+    bodyUploadAvatarApiV1UsersMeAvatarPost: BodyUploadAvatarApiV1UsersMeAvatarPost,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+      const formData = new FormData();
+formData.append(`file`, bodyUploadAvatarApiV1UsersMeAvatarPost.file);
+
+      return customInstance<UserRead>(
+      {url: `/api/v1/users/me/avatar`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData, signal
+    },
+      options);
+    }
+
+
+
+
+export const getUploadAvatarApiV1UsersMeAvatarPostMutationKey = () => ['uploadAvatarApiV1UsersMeAvatarPost'] as const;
+
+export const getUploadAvatarApiV1UsersMeAvatarPostMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadAvatarApiV1UsersMeAvatarPost>>, TError,UploadAvatarApiV1UsersMeAvatarPostMutationVariables, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadAvatarApiV1UsersMeAvatarPost>>, TError,UploadAvatarApiV1UsersMeAvatarPostMutationVariables, TContext> => {
+
+const mutationKey = getUploadAvatarApiV1UsersMeAvatarPostMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadAvatarApiV1UsersMeAvatarPost>>, UploadAvatarApiV1UsersMeAvatarPostMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  uploadAvatarApiV1UsersMeAvatarPost(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadAvatarApiV1UsersMeAvatarPostMutationResult = NonNullable<Awaited<ReturnType<typeof uploadAvatarApiV1UsersMeAvatarPost>>>
+    export type UploadAvatarApiV1UsersMeAvatarPostMutationBody = BodyUploadAvatarApiV1UsersMeAvatarPost
+    export type UploadAvatarApiV1UsersMeAvatarPostMutationError = HTTPValidationError
+    export type UploadAvatarApiV1UsersMeAvatarPostMutationVariables = {data: BodyUploadAvatarApiV1UsersMeAvatarPost}
+
+    /**
+ * @summary Upload avatar image (max 2 MB, JPEG/PNG/WebP, converted to 512x512 WebP thumbnail)
+ */
+export const useUploadAvatarApiV1UsersMeAvatarPost = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadAvatarApiV1UsersMeAvatarPost>>, TError,UploadAvatarApiV1UsersMeAvatarPostMutationVariables, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof uploadAvatarApiV1UsersMeAvatarPost>>,
+        TError,
+        UploadAvatarApiV1UsersMeAvatarPostMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUploadAvatarApiV1UsersMeAvatarPostMutationOptions(options), queryClient);
     }
     /**
  * @summary List Users
