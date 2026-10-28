@@ -24,6 +24,7 @@ from app.core.security import (
 )
 from app.modules.auth.repository import RefreshTokenRepository
 from app.modules.auth.schemas import LoginRequest, RegisterRequest
+from app.modules.users.enums import UserStatus
 from app.modules.users.models import User
 from app.modules.users.repository import UserRepository
 
@@ -66,8 +67,8 @@ class AuthService:
         user = await self.user_repo.create(
             email=data.email.strip().lower(),
             hashed_password=hashed_pwd,
-            full_name=data.full_name,
-            is_active=True,
+            first_name=data.first_name,
+            last_name=data.last_name,
             is_verified=False,
             is_superuser=False,
         )
@@ -90,7 +91,7 @@ class AuthService:
         if not verify_password(data.password, user.hashed_password):
             raise UnauthorizedException("Invalid email or password")
 
-        if not user.is_active:
+        if user.status != UserStatus.ACTIVE or user.is_deleted:
             raise UnauthorizedException("Account is deactivated")
 
         access_token, refresh_token = await self._issue_tokens(user)
@@ -116,7 +117,7 @@ class AuthService:
 
         user_id = uuid.UUID(user_id_str)
         user = await self.user_repo.get_by_id(user_id)
-        if not user or not user.is_active:
+        if not user or user.status != UserStatus.ACTIVE or user.is_deleted:
             raise UnauthorizedException("User not found or deactivated")
 
         new_access_token, new_refresh_token = await self._issue_tokens(user)
@@ -204,17 +205,24 @@ class AuthService:
                     is_verified=True,
                 )
             else:
+                given_name = claims.get("given_name")
+                family_name = claims.get("family_name")
+                if not given_name and name:
+                    parts = name.strip().split(" ", 1)
+                    given_name = parts[0]
+                    family_name = parts[1] if len(parts) > 1 else None
+
                 user = await self.user_repo.create(
                     email=email.strip().lower(),
-                    full_name=name,
+                    first_name=given_name,
+                    last_name=family_name,
                     google_sub=google_sub,
                     avatar_url=picture,
-                    is_active=True,
                     is_verified=True,
                     is_superuser=False,
                 )
 
-        if not user.is_active:
+        if user.status != UserStatus.ACTIVE or user.is_deleted:
             raise UnauthorizedException("Account is deactivated")
 
         access_token, refresh_token = await self._issue_tokens(user)

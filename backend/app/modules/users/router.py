@@ -1,8 +1,9 @@
-import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Response, status
 
+from app.core.config import settings
+from app.core.types import UUID7
 from app.modules.auth.dependencies import get_current_superuser, get_current_user
 from app.modules.users.dependencies import get_user_service
 from app.modules.users.models import User
@@ -31,10 +32,18 @@ async def update_current_user_profile(
 
 @router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_current_user(
+    response: Response,
     current_user: Annotated[User, Depends(get_current_user)],
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> None:
     await user_service.delete(current_user)
+    response.delete_cookie(
+        key="refresh_token",
+        path="/api/v1/auth",
+        httponly=True,
+        secure=settings.is_production,
+        samesite="lax",
+    )
 
 
 @router.get(
@@ -57,7 +66,7 @@ async def list_users(
     dependencies=[Depends(get_current_superuser)],
 )
 async def get_user(
-    user_id: uuid.UUID,
+    user_id: UUID7,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> UserRead:
     user = await user_service.get_by_id(user_id)
@@ -70,7 +79,7 @@ async def get_user(
     dependencies=[Depends(get_current_superuser)],
 )
 async def update_user(
-    user_id: uuid.UUID,
+    user_id: UUID7,
     data: UserUpdate,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> UserRead:
@@ -85,7 +94,7 @@ async def update_user(
     dependencies=[Depends(get_current_superuser)],
 )
 async def delete_user(
-    user_id: uuid.UUID,
+    user_id: UUID7,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> None:
     user = await user_service.get_by_id(user_id)

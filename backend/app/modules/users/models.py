@@ -1,10 +1,21 @@
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, CheckConstraint, Numeric, String, Text, false
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Numeric,
+    String,
+    Text,
+    false,
+)
+from sqlalchemy import (
+    Enum as SAEnum,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.models import Base, TimestampMixin, UUIDMixin
+from app.modules.users.enums import UserStatus
 
 if TYPE_CHECKING:
     from app.modules.auth.models import RefreshToken
@@ -26,11 +37,23 @@ class User(Base, UUIDMixin, TimestampMixin):
         String(255), unique=True, index=True, nullable=False
     )
     hashed_password: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    full_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    first_name: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    last_name: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    status: Mapped[UserStatus] = mapped_column(
+        SAEnum(
+            UserStatus,
+            native_enum=False,
+            values_callable=lambda x: [e.value for e in x],
+            length=20,
+        ),
+        server_default=UserStatus.ACTIVE.value,
+        nullable=False,
+    )
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    is_deleted: Mapped[bool] = mapped_column(Boolean, server_default=false(), nullable=False)
+    is_deleted: Mapped[bool] = mapped_column(
+        Boolean, server_default=false(), nullable=False
+    )
     google_sub: Mapped[str | None] = mapped_column(
         String(255), unique=True, index=True, nullable=True
     )

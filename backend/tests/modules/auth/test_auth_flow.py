@@ -8,13 +8,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import create_action_token, hash_token
 from app.modules.auth.repository import RefreshTokenRepository
+from app.modules.users.enums import UserStatus
 from app.modules.users.repository import UserRepository
 
 
 @pytest.mark.asyncio
 async def test_registration_errors(async_client: AsyncClient) -> None:
     email = f"dup_{uuid.uuid4().hex[:8]}@example.com"
-    payload = {"email": email, "password": "password1234", "full_name": "User 1"}
+    payload = {
+        "email": email,
+        "password": "password1234",
+        "first_name": "User",
+        "last_name": "1",
+    }
 
     # First registration OK
     r1 = await async_client.post("/api/v1/auth/register", json=payload)
@@ -43,7 +49,12 @@ async def test_login_errors(
     # Register active user
     await async_client.post(
         "/api/v1/auth/register",
-        json={"email": email, "password": pwd, "full_name": "Login User"},
+        json={
+            "email": email,
+            "password": pwd,
+            "first_name": "Login",
+            "last_name": "User",
+        },
     )
 
     # Wrong password returns 401
@@ -64,7 +75,7 @@ async def test_login_errors(
     user_repo = UserRepository(db_session)
     user = await user_repo.get_by_email(email)
     assert user is not None
-    await user_repo.update(user, is_active=False)
+    await user_repo.update(user, status=UserStatus.BANNED)
     await db_session.commit()
 
     r_deact = await async_client.post(
@@ -93,7 +104,12 @@ async def test_refresh_token_edge_cases(
     email = f"ref_{uuid.uuid4().hex[:8]}@example.com"
     reg = await async_client.post(
         "/api/v1/auth/register",
-        json={"email": email, "password": "password123", "full_name": "Ref User"},
+        json={
+            "email": email,
+            "password": "password123",
+            "first_name": "Ref",
+            "last_name": "User",
+        },
     )
     refresh_token = reg.json()["refresh_token"]
 
@@ -132,7 +148,12 @@ async def test_email_verification_flow(
     email = f"verify_{uuid.uuid4().hex[:8]}@example.com"
     reg = await async_client.post(
         "/api/v1/auth/register",
-        json={"email": email, "password": "password123", "full_name": "Verify User"},
+        json={
+            "email": email,
+            "password": "password123",
+            "first_name": "Verify",
+            "last_name": "User",
+        },
     )
     user_data = reg.json()["user"]
     assert user_data["is_verified"] is False
@@ -167,7 +188,12 @@ async def test_password_recovery_and_reset_flow(
 
     reg = await async_client.post(
         "/api/v1/auth/register",
-        json={"email": email, "password": old_password, "full_name": "Reset User"},
+        json={
+            "email": email,
+            "password": old_password,
+            "first_name": "Reset",
+            "last_name": "User",
+        },
     )
     user_id = reg.json()["user"]["id"]
 
@@ -227,7 +253,8 @@ async def test_google_auth_flow(async_client: AsyncClient) -> None:
         assert res.status_code == 200
         data = res.json()
         assert data["user"]["email"] == email
-        assert data["user"]["full_name"] == "Google User"
+        assert data["user"]["first_name"] == "Google"
+        assert data["user"]["last_name"] == "User"
         assert data["user"]["is_verified"] is True
         assert "access_token" in data
 
@@ -279,7 +306,8 @@ async def test_auth_service_edge_cases(db_session: AsyncSession) -> None:
     user = await user_repo.create(
         email=f"edge_{uuid.uuid4().hex[:8]}@example.com",
         hashed_password="pwd",
-        full_name="Edge User",
+        first_name="Edge",
+        last_name="User",
     )
     await auth_service.logout(None, user.id)
 

@@ -43,11 +43,11 @@ class UserRepository(BaseRepository[User]):
         """Keep the row for history, but erase personal data and free the
         email/google_sub so the person can register again."""
         user.is_deleted = True
-        user.is_active = False
         user.email = f"deleted-{user.id}@deleted.yupiboard.com"
         user.google_sub = None
         user.hashed_password = None
-        user.full_name = None
+        user.first_name = None
+        user.last_name = None
         user.avatar_url = None
         user.city = None
         user.contact_info = None

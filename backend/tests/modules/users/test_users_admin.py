@@ -2,37 +2,19 @@ import uuid
 
 import pytest
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.modules.users.repository import UserRepository
-
-
-async def _register(client: AsyncClient) -> tuple[str, dict[str, str]]:
-    email = f"admin_ep_{uuid.uuid4().hex[:8]}@example.com"
-    r = await client.post(
-        "/api/v1/auth/register", json={"email": email, "password": "password123"}
-    )
-    assert r.status_code == 201
-    headers = {"Authorization": f"Bearer {r.json()['access_token']}"}
-    return r.json()["user"]["id"], headers
-
-
-async def _make_admin(session: AsyncSession, user_id: str) -> None:
-    repo = UserRepository(session)
-    user = await repo.get_by_id(uuid.UUID(user_id))
-    assert user is not None
-    await repo.update(user, is_superuser=True)
-    await session.commit()
 
 
 @pytest.mark.asyncio
-async def test_admin_endpoints_require_superuser(async_client: AsyncClient) -> None:
-    user_id, headers = await _register(async_client)
+async def test_admin_endpoints_require_superuser(
+    async_client: AsyncClient, create_mock_user
+) -> None:
+    user, user_token = await create_mock_user(is_superuser=False)
+    headers = {"Authorization": f"Bearer {user_token}"}
     routes = [
         ("GET", "/api/v1/users"),
-        ("GET", f"/api/v1/users/{user_id}"),
-        ("PATCH", f"/api/v1/users/{user_id}"),
-        ("DELETE", f"/api/v1/users/{user_id}"),
+        ("GET", f"/api/v1/users/{user.id}"),
+        ("PATCH", f"/api/v1/users/{user.id}"),
+        ("DELETE", f"/api/v1/users/{user.id}"),
     ]
     for method, url in routes:
         r = await async_client.request(method, url, json={})
@@ -43,45 +25,73 @@ async def test_admin_endpoints_require_superuser(async_client: AsyncClient) -> N
 
 @pytest.mark.asyncio
 async def test_admin_user_management(
-    async_client: AsyncClient, db_session: AsyncSession
+    async_client: AsyncClient, create_mock_user
 ) -> None:
-    admin_id, admin = await _register(async_client)
-    await _make_admin(db_session, admin_id)
-    user_id, _ = await _register(async_client)
+    _admin, admin_token = await create_mock_user(is_superuser=True)
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
+    target_user, _ = await create_mock_user(first_name="Target", last_name="User")
 
-    got = await async_client.get(f"/api/v1/users/{user_id}", headers=admin)
+    got = await async_client.get(
+        f"/api/v1/users/{target_user.id}", headers=admin_headers
+    )
     assert got.status_code == 200
-    assert got.json()["id"] == user_id
+    assert got.json()["id"] == str(target_user.id)
+    assert got.json()["first_name"] == "Target"
+    assert got.json()["last_name"] == "User"
 
     patched = await async_client.patch(
-        f"/api/v1/users/{user_id}", headers=admin, json={"city": "Lviv"}
+        f"/api/v1/users/{target_user.id}",
+        headers=admin_headers,
+        json={"city": "Lviv", "first_name": "UpdatedTarget"},
     )
     assert patched.status_code == 200
     assert patched.json()["city"] == "Lviv"
+    assert patched.json()["first_name"] == "UpdatedTarget"
 
     listed = await async_client.get(
-        "/api/v1/users", headers=admin, params={"limit": 100}
+        "/api/v1/users", headers=admin_headers, params={"limit": 100}
     )
     assert listed.status_code == 200
     assert isinstance(listed.json(), list)
 
-    deleted = await async_client.delete(f"/api/v1/users/{user_id}", headers=admin)
+    deleted = await async_client.delete(
+        f"/api/v1/users/{target_user.id}", headers=admin_headers
+    )
     assert deleted.status_code == 204
-    gone = await async_client.get(f"/api/v1/users/{user_id}", headers=admin)
+    gone = await async_client.get(
+        f"/api/v1/users/{target_user.id}", headers=admin_headers
+    )
     assert gone.status_code == 404
 
 
 @pytest.mark.asyncio
 async def test_admin_endpoints_validation(
-    async_client: AsyncClient, db_session: AsyncSession
+    async_client: AsyncClient, create_mock_user
 ) -> None:
-    admin_id, admin = await _register(async_client)
-    await _make_admin(db_session, admin_id)
+    _admin, admin_token = await create_mock_user(is_superuser=True)
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
 
-    missing = await async_client.get(f"/api/v1/users/{uuid.uuid4()}", headers=admin)
+    # Missing UUIDv7 returns 404
+    missing_uuid7 = uuid.uuid7()
+    missing = await async_client.get(
+        f"/api/v1/users/{missing_uuid7}", headers=admin_headers
+    )
     assert missing.status_code == 404
-    bad_id = await async_client.get("/api/v1/users/not-a-uuid", headers=admin)
+
+    # UUIDv4 is rejected by UUID7 validation with 422
+    uuid4_id = uuid.uuid4()
+    bad_version = await async_client.get(
+        f"/api/v1/users/{uuid4_id}", headers=admin_headers
+    )
+    assert bad_version.status_code == 422
+
+    # Malformed non-UUID is rejected with 422
+    bad_id = await async_client.get("/api/v1/users/not-a-uuid", headers=admin_headers)
     assert bad_id.status_code == 422
+
+    # Pagination validation
     for params in ({"limit": 0}, {"limit": 101}, {"skip": -1}):
-        r = await async_client.get("/api/v1/users", headers=admin, params=params)
+        r = await async_client.get(
+            "/api/v1/users", headers=admin_headers, params=params
+        )
         assert r.status_code == 422, params

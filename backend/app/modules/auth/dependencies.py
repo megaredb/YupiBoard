@@ -5,12 +5,17 @@ from fastapi import Cookie, Depends, Header
 from fastapi.security import OAuth2PasswordBearer
 
 from app.core.database import SessionDep
-from app.core.exceptions import ForbiddenException, UnauthorizedException
+from app.core.exceptions import (
+    ForbiddenException,
+    NotFoundException,
+    UnauthorizedException,
+)
 from app.core.mail import MailService
 from app.core.security import decode_token
 from app.modules.auth.repository import RefreshTokenRepository
 from app.modules.auth.service import AuthService
 from app.modules.users.dependencies import get_user_repository, get_user_service
+from app.modules.users.enums import UserStatus
 from app.modules.users.models import User
 from app.modules.users.repository import UserRepository
 from app.modules.users.service import UserService
@@ -61,8 +66,14 @@ async def get_current_user(
     except ValueError:
         raise UnauthorizedException("Invalid user identifier")
 
-    user = await user_service.get_by_id(user_id)
-    if not user.is_active:
+    try:
+        user = await user_service.get_by_id(user_id)
+    except NotFoundException:
+        raise UnauthorizedException("User not found")
+
+    if user.status == UserStatus.BANNED:
+        raise ForbiddenException("User account is banned")
+    if user.status != UserStatus.ACTIVE or user.is_deleted:
         raise UnauthorizedException("User account is deactivated")
     return user
 
