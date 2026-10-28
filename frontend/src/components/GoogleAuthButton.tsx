@@ -51,7 +51,7 @@ export function GoogleAuthButton({
   const googleMutation = useGoogleAuthApiV1AuthGooglePost({
     mutation: {
       onSuccess: async (data) => {
-        if (data.user.status === "Banned" || data.user.is_active === false) {
+        if (data.user.status === "Banned") {
           onError(t("errors.accountBanned"))
           return
         }

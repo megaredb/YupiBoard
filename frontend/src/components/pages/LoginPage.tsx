@@ -54,7 +54,7 @@ export function LoginPage() {
   const loginMutation = useLoginApiV1AuthLoginPost({
     mutation: {
       onSuccess: async (data) => {
-        if (data.user.status === "Banned" || data.user.is_active === false) {
+        if (data.user.status === "Banned") {
           setServerError(t("errors.accountBanned"))
           return
         }

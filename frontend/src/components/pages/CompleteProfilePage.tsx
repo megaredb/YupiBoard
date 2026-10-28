@@ -76,8 +76,8 @@ export function CompleteProfilePage() {
     defaultValues: {
       first_name: user?.first_name ?? "",
       last_name: user?.last_name ?? "",
-      city: user?.city ?? user?.location ?? "",
-      contact_info: user?.contact_info ?? user?.contacts ?? "",
+      city: user?.city ?? "",
+      contact_info: user?.contact_info ?? "",
     },
   })
 
@@ -91,9 +91,7 @@ export function CompleteProfilePage() {
           first_name: data.first_name ?? variables.data.first_name,
           last_name: data.last_name ?? variables.data.last_name,
           city: data.city ?? variables.data.city,
-          location: data.location ?? variables.data.location,
           contact_info: data.contact_info ?? variables.data.contact_info,
-          contacts: data.contacts ?? variables.data.contacts,
           avatar_url: data.avatar_url ?? variables.data.avatar_url,
         })
         void navigate({ to: "/", replace: true })
@@ -223,9 +221,7 @@ export function CompleteProfilePage() {
                   first_name: values.first_name.trim(),
                   last_name: values.last_name.trim(),
                   city: cleanCity,
-                  location: cleanCity,
                   contact_info: cleanContact,
-                  contacts: cleanContact,
                   avatar_url: avatarUrl,
                 },
               })

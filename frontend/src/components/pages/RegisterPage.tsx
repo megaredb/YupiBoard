@@ -73,7 +73,7 @@ export function RegisterPage() {
   const registerMutation = useRegisterApiV1AuthRegisterPost({
     mutation: {
       onSuccess: async (data) => {
-        if (data.user.status === "Banned" || data.user.is_active === false) {
+        if (data.user.status === "Banned") {
           setServerError(t("errors.accountBanned"))
           return
         }
@@ -154,13 +154,12 @@ export function RegisterPage() {
           <form
             noValidate
             className="space-y-4"
-            onSubmit={handleSubmit(({ email, password, isAdult }) => {
+            onSubmit={handleSubmit(({ email, password }) => {
               setServerError(null)
               registerMutation.mutate({
                 data: {
                   email,
                   password,
-                  is_adult: isAdult,
                 },
               })
             })}

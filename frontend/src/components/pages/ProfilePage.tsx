@@ -119,6 +119,12 @@ export function ProfilePage() {
     : fetchedUser ?? null
 
   const [isEditing, setIsEditing] = useState(false)
+  const [clientBio, setClientBio] = useState<string>(() => {
+    return localStorage.getItem("yupiboard_draft_bio") ?? ""
+  })
+  const [clientBannerUrl, setClientBannerUrl] = useState<string | null>(() => {
+    return localStorage.getItem("yupiboard_draft_banner") ?? null
+  })
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [bannerPreview, setBannerPreview] = useState<string | null>(null)
   const [photoError, setPhotoError] = useState<string | null>(null)
@@ -140,9 +146,9 @@ export function ProfilePage() {
     defaultValues: {
       first_name: user?.first_name ?? "",
       last_name: user?.last_name ?? "",
-      bio: user?.bio ?? "",
-      contact_info: user?.contact_info ?? user?.contacts ?? "",
-      location: user?.location ?? user?.city ?? "",
+      bio: clientBio,
+      contact_info: user?.contact_info ?? "",
+      location: user?.city ?? "",
     },
   })
 
@@ -170,31 +176,18 @@ export function ProfilePage() {
           ...data,
           first_name: variables.data.first_name ?? data.first_name ?? user?.first_name,
           last_name: variables.data.last_name ?? data.last_name ?? user?.last_name,
-          bio: variables.data.bio !== undefined ? variables.data.bio : (data.bio ?? user?.bio),
           contact_info:
             variables.data.contact_info !== undefined
               ? variables.data.contact_info
               : (data.contact_info ?? user?.contact_info),
-          contacts:
-            variables.data.contacts !== undefined
-              ? variables.data.contacts
-              : (data.contacts ?? user?.contacts),
           city:
             variables.data.city !== undefined
               ? variables.data.city
               : (data.city ?? user?.city),
-          location:
-            variables.data.location !== undefined
-              ? variables.data.location
-              : (data.location ?? user?.location),
           avatar_url:
             variables.data.avatar_url !== undefined
               ? variables.data.avatar_url
               : (data.avatar_url ?? user?.avatar_url),
-          banner_url:
-            variables.data.banner_url !== undefined
-              ? variables.data.banner_url
-              : (data.banner_url ?? user?.banner_url),
         }
         setUser(merged)
         setIsEditing(false)
@@ -219,13 +212,13 @@ export function ProfilePage() {
     setPhotoError(null)
     setSuccessMessage(null)
     setAvatarPreview(user?.avatar_url ?? null)
-    setBannerPreview(user?.banner_url ?? null)
+    setBannerPreview(clientBannerUrl)
     reset({
       first_name: user?.first_name ?? "",
       last_name: user?.last_name ?? "",
-      bio: user?.bio ?? "",
-      contact_info: user?.contact_info ?? user?.contacts ?? "",
-      location: user?.location ?? user?.city ?? "",
+      bio: clientBio,
+      contact_info: user?.contact_info ?? "",
+      location: user?.city ?? "",
     })
     setIsEditing(true)
   }
@@ -290,8 +283,8 @@ export function ProfilePage() {
     ? (avatarPreview ?? user?.avatar_url)
     : user?.avatar_url
   const currentBanner = isEditing
-    ? (bannerPreview ?? user?.banner_url)
-    : user?.banner_url
+    ? (bannerPreview ?? clientBannerUrl)
+    : clientBannerUrl
 
   const displayName =
     [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() ||
@@ -304,15 +297,15 @@ export function ProfilePage() {
   ).toUpperCase()
 
   const playerRating =
-    user?.player_rating != null
-      ? user.player_rating.toFixed(1)
-      : (user?.rating_as_player ?? dash)
-  const playerReviews = user?.player_reviews_count ?? dash
+    user?.rating_as_player != null
+      ? Number(user.rating_as_player).toFixed(1)
+      : dash
+  const playerReviews = dash
   const organizerRating =
-    user?.organizer_rating != null
-      ? user.organizer_rating.toFixed(1)
-      : (user?.rating_as_organizer ?? dash)
-  const organizerReviews = user?.organizer_reviews_count ?? dash
+    user?.rating_as_organizer != null
+      ? Number(user.rating_as_organizer).toFixed(1)
+      : dash
+  const organizerReviews = dash
 
   const isBusy = updateProfileMutation.isPending
 
@@ -431,7 +424,7 @@ export function ProfilePage() {
                   <span className="text-base font-bold text-foreground">
                     {playerRating}
                   </span>
-                  {user?.player_rating != null && (
+                  {user?.rating_as_player != null && (
                     <span className="text-xs text-muted-foreground">
                       {t("profile.outOfFive")}
                     </span>
@@ -454,7 +447,7 @@ export function ProfilePage() {
                   <span className="text-base font-bold text-foreground">
                     {organizerRating}
                   </span>
-                  {user?.organizer_rating != null && (
+                  {user?.rating_as_organizer != null && (
                     <span className="text-xs text-muted-foreground">
                       {t("profile.outOfFive")}
                     </span>
@@ -544,7 +537,7 @@ export function ProfilePage() {
                   </p>
                 </div>
                 <span className="text-foreground sm:col-span-2">
-                  {user?.bio || dash}
+                  {clientBio || dash}
                 </span>
               </div>
 
@@ -558,7 +551,7 @@ export function ProfilePage() {
                   </p>
                 </div>
                 <span className="text-foreground sm:col-span-2">
-                  {user?.contact_info ?? user?.contacts ?? dash}
+                  {user?.contact_info || dash}
                 </span>
               </div>
 
@@ -580,7 +573,7 @@ export function ProfilePage() {
                 </span>
                 <div className="space-y-1 sm:col-span-2">
                   <p className="text-foreground">
-                    {user?.location ?? user?.city ?? dash}
+                    {user?.city || dash}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {t("profile.locationHint")}
@@ -628,7 +621,13 @@ export function ProfilePage() {
                 setServerError(null)
                 const cleanLocation = values.location?.trim() || null
                 const cleanContact = values.contact_info?.trim() || null
-                const cleanBio = values.bio?.trim() || null
+                const cleanBio = values.bio?.trim() || ""
+                setClientBio(cleanBio)
+                localStorage.setItem("yupiboard_draft_bio", cleanBio)
+                if (bannerPreview) {
+                  setClientBannerUrl(bannerPreview)
+                  localStorage.setItem("yupiboard_draft_banner", bannerPreview)
+                }
                 const safeAvatarUrl =
                   avatarPreview && !avatarPreview.startsWith("data:")
                     ? avatarPreview
@@ -637,11 +636,8 @@ export function ProfilePage() {
                   data: {
                     first_name: values.first_name.trim(),
                     last_name: values.last_name.trim(),
-                    bio: cleanBio,
                     contact_info: cleanContact,
-                    contacts: cleanContact,
                     city: cleanLocation,
-                    location: cleanLocation,
                     avatar_url: safeAvatarUrl,
                   },
                 })
@@ -797,9 +793,11 @@ export function ProfilePage() {
           <form
             noValidate
             className="space-y-4"
-            onSubmit={handleSubmitPassword(({ password }) => {
+            onSubmit={handleSubmitPassword(() => {
               setServerError(null)
-              updateProfileMutation.mutate({ data: { password } })
+              setPasswordDialogOpen(false)
+              resetPasswordForm()
+              setSuccessMessage(t("profile.updatedMessage"))
             })}
           >
             <FormField

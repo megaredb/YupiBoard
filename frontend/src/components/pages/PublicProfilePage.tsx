@@ -3,7 +3,7 @@ import { useParams } from "@tanstack/react-router"
 import { MapPin, Shield, Star } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useListEventsApiV1EventsGet } from "@/api/endpoints/events/events"
-import { useGetUserProfileByIdApiV1UsersUserIdGet } from "@/api/endpoints/users/users"
+import { useGetUserApiV1UsersUserIdGet } from "@/api/endpoints/users/users"
 import { EventList } from "@/components/EventList"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -28,7 +28,7 @@ export function PublicProfilePage() {
   const dash = t("profile.notProvided")
 
   const currentUser = useAuthStore((s) => s.user)
-  const { data: profileUser } = useGetUserProfileByIdApiV1UsersUserIdGet(userId)
+  const { data: profileUser } = useGetUserApiV1UsersUserIdGet(userId)
   const user = profileUser ?? (currentUser?.id === userId ? currentUser : null)
 
   const {

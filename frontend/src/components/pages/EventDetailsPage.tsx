@@ -21,7 +21,7 @@ import {
   getGetEventApiV1EventsEventIdGetQueryKey,
   useGetEventApiV1EventsEventIdGet,
 } from "@/api/endpoints/events/events"
-import { useGetUserProfileByIdApiV1UsersUserIdGet } from "@/api/endpoints/users/users"
+import { useGetUserApiV1UsersUserIdGet } from "@/api/endpoints/users/users"
 import type { BookingStatus, EventRead } from "@/api/model"
 import { PageContainer } from "@/components/layout/PageContainer"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -307,7 +307,7 @@ function EventAbout({ description }: { description: string }) {
 function OrganizerSection({ event }: { event: EventRead }) {
   const { t } = useTranslation()
   const { organizer } = event
-  const { data: organizerUser } = useGetUserProfileByIdApiV1UsersUserIdGet(organizer.id)
+  const { data: organizerUser } = useGetUserApiV1UsersUserIdGet(organizer.id)
 
   const rating =
     organizerUser?.rating_as_organizer != null

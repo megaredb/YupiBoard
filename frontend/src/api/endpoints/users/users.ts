@@ -143,6 +143,8 @@ export function useGetCurrentUserProfileApiV1UsersMeGet<TData = Awaited<ReturnTy
 
 
 
+
+
 /**
  * @summary Update Current User Profile
  */
@@ -662,9 +664,3 @@ export const useDeleteUserApiV1UsersUserIdDelete = <TError = HTTPValidationError
       > => {
       return useMutation(getDeleteUserApiV1UsersUserIdDeleteMutationOptions(options), queryClient);
     }
-
-export const getUserProfileByIdApiV1UsersUserIdGet = getUserApiV1UsersUserIdGet;
-export const getGetUserProfileByIdApiV1UsersUserIdGetQueryKey = getGetUserApiV1UsersUserIdGetQueryKey;
-export const getGetUserProfileByIdApiV1UsersUserIdGetQueryOptions = getGetUserApiV1UsersUserIdGetQueryOptions;
-export const useGetUserProfileByIdApiV1UsersUserIdGet = useGetUserApiV1UsersUserIdGet;
-
