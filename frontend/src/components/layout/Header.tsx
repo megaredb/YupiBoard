@@ -8,8 +8,8 @@ import {
   User as UserIcon,
 } from 'lucide-react'
 
-import { cn } from '../../lib/utils'
-import { Button } from './button'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 
 export interface NavItem {
   label: string

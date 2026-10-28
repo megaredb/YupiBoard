@@ -1,8 +1,8 @@
 import type { ComponentProps } from 'react'
 import { Calendar, MapPin, Star, Users } from 'lucide-react'
 
-import { cn } from '../../lib/utils'
-import { Card, CardContent } from './card'
+import { cn } from '@/lib/utils'
+import { Card, CardContent } from '@/components/ui/card'
 
 export interface EventOrganizer {
   name: string

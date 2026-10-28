@@ -45,5 +45,154 @@
   },
   "errors": {
     "network": "Cannot reach the server"
+  },
+  "common": {
+    "loadFailed": "Couldn't load this. Please try again.",
+    "retry": "Try again",
+    "close": "Close",
+    "back": "Back",
+    "cancel": "Cancel"
+  },
+  "nav": {
+    "events": "Events",
+    "createEvent": "Create event"
+  },
+  "layout": {
+    "brand": "YupiBoard",
+    "copyright": "© 2026 YupiBoard. Bring people to the table."
+  },
+  "imageDropzone": {
+    "previewAlt": "Selected image preview",
+    "replace": "Replace",
+    "remove": "Remove",
+    "drop": "Drop image here or",
+    "browse": "browse"
+  },
+  "events": {
+    "free": "Free",
+    "promoted": "Promoted",
+    "card": {
+      "distance": "{{km}} km away",
+      "noDistance": "—"
+    },
+    "pagination": {
+      "summary": "Showing {{from}}–{{to}} of {{total}} events"
+    },
+    "filters": {
+      "title": "Filters",
+      "location": "Location",
+      "usingCurrentLocation": "Using your current location",
+      "distance": "Distance",
+      "within": "Within {{km}} km",
+      "clear": "Clear filters",
+      "clearAll": "Clear all",
+      "show": "Show results",
+      "showResults_one": "Show {{count}} result",
+      "showResults_other": "Show {{count}} results"
+    },
+    "catalog": {
+      "title": "Find your next game night",
+      "subtitle": "Good games. New friends. A seat at the table, right here in {{city}}.",
+      "found_one": "{{count}} event found",
+      "found_other": "{{count}} events found",
+      "emptyTitle": "No events found",
+      "emptyDescription": "Try a larger distance or another location."
+    },
+    "details": {
+      "home": "Home",
+      "favorite": "Add to favorites",
+      "unfavorite": "Remove from favorites",
+      "share": "Share",
+      "linkCopied": "Link copied",
+      "playersJoined": "{{taken}} of {{total}} players joined",
+      "seatsProgress": "Seats taken",
+      "about": "About this night",
+      "readMore": "Read more",
+      "organizer": "Meet your organizer",
+      "organizerRating_one": "Organizer rating: {{rating}} · {{count}} review",
+      "organizerRating_other": "Organizer rating: {{rating}} · {{count}} reviews",
+      "organizerStats_one": "{{count}} event hosted · Member since {{year}}",
+      "organizerStats_other": "{{count}} events hosted · Member since {{year}}",
+      "viewProfile": "View profile",
+      "notFound": "Event not found",
+      "notFoundDescription": "It may have been removed, or the link is wrong.",
+      "backToEvents": "Back to events"
+    },
+    "booking": {
+      "title": "Your seat at the table",
+      "perPerson": "/ person",
+      "priceNote": "One evening. Plenty of great moves.",
+      "seatsAvailable": "Seats Available ({{left}} of {{total}} remaining)",
+      "seatsAvailableShort": "Seats available",
+      "playersJoining_one": "{{count}} player joining",
+      "playersJoining_other": "{{count}} players joining",
+      "seatsTotal_one": "{{count}} seat total",
+      "seatsTotal_other": "{{count}} seats total",
+      "apply": "Apply",
+      "pending": "Request sent",
+      "approved": "You're in!",
+      "rejected": "Request declined",
+      "full": "No seats left",
+      "closed": "Registration closed",
+      "hosting": "You're hosting this event",
+      "failed": "Couldn't send your request. Please try again.",
+      "reviewNote": "The organizer will review your request after submission.",
+      "payAtVenue": "Pay at the venue after approval"
+    }
+  },
+  "createEvent": {
+    "title": "Create event",
+    "moderationBanner": "The event will be published after moderation.",
+    "general": {
+      "title": "General Information",
+      "description": "Give your game night a name and a little personality."
+    },
+    "when": {
+      "title": "Date, Time & Location"
+    },
+    "players": {
+      "title": "Players & Entry Fee"
+    },
+    "cover": {
+      "title": "Event Cover Media",
+      "hint": "JPEG/PNG up to 5 MB · Recommended aspect ratio 16:9"
+    },
+    "fields": {
+      "title": "Event Title",
+      "titleHint": "{{min}}–{{max}} chars. Make it easy for players to find your event.",
+      "titlePlaceholder": "e.g., Friday Dune: Imperium Game Night",
+      "description": "Description",
+      "descriptionHint": "A warm welcome goes a long way.",
+      "descriptionPlaceholder": "Tell players what to expect: the game, the vibe, and anything to bring.",
+      "date": "Start Date",
+      "time": "Start Time",
+      "address": "Address",
+      "addressHint": "Choose a suggestion or enter the full address.",
+      "seats": "Number of players",
+      "seatsHint": "Number of players (including you).",
+      "seatsDecrease": "Fewer players",
+      "seatsIncrease": "More players",
+      "price": "Entry cost, ₴",
+      "priceHint": "0 for Free. Cost per player."
+    },
+    "address": {
+      "placeholder": "Search for a venue or street address",
+      "suggestions": "Suggested places in {{city}}"
+    },
+    "required": "* Required fields",
+    "submit": "Send to moderation",
+    "reviewNote": "Our team will review your event before it goes live.",
+    "failed": "Couldn't create the event. Please try again.",
+    "validation": {
+      "title": "Title must be 3–100 characters",
+      "descriptionMax": "Description must be at most 2000 characters",
+      "dateRequired": "Choose a start date",
+      "timeRequired": "Choose a start time",
+      "dateFuture": "The event must start in the future",
+      "addressRequired": "Enter an address",
+      "priceInvalid": "Enter 0 or a positive amount",
+      "coverType": "Use a JPEG or PNG image",
+      "coverSize": "The image must be 5 MB or smaller"
+    }
   }
 }

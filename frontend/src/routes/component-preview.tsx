@@ -4,23 +4,22 @@ import {
   BatteryFull,
   CalendarCheck,
   Compass,
-  Dices,
   ScrollText,
   Signal,
   User as UserIcon,
   Wifi,
 } from 'lucide-react'
 
-import { EventCard, type EventCardProps } from '../components/ui/event-card'
-import { EventGrid } from '../components/ui/event-grid'
-import { Footer } from '../components/ui/footer'
-import { Header, type NavItem, type UserProfile } from '../components/ui/header'
+import { Footer } from '@/components/layout/Footer'
+import { Header, type NavItem, type UserProfile } from '@/components/layout/Header'
 import {
   BottomNav,
   MobileTopBar,
   type BottomNavItem,
-} from '../components/ui/mobile-nav'
-import { Pagination } from '../components/ui/pagination'
+} from '@/components/layout/MobileNav'
+import { Pagination } from '@/components/shared/Pagination'
+import { EventCard, type EventCardProps } from '@/features/events/components/EventCard'
+import { EventGrid } from '@/features/events/components/EventGrid'
 
 const LIGHT_THEME = {
   colorScheme: 'light',
