@@ -18,19 +18,24 @@ class LocalStorage(BaseStorage):
     async def save(
         self, file_bytes: bytes, filename: str, content_type: str = "image/webp"
     ) -> str:
-        clean_filename = Path(filename).name
-        target_path = self.media_dir / clean_filename
+        clean_path = Path(filename)
+        if clean_path.is_absolute() or ".." in clean_path.parts:
+            clean_path = Path(clean_path.name)
+        target_path = self.media_dir / clean_path
 
         def _write() -> None:
             target_path.parent.mkdir(parents=True, exist_ok=True)
             target_path.write_bytes(file_bytes)
 
         await anyio.to_thread.run_sync(_write)
-        return f"{self.base_url}/{clean_filename}"
+        return f"{self.base_url}/{clean_path.as_posix()}"
 
     async def delete(self, file_url: str) -> None:
-        filename = Path(file_url).name
-        target_path = self.media_dir / filename
+        rel_path = file_url.removeprefix(self.base_url).lstrip("/")
+        clean_path = Path(rel_path)
+        if clean_path.is_absolute() or ".." in clean_path.parts:
+            clean_path = Path(clean_path.name)
+        target_path = self.media_dir / clean_path
 
         def _remove() -> None:
             if target_path.exists():

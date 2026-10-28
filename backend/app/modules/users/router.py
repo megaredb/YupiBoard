@@ -35,7 +35,7 @@ async def update_current_user_profile(
 @router.post(
     "/me/avatar",
     response_model=UserRead,
-    summary="Upload avatar image (max 2 MB, JPEG/PNG, resized to 512x512 thumbnail)",
+    summary="Upload avatar image (max 2 MB, JPEG/PNG/WebP, converted to 512x512 WebP thumbnail)",
 )
 async def upload_avatar(
     file: Annotated[UploadFile, File(...)],

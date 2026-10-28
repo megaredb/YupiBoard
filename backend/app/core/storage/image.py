@@ -6,7 +6,7 @@ from app.core.exceptions import BadRequestException
 
 MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024  # 2 MB
 MAX_THUMBNAIL_DIMENSION = 512
-ALLOWED_IMAGE_FORMATS = {"JPEG", "PNG"}
+ALLOWED_IMAGE_FORMATS = {"JPEG", "PNG", "WEBP"}
 
 
 def process_avatar_image(file_bytes: bytes) -> tuple[bytes, str, str]:
@@ -22,7 +22,7 @@ def process_avatar_image(file_bytes: bytes) -> tuple[bytes, str, str]:
             image_format = img.format
             if not image_format or image_format.upper() not in ALLOWED_IMAGE_FORMATS:
                 raise BadRequestException(
-                    "Unsupported media type. Only JPEG and PNG formats are permitted."
+                    "Unsupported media type. Only JPEG, PNG, and WebP formats are permitted."
                 )
 
             # Auto-orient based on EXIF before stripping metadata

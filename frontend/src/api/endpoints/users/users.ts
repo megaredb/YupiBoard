@@ -278,7 +278,7 @@ export const useDeleteCurrentUserApiV1UsersMeDelete = <TError = HTTPValidationEr
       return useMutation(getDeleteCurrentUserApiV1UsersMeDeleteMutationOptions(options), queryClient);
     }
     /**
- * @summary Upload avatar image (max 2 MB, JPEG/PNG, resized to 512x512 thumbnail)
+ * @summary Upload avatar image (max 2 MB, JPEG/PNG/WebP, converted to 512x512 WebP thumbnail)
  */
 export const uploadAvatarApiV1UsersMeAvatarPost = (
     bodyUploadAvatarApiV1UsersMeAvatarPost: BodyUploadAvatarApiV1UsersMeAvatarPost,
@@ -334,7 +334,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type UploadAvatarApiV1UsersMeAvatarPostMutationVariables = {data: BodyUploadAvatarApiV1UsersMeAvatarPost}
 
     /**
- * @summary Upload avatar image (max 2 MB, JPEG/PNG, resized to 512x512 thumbnail)
+ * @summary Upload avatar image (max 2 MB, JPEG/PNG/WebP, converted to 512x512 WebP thumbnail)
  */
 export const useUploadAvatarApiV1UsersMeAvatarPost = <TError = HTTPValidationError,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadAvatarApiV1UsersMeAvatarPost>>, TError,UploadAvatarApiV1UsersMeAvatarPostMutationVariables, TContext>, request?: SecondParameter<typeof customInstance>}
