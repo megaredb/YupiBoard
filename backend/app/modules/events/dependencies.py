@@ -3,26 +3,18 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.core.database import SessionDep
-from app.modules.events.repository import (
-    EventApplicationRepository,
-    EventRatingRepository,
-    EventRepository,
+from app.modules.event_applications.dependencies import (
+    get_event_application_repository,
 )
+from app.modules.event_applications.repository import EventApplicationRepository
+from app.modules.event_ratings.dependencies import get_event_rating_repository
+from app.modules.event_ratings.repository import EventRatingRepository
+from app.modules.events.repository import EventRepository
 from app.modules.events.service import EventService
 
 
 def get_event_repository(session: SessionDep) -> EventRepository:
     return EventRepository(session)
-
-
-def get_event_application_repository(
-    session: SessionDep,
-) -> EventApplicationRepository:
-    return EventApplicationRepository(session)
-
-
-def get_event_rating_repository(session: SessionDep) -> EventRatingRepository:
-    return EventRatingRepository(session)
 
 
 def get_event_service(

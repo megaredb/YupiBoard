@@ -4,7 +4,8 @@ from typing import Annotated
 
 from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field, model_validator
 
-from app.modules.events.models import ApplicationStatus, EventStatus
+from app.modules.event_applications.models import ApplicationStatus
+from app.modules.events.models import EventStatus
 
 Latitude = Annotated[float, Field(ge=-90, le=90)]
 LongitudeValue = Annotated[float, Field(ge=-180, le=180)]

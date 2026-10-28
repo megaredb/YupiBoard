@@ -1,12 +1,14 @@
 from datetime import UTC, datetime, timedelta
 
 import pytest
+from geoalchemy2 import Geography
+from geoalchemy2.elements import WKTElement
 from pydantic import ValidationError
 
 from app.main import app
+from app.modules.events.geo import make_point
 from app.modules.events.models import Event, EventStatus
 from app.modules.events.schemas import EventCreate, EventUpdate
-from app.modules.events.types import Longitude
 
 
 def valid_event_data() -> dict[str, object]:
@@ -71,13 +73,13 @@ def test_event_update_can_clear_nullable_fields_but_not_required_fields() -> Non
         EventUpdate.model_validate({"title": None})
 
 
-def test_longitude_uses_a_separate_validated_database_type() -> None:
-    longitude_type = Event.__table__.c.lon.type
+def test_location_uses_postgis_geography_and_preserves_api_coordinates() -> None:
+    location_type = Event.__table__.c.location.type
 
-    assert isinstance(longitude_type, Longitude)
-    assert longitude_type.process_bind_param(-180, None) == -180
-    with pytest.raises(ValueError, match="Longitude must be between"):
-        longitude_type.process_bind_param(180.01, None)
+    assert isinstance(location_type, Geography)
+    point = make_point(50.45, 30.52)
+    assert isinstance(point, WKTElement)
+    assert point.desc == "SRID=4326;POINT(30.52 50.45)"
 
 
 def test_event_routes_are_registered() -> None:

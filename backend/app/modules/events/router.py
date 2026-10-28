@@ -14,8 +14,13 @@ from app.modules.auth.dependencies import (
     get_current_user,
     get_current_verified_user,
 )
+from app.modules.event_applications.dependencies import get_event_application_service
+from app.modules.event_applications.models import ApplicationStatus
+from app.modules.event_applications.service import EventApplicationService
+from app.modules.event_ratings.dependencies import get_event_rating_service
+from app.modules.event_ratings.service import EventRatingService
 from app.modules.events.dependencies import get_event_service
-from app.modules.events.models import ApplicationStatus, EventStatus
+from app.modules.events.models import EventStatus
 from app.modules.events.schemas import (
     ApplicationStatusUpdate,
     EventApplicationRead,
@@ -47,7 +52,7 @@ async def create_event(
     event = await event_service.create(current_user, data)
     return EventCreateResponse(
         message="Event sent to moderation",
-        event=await event_service.event_read(await event_service.get_event(event.id)),
+        event=event_service.event_read(await event_service.get_event(event.id)),
     )
 
 
@@ -106,7 +111,7 @@ async def get_event(
     event_service: Annotated[EventService, Depends(get_event_service)],
 ) -> EventRead:
     event = await event_service.get_public_event(event_id)
-    return await event_service.event_read(event)
+    return event_service.event_read(event)
 
 
 @router.patch("/{event_id}", response_model=EventRead)
@@ -120,7 +125,7 @@ async def update_event(
     if event.organizer_id != current_user.id and not current_user.is_superuser:
         raise ForbiddenException("Only the organizer can update this event")
     updated = await event_service.update(event, data)
-    return await event_service.event_read(await event_service.get_event(updated.id))
+    return event_service.event_read(await event_service.get_event(updated.id))
 
 
 @router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -150,7 +155,7 @@ async def moderate_event(
         data.promoted_to_datetime,
         "promoted_to_datetime" in data.model_fields_set,
     )
-    return await event_service.event_read(await event_service.get_event(updated.id))
+    return event_service.event_read(await event_service.get_event(updated.id))
 
 
 @router.post(
@@ -162,9 +167,12 @@ async def apply_to_event(
     event_id: uuid.UUID,
     current_user: Annotated[User, Depends(get_current_verified_user)],
     event_service: Annotated[EventService, Depends(get_event_service)],
+    application_service: Annotated[
+        EventApplicationService, Depends(get_event_application_service)
+    ],
 ) -> EventApplicationRead:
     event = await event_service.get_public_event(event_id)
-    application = await event_service.apply(event, current_user)
+    application = await application_service.apply(event, current_user)
     return EventApplicationRead.model_validate(application)
 
 
@@ -178,9 +186,12 @@ async def update_application(
     data: ApplicationStatusUpdate,
     current_user: Annotated[User, Depends(get_current_user)],
     event_service: Annotated[EventService, Depends(get_event_service)],
+    application_service: Annotated[
+        EventApplicationService, Depends(get_event_application_service)
+    ],
 ) -> EventApplicationRead:
-    application = await event_service.event_repo.get_application(application_id)
-    if application is None or application.event_id != event_id:
+    application = await application_service.get(application_id)
+    if application.event_id != event_id:
         raise NotFoundException("Application not found")
     event = await event_service.get_event(event_id)
     if current_user.id != event.organizer_id and current_user.id != application.user_id:
@@ -195,7 +206,7 @@ async def update_application(
         and data.status == ApplicationStatus.CANCELLED
     ):
         raise ForbiddenException("Organizers cannot cancel applications")
-    updated = await event_service.update_application(application, data.status)
+    updated = await application_service.update(application, data.status)
     return EventApplicationRead.model_validate(updated)
 
 
@@ -207,11 +218,14 @@ async def list_event_applications(
     event_id: uuid.UUID,
     current_user: Annotated[User, Depends(get_current_user)],
     event_service: Annotated[EventService, Depends(get_event_service)],
+    application_service: Annotated[
+        EventApplicationService, Depends(get_event_application_service)
+    ],
 ) -> list[EventApplicationRead]:
     event = await event_service.get_event(event_id)
     if current_user.id != event.organizer_id and not current_user.is_superuser:
         raise ForbiddenException("Only the organizer can view applications")
-    applications = await event_service.event_repo.get_event_applications(event.id)
+    applications = await application_service.application_repo.for_event(event.id)
     return [EventApplicationRead.model_validate(item) for item in applications]
 
 
@@ -225,7 +239,16 @@ async def rate_event_host(
     data: EventRatingCreate,
     current_user: Annotated[User, Depends(get_current_verified_user)],
     event_service: Annotated[EventService, Depends(get_event_service)],
+    rating_service: Annotated[EventRatingService, Depends(get_event_rating_service)],
 ) -> EventRatingRead:
     event = await event_service.get_event(event_id)
-    rating = await event_service.rate(event, current_user, data.score, data.comment)
-    return EventRatingRead.model_validate(rating)
+    rating = await rating_service.create(event, current_user, data.score, data.comment)
+    return EventRatingRead(
+        id=rating.id,
+        event_id=rating.event_id,
+        organizer_id=event.organizer_id,
+        reviewer_id=rating.reviewer_id,
+        score=rating.score,
+        comment=rating.comment,
+        created_at=rating.created_at,
+    )

@@ -1,24 +1,12 @@
 import uuid
 from datetime import datetime
 
-from app.core.exceptions import (
-    BadRequestException,
-    ConflictException,
-    ForbiddenException,
-    NotFoundException,
-)
-from app.modules.events.models import (
-    ApplicationStatus,
-    Event,
-    EventApplication,
-    EventRating,
-    EventStatus,
-)
-from app.modules.events.repository import (
-    EventApplicationRepository,
-    EventRatingRepository,
-    EventRepository,
-)
+from app.core.exceptions import BadRequestException, NotFoundException
+from app.modules.event_applications.repository import EventApplicationRepository
+from app.modules.event_ratings.repository import EventRatingRepository
+from app.modules.events.geo import make_point
+from app.modules.events.models import Event, EventStatus
+from app.modules.events.repository import EventRepository
 from app.modules.events.schemas import (
     EventCreate,
     EventHostRead,
@@ -44,6 +32,7 @@ class EventService:
         values = data.model_dump()
         if values["photo_url"] is not None:
             values["photo_url"] = str(values["photo_url"])
+        values["location"] = make_point(values.pop("lat"), values.pop("lon"))
         return await self.event_repo.create(
             **values,
             organizer_id=organizer.id,
@@ -57,14 +46,17 @@ class EventService:
         values = data.model_dump(exclude_unset=True)
         if values.get("photo_url") is not None:
             values["photo_url"] = str(values["photo_url"])
+        if "lat" in values or "lon" in values:
+            if "lat" not in values or "lon" not in values:
+                raise BadRequestException("lat and lon must be provided together")
+            values["location"] = make_point(values.pop("lat"), values.pop("lon"))
         candidate = {**event.__dict__, **values}
-        min_players = candidate["min_players"]
-        max_players = candidate["max_players"]
-        if min_players > max_players:
+        if candidate["min_players"] > candidate["max_players"]:
             raise BadRequestException("min_players cannot exceed max_players")
-        start_datetime = candidate["start_datetime"]
-        end_datetime = candidate["end_datetime"]
-        if end_datetime and end_datetime <= start_datetime:
+        if (
+            candidate["end_datetime"]
+            and candidate["end_datetime"] <= candidate["start_datetime"]
+        ):
             raise BadRequestException("end_datetime must be later than start_datetime")
         for name, value in values.items():
             setattr(event, name, value)
@@ -119,14 +111,14 @@ class EventService:
             page_size=page_size,
             public_only=public_only,
         )
-        application_counts = await self.event_repo.active_application_counts(
+        application_counts = await self.application_repo.active_counts(
             [event.id for event in events]
         )
-        rating_summaries = await self.event_repo.host_rating_summaries(
+        rating_summaries = await self.rating_repo.summaries(
             list({event.organizer_id for event in events})
         )
         items = [
-            await self._to_read(
+            self._to_read(
                 event,
                 active_applications=application_counts.get(event.id, 0),
                 rating_summary=rating_summaries.get(event.organizer_id, (0, 0)),
@@ -135,44 +127,8 @@ class EventService:
         ]
         return EventPage(items=items, total=total, page=page, page_size=page_size)
 
-    async def event_read(self, event: Event) -> EventRead:
-        return await self._to_read(event)
-
-    async def apply(self, event: Event, user: User) -> EventApplication:
-        locked_event = await self.event_repo.lock_event(event.id)
-        if locked_event is None or locked_event.status != EventStatus.PUBLISHED:
-            raise NotFoundException("Event not found")
-        event = locked_event
-        if event.organizer_id == user.id:
-            raise BadRequestException("Organizers cannot apply to their own event")
-        previous = await self.event_repo.application_for_user(event.id, user.id)
-        if previous is not None:
-            raise ConflictException("You have already applied to this event")
-        if (
-            await self.event_repo.active_application_count(event.id)
-            >= event.max_players
-        ):
-            raise ConflictException("Event has no available seats")
-        application = await self.application_repo.create(event.id, user.id)
-        # TODO: Notify the organizer when the notification module is available.
-        return application
-
-    async def update_application(
-        self, application: EventApplication, status: ApplicationStatus
-    ) -> EventApplication:
-        if status == ApplicationStatus.PENDING:
-            raise BadRequestException("Application status cannot be reset to pending")
-        if (
-            application.status != ApplicationStatus.PENDING
-            and status != ApplicationStatus.CANCELLED
-        ):
-            raise ConflictException("Only pending applications can be updated")
-        if status == ApplicationStatus.CANCELLED and application.status not in (
-            ApplicationStatus.PENDING,
-            ApplicationStatus.ACCEPTED,
-        ):
-            raise ConflictException("Only active applications can be cancelled")
-        return await self.event_repo.update_application_status(application, status)
+    def event_read(self, event: Event) -> EventRead:
+        return self._to_read(event)
 
     async def moderate(
         self,
@@ -191,22 +147,7 @@ class EventService:
         await self.event_repo.session.refresh(event)
         return event
 
-    async def rate(
-        self, event: Event, reviewer: User, score: int, comment: str | None
-    ) -> EventRating:
-        if event.status != EventStatus.COMPLETED:
-            raise BadRequestException("Only completed events can be rated")
-        if event.organizer_id == reviewer.id:
-            raise BadRequestException("Organizers cannot rate their own event")
-        if not await self.event_repo.has_accepted_application(event.id, reviewer.id):
-            raise ForbiddenException("Only accepted participants can rate the host")
-        if await self.event_repo.rating_exists(event.id, reviewer.id):
-            raise ConflictException("You have already rated this event")
-        return await self.rating_repo.create(
-            event.id, event.organizer_id, reviewer.id, score, comment
-        )
-
-    async def _to_read(
+    def _to_read(
         self,
         event: Event,
         *,
@@ -214,20 +155,19 @@ class EventService:
         rating_summary: tuple[float, int] | None = None,
     ) -> EventRead:
         if rating_summary is None:
-            rating_summary = await self.event_repo.host_rating_summary(
-                event.organizer_id
-            )
+            rating_summary = (0, 0)
         if active_applications is None:
-            active_applications = await self.event_repo.active_application_count(
-                event.id
-            )
+            active_applications = 0
         rating_average, rating_count = rating_summary
         return EventRead.model_validate(
             {
                 **{
                     column.name: getattr(event, column.name)
                     for column in event.__table__.columns
+                    if column.name != "location"
                 },
+                "lat": event.lat,
+                "lon": event.lon,
                 "host": EventHostRead(
                     id=event.organizer.id,
                     full_name=event.organizer.full_name,
