@@ -88,7 +88,6 @@ async def list_users(
 @router.get(
     "/{user_id}",
     response_model=UserRead,
-    dependencies=[Depends(get_current_superuser)],
 )
 async def get_user(
     user_id: UUID7,

@@ -629,6 +629,10 @@ export function ProfilePage() {
                 const cleanLocation = values.location?.trim() || null
                 const cleanContact = values.contact_info?.trim() || null
                 const cleanBio = values.bio?.trim() || null
+                const safeAvatarUrl =
+                  avatarPreview && !avatarPreview.startsWith("data:")
+                    ? avatarPreview
+                    : (user?.avatar_url ?? null)
                 updateProfileMutation.mutate({
                   data: {
                     first_name: values.first_name.trim(),
@@ -638,8 +642,7 @@ export function ProfilePage() {
                     contacts: cleanContact,
                     city: cleanLocation,
                     location: cleanLocation,
-                    avatar_url: avatarPreview ?? user?.avatar_url ?? null,
-                    banner_url: bannerPreview ?? user?.banner_url ?? null,
+                    avatar_url: safeAvatarUrl,
                   },
                 })
               })}

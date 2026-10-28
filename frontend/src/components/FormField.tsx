@@ -138,3 +138,75 @@ export function FormField({
     </div>
   )
 }
+
+/** Attributes the wrapped control (`<Input>`, `<Textarea>`, custom input) should spread onto itself. */
+export interface FieldControlProps {
+  id: string
+  "aria-invalid"?: boolean
+  "aria-describedby"?: string
+}
+
+export interface FieldProps {
+  label: string
+  required?: boolean
+  hint?: string
+  error?: string
+  /** Right-aligned note below the input, e.g. `"42/2000"`. */
+  counter?: string
+  children: (control: FieldControlProps) => ReactNode
+  className?: string
+}
+
+/**
+ * Render-prop form field wrapper: wires `<Label>`, hint and error to any control
+ * via `id` / `aria-describedby` / `aria-invalid` so the control stays a plain `<Input>`,
+ * `<Textarea>` or custom widget.
+ */
+export function Field({
+  label,
+  required = false,
+  hint,
+  error,
+  counter,
+  children,
+  className,
+}: FieldProps) {
+  const id = useId()
+  const hintId = `${id}-hint`
+  const errorId = `${id}-error`
+  const describedBy = [hint && hintId, error && errorId].filter(Boolean).join(" ") || undefined
+
+  return (
+    <div className={cn("space-y-1.5", className)}>
+      <Label htmlFor={id} className="block text-sm font-medium text-foreground">
+        {label}
+        {required && (
+          <span aria-hidden className="text-primary">
+            {" "}
+            *
+          </span>
+        )}
+      </Label>
+
+      {children({
+        id,
+        "aria-invalid": error ? true : undefined,
+        "aria-describedby": describedBy,
+      })}
+
+      {(hint || counter) && (
+        <div className="flex items-baseline justify-between gap-2 text-xs text-muted-foreground">
+          {hint ? <p id={hintId}>{hint}</p> : <span />}
+          {counter && <span className="shrink-0 tabular-nums">{counter}</span>}
+        </div>
+      )}
+
+      {error && (
+        <p id={errorId} role="alert" className="text-xs text-destructive">
+          {error}
+        </p>
+      )}
+    </div>
+  )
+}
+

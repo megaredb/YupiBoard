@@ -9,14 +9,23 @@
     "cancel": "Cancel",
     "save": "Save",
     "edit": "Edit",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "back": "Back",
+    "close": "Close",
+    "retry": "Try again",
+    "loadFailed": "Couldn't load data."
+  },
+  "layout": {
+    "brand": "YupiBoard",
+    "copyright": "© 2026 YupiBoard. Find your next board game night."
   },
   "nav": {
     "events": "Events",
     "myEvents": "My events",
     "myBookings": "My bookings",
     "favorite": "Favorite",
-    "createEvent": "+ Create event",
+    "favorites": "Favorite",
+    "createEvent": "Create event",
     "notifications": "Notifications",
     "toggleTheme": "Toggle theme",
     "myProfile": "My profile",
@@ -26,6 +35,11 @@
     "register": "Sign up",
     "logout": "Log out",
     "loggedOutMessage": "You have been logged out"
+  },
+  "dropzone": {
+    "browse": "Click to upload",
+    "orDrop": " or drag and drop",
+    "remove": "Remove image"
   },
   "home": {
     "apiTesting": "API testing",
@@ -154,6 +168,172 @@
       "distanceAway": "{{distance}} km away",
       "showMoreEvents": "Show more events",
       "noEvents": "No events yet"
+    }
+  },
+  "events": {
+    "free": "Free",
+    "promoted": "Promoted",
+    "card": {
+      "distance": "{{km}} km away",
+      "noDistance": "Nearby"
+    },
+    "pagination": {
+      "summary": "Showing {{from}}–{{to}} of {{total}} events"
+    },
+    "catalog": {
+      "title": "Find a board game table near you",
+      "mobileTitle": "Nearby Events",
+      "subtitle": "Discover board game sessions happening around {{city}}",
+      "searchPlaceholder": "Search events, games, clubs...",
+      "countLabel": "events",
+      "found_one": "{{count}} event found",
+      "found_other": "{{count}} events found",
+      "emptyTitle": "No events match these filters",
+      "emptyDescription": "Try increasing the distance or picking another city."
+    },
+    "myEvents": {
+      "title": "My events",
+      "found_one": "{{count}} event found",
+      "found_other": "{{count}} events found",
+      "emptyTitle": "You have not created any events yet",
+      "emptyDescription": "Create your first board game event and manage it here."
+    },
+    "myBookings": {
+      "title": "My bookings",
+      "found_one": "{{count}} event found",
+      "found_other": "{{count}} events found",
+      "emptyTitle": "You have no bookings yet",
+      "emptyDescription": "Apply to an event in the catalog to see your bookings here."
+    },
+    "favorites": {
+      "title": "Favorites",
+      "found_one": "{{count}} event found",
+      "found_other": "{{count}} events found",
+      "emptyTitle": "You have no favorite events yet",
+      "emptyDescription": "Save events with the heart button to find them quickly here."
+    },
+    "filters": {
+      "title": "Filters",
+      "location": "Location",
+      "usingCurrentLocation": "Using your current location",
+      "fromCityCenter": "Distance calculated from city center",
+      "distance": "Distance",
+      "within": "Within {{km}} km",
+      "km": "{{km}} km",
+      "clear": "Clear filters",
+      "clearAll": "Clear all",
+      "show": "Show results",
+      "showResults_one": "Show {{count}} result",
+      "showResults_other": "Show {{count}} results"
+    },
+    "details": {
+      "home": "Home",
+      "backToEvents": "All events",
+      "about": "About this night",
+      "readMore": "Read more",
+      "organizer": "Organizer",
+      "meetOrganizer": "Meet your organizer",
+      "viewProfile": "View profile",
+      "organizerRating": "Organizer Rating: {{rating}} (★ {{rating}})",
+      "organizerRatingShort": "★ {{rating}} (Organizer)",
+      "organizerStats": "{{count}} events hosted · Member since {{year}}",
+      "memberSince": "Member since {{year}}",
+      "playersJoined": "{{taken}} of {{total}} players joined",
+      "playersRange": "{{min}}–{{max}} players",
+      "seatsProgress": "Seats taken",
+      "share": "Share event",
+      "linkCopied": "Link copied",
+      "favorite": "Add to favorites",
+      "unfavorite": "Remove from favorites",
+      "report": "Report this event",
+      "notFound": "Event not found",
+      "notFoundDescription": "This event may have been removed or the link is incorrect."
+    },
+    "booking": {
+      "title": "Your seat at the table",
+      "subtitle": "One evening. Plenty of great moves.",
+      "perPerson": "/ person",
+      "priceNote": "Includes game access and table reservation",
+      "seatsAvailable": "Seats Available ({{left}} of {{total}} remaining)",
+      "seatsAvailableShort": "Seats available",
+      "playersJoining": "{{count}} players joining",
+      "seatsTotal": "{{count}} seats total",
+      "apply": "Apply",
+      "pending": "Application pending",
+      "approved": "You're going",
+      "rejected": "Application declined",
+      "waitlist": "You're on the waitlist",
+      "hosting": "You're hosting this event",
+      "full": "No seats left",
+      "closed": "Bookings closed",
+      "failed": "Couldn't send your application. Please try again.",
+      "reviewNote": "The organizer will review your request after submission.",
+      "payAtVenue": "Pay at the venue after approval"
+    }
+  },
+  "createEvent": {
+    "title": "Create new event",
+    "successTitle": "Event submitted for review",
+    "successDescription": "Your event has been submitted to moderators and will be published once approved.",
+    "moderationBanner": "New events are reviewed by a moderator before appearing in the catalog.",
+    "required": "* Required fields",
+    "submit": "Submit for moderation",
+    "reviewNote": "Usually reviewed within 24 hours",
+    "failed": "Couldn't create the event. Please try again.",
+    "general": {
+      "title": "General information",
+      "description": "Give your session a clear title and let players know what to expect."
+    },
+    "when": {
+      "title": "When & where"
+    },
+    "players": {
+      "title": "Players & price"
+    },
+    "cover": {
+      "title": "Cover image",
+      "hint": "JPEG or PNG, up to 5 MB · 16:9 works best"
+    },
+    "fields": {
+      "title": "Event title",
+      "titlePlaceholder": "e.g., Catan & expansions night",
+      "titleHint": "{{min}}–{{max}} characters",
+      "gameTitle": "Board game name",
+      "gameTitlePlaceholder": "e.g., Catan, Dune: Imperium, Wingspan...",
+      "description": "Description",
+      "descriptionPlaceholder": "What games will you play, experience level, house rules, what to bring...",
+      "descriptionHint": "Optional, up to 2000 characters",
+      "date": "Date",
+      "time": "Start time",
+      "city": "City",
+      "address": "Address or venue",
+      "addressPlaceholder": "Street, building, or venue name",
+      "addressHint": "Pick a suggested club or type the full street address",
+      "seats": "Max players",
+      "seatsHint": "Including you, 2–20 players",
+      "seatsDecrease": "Fewer seats",
+      "seatsIncrease": "More seats",
+      "price": "Price per player (UAH)",
+      "priceHint": "Set 0 for a free session"
+    },
+    "address": {
+      "placeholder": "Start typing a club name or street...",
+      "suggestions": "Suggested venues in {{city}}"
+    },
+    "validation": {
+      "title": "Title must be between 3 and 100 characters",
+      "gameTitleRequired": "Game name is required",
+      "gameTitleMax": "Game name is too long (max 150 characters)",
+      "descriptionRequired": "Description is required",
+      "descriptionMax": "Description is too long (max 2000 characters)",
+      "dateRequired": "Pick a date",
+      "timeRequired": "Pick a start time",
+      "dateFuture": "Start date and time must be in the future",
+      "addressRequired": "Enter an address or pick a venue",
+      "addressMax": "Address is too long (max 255 characters)",
+      "priceInvalid": "Enter 0 or a positive amount",
+      "coverType": "Cover image must be a JPEG or PNG file",
+      "coverSize": "Cover image must be smaller than 5 MB"
     }
   },
   "validation": {

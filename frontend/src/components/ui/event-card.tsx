@@ -8,8 +8,8 @@ export interface EventOrganizer {
   name: string
   initials?: string
   avatarUrl?: string | null
-  rating: string
-  reviewsCount: number
+  rating?: string | null
+  reviewsCount?: number | null
 }
 
 export interface EventCardProps
@@ -99,12 +99,15 @@ export function EventCard({
 
             <div className="min-w-0 text-primary-foreground">
               <p className="truncate text-xs leading-tight">{organizer.name}</p>
-              <p className="flex items-center gap-1 text-[11px] leading-tight text-primary-foreground/90">
-                <Star className="size-3 shrink-0 fill-amber-400 text-amber-400" />
-                <span className="truncate">
-                  {organizer.rating} ({organizer.reviewsCount})
-                </span>
-              </p>
+              {organizer.rating && (
+                <p className="flex items-center gap-1 text-[11px] leading-tight text-primary-foreground/90">
+                  <Star className="size-3 shrink-0 fill-amber-400 text-amber-400" />
+                  <span className="truncate">
+                    {organizer.rating}
+                    {organizer.reviewsCount != null && ` (${organizer.reviewsCount})`}
+                  </span>
+                </p>
+              )}
             </div>
           </div>
         )}

@@ -2,16 +2,14 @@ import { useState } from "react"
 import { useParams } from "@tanstack/react-router"
 import { MapPin, Shield, Star } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { useListEventsApiV1EventsGet } from "@/api/endpoints/events/events"
 import { useGetUserProfileByIdApiV1UsersUserIdGet } from "@/api/endpoints/users/users"
+import { EventList } from "@/components/EventList"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { EventCard } from "@/components/ui/event-card"
-import { EventGrid } from "@/components/ui/event-grid"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-const PLACEHOLDER_CARD_SLOTS = [0, 1, 2] as const
+import { useAuthStore } from "@/stores/auth"
 
 function formatMemberSince(isoDate: string | undefined, fallback: string): string {
   if (!isoDate) return fallback
@@ -29,33 +27,51 @@ export function PublicProfilePage() {
   const [activeTab, setActiveTab] = useState<string>("hosted")
   const dash = t("profile.notProvided")
 
+  const currentUser = useAuthStore((s) => s.user)
   const { data: profileUser } = useGetUserProfileByIdApiV1UsersUserIdGet(userId)
+  const user = profileUser ?? (currentUser?.id === userId ? currentUser : null)
+
+  const {
+    data: allEventsData,
+    isLoading: isLoadingEvents,
+    isError: isEventsError,
+    refetch: refetchEvents,
+  } = useListEventsApiV1EventsGet({ limit: 100 })
+
+  const allEvents = allEventsData?.items ?? []
+  const hostedEvents = allEvents.filter(
+    (event) => ("organizer_id" in event && event.organizer_id === userId) || event.organizer?.id === userId,
+  )
+  const joinedEvents = allEvents.filter(
+    (event) => "participant_ids" in event && Array.isArray((event as any).participant_ids) && (event as any).participant_ids.includes(userId),
+  )
 
   const fullName =
-    [profileUser?.first_name, profileUser?.last_name]
+    [user?.first_name, user?.last_name]
       .filter(Boolean)
       .join(" ")
-      .trim() || dash
-  const firstName = profileUser?.first_name?.trim() || dash
-  const city = profileUser?.city || profileUser?.location || dash
-  const bio = profileUser?.bio || dash
-  const contact = profileUser?.contact_info || profileUser?.contacts || dash
-  const avatarUrl = profileUser?.avatar_url
-  const bannerUrl = profileUser?.banner_url
+      .trim() || user?.email || dash
+  const firstName = user?.first_name?.trim() || user?.email || dash
+  const city = user?.city || (user as any)?.location || dash
+  const bio = (user as any)?.bio || dash
+  const contact = user?.contact_info || (user as any)?.contacts || dash
+  const avatarUrl = user?.avatar_url
+  const bannerUrl = (user as any)?.banner_url
 
   const playerRating =
-    profileUser?.player_rating != null
-      ? profileUser.player_rating.toFixed(2)
-      : (profileUser?.rating_as_player ?? dash)
-  const playerReviews = profileUser?.player_reviews_count ?? dash
+    user?.rating_as_player != null
+      ? Number(user.rating_as_player).toFixed(1)
+      : dash
+  const playerReviews = (user as any)?.player_reviews_count ?? dash
   const organizerRating =
-    profileUser?.organizer_rating != null
-      ? profileUser.organizer_rating.toFixed(2)
-      : (profileUser?.rating_as_organizer ?? dash)
-  const organizerReviews = profileUser?.organizer_reviews_count ?? dash
+    user?.rating_as_organizer != null
+      ? Number(user.rating_as_organizer).toFixed(1)
+      : dash
+  const organizerReviews = (user as any)?.organizer_reviews_count ?? dash
 
   const initials = (
-    `${profileUser?.first_name?.trim()?.[0] ?? ""}${profileUser?.last_name?.trim()?.[0] ?? ""}` ||
+    `${user?.first_name?.trim()?.[0] ?? ""}${user?.last_name?.trim()?.[0] ?? ""}` ||
+    user?.email?.[0] ||
     dash
   ).toUpperCase()
 
@@ -95,7 +111,7 @@ export function PublicProfilePage() {
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {t("profile.memberSince", {
-                    date: formatMemberSince(profileUser?.created_at, dash),
+                    date: formatMemberSince(user?.created_at, dash),
                   })}
                 </p>
               </div>
@@ -162,13 +178,13 @@ export function PublicProfilePage() {
                 value="hosted"
                 className="h-9 rounded-lg border border-border bg-muted/60 px-4 text-xs font-medium text-foreground data-active:border-primary data-active:bg-primary data-active:text-primary-foreground"
               >
-                {t("profile.public.hostedEvents", { count: dash })}
+                {t("profile.public.hostedEvents", { count: hostedEvents.length })}
               </TabsTrigger>
               <TabsTrigger
                 value="joined"
                 className="h-9 rounded-lg border border-border bg-muted/60 px-4 text-xs font-medium text-foreground data-active:border-primary data-active:bg-primary data-active:text-primary-foreground"
               >
-                {t("profile.public.joinedEvents", { count: dash })}
+                {t("profile.public.joinedEvents", { count: joinedEvents.length })}
               </TabsTrigger>
             </TabsList>
 
@@ -179,54 +195,28 @@ export function PublicProfilePage() {
             </p>
           </div>
 
-          <TabsContent value="hosted" className="space-y-8">
-            <EventGrid>
-              {PLACEHOLDER_CARD_SLOTS.map((slot) => (
-                <EventCard
-                  key={slot}
-                  title={dash}
-                  date={dash}
-                  distance={dash}
-                  price={dash}
-                  participants={{ current: 0, max: 0 }}
-                />
-              ))}
-            </EventGrid>
-
-            <div className="flex justify-center">
-              <Button
-                type="button"
-                variant="outline"
-                className="h-9 rounded-xl px-6 text-xs font-medium"
-              >
-                {t("profile.public.showMoreEvents")}
-              </Button>
-            </div>
+          <TabsContent value="hosted" className="space-y-6">
+            <EventList
+              events={hostedEvents}
+              isPending={isLoadingEvents}
+              isError={isEventsError}
+              onRetry={() => void refetchEvents()}
+              showOrganizer={false}
+              emptyTitle={t("profile.public.noHostedEvents", "No hosted events")}
+              emptyDescription={t("profile.public.noHostedEventsDesc", "This organizer has not hosted any events yet.")}
+            />
           </TabsContent>
 
-          <TabsContent value="joined" className="space-y-8">
-            <EventGrid>
-              {PLACEHOLDER_CARD_SLOTS.map((slot) => (
-                <EventCard
-                  key={slot}
-                  title={dash}
-                  date={dash}
-                  distance={dash}
-                  price={dash}
-                  participants={{ current: 0, max: 0 }}
-                />
-              ))}
-            </EventGrid>
-
-            <div className="flex justify-center">
-              <Button
-                type="button"
-                variant="outline"
-                className="h-9 rounded-xl px-6 text-xs font-medium"
-              >
-                {t("profile.public.showMoreEvents")}
-              </Button>
-            </div>
+          <TabsContent value="joined" className="space-y-6">
+            <EventList
+              events={joinedEvents}
+              isPending={isLoadingEvents}
+              isError={isEventsError}
+              onRetry={() => void refetchEvents()}
+              showOrganizer={true}
+              emptyTitle={t("profile.public.noJoinedEvents", "No joined events")}
+              emptyDescription={t("profile.public.noJoinedEventsDesc", "This user has not joined any events yet.")}
+            />
           </TabsContent>
         </Tabs>
       </div>
