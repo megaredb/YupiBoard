@@ -1,14 +1,13 @@
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 
 import pytest
-from geoalchemy2 import Geography
-from geoalchemy2.elements import WKTElement
 from pydantic import ValidationError
+from sqlalchemy import Float
 
 from app.main import app
-from app.modules.events.geo import make_point
 from app.modules.events.models import Event, EventStatus
-from app.modules.events.schemas import EventCreate, EventUpdate
+from app.modules.events.schemas import EventCreate
 
 
 def valid_event_data() -> dict[str, object]:
@@ -23,7 +22,7 @@ def valid_event_data() -> dict[str, object]:
         "start_datetime": datetime.now(UTC) + timedelta(days=1),
         "min_players": 2,
         "max_players": 6,
-        "entry_cost": 0,
+        "entry_cost": Decimal("0.00"),
     }
 
 
@@ -39,9 +38,16 @@ def test_event_create_accepts_valid_domain_data() -> None:
     ("field", "value"),
     [
         ("lat", 91),
+        ("lat", -91),
         ("lon", 181),
+        ("lon", -181),
         ("min_players", 0),
+        ("min_players", 21),
+        ("max_players", 0),
+        ("max_players", 21),
         ("entry_cost", -0.01),
+        ("title", "ab"),
+        ("title", "a" * 101),
     ],
 )
 def test_event_create_rejects_invalid_domain_data(field: str, value: object) -> None:
@@ -64,27 +70,28 @@ def test_event_create_checks_player_and_datetime_ranges() -> None:
     with pytest.raises(ValidationError, match="end_datetime must be later"):
         EventCreate.model_validate(data)
 
-
-def test_event_update_can_clear_nullable_fields_but_not_required_fields() -> None:
-    data = EventUpdate.model_validate({"end_datetime": None, "photo_url": None})
-    assert data.model_fields_set == {"end_datetime", "photo_url"}
-
-    with pytest.raises(ValidationError, match="title cannot be null"):
-        EventUpdate.model_validate({"title": None})
+    data = valid_event_data()
+    data["start_datetime"] = datetime.now(UTC) - timedelta(minutes=5)
+    with pytest.raises(ValidationError, match="start_datetime must be in the future"):
+        EventCreate.model_validate(data)
 
 
-def test_location_uses_postgis_geography_and_preserves_api_coordinates() -> None:
-    location_type = Event.__table__.c.location.type
-
-    assert isinstance(location_type, Geography)
-    point = make_point(50.45, 30.52)
-    assert isinstance(point, WKTElement)
-    assert point.desc == "SRID=4326;POINT(30.52 50.45)"
+def test_event_model_columns() -> None:
+    assert isinstance(Event.__table__.c.lat.type, Float)
+    assert isinstance(Event.__table__.c.lon.type, Float)
+    assert "current_confirmed" in Event.__table__.c
+    assert EventStatus.ON_MODERATION == "OnModeration"
+    assert EventStatus.REJECTED == "Rejected"
+    assert EventStatus.PUBLISHED == "Published"
+    assert EventStatus.ONGOING == "Ongoing"
+    assert EventStatus.COMPLETED == "Completed"
+    assert EventStatus.CANCELLED == "Cancelled"
 
 
 def test_event_routes_are_registered() -> None:
     paths = app.openapi()["paths"]
 
     assert "/api/v1/events" in paths
-    assert "/api/v1/events/{event_id}/applications" in paths
-    assert "/api/v1/events/{event_id}/ratings" in paths
+    assert "/api/v1/events/{event_id}" in paths
+    assert "/api/v1/events/{event_id}/applications" not in paths
+    assert "/api/v1/events/{event_id}/ratings" not in paths

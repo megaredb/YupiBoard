@@ -11,8 +11,6 @@ from app.core.config import settings
 # Import all models to ensure they are registered in Base.metadata
 from app.core.models import Base
 from app.modules.auth.models import RefreshToken  # noqa: F401
-from app.modules.event_applications.models import EventApplication  # noqa: F401
-from app.modules.event_ratings.models import EventRating  # noqa: F401
 from app.modules.events.models import Event  # noqa: F401
 from app.modules.users.models import User  # noqa: F401
 

@@ -4,19 +4,21 @@
  * YupiBoard
  * OpenAPI spec version: 0.1.0
  */
+import type { UserStatus } from './userStatus.ts';
 
 export interface UserRead {
   email: string;
-  full_name?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
   id: string;
-  is_active: boolean;
-  is_verified: boolean;
-  is_superuser: boolean;
   avatar_url?: string | null;
   created_at: string;
   updated_at: string;
   city?: string | null;
   contact_info?: string | null;
-  rating_as_player?: number | null;
-  rating_as_organizer?: number | null;
+  rating_as_player?: string | null;
+  rating_as_organizer?: string | null;
+  status?: UserStatus;
+  is_verified: boolean;
+  is_superuser: boolean;
 }

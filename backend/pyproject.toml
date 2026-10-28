@@ -11,7 +11,6 @@ dependencies = [
     "email-validator>=2.3.0",
     "fastapi-mail>=1.6.8",
     "fastapi[standard]>=0.143.2",
-    "geoalchemy2>=0.18.0",
     "google-auth>=2.62.0",
     "greenlet>=3.5.6",
     "pwdlib[argon2]>=0.3.1",
