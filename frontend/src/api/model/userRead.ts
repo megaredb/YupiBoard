@@ -7,18 +7,28 @@
 import type { UserStatus } from './userStatus.ts';
 
 export interface UserRead {
+  id: string;
   email: string;
   first_name?: string | null;
   last_name?: string | null;
-  id: string;
-  avatar_url?: string | null;
-  created_at: string;
-  updated_at: string;
   city?: string | null;
+  location?: string | null;
+  bio?: string | null;
   contact_info?: string | null;
+  contacts?: string | null;
+  avatar_url?: string | null;
+  banner_url?: string | null;
   rating_as_player?: string | null;
   rating_as_organizer?: string | null;
+  player_rating?: number | null;
+  player_reviews_count?: number | null;
+  organizer_rating?: number | null;
+  organizer_reviews_count?: number | null;
   status?: UserStatus;
+  is_active?: boolean;
   is_verified: boolean;
   is_superuser: boolean;
+  is_admin?: boolean;
+  created_at: string;
+  updated_at: string;
 }

@@ -4,7 +4,6 @@ import {
   BatteryFull,
   CalendarCheck,
   Compass,
-  Dices,
   ScrollText,
   Signal,
   User as UserIcon,
