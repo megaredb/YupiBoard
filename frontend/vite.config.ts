@@ -6,6 +6,7 @@ import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
+  envDir: path.resolve(import.meta.dirname, ".."),
   plugins: [
     tanstackRouter({ target: "react", autoCodeSplitting: true }),
     react(),

@@ -3,7 +3,7 @@ import type { TokenResponse } from "@/api/model"
 import { clearTokens, getAccessToken, getRefreshToken, saveTokens, tokensReady } from "@/lib/tokens"
 
 export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
+  import.meta.env.VITE_API_BASE_URL || "https://api.yupiboard.localhost"
 
 export const SESSION_EXPIRED_EVENT = "auth:session-expired"
 
