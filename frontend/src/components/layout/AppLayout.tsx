@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Outlet, useLocation, useMatches, useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
-import { CalendarDays, Compass, Dices, Heart, Plus, Ticket } from "lucide-react"
+import { CalendarDays, Compass, Dices, Heart, Ticket } from "lucide-react"
 import { getInitials } from "@/lib/format"
 import { useAuthStore } from "@/stores/auth"
 import { Footer } from "./Footer"
@@ -118,7 +118,6 @@ export function AppLayout() {
           items={[
             { label: t("nav.events"), icon: <Compass />, isActive: pathname === "/events", onClick: () => navigateTo("/events") },
             { label: t("nav.myEvents"), icon: <CalendarDays />, isActive: pathname === "/my-events", onClick: () => navigateTo("/my-events") },
-            { label: t("nav.createEvent"), icon: <Plus />, onClick: () => navigateTo("/events/new") },
             { label: t("nav.myBookings"), icon: <Ticket />, isActive: pathname === "/my-bookings", onClick: () => navigateTo("/my-bookings") },
             { label: t("nav.favorites"), icon: <Heart />, isActive: pathname === "/favorites", onClick: () => navigateTo("/favorites") },
           ]}

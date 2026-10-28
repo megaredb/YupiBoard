@@ -1,5 +1,9 @@
 import { useState } from "react"
+import { Link } from "@tanstack/react-router"
+import { Plus } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { buttonVariants } from "@/components/ui/button-variants"
+import { cn } from "@/lib/utils"
 import { useEventCollection } from "../api"
 import { PageContainer } from "@/components/layout/PageContainer"
 import { PageHeader } from "@/components/layout/PageHeader"
@@ -36,10 +40,24 @@ export function EventCollectionPage({ collection }: EventCollectionPageProps) {
   const [page, setPage] = useState(1)
   const query = useEventCollection(collection, page)
   const copy = PAGE_COPY[collection]
+  const isHostedEvents = collection === "hosted"
 
   return (
     <PageContainer size="wide">
-      <PageHeader title={t(copy.title)} />
+      <PageHeader
+        title={t(copy.title)}
+        aside={
+          isHostedEvents ? (
+            <Link
+              to="/events/new"
+              className={cn(buttonVariants({ size: "lg" }), "h-11 gap-2 lg:hidden")}
+            >
+              <Plus aria-hidden />
+              {t("nav.createEvent")}
+            </Link>
+          ) : undefined
+        }
+      />
       <div className="mt-6">
         <EventListSection
           query={query}

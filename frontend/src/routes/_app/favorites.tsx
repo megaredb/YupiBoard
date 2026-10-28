@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { EventCollectionPage } from "@/features/events"
 import { requireAuth } from "@/lib/auth-guard"
 
-export const Route = createFileRoute("/my-bookings")({
+export const Route = createFileRoute("/_app/favorites")({
   beforeLoad: requireAuth,
-  component: () => <EventCollectionPage collection="booked" />,
+  component: () => <EventCollectionPage collection="favorites" />,
 })

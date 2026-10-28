@@ -65,8 +65,9 @@ export function BottomNav({ items, className }: BottomNavProps) {
   return (
     <nav
       aria-label="Bottom navigation"
+      style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
       className={cn(
-        'grid w-screen max-w-[100vw] grid-cols-5 overflow-hidden border-t border-border bg-background pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgb(0_0_0/0.04)]',
+        'grid w-full grid-flow-col overflow-hidden border-t border-border bg-background pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgb(0_0_0/0.04)]',
         className,
       )}
     >
@@ -77,7 +78,7 @@ export function BottomNav({ items, className }: BottomNavProps) {
           aria-current={item.isActive ? 'page' : undefined}
           onClick={item.onClick}
           className={cn(
-            'flex min-w-0 flex-col items-center gap-1 py-2 text-[10px] font-medium [&_svg]:size-5',
+            'flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 px-1 text-[10px] font-medium [&_svg]:size-5',
             item.isActive ? 'text-primary' : 'text-muted-foreground',
           )}
         >
