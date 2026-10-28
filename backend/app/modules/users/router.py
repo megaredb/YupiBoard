@@ -3,12 +3,17 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, Query, Response, UploadFile, status
 
 from app.core.config import settings
+from app.core.schemas import MessageResponse
 from app.core.storage import MediaService, get_media_service
 from app.core.types import UUID7
 from app.modules.auth.dependencies import get_current_superuser, get_current_user
 from app.modules.users.dependencies import get_user_service
 from app.modules.users.models import User
-from app.modules.users.schemas import UserRead, UserUpdate
+from app.modules.users.schemas import (
+    PasswordChangeRequest,
+    UserRead,
+    UserUpdate,
+)
 from app.modules.users.service import UserService
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -29,6 +34,20 @@ async def update_current_user_profile(
 ) -> UserRead:
     updated = await user_service.update_profile(current_user, data)
     return UserRead.model_validate(updated)
+
+
+@router.post(
+    "/me/change-password",
+    response_model=MessageResponse,
+    summary="Change password of current user",
+)
+async def change_password(
+    data: PasswordChangeRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    user_service: Annotated[UserService, Depends(get_user_service)],
+) -> MessageResponse:
+    await user_service.change_password(current_user, data.new_password)
+    return MessageResponse(message="Password successfully updated")
 
 
 @router.post(

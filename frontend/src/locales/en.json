@@ -73,6 +73,15 @@
     "passwordPlaceholder": "••••••••",
     "rememberMe": "Remember me",
     "forgotPassword": "Forgot password?",
+    "forgotPasswordDialog": {
+      "title": "Reset your password",
+      "description": "Enter your email address and we'll send you a link to reset your password.",
+      "emailLabel": "Email address",
+      "submit": "Send reset link",
+      "successTitle": "Check your email",
+      "successMessage": "If an account with this email exists, we've sent instructions to reset your password. Please check your inbox and spam folder.",
+      "close": "Close"
+    },
     "submit": "Log In",
     "mobileSubmit": "Log In to Account",
     "noAccount": "Don't have an account?",
@@ -369,5 +378,18 @@
     "missingToken": "The verification token is missing. Please make sure you clicked the full link from your email.",
     "loginButton": "Go to Login",
     "registerButton": "Register Again"
+  },
+  "resetPassword": {
+    "title": "Set a new password",
+    "subtitle": "Please enter and confirm your new password below.",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "submit": "Reset Password",
+    "successTitle": "Password Reset Successful",
+    "successMessage": "Your password has been changed. You can now log in with your new password.",
+    "loginButton": "Go to Login",
+    "errorTitle": "Unable to Reset Password",
+    "missingToken": "The reset token is missing or invalid. Please check the link from your email.",
+    "tryAgainButton": "Back to Login"
   }
 }

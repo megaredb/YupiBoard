@@ -31,6 +31,7 @@ export * from './loginRequest.ts';
 export * from './loginRequest';
 export * from './messageResponse.ts';
 export * from './messageResponse';
+export * from './passwordChangeRequest.ts';
 export * from './passwordResetConfirmRequest.ts';
 export * from './passwordResetConfirmRequest';
 export * from './passwordResetRequest.ts';

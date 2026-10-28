@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next"
 import { z } from "zod"
 import {
   getGetCurrentUserProfileApiV1UsersMeGetQueryKey,
+  useChangePasswordApiV1UsersMeChangePasswordPost,
   useGetCurrentUserProfileApiV1UsersMeGet,
   useUpdateCurrentUserProfileApiV1UsersMePatch,
   useUploadAvatarApiV1UsersMeAvatarPost,
@@ -137,6 +138,7 @@ export function ProfilePage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [isLocating, setIsLocating] = useState(false)
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false)
+  const [passwordError, setPasswordError] = useState<string | null>(null)
 
   const {
     register,
@@ -175,6 +177,7 @@ export function ProfilePage() {
 
   const updateProfileMutation = useUpdateCurrentUserProfileApiV1UsersMePatch()
   const uploadAvatarMutation = useUploadAvatarApiV1UsersMeAvatarPost()
+  const changePasswordMutation = useChangePasswordApiV1UsersMeChangePasswordPost()
 
   if (!isAuthLoading && !user) {
     return <Navigate to="/login" replace />
@@ -784,7 +787,10 @@ export function ProfilePage() {
         open={passwordDialogOpen}
         onOpenChange={(open) => {
           setPasswordDialogOpen(open)
-          if (!open) resetPasswordForm()
+          if (!open) {
+            resetPasswordForm()
+            setPasswordError(null)
+          }
         }}
       >
         <DialogContent>
@@ -795,14 +801,29 @@ export function ProfilePage() {
             </DialogDescription>
           </DialogHeader>
 
+          {passwordError && (
+            <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+              {passwordError}
+            </div>
+          )}
+
           <form
             noValidate
             className="space-y-4"
-            onSubmit={handleSubmitPassword(() => {
-              setServerError(null)
-              setPasswordDialogOpen(false)
-              resetPasswordForm()
-              setSuccessMessage(t("profile.updatedMessage"))
+            onSubmit={handleSubmitPassword(async (values) => {
+              try {
+                setPasswordError(null)
+                await changePasswordMutation.mutateAsync({
+                  data: {
+                    new_password: values.password,
+                  },
+                })
+                setPasswordDialogOpen(false)
+                resetPasswordForm()
+                setSuccessMessage(t("profile.passwordDialog.success"))
+              } catch (err) {
+                setPasswordError(getErrorMessage(err, t("profile.updateFailed")))
+              }
             })}
           >
             <FormField
@@ -811,7 +832,7 @@ export function ProfilePage() {
               autoComplete="new-password"
               helperText={t("register.passwordHint")}
               error={fieldError(passwordErrors.password?.message)}
-              disabled={isBusy}
+              disabled={changePasswordMutation.isPending}
               {...registerPassword("password")}
             />
 
@@ -820,7 +841,7 @@ export function ProfilePage() {
               type="password"
               autoComplete="new-password"
               error={fieldError(passwordErrors.confirmPassword?.message)}
-              disabled={isBusy}
+              disabled={changePasswordMutation.isPending}
               {...registerPassword("confirmPassword")}
             />
 
@@ -829,11 +850,11 @@ export function ProfilePage() {
                 type="button"
                 variant="outline"
                 onClick={() => setPasswordDialogOpen(false)}
-                disabled={isBusy}
+                disabled={changePasswordMutation.isPending}
               >
                 {t("common.cancel")}
               </Button>
-              <Button type="submit" isLoading={isBusy}>
+              <Button type="submit" isLoading={changePasswordMutation.isPending}>
                 {t("profile.passwordDialog.submit")}
               </Button>
             </DialogFooter>

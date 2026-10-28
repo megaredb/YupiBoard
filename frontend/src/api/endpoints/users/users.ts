@@ -27,6 +27,8 @@ import type {
   BodyUploadAvatarApiV1UsersMeAvatarPost,
   HTTPValidationError,
   ListUsersApiV1UsersGetParams,
+  MessageResponse,
+  PasswordChangeRequest,
   UserRead,
   UserUpdate
 } from '../../model';
@@ -276,6 +278,73 @@ export const useDeleteCurrentUserApiV1UsersMeDelete = <TError = HTTPValidationEr
         TContext
       > => {
       return useMutation(getDeleteCurrentUserApiV1UsersMeDeleteMutationOptions(options), queryClient);
+    }
+    /**
+ * @summary Change password of current user
+ */
+export const changePasswordApiV1UsersMeChangePasswordPost = (
+    passwordChangeRequest: PasswordChangeRequest,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
+      return customInstance<MessageResponse>(
+      {url: `/api/v1/users/me/change-password`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: passwordChangeRequest, signal
+    },
+      options);
+    }
+
+
+
+
+export const getChangePasswordApiV1UsersMeChangePasswordPostMutationKey = () => ['changePasswordApiV1UsersMeChangePasswordPost'] as const;
+
+export const getChangePasswordApiV1UsersMeChangePasswordPostMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof changePasswordApiV1UsersMeChangePasswordPost>>, TError,ChangePasswordApiV1UsersMeChangePasswordPostMutationVariables, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof changePasswordApiV1UsersMeChangePasswordPost>>, TError,ChangePasswordApiV1UsersMeChangePasswordPostMutationVariables, TContext> => {
+
+const mutationKey = getChangePasswordApiV1UsersMeChangePasswordPostMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof changePasswordApiV1UsersMeChangePasswordPost>>, ChangePasswordApiV1UsersMeChangePasswordPostMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  changePasswordApiV1UsersMeChangePasswordPost(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ChangePasswordApiV1UsersMeChangePasswordPostMutationResult = NonNullable<Awaited<ReturnType<typeof changePasswordApiV1UsersMeChangePasswordPost>>>
+    export type ChangePasswordApiV1UsersMeChangePasswordPostMutationBody = PasswordChangeRequest
+    export type ChangePasswordApiV1UsersMeChangePasswordPostMutationError = HTTPValidationError
+    export type ChangePasswordApiV1UsersMeChangePasswordPostMutationVariables = {data: PasswordChangeRequest}
+
+    /**
+ * @summary Change password of current user
+ */
+export const useChangePasswordApiV1UsersMeChangePasswordPost = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof changePasswordApiV1UsersMeChangePasswordPost>>, TError,ChangePasswordApiV1UsersMeChangePasswordPostMutationVariables, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof changePasswordApiV1UsersMeChangePasswordPost>>,
+        TError,
+        ChangePasswordApiV1UsersMeChangePasswordPostMutationVariables,
+        TContext
+      > => {
+      return useMutation(getChangePasswordApiV1UsersMeChangePasswordPostMutationOptions(options), queryClient);
     }
     /**
  * @summary Upload avatar image (max 2 MB, JPEG/PNG/WebP, converted to 512x512 WebP thumbnail)

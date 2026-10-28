@@ -1,11 +1,14 @@
 import { useId, useState } from "react"
 import { Link, Navigate, useNavigate } from "@tanstack/react-router"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CircleAlert, Lock, Mail } from "lucide-react"
+import { CheckCircle2, CircleAlert, Lock, Mail } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
-import { useLoginApiV1AuthLoginPost } from "@/api/endpoints/auth/auth"
+import {
+  useLoginApiV1AuthLoginPost,
+  usePasswordRecoveryApiV1AuthPasswordRecoveryPost,
+} from "@/api/endpoints/auth/auth"
 import { FormField } from "@/components/FormField"
 import { GoogleAuthButton } from "@/components/GoogleAuthButton"
 import { BrandLogo } from "@/components/layout/BrandLogo"
@@ -19,6 +22,14 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -33,6 +44,12 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>
 
+const recoverySchema = z.object({
+  email: z.string().email("validation.email"),
+})
+
+type RecoveryFormValues = z.infer<typeof recoverySchema>
+
 export function LoginPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -41,6 +58,11 @@ export function LoginPage() {
   const setSession = useAuthStore((state) => state.setSession)
   const [rememberMe, setRememberMe] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false)
+  const [recoverySent, setRecoverySent] = useState(false)
+  const [recoveryError, setRecoveryError] = useState<string | null>(null)
+
+  const passwordRecoveryMutation = usePasswordRecoveryApiV1AuthPasswordRecoveryPost()
 
   const {
     register,
@@ -50,6 +72,44 @@ export function LoginPage() {
     resolver: zodResolver(loginSchema),
     mode: "onBlur",
   })
+
+  const {
+    register: registerRecovery,
+    handleSubmit: handleSubmitRecovery,
+    reset: resetRecoveryForm,
+    formState: { errors: recoveryErrors },
+  } = useForm<RecoveryFormValues>({
+    resolver: zodResolver(recoverySchema),
+    mode: "onBlur",
+  })
+
+  const handleOpenRecovery = () => {
+    setRecoveryError(null)
+    setRecoverySent(false)
+    resetRecoveryForm()
+    setForgotPasswordOpen(true)
+  }
+
+  const handleCloseRecovery = () => {
+    setForgotPasswordOpen(false)
+    setRecoverySent(false)
+    setRecoveryError(null)
+    resetRecoveryForm()
+  }
+
+  const onRecoverySubmit = async (values: RecoveryFormValues) => {
+    try {
+      setRecoveryError(null)
+      await passwordRecoveryMutation.mutateAsync({
+        data: {
+          email: values.email,
+        },
+      })
+      setRecoverySent(true)
+    } catch (err) {
+      setRecoveryError(getErrorMessage(err, t("login.failed")))
+    }
+  }
 
   const loginMutation = useLoginApiV1AuthLoginPost({
     mutation: {
@@ -187,12 +247,13 @@ export function LoginPage() {
                 </Label>
               </div>
 
-              <Link
-                to="/login"
-                className="text-xs font-medium text-primary hover:underline"
+              <button
+                type="button"
+                onClick={handleOpenRecovery}
+                className="text-xs font-medium text-primary hover:underline focus:outline-none"
               >
                 {t("login.forgotPassword")}
-              </Link>
+              </button>
             </div>
 
             <Button
@@ -232,6 +293,83 @@ export function LoginPage() {
           </p>
         </CardFooter>
       </Card>
+
+      <Dialog
+        open={forgotPasswordOpen}
+        onOpenChange={(open) => {
+          if (!open) handleCloseRecovery()
+          else setForgotPasswordOpen(true)
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("login.forgotPasswordDialog.title")}</DialogTitle>
+            <DialogDescription>
+              {t("login.forgotPasswordDialog.description")}
+            </DialogDescription>
+          </DialogHeader>
+
+          {recoverySent ? (
+            <div className="space-y-4 py-2 text-center">
+              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
+                <CheckCircle2 className="size-6" aria-hidden="true" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-semibold text-foreground">
+                  {t("login.forgotPasswordDialog.successTitle")}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {t("login.forgotPasswordDialog.successMessage")}
+                </p>
+              </div>
+              <DialogFooter className="pt-2 sm:justify-center">
+                <Button onClick={handleCloseRecovery}>
+                  {t("login.forgotPasswordDialog.close")}
+                </Button>
+              </DialogFooter>
+            </div>
+          ) : (
+            <form
+              noValidate
+              className="space-y-4"
+              onSubmit={handleSubmitRecovery(onRecoverySubmit)}
+            >
+              {recoveryError && (
+                <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+                  {recoveryError}
+                </div>
+              )}
+
+              <FormField
+                label={t("login.forgotPasswordDialog.emailLabel")}
+                type="email"
+                placeholder={t("login.emailPlaceholder")}
+                autoComplete="email"
+                error={fieldError(recoveryErrors.email?.message)}
+                disabled={passwordRecoveryMutation.isPending}
+                {...registerRecovery("email")}
+              />
+
+              <DialogFooter className="pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCloseRecovery}
+                  disabled={passwordRecoveryMutation.isPending}
+                >
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  type="submit"
+                  isLoading={passwordRecoveryMutation.isPending}
+                >
+                  {t("login.forgotPasswordDialog.submit")}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
