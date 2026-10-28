@@ -26,7 +26,7 @@ export function MobileTopBar({
       )}
     >
       <div className="flex items-center gap-3">
-        <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground [&_img]:size-6 [&_svg]:size-5">
+        <span className="flex size-9 items-center justify-center [&_img]:size-6 [&_svg]:size-5">
           {logo}
         </span>
         <span className="text-xl font-bold tracking-tight text-foreground">

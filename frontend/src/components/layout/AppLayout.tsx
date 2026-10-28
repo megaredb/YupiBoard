@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react"
 import { Outlet, useLocation, useMatches, useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
-import { CalendarDays, Compass, Dices, Heart, Ticket } from "lucide-react"
+import { CalendarDays, Compass, Heart, Ticket } from "lucide-react"
 import { getInitials } from "@/lib/format"
 import { useAuthStore } from "@/stores/auth"
 import { Footer } from "./Footer"
 import { BottomNav, MobileTopBar } from "./MobileNav"
 import { Header, type NavItem, type UserProfile } from "./Header"
 
-const LOGO = <Dices aria-hidden />
+const LOGO = <img src="/images/logo.svg" alt="" />
 
 /**
  * Shell for browsing pages: desktop header + footer, mobile top bar.

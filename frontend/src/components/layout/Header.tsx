@@ -70,7 +70,7 @@ export function Header({
           aria-label={brandName}
           className="flex shrink-0 cursor-pointer items-center gap-3 rounded-xl focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
         >
-          <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground [&_img]:size-6 [&_svg]:size-6">
+          <span className="flex size-9 items-center justify-center [&_img]:size-6 [&_svg]:size-6">
             {logo}
           </span>
           <span className="hidden text-base font-bold tracking-tight text-foreground sm:inline">

@@ -240,3 +240,47 @@
     @apply bg-background text-foreground;
   }
 }
+
+.distance-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--primary) 0%,
+    var(--primary) var(--slider-progress),
+    var(--border) var(--slider-progress),
+    var(--border) 100%
+  );
+}
+
+.distance-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--border);
+}
+
+.distance-slider::-moz-range-progress {
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--primary);
+}
+
+.distance-slider::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  appearance: none;
+  border: 2px solid var(--background);
+  border-radius: 9999px;
+  background: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.distance-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--background);
+  border-radius: 9999px;
+  background: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}

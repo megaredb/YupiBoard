@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { DISTANCE_RANGE_KM } from "../../constants"
@@ -22,6 +23,8 @@ export function DistanceSlider({ value, onCommit }: DistanceSliderProps) {
   const commit = (km: number) => {
     if (km !== value) onCommit(km)
   }
+  const progress = ((draft - DISTANCE_RANGE_KM.min) / (DISTANCE_RANGE_KM.max - DISTANCE_RANGE_KM.min)) * 100
+  const sliderStyle = { "--slider-progress": `${progress}%` } as CSSProperties
 
   return (
     <div className="space-y-2">
@@ -44,7 +47,8 @@ export function DistanceSlider({ value, onCommit }: DistanceSliderProps) {
         onPointerUp={(event) => commit(Number(event.currentTarget.value))}
         onKeyUp={(event) => commit(Number(event.currentTarget.value))}
         onBlur={(event) => commit(Number(event.currentTarget.value))}
-        className="h-2 w-full cursor-pointer accent-primary"
+        style={sliderStyle}
+        className="distance-slider h-6 w-full cursor-pointer appearance-none bg-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       />
       <div className="flex justify-between text-[11px] text-muted-foreground">
         <span>{DISTANCE_RANGE_KM.min} km</span>
