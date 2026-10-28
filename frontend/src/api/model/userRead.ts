@@ -15,4 +15,8 @@ export interface UserRead {
   avatar_url?: string | null;
   created_at: string;
   updated_at: string;
+  city?: string | null;
+  contact_info?: string | null;
+  rating_as_player?: number | null;
+  rating_as_organizer?: number | null;
 }

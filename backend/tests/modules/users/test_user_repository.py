@@ -3,26 +3,31 @@ import uuid
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.modules.users.enums import UserStatus
 from app.modules.users.repository import UserRepository
 
 
 @pytest.mark.asyncio
 async def test_user_repository_crud(db_session: AsyncSession) -> None:
     repo = UserRepository(db_session)
-    unique_email = f"repo_user_{uuid.uuid4().hex[:8]}@example.com"
-    google_sub = f"g_sub_{uuid.uuid4().hex[:8]}"
+    unique_email = f"repo_user_{uuid.uuid7().hex}@example.com"
+    google_sub = f"g_sub_{uuid.uuid7().hex}"
 
     # Create
     user = await repo.create(
         email=unique_email,
         hashed_password="some_hashed_password",
-        full_name="Repo Test User",
+        first_name="Repo",
+        last_name="User",
         google_sub=google_sub,
-        is_active=True,
         is_verified=False,
     )
     assert user.id is not None
+    assert user.id.version == 7
     assert user.email == unique_email
+    assert user.first_name == "Repo"
+    assert user.last_name == "User"
+    assert user.status == UserStatus.ACTIVE
     assert user.google_sub == google_sub
 
     # Get by ID
@@ -41,8 +46,11 @@ async def test_user_repository_crud(db_session: AsyncSession) -> None:
     assert fetched_by_sub.id == user.id
 
     # Update
-    updated = await repo.update(user, full_name="Updated Name", is_verified=True)
-    assert updated.full_name == "Updated Name"
+    updated = await repo.update(
+        user, first_name="Updated", last_name="Name", is_verified=True
+    )
+    assert updated.first_name == "Updated"
+    assert updated.last_name == "Name"
     assert updated.is_verified is True
 
     # Get all
@@ -52,3 +60,44 @@ async def test_user_repository_crud(db_session: AsyncSession) -> None:
     # Delete
     await repo.delete(user)
     assert await repo.get_by_id(user.id) is None
+
+
+@pytest.mark.asyncio
+async def test_soft_delete_anonymizes_and_hides_user(db_session: AsyncSession) -> None:
+    repo = UserRepository(db_session)
+    email = f"soft_del_{uuid.uuid7().hex}@example.com"
+    google_sub = f"g_sub_{uuid.uuid7().hex}"
+    user = await repo.create(
+        email=email,
+        hashed_password="hash",
+        first_name="Soft",
+        last_name="Delete",
+        google_sub=google_sub,
+        avatar_url="https://example.com/a.png",
+        city="Kyiv",
+        contact_info="@soft",
+    )
+
+    deleted = await repo.soft_delete(user)
+
+    assert deleted.is_deleted is True
+    assert deleted.email == f"deleted-{user.id}@deleted.yupiboard.com"
+    assert deleted.google_sub is None
+    assert deleted.hashed_password is None
+    assert deleted.first_name is None
+    assert deleted.last_name is None
+    assert deleted.avatar_url is None
+    assert deleted.city is None
+    assert deleted.contact_info is None
+
+    # hidden from regular reads, still reachable explicitly
+    assert await repo.get_by_id(user.id) is None
+    assert await repo.get_by_id(user.id, include_deleted=True) is not None
+    assert user.id not in {u.id for u in await repo.get_all(limit=1000)}
+    assert user.id in {
+        u.id for u in await repo.get_all(limit=1000, include_deleted=True)
+    }
+
+    # email and google_sub are free again
+    assert await repo.get_by_email(email) is None
+    assert await repo.get_by_google_sub(google_sub) is None

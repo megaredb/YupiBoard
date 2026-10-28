@@ -24,7 +24,8 @@ async def test_register_and_login_flow(async_client: AsyncClient) -> None:
         json={
             "email": test_email,
             "password": password,
-            "full_name": "Test User",
+            "first_name": "Test",
+            "last_name": "User",
         },
     )
     assert reg_response.status_code == 201

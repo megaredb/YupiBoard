@@ -16,7 +16,8 @@ async def test_refresh_token_repository(db_session: AsyncSession) -> None:
     user = await user_repo.create(
         email=f"token_user_{uuid.uuid4().hex[:8]}@example.com",
         hashed_password="pwd",
-        full_name="Token User",
+        first_name="Token",
+        last_name="User",
     )
 
     token_hash1 = uuid.uuid4().hex
