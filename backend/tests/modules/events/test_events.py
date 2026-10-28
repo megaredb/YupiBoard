@@ -95,3 +95,13 @@ def test_event_routes_are_registered() -> None:
     assert "/api/v1/events/{event_id}" in paths
     assert "/api/v1/events/{event_id}/applications" not in paths
     assert "/api/v1/events/{event_id}/ratings" not in paths
+
+    event_get_params = {
+        param["name"] for param in paths["/api/v1/events"]["get"]["parameters"]
+    }
+    assert "city" in event_get_params
+    assert "lat" in event_get_params
+    assert "lon" in event_get_params
+    assert "radius_km" in event_get_params
+    assert "limit" in event_get_params
+    assert "page" in event_get_params

@@ -8,6 +8,10 @@
 export type ListEventsApiV1EventsGetParams = {
 lat?: number | null;
 lon?: number | null;
+/**
+ * Filter events within radius in kilometers
+ */
+radius_km?: number | null;
 city?: string | null;
 /**
  * @minimum 1

@@ -47,16 +47,25 @@ async def list_events(
     event_service: Annotated[EventService, Depends(get_event_service)],
     lat: Annotated[float | None, Query(ge=-90, le=90)] = None,
     lon: Annotated[float | None, Query(ge=-180, le=180)] = None,
+    radius_km: Annotated[
+        float | None,
+        Query(ge=0, description="Filter events within radius in kilometers"),
+    ] = None,
     city: Annotated[str | None, Query(max_length=100)] = None,
     page: Annotated[int, Query(ge=1)] = 1,
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> EventPage:
     if (lat is None) != (lon is None):
         raise BadRequestException("lat and lon must be provided together")
+    if radius_km is not None and (lat is None or lon is None):
+        raise BadRequestException(
+            "lat and lon must be provided when radius_km is specified"
+        )
     return await event_service.get_catalog(
         city=city,
         lat=lat,
         lon=lon,
+        radius_km=radius_km,
         page=page,
         limit=limit,
     )

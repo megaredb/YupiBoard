@@ -20,6 +20,7 @@ class EventRepository(BaseRepository[Event]):
         city: str | None = None,
         lat: float | None = None,
         lon: float | None = None,
+        radius_km: float | None = None,
         page: int = 1,
         limit: int = 20,
     ) -> tuple[Sequence[tuple[Event, float | None]], int, int]:
@@ -39,12 +40,15 @@ class EventRepository(BaseRepository[Event]):
         ordering = [is_promoted_order, Event.promoted_to_datetime.desc().nullslast()]
 
         if lat is not None and lon is not None:
+            distance_meters = func.earth_distance(
+                func.ll_to_earth(Event.lat, Event.lon),
+                func.ll_to_earth(lat, lon),
+            )
+            if radius_km is not None:
+                filters.append(distance_meters <= radius_km * 1000.0)
+
             distance_km_expr = cast(
-                func.earth_distance(
-                    func.ll_to_earth(Event.lat, Event.lon),
-                    func.ll_to_earth(lat, lon),
-                )
-                / 1000.0,
+                distance_meters / 1000.0,
                 Numeric(10, 1),
             )
             ordering.append(distance_km_expr)

@@ -39,6 +39,7 @@ class EventService:
         city: str | None = None,
         lat: float | None = None,
         lon: float | None = None,
+        radius_km: float | None = None,
         page: int = 1,
         limit: int = 20,
     ) -> EventPage:
@@ -46,6 +47,7 @@ class EventService:
             city=city,
             lat=lat,
             lon=lon,
+            radius_km=radius_km,
             page=page,
             limit=limit,
         )

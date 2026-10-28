@@ -1032,6 +1032,25 @@
             }
           },
           {
+            "name": "radius_km",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter events within radius in kilometers",
+              "title": "Radius Km"
+            },
+            "description": "Filter events within radius in kilometers"
+          },
+          {
             "name": "city",
             "in": "query",
             "required": false,
