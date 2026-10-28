@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { HomePage } from "@/components/pages/HomePage"
+import { EventCatalogPage } from "@/components/pages/EventCatalogPage"
+import { catalogSearchSchema } from "@/lib/events"
 
 export const Route = createFileRoute("/")({
-  component: HomePage,
+  validateSearch: catalogSearchSchema,
+  component: EventCatalogPage,
 })

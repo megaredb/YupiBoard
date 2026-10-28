@@ -1,15 +1,19 @@
-import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Query, Response, UploadFile, status
 
 from app.core.config import settings
-from app.core.storage import BaseStorage, get_storage, process_avatar_image
+from app.core.schemas import MessageResponse
+from app.core.storage import MediaService, get_media_service
 from app.core.types import UUID7
 from app.modules.auth.dependencies import get_current_superuser, get_current_user
 from app.modules.users.dependencies import get_user_service
 from app.modules.users.models import User
-from app.modules.users.schemas import UserRead, UserUpdate
+from app.modules.users.schemas import (
+    PasswordChangeRequest,
+    UserRead,
+    UserUpdate,
+)
 from app.modules.users.service import UserService
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -33,6 +37,20 @@ async def update_current_user_profile(
 
 
 @router.post(
+    "/me/change-password",
+    response_model=MessageResponse,
+    summary="Change password of current user",
+)
+async def change_password(
+    data: PasswordChangeRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    user_service: Annotated[UserService, Depends(get_user_service)],
+) -> MessageResponse:
+    await user_service.change_password(current_user, data.new_password)
+    return MessageResponse(message="Password successfully updated")
+
+
+@router.post(
     "/me/avatar",
     response_model=UserRead,
     summary="Upload avatar image (max 2 MB, JPEG/PNG/WebP, converted to 512x512 WebP thumbnail)",
@@ -41,14 +59,9 @@ async def upload_avatar(
     file: Annotated[UploadFile, File(...)],
     current_user: Annotated[User, Depends(get_current_user)],
     user_service: Annotated[UserService, Depends(get_user_service)],
-    storage: Annotated[BaseStorage, Depends(get_storage)],
+    media_service: Annotated[MediaService, Depends(get_media_service)],
 ) -> UserRead:
-    file_bytes = await file.read()
-    processed_bytes, content_type, ext = process_avatar_image(file_bytes)
-    filename = f"avatars/{current_user.id}_{uuid.uuid7().hex}.{ext}"
-    avatar_url = await storage.save(
-        processed_bytes, filename=filename, content_type=content_type
-    )
+    avatar_url = await media_service.upload_avatar(file, current_user.id)
     updated = await user_service.update_profile(
         current_user, UserUpdate(avatar_url=avatar_url)
     )
@@ -88,7 +101,6 @@ async def list_users(
 @router.get(
     "/{user_id}",
     response_model=UserRead,
-    dependencies=[Depends(get_current_superuser)],
 )
 async def get_user(
     user_id: UUID7,

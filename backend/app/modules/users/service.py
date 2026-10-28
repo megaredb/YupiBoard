@@ -2,6 +2,7 @@ import uuid
 from collections.abc import Sequence
 
 from app.core.exceptions import NotFoundException
+from app.core.security import get_password_hash
 from app.modules.users.models import User
 from app.modules.users.repository import UserRepository
 from app.modules.users.schemas import UserUpdate
@@ -24,6 +25,10 @@ class UserService:
         update_data = data.model_dump(exclude_unset=True)
         # exclude_none=False: an explicit null in the request clears the field
         return await self.user_repo.update(user, exclude_none=False, **update_data)
+
+    async def change_password(self, user: User, new_password: str) -> User:
+        hashed_password = get_password_hash(new_password)
+        return await self.user_repo.update(user, hashed_password=hashed_password)
 
     async def delete(self, user: User) -> None:
         await self.user_repo.soft_delete(user)

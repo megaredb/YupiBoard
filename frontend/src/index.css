@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
@@ -27,6 +27,10 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -51,7 +55,7 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* Дополнительные радиусы из старого файла */
+  /* Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ СЂР°РґРёСѓСЃС‹ РёР· СЃС‚Р°СЂРѕРіРѕ С„Р°Р№Р»Р° */
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
@@ -92,6 +96,12 @@
 
   --destructive: oklch(0.6445 0.2059 25.0609);
   --destructive-foreground: oklch(1.0000 0 0);
+
+  --warning: oklch(0.769 0.188 70.08);
+  --warning-foreground: oklch(0.279 0.077 45.635);
+
+  --success: oklch(0.627 0.194 149.214);
+  --success-foreground: oklch(0.985 0 0);
 
   --border: oklch(0.9276 0.0058 264.5313);
   --input: oklch(0.9670 0.0029 264.5419);
@@ -175,6 +185,12 @@
   --destructive: oklch(0.6445 0.2059 25.0609);
   --destructive-foreground: oklch(1.0000 0 0);
 
+  --warning: oklch(0.828 0.189 84.429);
+  --warning-foreground: oklch(0.205 0 0);
+
+  --success: oklch(0.696 0.17 162.48);
+  --success-foreground: oklch(0.145 0 0);
+
   --border: oklch(0.2182 0.0019 286.2389);
   --input: oklch(0.3870 0.0017 286.3215);
   --ring: oklch(0.5759 0.0033 264.5332);
@@ -240,3 +256,48 @@
     @apply bg-background text-foreground;
   }
 }
+
+.range-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--primary) 0%,
+    var(--primary) var(--slider-progress),
+    var(--border) var(--slider-progress),
+    var(--border) 100%
+  );
+}
+
+.range-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--border);
+}
+
+.range-slider::-moz-range-progress {
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--primary);
+}
+
+.range-slider::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  appearance: none;
+  border: 2px solid var(--background);
+  border-radius: 9999px;
+  background: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.range-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--background);
+  border-radius: 9999px;
+  background: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+

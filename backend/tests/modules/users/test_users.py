@@ -169,3 +169,35 @@ async def test_ghost_token_returns_401(async_client: AsyncClient) -> None:
         headers={"Authorization": f"Bearer {ghost_token}"},
     )
     assert r.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_change_password(
+    async_client: AsyncClient, create_mock_user
+) -> None:
+    _user, token = await create_mock_user()
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Unauthorized
+    r_unauth = await async_client.post(
+        "/api/v1/users/me/change-password",
+        json={"new_password": "NewSecretPassword123"},
+    )
+    assert r_unauth.status_code == 401
+
+    # Validation error: too short
+    r_short = await async_client.post(
+        "/api/v1/users/me/change-password",
+        headers=headers,
+        json={"new_password": "short"},
+    )
+    assert r_short.status_code == 422
+
+    # Success
+    r_ok = await async_client.post(
+        "/api/v1/users/me/change-password",
+        headers=headers,
+        json={"new_password": "ValidNewPassword123"},
+    )
+    assert r_ok.status_code == 200
+    assert r_ok.json()["message"] == "Password successfully updated"

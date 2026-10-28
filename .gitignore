@@ -46,3 +46,8 @@ graphify-out
 docs
 # Frontend generated routes
 frontend/src/routeTree.gen.ts
+
+# Uploaded local media
+media/
+backend/media/
+

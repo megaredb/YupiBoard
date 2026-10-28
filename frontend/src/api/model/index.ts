@@ -6,12 +6,14 @@
  */
 
 export * from './bodyUploadAvatarApiV1UsersMeAvatarPost.ts';
+export * from './bodyUploadEventImageApiV1EventsUploadImagePost.ts';
 export * from './bookingCreateResponse.ts';
 export * from './bookingStatus.ts';
 export * from './emailVerifyRequest.ts';
 export * from './emailVerifyRequest';
 export * from './eventCreate.ts';
 export * from './eventCreateResponse.ts';
+export * from './eventImageUploadResponse.ts';
 export * from './eventListItem.ts';
 export * from './eventOrganizerSummary.ts';
 export * from './eventPage.ts';
@@ -29,6 +31,7 @@ export * from './loginRequest.ts';
 export * from './loginRequest';
 export * from './messageResponse.ts';
 export * from './messageResponse';
+export * from './passwordChangeRequest.ts';
 export * from './passwordResetConfirmRequest.ts';
 export * from './passwordResetConfirmRequest';
 export * from './passwordResetRequest.ts';

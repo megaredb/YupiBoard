@@ -5,12 +5,20 @@ tls:
 
 http:
   routers:
+    media-router:
+      rule: "Host(`yupiboard.localhost`) && PathPrefix(`/media`)"
+      entrypoints:
+        - "websecure"
+      tls: true
+      service: "backend-service"
+      priority: 100
     frontend-router:
       rule: "Host(`yupiboard.localhost`)"
       entrypoints:
         - "websecure"
       tls: true
       service: "frontend-service"
+      priority: 10
     backend-router:
       rule: "Host(`api.yupiboard.localhost`)"
       entrypoints:

@@ -12,7 +12,6 @@ async def test_admin_endpoints_require_superuser(
     headers = {"Authorization": f"Bearer {user_token}"}
     routes = [
         ("GET", "/api/v1/users"),
-        ("GET", f"/api/v1/users/{user.id}"),
         ("PATCH", f"/api/v1/users/{user.id}"),
         ("DELETE", f"/api/v1/users/{user.id}"),
     ]

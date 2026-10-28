@@ -29,6 +29,10 @@ class UserUpdate(BaseModel):
         return v
 
 
+class PasswordChangeRequest(BaseModel):
+    new_password: str = Field(min_length=8, max_length=128)
+
+
 class UserRead(UserBase):
     id: UUID7
     avatar_url: str | None = None

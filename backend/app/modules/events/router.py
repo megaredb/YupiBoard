@@ -1,14 +1,16 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, File, Query, UploadFile, status
 
 from app.core.exceptions import BadRequestException
+from app.core.storage import MediaService, get_media_service
 from app.modules.auth.dependencies import get_current_verified_user
 from app.modules.events.dependencies import get_event_service
 from app.modules.events.schemas import (
     EventCreate,
     EventCreateResponse,
+    EventImageUploadResponse,
     EventPage,
     EventRead,
 )
@@ -16,6 +18,20 @@ from app.modules.events.service import EventService
 from app.modules.users.models import User
 
 router = APIRouter(prefix="/events", tags=["events"])
+
+
+@router.post(
+    "/upload-image",
+    response_model=EventImageUploadResponse,
+    summary="Upload event cover image (max 5 MB, JPEG/PNG/WebP, converted to WebP)",
+)
+async def upload_event_image(
+    file: Annotated[UploadFile, File(...)],
+    current_user: Annotated[User, Depends(get_current_verified_user)],
+    media_service: Annotated[MediaService, Depends(get_media_service)],
+) -> EventImageUploadResponse:
+    image_url = await media_service.upload_event_image(file, current_user.id)
+    return EventImageUploadResponse(image_url=image_url)
 
 
 @router.post(

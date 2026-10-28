@@ -1,10 +1,12 @@
-import type { MouseEvent, ReactNode } from 'react'
+import { useState, type MouseEvent, type ReactNode } from 'react'
 import {
   Bell,
   LogOut,
   Menu,
+  Moon,
   Plus,
   Settings,
+  Sun,
   User as UserIcon,
 } from 'lucide-react'
 
@@ -35,6 +37,8 @@ export interface HeaderProps {
 
   user?: UserProfile | null
   onCreateEvent?: () => void
+  isDark?: boolean
+  onThemeToggle?: () => void
   onNotificationClick?: () => void
   notificationsBadge?: string | null
   isUserMenuOpen?: boolean
@@ -63,6 +67,8 @@ export function Header({
   onNavToggle,
   user = null,
   onCreateEvent,
+  isDark,
+  onThemeToggle,
   onNotificationClick,
   notificationsBadge = null,
   isUserMenuOpen = false,
@@ -74,6 +80,25 @@ export function Header({
   onLogoutClick,
   className,
 }: HeaderProps) {
+  const [internalIsDark, setInternalIsDark] = useState(() =>
+    typeof document !== 'undefined'
+      ? document.documentElement.classList.contains('dark')
+      : false,
+  )
+
+  const effectiveIsDark = isDark ?? internalIsDark
+
+  const handleThemeToggle = () => {
+    const next = !effectiveIsDark
+    if (isDark === undefined) {
+      setInternalIsDark(next)
+      if (typeof document !== 'undefined') {
+        document.documentElement.classList.toggle('dark', next)
+      }
+    }
+    onThemeToggle?.()
+  }
+
   return (
     <header
       className={cn(
@@ -147,18 +172,37 @@ export function Header({
         </nav>
 
         <div className="ml-auto flex items-center gap-1 sm:gap-3">
+          {user && (
+            <Button
+              type="button"
+              onClick={onCreateEvent}
+              aria-label="Create event"
+              className="h-8 rounded-lg bg-primary px-3 text-xs font-medium text-primary-foreground shadow-sm hover:bg-primary/90 sm:px-4"
+            >
+              <Plus className="size-4" />
+              <span className="hidden sm:inline">Create event</span>
+            </Button>
+          )}
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={handleThemeToggle}
+            aria-label={
+              effectiveIsDark ? 'Switch to light theme' : 'Switch to dark theme'
+            }
+            className="rounded-full"
+          >
+            {effectiveIsDark ? (
+              <Moon className="size-5 text-muted-foreground" />
+            ) : (
+              <Sun className="size-5 text-muted-foreground" />
+            )}
+          </Button>
+
           {user ? (
             <>
-              <Button
-                type="button"
-                onClick={onCreateEvent}
-                aria-label="Create event"
-                className="h-8 rounded-lg bg-primary px-3 text-xs font-medium text-primary-foreground shadow-sm hover:bg-primary/90 sm:px-4"
-              >
-                <Plus className="size-4" />
-                <span className="hidden sm:inline">Create event</span>
-              </Button>
-
               <Button
                 type="button"
                 variant="ghost"
