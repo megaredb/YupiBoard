@@ -358,5 +358,16 @@
     "authFailed": "Authentication failed, please try again",
     "serviceUnavailable": "Service is temporarily unavailable",
     "accountBanned": "Your account has been blocked"
+  },
+  "verifyEmail": {
+    "title": "Email Verification",
+    "verifying": "Verifying your email address...",
+    "verifyingSubtitle": "Please wait a moment while we activate your account.",
+    "successTitle": "Email Verified!",
+    "successMessage": "Your email address has been successfully verified. You can now log in and find your next game night.",
+    "errorTitle": "Verification Failed",
+    "missingToken": "The verification token is missing. Please make sure you clicked the full link from your email.",
+    "loginButton": "Go to Login",
+    "registerButton": "Register Again"
   }
 }
