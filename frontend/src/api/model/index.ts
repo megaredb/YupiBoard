@@ -5,6 +5,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './bookingCreateResponse.ts';
+export * from './bookingStatus.ts';
 export * from './emailVerifyRequest.ts';
 export * from './emailVerifyRequest';
 export * from './eventCreate.ts';
