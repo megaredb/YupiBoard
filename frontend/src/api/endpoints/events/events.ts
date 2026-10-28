@@ -24,8 +24,10 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  BodyUploadEventImageApiV1EventsUploadImagePost,
   EventCreate,
   EventCreateResponse,
+  EventImageUploadResponse,
   EventPage,
   EventRead,
   HTTPValidationError,
@@ -55,6 +57,75 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
 };
 
 /**
+ * @summary Upload event cover image (max 5 MB, JPEG/PNG/WebP, converted to WebP)
+ */
+export const uploadEventImageApiV1EventsUploadImagePost = (
+    bodyUploadEventImageApiV1EventsUploadImagePost: BodyUploadEventImageApiV1EventsUploadImagePost,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+      const formData = new FormData();
+formData.append(`file`, bodyUploadEventImageApiV1EventsUploadImagePost.file);
+
+      return customInstance<EventImageUploadResponse>(
+      {url: `/api/v1/events/upload-image`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData, signal
+    },
+      options);
+    }
+
+
+
+
+export const getUploadEventImageApiV1EventsUploadImagePostMutationKey = () => ['uploadEventImageApiV1EventsUploadImagePost'] as const;
+
+export const getUploadEventImageApiV1EventsUploadImagePostMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadEventImageApiV1EventsUploadImagePost>>, TError,UploadEventImageApiV1EventsUploadImagePostMutationVariables, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadEventImageApiV1EventsUploadImagePost>>, TError,UploadEventImageApiV1EventsUploadImagePostMutationVariables, TContext> => {
+
+const mutationKey = getUploadEventImageApiV1EventsUploadImagePostMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadEventImageApiV1EventsUploadImagePost>>, UploadEventImageApiV1EventsUploadImagePostMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  uploadEventImageApiV1EventsUploadImagePost(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadEventImageApiV1EventsUploadImagePostMutationResult = NonNullable<Awaited<ReturnType<typeof uploadEventImageApiV1EventsUploadImagePost>>>
+    export type UploadEventImageApiV1EventsUploadImagePostMutationBody = BodyUploadEventImageApiV1EventsUploadImagePost
+    export type UploadEventImageApiV1EventsUploadImagePostMutationError = HTTPValidationError
+    export type UploadEventImageApiV1EventsUploadImagePostMutationVariables = {data: BodyUploadEventImageApiV1EventsUploadImagePost}
+
+    /**
+ * @summary Upload event cover image (max 5 MB, JPEG/PNG/WebP, converted to WebP)
+ */
+export const useUploadEventImageApiV1EventsUploadImagePost = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadEventImageApiV1EventsUploadImagePost>>, TError,UploadEventImageApiV1EventsUploadImagePostMutationVariables, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof uploadEventImageApiV1EventsUploadImagePost>>,
+        TError,
+        UploadEventImageApiV1EventsUploadImagePostMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUploadEventImageApiV1EventsUploadImagePostMutationOptions(options), queryClient);
+    }
+    /**
  * @summary Organizer creates a new event session
  */
 export const createEventApiV1EventsPost = (

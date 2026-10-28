@@ -957,6 +957,81 @@
         }
       }
     },
+    "/api/v1/events/upload-image": {
+      "post": {
+        "tags": [
+          "events"
+        ],
+        "summary": "Upload event cover image (max 5 MB, JPEG/PNG/WebP, converted to WebP)",
+        "operationId": "upload_event_image_api_v1_events_upload_image_post",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "name": "access_token",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Access Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_event_image_api_v1_events_upload_image_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventImageUploadResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/events": {
       "post": {
         "tags": [
@@ -1293,6 +1368,20 @@
         ],
         "title": "Body_upload_avatar_api_v1_users_me_avatar_post"
       },
+      "Body_upload_event_image_api_v1_events_upload_image_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_event_image_api_v1_events_upload_image_post"
+      },
       "BookingCreateResponse": {
         "properties": {
           "booking_id": {
@@ -1492,6 +1581,19 @@
           "message"
         ],
         "title": "EventCreateResponse"
+      },
+      "EventImageUploadResponse": {
+        "properties": {
+          "image_url": {
+            "type": "string",
+            "title": "Image Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "image_url"
+        ],
+        "title": "EventImageUploadResponse"
       },
       "EventListItem": {
         "properties": {

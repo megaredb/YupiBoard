@@ -5,7 +5,10 @@ import { ArrowLeft, Info, MapPin, ShieldCheck } from "lucide-react"
 import { Controller, useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
-import { useCreateEventApiV1EventsPost } from "@/api/endpoints/events/events"
+import {
+  useCreateEventApiV1EventsPost,
+  useUploadEventImageApiV1EventsUploadImagePost,
+} from "@/api/endpoints/events/events"
 import type { EventCreateResponse } from "@/api/model"
 import { BrandLogo } from "@/components/layout/BrandLogo"
 import { Field } from "@/components/FormField"
@@ -20,7 +23,7 @@ import { StatusMessage } from "@/components/ui/status-message"
 import { Textarea } from "@/components/ui/textarea"
 import { getErrorMessage } from "@/lib/errors"
 import { CITY_OPTIONS, DEFAULT_CITY_ID, getCity, useGoBack } from "@/lib/events"
-import { MAX_BANNER_BYTES, validateAndProcessImage } from "@/lib/image"
+import { MAX_BANNER_BYTES } from "@/lib/image"
 
 /** Limits mirror `EventCreate` in the OpenAPI schema. */
 const LIMITS = {
@@ -97,6 +100,7 @@ function CreateEventForm({ onCreated }: { onCreated: (response: EventCreateRespo
   const goBack = useGoBack()
   const [serverError, setServerError] = useState<string | null>(null)
   const createEvent = useCreateEventApiV1EventsPost()
+  const uploadImage = useUploadEventImageApiV1EventsUploadImagePost()
 
   const {
     register,
@@ -126,12 +130,15 @@ function CreateEventForm({ onCreated }: { onCreated: (response: EventCreateRespo
 
     let photoUrl: string | null = null
     if (values.coverImage) {
-      const processed = await validateAndProcessImage(values.coverImage, MAX_BANNER_BYTES, 1280)
-      if (!processed.ok) {
-        setServerError(t("createEvent.validation.coverType"))
+      try {
+        const uploadRes = await uploadImage.mutateAsync({
+          data: { file: values.coverImage },
+        })
+        photoUrl = uploadRes.image_url
+      } catch (uploadError) {
+        setServerError(getErrorMessage(uploadError, t("createEvent.validation.coverType")))
         return
       }
-      photoUrl = processed.dataUrl
     }
 
     // No geocoding yet: the event is placed at the chosen city's center.
@@ -149,10 +156,7 @@ function CreateEventForm({ onCreated }: { onCreated: (response: EventCreateRespo
           start_datetime: new Date(`${values.date}T${values.time}`).toISOString(),
           max_players: values.maxPlayers,
           entry_cost: values.price,
-          photo_url:
-            photoUrl && (photoUrl.startsWith("http://") || photoUrl.startsWith("https://"))
-              ? photoUrl
-              : null,
+          photo_url: photoUrl,
         },
       },
       {
@@ -321,7 +325,7 @@ function CreateEventForm({ onCreated }: { onCreated: (response: EventCreateRespo
               type="submit"
               size="lg"
               className="h-10 flex-1 sm:flex-none"
-              isLoading={isSubmitting || createEvent.isPending}
+              isLoading={isSubmitting || createEvent.isPending || uploadImage.isPending}
             >
               {t("createEvent.submit")}
             </Button>

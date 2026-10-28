@@ -77,7 +77,7 @@ class Settings(BaseSettings):
     # Storage & Media
     STORAGE_BACKEND: str = "local"
     MEDIA_DIR: str = "media"
-    MEDIA_BASE_URL: str = "/media"
+    MEDIA_BASE_URL: str = "https://api.yupiboard.localhost/media"
     S3_ENDPOINT_URL: str | None = None
     S3_BUCKET_NAME: str = "yupiboard-storage"
     S3_ACCESS_KEY: str | None = None

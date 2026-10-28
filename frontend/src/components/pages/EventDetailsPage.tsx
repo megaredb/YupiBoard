@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
-import { getRouteApi, Link, useNavigate } from "@tanstack/react-router"
-import { useQueryClient } from "@tanstack/react-query"
+import { useEffect, useState } from "react";
+import { getRouteApi, Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -14,91 +14,108 @@ import {
   ShieldCheck,
   Star,
   Users,
-} from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { useCreateBookingRequestApiV1EventsIdBookingsPost } from "@/api/endpoints/bookings/bookings"
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useCreateBookingRequestApiV1EventsIdBookingsPost } from "@/api/endpoints/bookings/bookings";
 import {
   getGetEventApiV1EventsEventIdGetQueryKey,
   useGetEventApiV1EventsEventIdGet,
-} from "@/api/endpoints/events/events"
-import { useGetUserApiV1UsersUserIdGet } from "@/api/endpoints/users/users"
-import type { BookingStatus, EventRead } from "@/api/model"
-import { PageContainer } from "@/components/layout/PageContainer"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Breadcrumbs } from "@/components/ui/breadcrumbs"
-import { Button } from "@/components/ui/button"
-import { buttonVariants } from "@/components/ui/button-variants"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { SeatsProgress } from "@/components/ui/seats-progress"
-import { Skeleton } from "@/components/ui/skeleton"
-import { StatusMessage } from "@/components/ui/status-message"
-import { toggleSavedEvent, useGoBack, useSavedEventIds } from "@/lib/events"
-import { formatLongDate, formatPrice, formatTimeRange, getInitials, parseAmount } from "@/lib/format"
-import { cn } from "@/lib/utils"
-import { useAuthStore } from "@/stores/auth"
+} from "@/api/endpoints/events/events";
+import { useGetUserApiV1UsersUserIdGet } from "@/api/endpoints/users/users";
+import type { BookingStatus, EventRead } from "@/api/model";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SeatsProgress } from "@/components/ui/seats-progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusMessage } from "@/components/ui/status-message";
+import { toggleSavedEvent, useGoBack, useSavedEventIds } from "@/lib/events";
+import {
+  formatLongDate,
+  formatPrice,
+  formatTimeRange,
+  getInitials,
+  parseAmount,
+} from "@/lib/format";
+import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/auth";
 
-const route = getRouteApi("/events/$eventId")
-const COLLAPSIBLE_AFTER_CHARS = 160
+const route = getRouteApi("/events/$eventId");
+const COLLAPSIBLE_AFTER_CHARS = 160;
 
 interface BookingAction {
-  label: string
-  disabled: boolean
-  isPending: boolean
-  hasError: boolean
-  onClick: () => void
+  label: string;
+  disabled: boolean;
+  isPending: boolean;
+  hasError: boolean;
+  onClick: () => void;
 }
 
 function useBookingAction(event: EventRead): BookingAction {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
-  const queryClient = useQueryClient()
-  const user = useAuthStore((state) => state.user)
-  const bookedIds = useSavedEventIds("bookings")
-  const [bookingStatus, setBookingStatus] = useState<BookingStatus | null>(null)
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const user = useAuthStore((state) => state.user);
+  const bookedIds = useSavedEventIds("bookings");
+  const [bookingStatus, setBookingStatus] = useState<BookingStatus | null>(
+    null,
+  );
 
   const booking = useCreateBookingRequestApiV1EventsIdBookingsPost({
     mutation: {
       onSuccess: (response) => {
-        setBookingStatus(response.status)
-        toggleSavedEvent("bookings", event.id, true)
+        setBookingStatus(response.status);
+        toggleSavedEvent("bookings", event.id, true);
         void queryClient.invalidateQueries({
           queryKey: getGetEventApiV1EventsEventIdGetQueryKey(event.id),
-        })
+        });
       },
     },
-  })
+  });
 
-  const base = { isPending: booking.isPending, hasError: booking.isError, onClick: () => {} }
+  const base = {
+    isPending: booking.isPending,
+    hasError: booking.isError,
+    onClick: () => {},
+  };
 
-  if (user?.id === event.organizer_id) return { ...base, disabled: true, label: t("events.booking.hosting") }
-  if (event.status !== "Published") return { ...base, disabled: true, label: t("events.booking.closed") }
-  if (bookingStatus === "Confirmed") return { ...base, disabled: true, label: t("events.booking.approved") }
-  if (bookingStatus === "Waitlist") return { ...base, disabled: true, label: t("events.booking.waitlist") }
+  if (user?.id === event.organizer_id)
+    return { ...base, disabled: true, label: t("events.booking.hosting") };
+  if (event.status !== "Published")
+    return { ...base, disabled: true, label: t("events.booking.closed") };
+  if (bookingStatus === "Confirmed")
+    return { ...base, disabled: true, label: t("events.booking.approved") };
+  if (bookingStatus === "Waitlist")
+    return { ...base, disabled: true, label: t("events.booking.waitlist") };
   if (bookingStatus || bookedIds.includes(event.id)) {
-    return { ...base, disabled: true, label: t("events.booking.pending") }
+    return { ...base, disabled: true, label: t("events.booking.pending") };
   }
-  if (event.available_seats <= 0) return { ...base, disabled: true, label: t("events.booking.full") }
+  if (event.available_seats <= 0)
+    return { ...base, disabled: true, label: t("events.booking.full") };
 
   return {
     ...base,
     disabled: false,
     label: t("events.booking.apply"),
     onClick: () => {
-      if (user) booking.mutate({ id: event.id })
-      else void navigate({ to: "/login" })
+      if (user) booking.mutate({ id: event.id });
+      else void navigate({ to: "/login" });
     },
-  }
+  };
 }
 
 function FavoriteButton({
   eventId,
   className,
 }: {
-  eventId: string
-  className?: string
+  eventId: string;
+  className?: string;
 }) {
-  const { t } = useTranslation()
-  const isFavorite = useSavedEventIds("favorites").includes(eventId)
+  const { t } = useTranslation();
+  const isFavorite = useSavedEventIds("favorites").includes(eventId);
 
   return (
     <Button
@@ -106,62 +123,83 @@ function FavoriteButton({
       variant="ghost"
       size="icon"
       aria-pressed={isFavorite}
-      aria-label={isFavorite ? t("events.details.unfavorite") : t("events.details.favorite")}
+      aria-label={
+        isFavorite
+          ? t("events.details.unfavorite")
+          : t("events.details.favorite")
+      }
       onClick={() => toggleSavedEvent("favorites", eventId, !isFavorite)}
-      className={cn("size-10 rounded-full bg-card/90 text-foreground shadow-sm hover:bg-card", className)}
+      className={cn(
+        "size-10 rounded-full bg-card/90 text-foreground shadow-sm hover:bg-card",
+        className,
+      )}
     >
-      <Heart className={cn("size-5", isFavorite ? "fill-primary text-primary" : "text-foreground")} />
+      <Heart
+        className={cn(
+          "size-5",
+          isFavorite ? "fill-primary text-primary" : "text-foreground",
+        )}
+      />
     </Button>
-  )
+  );
 }
 
 function ShareButton({
   title,
   className,
 }: {
-  title: string
-  className?: string
+  title: string;
+  className?: string;
 }) {
-  const { t } = useTranslation()
-  const [copied, setCopied] = useState(false)
+  const { t } = useTranslation();
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (!copied) return
-    const timer = setTimeout(() => setCopied(false), 2000)
-    return () => clearTimeout(timer)
-  }, [copied])
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copied]);
 
   const share = async () => {
-    const url = window.location.href
+    const url = window.location.href;
     try {
       if (navigator.share) {
-        await navigator.share({ title, url })
+        await navigator.share({ title, url });
       } else {
-        await navigator.clipboard.writeText(url)
-        setCopied(true)
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
       }
     } catch {
       // Dismissed
     }
-  }
+  };
 
   return (
     <Button
       type="button"
       variant="ghost"
       size="icon"
-      aria-label={copied ? t("events.details.linkCopied") : t("events.details.share")}
+      aria-label={
+        copied ? t("events.details.linkCopied") : t("events.details.share")
+      }
       onClick={() => void share()}
-      className={cn("size-10 rounded-full bg-card/90 text-foreground shadow-sm hover:bg-card", className)}
+      className={cn(
+        "size-10 rounded-full bg-card/90 text-foreground shadow-sm hover:bg-card",
+        className,
+      )}
     >
-      {copied ? <Check className="size-5 text-success" /> : <Share2 className="size-5 text-foreground" />}
+      {copied ? (
+        <Check className="size-5 text-success" />
+      ) : (
+        <Share2 className="size-5 text-foreground" />
+      )}
     </Button>
-  )
+  );
 }
 
 function MobileTopBar({ event }: { event: EventRead }) {
-  const { t } = useTranslation()
-  const goBack = useGoBack()
+  const { t } = useTranslation();
+  const goBack = useGoBack();
 
   return (
     <div className="sticky top-0 z-30 flex h-14 w-full items-center justify-between border-b border-border/50 bg-background/95 px-4 backdrop-blur-md lg:hidden">
@@ -187,14 +225,14 @@ function MobileTopBar({ event }: { event: EventRead }) {
         />
       </div>
     </div>
-  )
+  );
 }
 
 function EventHero({ event }: { event: EventRead }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
-    <div className="relative aspect-16/9 w-full overflow-hidden bg-linear-to-br from-primary/20 via-primary/10 to-muted max-lg:rounded-none lg:rounded-2xl">
+    <div className="relative aspect-video w-full overflow-hidden bg-linear-to-br from-primary/20 via-primary/10 to-muted max-lg:rounded-none lg:rounded-2xl">
       {event.photo_url && (
         <img src={event.photo_url} alt="" className="size-full object-cover" />
       )}
@@ -211,7 +249,7 @@ function EventHero({ event }: { event: EventRead }) {
         <FavoriteButton eventId={event.id} />
       </div>
     </div>
-  )
+  );
 }
 
 function EventFacts({ event }: { event: EventRead }) {
@@ -228,7 +266,8 @@ function EventFacts({ event }: { event: EventRead }) {
               {formatLongDate(event.start_datetime)}
             </p>
             <p className="text-xs text-muted-foreground sm:text-sm">
-              {formatTimeRange(event.start_datetime, event.end_datetime)} · Kyiv time
+              {formatTimeRange(event.start_datetime, event.end_datetime)} · Kyiv
+              time
             </p>
           </div>
         </div>
@@ -265,13 +304,13 @@ function EventFacts({ event }: { event: EventRead }) {
         />
       </div>
     </div>
-  )
+  );
 }
 
 function EventAbout({ description }: { description: string }) {
-  const { t } = useTranslation()
-  const [expanded, setExpanded] = useState(false)
-  const isLong = description.length > COLLAPSIBLE_AFTER_CHARS
+  const { t } = useTranslation();
+  const [expanded, setExpanded] = useState(false);
+  const isLong = description.length > COLLAPSIBLE_AFTER_CHARS;
 
   return (
     <Card className="rounded-2xl border border-border bg-card p-6 shadow-sm">
@@ -301,29 +340,31 @@ function EventAbout({ description }: { description: string }) {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function OrganizerSection({ event }: { event: EventRead }) {
-  const { t } = useTranslation()
-  const { organizer } = event
-  const { data: organizerUser } = useGetUserApiV1UsersUserIdGet(organizer.id)
+  const { t } = useTranslation();
+  const { organizer } = event;
+  const { data: organizerUser } = useGetUserApiV1UsersUserIdGet(organizer.id);
 
   const rating =
     organizerUser?.rating_as_organizer != null
       ? Number(organizerUser.rating_as_organizer).toFixed(2)
       : organizer.rating_as_organizer != null
         ? Number(organizer.rating_as_organizer).toFixed(2)
-        : null
+        : null;
 
   const memberYear = organizerUser?.created_at
     ? new Date(organizerUser.created_at).getFullYear()
-    : "—"
+    : "—";
 
   const displayName = organizerUser
-    ? [organizerUser.first_name, organizerUser.last_name].filter(Boolean).join(" ").trim() ||
-      organizer.name
-    : organizer.name
+    ? [organizerUser.first_name, organizerUser.last_name]
+        .filter(Boolean)
+        .join(" ")
+        .trim() || organizer.name
+    : organizer.name;
 
   return (
     <>
@@ -339,7 +380,10 @@ function OrganizerSection({ event }: { event: EventRead }) {
             <div className="flex items-center gap-4">
               <Avatar className="size-14 border-2 border-card shadow-xs">
                 {organizerUser?.avatar_url && (
-                  <AvatarImage src={organizerUser.avatar_url} alt={displayName} />
+                  <AvatarImage
+                    src={organizerUser.avatar_url}
+                    alt={displayName}
+                  />
                 )}
                 <AvatarFallback className="font-semibold text-base">
                   {getInitials(displayName)}
@@ -347,7 +391,9 @@ function OrganizerSection({ event }: { event: EventRead }) {
               </Avatar>
 
               <div className="space-y-1">
-                <p className="text-base font-semibold text-foreground">{displayName}</p>
+                <p className="text-base font-semibold text-foreground">
+                  {displayName}
+                </p>
                 <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <span>
                     {rating
@@ -392,14 +438,19 @@ function OrganizerSection({ event }: { event: EventRead }) {
             <div className="flex items-center gap-3.5">
               <Avatar className="size-12 border-2 border-card shadow-xs">
                 {organizerUser?.avatar_url && (
-                  <AvatarImage src={organizerUser.avatar_url} alt={displayName} />
+                  <AvatarImage
+                    src={organizerUser.avatar_url}
+                    alt={displayName}
+                  />
                 )}
                 <AvatarFallback className="font-semibold">
                   {getInitials(displayName)}
                 </AvatarFallback>
               </Avatar>
               <div className="space-y-0.5">
-                <p className="text-base font-semibold text-foreground">{displayName}</p>
+                <p className="text-base font-semibold text-foreground">
+                  {displayName}
+                </p>
                 {rating && (
                   <p className="flex items-center gap-1 text-xs font-medium text-amber-500">
                     <Star className="size-3.5 fill-amber-500 text-amber-500" />
@@ -414,12 +465,18 @@ function OrganizerSection({ event }: { event: EventRead }) {
         </CardContent>
       </Card>
     </>
-  )
+  );
 }
 
-function PriceLabel({ event, className }: { event: EventRead; className?: string }) {
-  const { t } = useTranslation()
-  const price = parseAmount(event.entry_cost)
+function PriceLabel({
+  event,
+  className,
+}: {
+  event: EventRead;
+  className?: string;
+}) {
+  const { t } = useTranslation();
+  const price = parseAmount(event.entry_cost);
 
   return (
     <div className={cn("flex items-baseline gap-2", className)}>
@@ -432,13 +489,13 @@ function PriceLabel({ event, className }: { event: EventRead; className?: string
         </span>
       )}
     </div>
-  )
+  );
 }
 
 function BookingCard({ event }: { event: EventRead }) {
-  const { t } = useTranslation()
-  const action = useBookingAction(event)
-  const isPaid = parseAmount(event.entry_cost) > 0
+  const { t } = useTranslation();
+  const action = useBookingAction(event);
+  const isPaid = parseAmount(event.entry_cost) > 0;
 
   return (
     <aside className="space-y-3">
@@ -519,12 +576,12 @@ function BookingCard({ event }: { event: EventRead }) {
         </button>
       </div>
     </aside>
-  )
+  );
 }
 
 function MobileBookingBar({ event }: { event: EventRead }) {
-  const { t } = useTranslation()
-  const action = useBookingAction(event)
+  const { t } = useTranslation();
+  const action = useBookingAction(event);
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-4 border-t border-border bg-background/95 px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden">
@@ -546,7 +603,7 @@ function MobileBookingBar({ event }: { event: EventRead }) {
         {action.label}
       </Button>
     </div>
-  )
+  );
 }
 
 function DetailsSkeleton() {
@@ -557,20 +614,25 @@ function DetailsSkeleton() {
       <Skeleton className="h-5 w-1/2" />
       <Skeleton className="h-40 w-full rounded-2xl" />
     </div>
-  )
+  );
 }
 
 export function EventDetailsPage() {
-  const { t } = useTranslation()
-  const { eventId } = route.useParams()
-  const { data: event, isPending, isError, refetch } = useGetEventApiV1EventsEventIdGet(eventId)
+  const { t } = useTranslation();
+  const { eventId } = route.useParams();
+  const {
+    data: event,
+    isPending,
+    isError,
+    refetch,
+  } = useGetEventApiV1EventsEventIdGet(eventId);
 
   if (isPending) {
     return (
       <PageContainer>
         <DetailsSkeleton />
       </PageContainer>
-    )
+    );
   }
 
   if (isError) {
@@ -581,7 +643,11 @@ export function EventDetailsPage() {
           description={t("events.details.notFoundDescription")}
           action={
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => void refetch()}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => void refetch()}
+              >
                 {t("common.retry")}
               </Button>
               <Link to="/events" className={buttonVariants({ size: "sm" })}>
@@ -591,7 +657,7 @@ export function EventDetailsPage() {
           }
         />
       </PageContainer>
-    )
+    );
   }
 
   return (
@@ -637,5 +703,5 @@ export function EventDetailsPage() {
 
       <MobileBookingBar event={event} />
     </>
-  )
+  );
 }

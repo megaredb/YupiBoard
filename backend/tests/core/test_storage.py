@@ -7,7 +7,9 @@ from PIL import Image
 from app.core.exceptions import BadRequestException
 from app.core.storage.image import (
     MAX_AVATAR_SIZE_BYTES,
+    MAX_EVENT_IMAGE_SIZE_BYTES,
     process_avatar_image,
+    process_event_image,
 )
 from app.core.storage.local import LocalStorage
 from app.main import app
@@ -92,3 +94,36 @@ def test_avatar_upload_route_is_registered() -> None:
     paths = app.openapi()["paths"]
     assert "/api/v1/users/me/avatar" in paths
     assert "post" in paths["/api/v1/users/me/avatar"]
+
+
+def test_process_event_image_valid_png() -> None:
+    data = create_test_image("PNG", (800, 600))
+    processed, content_type, ext = process_event_image(data)
+
+    assert content_type == "image/webp"
+    assert ext == "webp"
+    assert len(processed) > 0
+
+    with Image.open(io.BytesIO(processed)) as img:
+        assert img.size == (800, 600)
+
+
+def test_process_event_image_resizes_large_dimensions() -> None:
+    data = create_test_image("JPEG", (3000, 2000))
+    processed, _, _ = process_event_image(data)
+
+    with Image.open(io.BytesIO(processed)) as img:
+        assert img.width <= 1920
+        assert img.height <= 1080
+
+
+def test_process_event_image_rejects_oversized_payload() -> None:
+    large_payload = b"X" * (MAX_EVENT_IMAGE_SIZE_BYTES + 1)
+    with pytest.raises(BadRequestException, match="exceeds maximum limit of 5 MB"):
+        process_event_image(large_payload)
+
+
+def test_event_upload_image_route_is_registered() -> None:
+    paths = app.openapi()["paths"]
+    assert "/api/v1/events/upload-image" in paths
+    assert "post" in paths["/api/v1/events/upload-image"]

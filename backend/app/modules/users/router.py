@@ -1,10 +1,9 @@
-import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Query, Response, UploadFile, status
 
 from app.core.config import settings
-from app.core.storage import BaseStorage, get_storage, process_avatar_image
+from app.core.storage import MediaService, get_media_service
 from app.core.types import UUID7
 from app.modules.auth.dependencies import get_current_superuser, get_current_user
 from app.modules.users.dependencies import get_user_service
@@ -41,14 +40,9 @@ async def upload_avatar(
     file: Annotated[UploadFile, File(...)],
     current_user: Annotated[User, Depends(get_current_user)],
     user_service: Annotated[UserService, Depends(get_user_service)],
-    storage: Annotated[BaseStorage, Depends(get_storage)],
+    media_service: Annotated[MediaService, Depends(get_media_service)],
 ) -> UserRead:
-    file_bytes = await file.read()
-    processed_bytes, content_type, ext = process_avatar_image(file_bytes)
-    filename = f"avatars/{current_user.id}_{uuid.uuid7().hex}.{ext}"
-    avatar_url = await storage.save(
-        processed_bytes, filename=filename, content_type=content_type
-    )
+    avatar_url = await media_service.upload_avatar(file, current_user.id)
     updated = await user_service.update_profile(
         current_user, UserUpdate(avatar_url=avatar_url)
     )

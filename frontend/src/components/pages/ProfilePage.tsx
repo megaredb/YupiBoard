@@ -11,12 +11,15 @@ import {
   Shield,
   Star,
 } from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 import {
+  getGetCurrentUserProfileApiV1UsersMeGetQueryKey,
   useGetCurrentUserProfileApiV1UsersMeGet,
   useUpdateCurrentUserProfileApiV1UsersMePatch,
+  useUploadAvatarApiV1UsersMeAvatarPost,
 } from "@/api/endpoints/users/users"
 import { FormField } from "@/components/FormField"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -98,6 +101,7 @@ function formatMemberSince(isoDate: string | undefined, fallback: string): strin
 
 export function ProfilePage() {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const avatarInputId = useId()
   const bannerInputId = useId()
   const bioInputId = useId()
@@ -113,8 +117,8 @@ export function ProfilePage() {
 
   const user = storeUser
     ? {
-        ...fetchedUser,
         ...storeUser,
+        ...fetchedUser,
       }
     : fetchedUser ?? null
 
@@ -125,6 +129,7 @@ export function ProfilePage() {
   const [clientBannerUrl, setClientBannerUrl] = useState<string | null>(() => {
     return localStorage.getItem("yupiboard_draft_banner") ?? null
   })
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [bannerPreview, setBannerPreview] = useState<string | null>(null)
   const [photoError, setPhotoError] = useState<string | null>(null)
@@ -168,38 +173,8 @@ export function ProfilePage() {
     },
   })
 
-  const updateProfileMutation = useUpdateCurrentUserProfileApiV1UsersMePatch({
-    mutation: {
-      onSuccess: (data, variables) => {
-        const merged = {
-          ...user,
-          ...data,
-          first_name: variables.data.first_name ?? data.first_name ?? user?.first_name,
-          last_name: variables.data.last_name ?? data.last_name ?? user?.last_name,
-          contact_info:
-            variables.data.contact_info !== undefined
-              ? variables.data.contact_info
-              : (data.contact_info ?? user?.contact_info),
-          city:
-            variables.data.city !== undefined
-              ? variables.data.city
-              : (data.city ?? user?.city),
-          avatar_url:
-            variables.data.avatar_url !== undefined
-              ? variables.data.avatar_url
-              : (data.avatar_url ?? user?.avatar_url),
-        }
-        setUser(merged)
-        setIsEditing(false)
-        setPasswordDialogOpen(false)
-        resetPasswordForm()
-        setSuccessMessage(t("profile.updatedMessage"))
-      },
-      onError: (error) => {
-        setServerError(getErrorMessage(error, t("profile.updateFailed")))
-      },
-    },
-  })
+  const updateProfileMutation = useUpdateCurrentUserProfileApiV1UsersMePatch()
+  const uploadAvatarMutation = useUploadAvatarApiV1UsersMeAvatarPost()
 
   if (!isAuthLoading && !user) {
     return <Navigate to="/login" replace />
@@ -226,23 +201,28 @@ export function ProfilePage() {
   const handleCancelEdit = () => {
     setServerError(null)
     setPhotoError(null)
+    setAvatarFile(null)
     setAvatarPreview(null)
     setBannerPreview(null)
     setIsEditing(false)
   }
 
-  const handleAvatarFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
     setPhotoError(null)
 
-    const result = await validateAndProcessImage(file, MAX_AVATAR_BYTES, 512)
-    if (!result.ok) {
+    if (
+      !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
+      file.size > MAX_AVATAR_BYTES
+    ) {
       setPhotoError(t("validation.photoFormatSize"))
       event.target.value = ""
       return
     }
-    setAvatarPreview(result.dataUrl)
+
+    setAvatarFile(file)
+    setAvatarPreview(URL.createObjectURL(file))
   }
 
   const handleBannerFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -307,7 +287,8 @@ export function ProfilePage() {
       : dash
   const organizerReviews = dash
 
-  const isBusy = updateProfileMutation.isPending
+  const isBusy =
+    updateProfileMutation.isPending || uploadAvatarMutation.isPending
 
   return (
     <div className="space-y-6">
@@ -391,7 +372,7 @@ export function ProfilePage() {
                     <Input
                       id={avatarInputId}
                       type="file"
-                      accept="image/jpeg,image/png"
+                      accept="image/jpeg,image/png,image/webp"
                       onChange={(e) => void handleAvatarFileChange(e)}
                       className="sr-only"
                       disabled={isBusy}
@@ -617,7 +598,7 @@ export function ProfilePage() {
             <form
               noValidate
               className="mt-2 space-y-5"
-              onSubmit={handleSubmit((values) => {
+              onSubmit={handleSubmit(async (values) => {
                 setServerError(null)
                 const cleanLocation = values.location?.trim() || null
                 const cleanContact = values.contact_info?.trim() || null
@@ -628,19 +609,43 @@ export function ProfilePage() {
                   setClientBannerUrl(bannerPreview)
                   localStorage.setItem("yupiboard_draft_banner", bannerPreview)
                 }
-                const safeAvatarUrl =
-                  avatarPreview && !avatarPreview.startsWith("data:")
-                    ? avatarPreview
-                    : (user?.avatar_url ?? null)
-                updateProfileMutation.mutate({
-                  data: {
+
+                try {
+                  let latestUser = user
+                  if (avatarFile) {
+                    latestUser = await uploadAvatarMutation.mutateAsync({
+                      data: { file: avatarFile },
+                    })
+                  }
+                  const updatedData = await updateProfileMutation.mutateAsync({
+                    data: {
+                      first_name: values.first_name.trim(),
+                      last_name: values.last_name.trim(),
+                      contact_info: cleanContact,
+                      city: cleanLocation,
+                    },
+                  })
+                  const merged = {
+                    ...user,
+                    ...latestUser,
+                    ...updatedData,
                     first_name: values.first_name.trim(),
                     last_name: values.last_name.trim(),
                     contact_info: cleanContact,
                     city: cleanLocation,
-                    avatar_url: safeAvatarUrl,
-                  },
-                })
+                  }
+                  setUser(merged)
+                  void queryClient.invalidateQueries({
+                    queryKey: getGetCurrentUserProfileApiV1UsersMeGetQueryKey(),
+                  })
+                  setAvatarFile(null)
+                  setIsEditing(false)
+                  setPasswordDialogOpen(false)
+                  resetPasswordForm()
+                  setSuccessMessage(t("profile.updatedMessage"))
+                } catch (error) {
+                  setServerError(getErrorMessage(error, t("profile.updateFailed")))
+                }
               })}
             >
               <FormField

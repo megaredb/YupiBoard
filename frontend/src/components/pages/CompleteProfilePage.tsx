@@ -5,7 +5,12 @@ import { Camera, CircleAlert, MapPin } from "lucide-react"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
-import { useUpdateCurrentUserProfileApiV1UsersMePatch } from "@/api/endpoints/users/users"
+import { useQueryClient } from "@tanstack/react-query"
+import {
+  getGetCurrentUserProfileApiV1UsersMeGetQueryKey,
+  useUpdateCurrentUserProfileApiV1UsersMePatch,
+  useUploadAvatarApiV1UsersMeAvatarPost,
+} from "@/api/endpoints/users/users"
 import { FormField } from "@/components/FormField"
 import { BrandLogo } from "@/components/layout/BrandLogo"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -20,7 +25,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { getErrorMessage } from "@/lib/errors"
-import { MAX_AVATAR_BYTES, validateAndProcessImage } from "@/lib/image"
+import { MAX_AVATAR_BYTES } from "@/lib/image"
 import { useAuthStore } from "@/stores/auth"
 
 const alphabeticNameRegex = /^[\p{L}\s'-]+$/u
@@ -54,12 +59,14 @@ type CompleteProfileFormValues = z.infer<typeof completeProfileSchema>
 export function CompleteProfilePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const fileInputId = useId()
   const user = useAuthStore((state) => state.user)
   const isLoading = useAuthStore((state) => state.isLoading)
   const setUser = useAuthStore((state) => state.setUser)
 
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(
     user?.avatar_url ?? null
   )
   const [photoError, setPhotoError] = useState<string | null>(null)
@@ -83,41 +90,29 @@ export function CompleteProfilePage() {
 
   const watchedFirstName = useWatch({ control, name: "first_name" })
 
-  const updateProfileMutation = useUpdateCurrentUserProfileApiV1UsersMePatch({
-    mutation: {
-      onSuccess: (data, variables) => {
-        setUser({
-          ...data,
-          first_name: data.first_name ?? variables.data.first_name,
-          last_name: data.last_name ?? variables.data.last_name,
-          city: data.city ?? variables.data.city,
-          contact_info: data.contact_info ?? variables.data.contact_info,
-          avatar_url: data.avatar_url ?? variables.data.avatar_url,
-        })
-        void navigate({ to: "/", replace: true })
-      },
-      onError: (error) => {
-        setServerError(getErrorMessage(error, t("profile.updateFailed")))
-      },
-    },
-  })
+  const updateProfileMutation = useUpdateCurrentUserProfileApiV1UsersMePatch()
+  const uploadAvatarMutation = useUploadAvatarApiV1UsersMeAvatarPost()
 
   if (!isLoading && !user) {
     return <Navigate to="/login" replace />
   }
 
-  const handlePhotoChange = async (event: ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
     setPhotoError(null)
 
-    const result = await validateAndProcessImage(file, MAX_AVATAR_BYTES, 512)
-    if (!result.ok) {
+    if (
+      !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
+      file.size > MAX_AVATAR_BYTES
+    ) {
       setPhotoError(t("validation.photoFormatSize"))
       event.target.value = ""
       return
     }
-    setAvatarUrl(result.dataUrl)
+
+    setAvatarFile(file)
+    setAvatarPreview(URL.createObjectURL(file))
   }
 
   const fieldError = (key?: string) => (key ? t(key) : undefined)
@@ -129,7 +124,42 @@ export function CompleteProfilePage() {
     dash
   ).toUpperCase()
 
-  const isBusy = updateProfileMutation.isPending
+  const isBusy =
+    updateProfileMutation.isPending || uploadAvatarMutation.isPending
+
+  const onSubmit = async (values: CompleteProfileFormValues) => {
+    setServerError(null)
+    const cleanCity = values.city?.trim() || null
+    const cleanContact = values.contact_info?.trim() || null
+
+    try {
+      let latestUser = user
+      if (avatarFile) {
+        latestUser = await uploadAvatarMutation.mutateAsync({
+          data: { file: avatarFile },
+        })
+      }
+      const updated = await updateProfileMutation.mutateAsync({
+        data: {
+          first_name: values.first_name.trim(),
+          last_name: values.last_name.trim(),
+          city: cleanCity,
+          contact_info: cleanContact,
+        },
+      })
+      setUser({
+        ...user,
+        ...latestUser,
+        ...updated,
+      })
+      void queryClient.invalidateQueries({
+        queryKey: getGetCurrentUserProfileApiV1UsersMeGetQueryKey(),
+      })
+      void navigate({ to: "/", replace: true })
+    } catch (error) {
+      setServerError(getErrorMessage(error, t("profile.updateFailed")))
+    }
+  }
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-lg flex-col items-center justify-center py-8">
@@ -151,8 +181,8 @@ export function CompleteProfilePage() {
           <div className="flex flex-col items-center gap-2.5">
             <div className="relative">
               <Avatar className="size-24 sm:size-28">
-                {avatarUrl && (
-                  <AvatarImage src={avatarUrl} alt={watchedFirstName || ""} />
+                {avatarPreview && (
+                  <AvatarImage src={avatarPreview} alt={watchedFirstName || ""} />
                 )}
                 <AvatarFallback className="bg-muted text-3xl font-bold text-primary">
                   {initial}
@@ -171,7 +201,7 @@ export function CompleteProfilePage() {
             <Input
               id={fileInputId}
               type="file"
-              accept="image/jpeg,image/png"
+              accept="image/jpeg,image/png,image/webp"
               onChange={(e) => void handlePhotoChange(e)}
               className="sr-only"
               disabled={isBusy}
@@ -212,20 +242,7 @@ export function CompleteProfilePage() {
           <form
             noValidate
             className="space-y-4"
-            onSubmit={handleSubmit((values) => {
-              setServerError(null)
-              const cleanCity = values.city?.trim() || null
-              const cleanContact = values.contact_info?.trim() || null
-              updateProfileMutation.mutate({
-                data: {
-                  first_name: values.first_name.trim(),
-                  last_name: values.last_name.trim(),
-                  city: cleanCity,
-                  contact_info: cleanContact,
-                  avatar_url: avatarUrl,
-                },
-              })
-            })}
+            onSubmit={handleSubmit(onSubmit)}
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
