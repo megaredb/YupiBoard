@@ -42,8 +42,8 @@ export function EventSummaryCard({ event, showOrganizer = false }: EventSummaryC
         organizer={
           showOrganizer
             ? {
-                name: organizer.fullName,
-                initials: getInitials(organizer.fullName),
+                  name: organizer.displayName ?? organizer.fullName,
+                  initials: getInitials(organizer.displayName ?? organizer.fullName),
                 avatarUrl: organizer.avatarUrl,
                 rating: organizer.rating.toFixed(1),
                 reviewsCount: organizer.reviewsCount,

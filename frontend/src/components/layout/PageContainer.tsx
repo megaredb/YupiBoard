@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 const WIDTHS = {
   narrow: "max-w-3xl",
   default: "max-w-5xl",
-  wide: "max-w-7xl",
+  wide: "max-w-[1440px]",
 } as const
 
 interface PageContainerProps {

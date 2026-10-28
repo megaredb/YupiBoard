@@ -12,6 +12,7 @@ export type ApplicationStatus = "pending" | "approved" | "rejected"
 export interface Organizer {
   id: string
   fullName: string
+  displayName?: string
   avatarUrl: string | null
   /** 0–5 */
   rating: number
@@ -67,6 +68,7 @@ export interface EventFilters {
 export interface ListEventsParams extends EventFilters {
   page: number
   pageSize: number
+  query: string
 }
 
 export interface CreateEventInput {

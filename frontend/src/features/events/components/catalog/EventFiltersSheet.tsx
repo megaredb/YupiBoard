@@ -13,18 +13,19 @@ interface EventFiltersSheetProps {
   onOpenChange: (open: boolean) => void
   /** Currently applied filters; the sheet edits a draft copy until "Show results". */
   value: EventFilters
+  query: string
   onApply: (next: EventFilters) => void
 }
 
 /** Mobile bottom sheet. Draft filters are applied with the "Show N results" button. */
-export function EventFiltersSheet({ open, onOpenChange, value, onApply }: EventFiltersSheetProps) {
+export function EventFiltersSheet({ open, onOpenChange, value, query, onApply }: EventFiltersSheetProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 z-50 bg-black/40" />
         <Dialog.Popup className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col rounded-t-3xl bg-background pb-[env(safe-area-inset-bottom)] outline-none">
           {/* Remounted on every open so the draft always starts from the applied filters. */}
-          {open && <SheetBody value={value} onApply={onApply} onClose={() => onOpenChange(false)} />}
+          {open && <SheetBody value={value} query={query} onApply={onApply} onClose={() => onOpenChange(false)} />}
         </Dialog.Popup>
       </Dialog.Portal>
     </Dialog.Root>
@@ -33,10 +34,12 @@ export function EventFiltersSheet({ open, onOpenChange, value, onApply }: EventF
 
 function SheetBody({
   value,
+  query,
   onApply,
   onClose,
 }: {
   value: EventFilters
+  query: string
   onApply: (next: EventFilters) => void
   onClose: () => void
 }) {
@@ -44,7 +47,7 @@ function SheetBody({
   const [draft, setDraft] = useState(value)
 
   // Same hook as the page, page size 1: we only want the count for the button label.
-  const preview = useEvents({ ...draft, page: 1, pageSize: 1 })
+  const preview = useEvents({ ...draft, page: 1, pageSize: 1, query })
 
   return (
     <>

@@ -7,6 +7,6 @@ export function useToggleFavorite(eventId: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (isFavorite: boolean) => server.setFavorite(eventId, isFavorite),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: eventKeys.detail(eventId) }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: eventKeys.all }),
   })
 }

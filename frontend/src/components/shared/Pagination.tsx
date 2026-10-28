@@ -15,7 +15,7 @@ export interface PaginationProps {
 }
 
 const controlClass =
-  'inline-flex h-8 min-w-8 items-center justify-center rounded-md px-2 text-sm font-medium text-foreground disabled:pointer-events-none disabled:opacity-50'
+  'inline-flex h-8 min-w-8 items-center justify-center rounded-md px-2 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50'
 
 export function Pagination({
   pages,
@@ -40,6 +40,7 @@ export function Pagination({
       <nav aria-label="Pagination" className="flex items-center gap-1">
         <button
           type="button"
+          aria-label="Previous page"
           disabled={isPreviousDisabled}
           onClick={onPrevious}
           className={cn(controlClass, 'px-3')}
@@ -52,6 +53,7 @@ export function Pagination({
             <button
               key={page}
               type="button"
+              aria-label={`Page ${page}`}
               aria-current={page === currentPage ? 'page' : undefined}
               onClick={() => onPageChange?.(page)}
               className={cn(
@@ -74,6 +76,7 @@ export function Pagination({
 
         <button
           type="button"
+          aria-label="Next page"
           disabled={isNextDisabled}
           onClick={onNext}
           className={cn(controlClass, 'px-3')}

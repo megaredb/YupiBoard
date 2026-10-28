@@ -1,56 +1,200 @@
-import type { EventDetails, Organizer, PlaceSuggestion } from "../types"
-
-const HOUR = 3_600_000
-const DAY = 24 * HOUR
+import type { EventDetails, LocationOption, Organizer, PlaceSuggestion } from "../types"
 
 const ORGANIZER: Organizer = {
   id: "org_1",
-  fullName: "Oleksii Kovalenko",
-  avatarUrl: "https://picsum.photos/seed/org_1/120/120",
-  rating: 4.8,
-  reviewsCount: 24,
+  fullName: "Olena Kovalenko",
+  displayName: "Dice & Coffee",
+  avatarUrl: "/images/events/organizer.jpg",
+  rating: 4.9,
+  reviewsCount: 38,
   eventsHosted: 28,
   memberSince: "2023-05-20",
 }
 
-const TITLES = [
-  "Trade, build & make new friends",
-  "Dune: Imperium Tournament Night",
-  "Catan & Expansions Night",
-  "Wingspan and wine",
-  "Ark Nova for beginners",
-  "Carcassonne evening",
-]
+const KYIV_VENUE = {
+  name: "The Guild · Board Game Café",
+  address: "24 Mezhyhirska St, Kyiv",
+  mapUrl: "https://maps.google.com",
+}
 
-const DESCRIPTION =
-  "Join a small table of fellow strategists for an evening of good games and good company.\n\n1. learn the rules\n2. be funny"
+const EVENT_DESCRIPTION =
+  "Join a small table of fellow strategists for an evening of good games and good company.\n\nNew players are welcome. We will explain the rules before the first round."
 
-/** 24 upcoming events, starts always in the future so the mock never goes stale. */
-export const EVENTS: EventDetails[] = Array.from({ length: 24 }, (_, i) => {
-  const startsAt = new Date(Date.now() + ((i % 14) + 1) * DAY)
-  startsAt.setUTCHours(15, 0, 0, 0)
-  const seatsTotal = [6, 4, 8][i % 3]!
-
-  return {
-    id: `evt_${i + 1}`,
-    title: TITLES[i % TITLES.length]!,
-    coverImageUrl: `https://picsum.photos/seed/boardgame-${i % 6}/800/500`,
-    startsAt: startsAt.toISOString(),
-    endsAt: new Date(startsAt.getTime() + 4 * HOUR).toISOString(),
+export const EVENTS: EventDetails[] = [
+  {
+    id: "evt_1",
+    title: "Trade, build & make new friends",
+    coverImageUrl: "/images/events/board-game-night.jpg",
+    startsAt: "2026-11-07T17:00:00+02:00",
+    endsAt: "2026-11-07T21:00:00+02:00",
     timezone: "Europe/Kyiv",
-    distanceKm: 1 + ((i * 7) % 45),
-    price: i % 3 === 0 ? 0 : [150, 300, 200][i % 3]!,
+    distanceKm: 2.4,
+    price: 300,
     currency: "UAH",
     status: "upcoming",
-    isPromoted: i % 5 === 0,
-    seatsTaken: 1 + (i % (seatsTotal - 1)),
-    seatsTotal,
+    isPromoted: true,
+    seatsTaken: 5,
+    seatsTotal: 6,
     organizer: ORGANIZER,
-    description: DESCRIPTION,
-    venue: { name: "The Guild · Board Game Café", address: "24 Mezhyhirska St, Kyiv", mapUrl: "https://maps.google.com" },
+    description: EVENT_DESCRIPTION,
+    venue: KYIV_VENUE,
+    viewer: { isHost: false, isFavorite: true, applicationStatus: null },
+  },
+  {
+    id: "evt_2",
+    title: "Dune: Imperium Tournament Night",
+    coverImageUrl: "/images/events/board-game-night.jpg",
+    startsAt: "2026-11-08T18:00:00+02:00",
+    endsAt: "2026-11-08T22:00:00+02:00",
+    timezone: "Europe/Kyiv",
+    distanceKm: 4.1,
+    price: 150,
+    currency: "UAH",
+    status: "upcoming",
+    isPromoted: false,
+    seatsTaken: 5,
+    seatsTotal: 6,
+    organizer: ORGANIZER,
+    description: EVENT_DESCRIPTION,
+    venue: KYIV_VENUE,
     viewer: { isHost: false, isFavorite: false, applicationStatus: null },
-  }
-})
+  },
+  {
+    id: "evt_3",
+    title: "Catan & expansions night",
+    coverImageUrl: "/images/events/board-game-night.jpg",
+    startsAt: "2026-11-10T17:30:00+02:00",
+    endsAt: "2026-11-10T21:30:00+02:00",
+    timezone: "Europe/Kyiv",
+    distanceKm: 7.8,
+    price: 200,
+    currency: "UAH",
+    status: "upcoming",
+    isPromoted: false,
+    seatsTaken: 2,
+    seatsTotal: 8,
+    organizer: ORGANIZER,
+    description: EVENT_DESCRIPTION,
+    venue: KYIV_VENUE,
+    viewer: { isHost: false, isFavorite: true, applicationStatus: null },
+  },
+  {
+    id: "evt_4",
+    title: "Wingspan and wine",
+    coverImageUrl: "/images/events/board-game-night.jpg",
+    startsAt: "2026-11-12T19:00:00+02:00",
+    endsAt: "2026-11-12T22:00:00+02:00",
+    timezone: "Europe/Kyiv",
+    distanceKm: 12,
+    price: 300,
+    currency: "UAH",
+    status: "upcoming",
+    isPromoted: true,
+    seatsTaken: 4,
+    seatsTotal: 6,
+    organizer: ORGANIZER,
+    description: EVENT_DESCRIPTION,
+    venue: KYIV_VENUE,
+    viewer: { isHost: false, isFavorite: false, applicationStatus: null },
+  },
+  {
+    id: "evt_5",
+    title: "Ark Nova for beginners",
+    coverImageUrl: "/images/events/board-game-night.jpg",
+    startsAt: "2026-11-14T16:00:00+02:00",
+    endsAt: "2026-11-14T20:00:00+02:00",
+    timezone: "Europe/Kyiv",
+    distanceKm: 15,
+    price: 250,
+    currency: "UAH",
+    status: "upcoming",
+    isPromoted: false,
+    seatsTaken: 1,
+    seatsTotal: 5,
+    organizer: ORGANIZER,
+    description: EVENT_DESCRIPTION,
+    venue: KYIV_VENUE,
+    viewer: { isHost: false, isFavorite: false, applicationStatus: null },
+  },
+  {
+    id: "evt_6",
+    title: "Carcassonne evening",
+    coverImageUrl: "/images/events/board-game-night.jpg",
+    startsAt: "2026-11-15T17:00:00+02:00",
+    endsAt: "2026-11-15T20:00:00+02:00",
+    timezone: "Europe/Kyiv",
+    distanceKm: 22,
+    price: 0,
+    currency: "UAH",
+    status: "upcoming",
+    isPromoted: false,
+    seatsTaken: 2,
+    seatsTotal: 4,
+    organizer: ORGANIZER,
+    description: EVENT_DESCRIPTION,
+    venue: KYIV_VENUE,
+    viewer: { isHost: false, isFavorite: false, applicationStatus: null },
+  },
+  {
+    id: "evt_7",
+    title: "Cooperative games after work",
+    coverImageUrl: "/images/events/board-game-night.jpg",
+    startsAt: "2026-11-17T18:00:00+02:00",
+    endsAt: "2026-11-17T21:00:00+02:00",
+    timezone: "Europe/Kyiv",
+    distanceKm: 10,
+    price: 100,
+    currency: "UAH",
+    status: "upcoming",
+    isPromoted: false,
+    seatsTaken: 2,
+    seatsTotal: 5,
+    organizer: ORGANIZER,
+    description: EVENT_DESCRIPTION,
+    venue: KYIV_VENUE,
+    viewer: { isHost: false, isFavorite: false, applicationStatus: null },
+  },
+  {
+    id: "evt_8",
+    title: "Sunday strategy game meetup",
+    coverImageUrl: "/images/events/board-game-night.jpg",
+    startsAt: "2026-11-19T16:00:00+02:00",
+    endsAt: "2026-11-19T20:00:00+02:00",
+    timezone: "Europe/Kyiv",
+    distanceKm: 14,
+    price: 0,
+    currency: "UAH",
+    status: "upcoming",
+    isPromoted: false,
+    seatsTaken: 1,
+    seatsTotal: 6,
+    organizer: ORGANIZER,
+    description: EVENT_DESCRIPTION,
+    venue: KYIV_VENUE,
+    viewer: { isHost: false, isFavorite: false, applicationStatus: null },
+  },
+]
+
+export const MY_HOSTED_EVENTS: EventDetails[] = [
+  { ...EVENTS[0]!, id: "hosted_1", status: "upcoming", viewer: { isHost: true, isFavorite: false, applicationStatus: null } },
+  { ...EVENTS[1]!, id: "hosted_2", status: "upcoming", viewer: { isHost: true, isFavorite: false, applicationStatus: null } },
+  { ...EVENTS[2]!, id: "hosted_3", status: "upcoming", viewer: { isHost: true, isFavorite: false, applicationStatus: null } },
+  { ...EVENTS[3]!, id: "hosted_4", status: "upcoming", viewer: { isHost: true, isFavorite: false, applicationStatus: null } },
+]
+
+export const MY_BOOKED_EVENTS: EventDetails[] = [
+  { ...EVENTS[0]!, id: "booked_1", price: 300, viewer: { isHost: false, isFavorite: false, applicationStatus: "approved" } },
+  { ...EVENTS[2]!, id: "booked_2", price: 0, viewer: { isHost: false, isFavorite: false, applicationStatus: "pending" } },
+  { ...EVENTS[4]!, id: "booked_3", price: 150, viewer: { isHost: false, isFavorite: false, applicationStatus: "approved" }, isPromoted: false },
+  { ...EVENTS[5]!, id: "booked_4", status: "finished", price: 150, viewer: { isHost: false, isFavorite: false, applicationStatus: "approved" } },
+]
+
+export const LOCATION_OPTIONS: LocationOption[] = [
+  { id: "kyiv", label: "Kyiv, Ukraine" },
+  { id: "lviv", label: "Lviv, Ukraine" },
+  { id: "kharkiv", label: "Kharkiv, Ukraine" },
+  { id: "dnipro", label: "Dnipro, Ukraine" },
+]
 
 export const PLACES: PlaceSuggestion[] = [
   { id: "p1", name: "Geekach — board game club", address: "17B Kostiantynivska St, Kyiv" },

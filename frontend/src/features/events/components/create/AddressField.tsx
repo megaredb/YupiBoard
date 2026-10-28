@@ -4,7 +4,8 @@ import { useTranslation } from "react-i18next"
 import { Input } from "@/components/ui/input"
 import { useDebouncedValue } from "@/hooks/useDebouncedValue"
 import { usePlaceSuggestions } from "../../api"
-import { DEFAULT_FILTERS, LOCATION_OPTIONS } from "../../constants"
+import { DEFAULT_FILTERS } from "../../constants"
+import { LOCATION_OPTIONS } from "../../mocks/fixtures"
 
 interface AddressFieldProps {
   id: string

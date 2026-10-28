@@ -55,6 +55,9 @@
   },
   "nav": {
     "events": "Events",
+    "myEvents": "My events",
+    "myBookings": "My bookings",
+    "favorites": "Favorite",
     "createEvent": "Create event"
   },
   "layout": {
@@ -93,10 +96,34 @@
     "catalog": {
       "title": "Find your next game night",
       "subtitle": "Good games. New friends. A seat at the table, right here in {{city}}.",
+      "mobileTitle": "Events near you",
+      "searchPlaceholder": "Search events, games…",
+      "countLabel": "events",
       "found_one": "{{count}} event found",
       "found_other": "{{count}} events found",
       "emptyTitle": "No events found",
       "emptyDescription": "Try a larger distance or another location."
+    },
+    "myEvents": {
+      "title": "My Hosted Events",
+      "found_one": "{{count}} event",
+      "found_other": "{{count}} events",
+      "emptyTitle": "No hosted events yet",
+      "emptyDescription": "Events you create will appear here."
+    },
+    "myBookings": {
+      "title": "My Bookings",
+      "found_one": "{{count}} event",
+      "found_other": "{{count}} events",
+      "emptyTitle": "No bookings yet",
+      "emptyDescription": "Events you join will appear here."
+    },
+    "favorites": {
+      "title": "Favorite Events",
+      "found_one": "{{count}} event",
+      "found_other": "{{count}} events",
+      "emptyTitle": "No favorite events yet",
+      "emptyDescription": "Events you save will appear here."
     },
     "details": {
       "home": "Home",

@@ -21,12 +21,10 @@ export function getPageRange(page: number, pageSize: number, total: number) {
   }
 }
 
-/** Page buttons for <Pagination>: `1 2 3 … 12`, `1 … 4 5 6 … 12`, `1 … 10 11 12`. */
+/** Keep a compact three-page window so the controls remain usable on mobile. */
 export function buildPaginationPages(current: number, totalPages: number): PaginationPage[] {
-  if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1)
-  if (current <= 3) return [1, 2, 3, "ellipsis-end", totalPages]
-  if (current >= totalPages - 2) {
-    return [1, "ellipsis-start", totalPages - 2, totalPages - 1, totalPages]
-  }
-  return [1, "ellipsis-start", current - 1, current, current + 1, "ellipsis-end", totalPages]
+  if (totalPages <= 3) return Array.from({ length: totalPages }, (_, i) => i + 1)
+
+  const firstPage = Math.max(1, Math.min(current - 1, totalPages - 2))
+  return [firstPage, firstPage + 1, firstPage + 2]
 }

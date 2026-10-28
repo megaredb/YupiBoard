@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react"
 import { Outlet, useLocation, useMatches, useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
+import { CalendarDays, Compass, Dices, Heart, Plus, Ticket } from "lucide-react"
 import { getInitials } from "@/lib/format"
 import { useAuthStore } from "@/stores/auth"
 import { Footer } from "./Footer"
+import { BottomNav, MobileTopBar } from "./MobileNav"
 import { Header, type NavItem, type UserProfile } from "./Header"
-import { MobileTopBar } from "./MobileNav"
 
-const LOGO = <img src="/images/logo.svg" alt="" />
+const LOGO = <Dices aria-hidden />
 
 /**
  * Shell for browsing pages: desktop header + footer, mobile top bar.
@@ -53,8 +54,31 @@ export function AppLayout() {
     : null
 
   const navItems: NavItem[] = [
-    { label: t("nav.events"), href: "/events", isActive: pathname.startsWith("/events") },
+    { label: t("nav.events"), href: "/events", isActive: pathname === "/events" || (pathname.startsWith("/events/") && pathname !== "/events/new") },
+    { label: t("nav.myEvents"), href: "/my-events", isActive: pathname === "/my-events" },
+    { label: t("nav.myBookings"), href: "/my-bookings", isActive: pathname === "/my-bookings" },
+    { label: t("nav.favorites"), href: "/favorites", isActive: pathname === "/favorites" },
   ]
+
+  const navigateTo = (href: string) => {
+    switch (href) {
+      case "/events":
+        void navigate({ to: "/events" })
+        break
+      case "/events/new":
+        void navigate({ to: "/events/new" })
+        break
+      case "/my-events":
+        void navigate({ to: "/my-events" })
+        break
+      case "/my-bookings":
+        void navigate({ to: "/my-bookings" })
+        break
+      case "/favorites":
+        void navigate({ to: "/favorites" })
+        break
+    }
+  }
 
   const handleLogout = async () => {
     await logout()
@@ -64,17 +88,17 @@ export function AppLayout() {
   return (
     <div className="flex min-h-dvh flex-col bg-background">
       <Header
-        className="hidden md:block"
+        className="hidden lg:block"
         logo={LOGO}
         brandName={t("layout.brand")}
         onBrandClick={() => void navigate({ to: "/events" })}
         navItems={navItems}
-        onNavItemClick={(event) => {
+        onNavItemClick={(event, href) => {
           event.preventDefault()
-          void navigate({ to: "/events" })
+          navigateTo(href)
         }}
         user={user}
-        onCreateEvent={() => void navigate({ to: "/events/new" })}
+        onCreateEvent={() => navigateTo("/events/new")}
         isUserMenuOpen={isUserMenuOpen}
         onUserMenuToggle={() => setMenuOpenedAt(isUserMenuOpen ? null : pathname)}
         onLoginClick={() => void navigate({ to: "/login" })}
@@ -82,13 +106,26 @@ export function AppLayout() {
         onLogoutClick={() => void handleLogout()}
       />
 
-      {!hideMobileChrome && <MobileTopBar className="md:hidden" logo={LOGO} brandName={t("layout.brand")} />}
+      {!hideMobileChrome && <MobileTopBar className="lg:hidden" logo={LOGO} brandName={t("layout.brand")} />}
 
-      <main className="flex-1">
+      <main className={`flex-1 ${hideMobileChrome ? "" : "pb-[calc(3.25rem+env(safe-area-inset-bottom))] lg:pb-0"}`}>
         <Outlet />
       </main>
 
-      <Footer className="hidden md:block" copyright={t("layout.copyright")} />
+      {!hideMobileChrome && (
+        <BottomNav
+          className="fixed inset-x-0 bottom-0 z-40 lg:hidden"
+          items={[
+            { label: t("nav.events"), icon: <Compass />, isActive: pathname === "/events", onClick: () => navigateTo("/events") },
+            { label: t("nav.myEvents"), icon: <CalendarDays />, isActive: pathname === "/my-events", onClick: () => navigateTo("/my-events") },
+            { label: t("nav.createEvent"), icon: <Plus />, onClick: () => navigateTo("/events/new") },
+            { label: t("nav.myBookings"), icon: <Ticket />, isActive: pathname === "/my-bookings", onClick: () => navigateTo("/my-bookings") },
+            { label: t("nav.favorites"), icon: <Heart />, isActive: pathname === "/favorites", onClick: () => navigateTo("/favorites") },
+          ]}
+        />
+      )}
+
+      <Footer className="hidden lg:block" copyright={t("layout.copyright")} />
     </div>
   )
 }

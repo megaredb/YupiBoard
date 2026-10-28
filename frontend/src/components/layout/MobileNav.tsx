@@ -26,7 +26,7 @@ export function MobileTopBar({
       )}
     >
       <div className="flex items-center gap-3">
-        <span className="flex size-10 items-center justify-center rounded-xl text-primary-foreground [&_img]:size-6 [&_svg]:size-5">
+        <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground [&_img]:size-6 [&_svg]:size-5">
           {logo}
         </span>
         <span className="text-xl font-bold tracking-tight text-foreground">
@@ -66,7 +66,7 @@ export function BottomNav({ items, className }: BottomNavProps) {
     <nav
       aria-label="Bottom navigation"
       className={cn(
-        'flex border-t border-border bg-background pb-[env(safe-area-inset-bottom)]',
+        'grid w-screen max-w-[100vw] grid-cols-5 overflow-hidden border-t border-border bg-background pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgb(0_0_0/0.04)]',
         className,
       )}
     >
@@ -77,12 +77,12 @@ export function BottomNav({ items, className }: BottomNavProps) {
           aria-current={item.isActive ? 'page' : undefined}
           onClick={item.onClick}
           className={cn(
-            'flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium [&_svg]:size-6',
+            'flex min-w-0 flex-col items-center gap-1 py-2 text-[10px] font-medium [&_svg]:size-5',
             item.isActive ? 'text-primary' : 'text-muted-foreground',
           )}
         >
           {item.icon}
-          <span>{item.label}</span>
+          <span className="max-w-full truncate">{item.label}</span>
         </button>
       ))}
     </nav>

@@ -21,6 +21,7 @@ interface EventListSectionProps {
   countLabel: (total: number) => string
   emptyTitle: string
   emptyDescription?: string
+  countClassName?: string
 }
 
 /**
@@ -34,6 +35,7 @@ export function EventListSection({
   countLabel,
   emptyTitle,
   emptyDescription,
+  countClassName,
 }: EventListSectionProps) {
   const { t } = useTranslation()
   const { data } = query
@@ -70,7 +72,7 @@ export function EventListSection({
 
   return (
     <div className="space-y-6">
-      <p className="text-sm font-semibold">{countLabel(data.total)}</p>
+      <p className={cn("text-sm font-semibold", countClassName)}>{countLabel(data.total)}</p>
 
       <EventGrid className={cn("transition-opacity", query.isPlaceholderData && "opacity-60")}>
         {data.items.map((event) => (

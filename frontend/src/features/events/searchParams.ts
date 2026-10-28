@@ -13,4 +13,5 @@ export const catalogSearchSchema = z.object({
   page: boundedNumber(1, Number.MAX_SAFE_INTEGER, 1, true),
   location: z.string().default(DEFAULT_FILTERS.locationId),
   distance: boundedNumber(DISTANCE_RANGE_KM.min, DISTANCE_RANGE_KM.max, DEFAULT_FILTERS.maxDistanceKm),
+  q: z.string().max(100).default(""),
 })

@@ -1,6 +1,6 @@
 import { LocateFixed } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import { LOCATION_OPTIONS } from "../../constants"
+import { LOCATION_OPTIONS } from "../../mocks/fixtures"
 import type { EventFilters } from "../../types"
 import { DistanceSlider } from "./DistanceSlider"
 

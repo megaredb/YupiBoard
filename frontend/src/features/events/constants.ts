@@ -1,4 +1,4 @@
-import type { EventFilters, LocationOption } from "./types"
+import type { EventFilters } from "./types"
 
 export const EVENTS_PAGE_SIZE = 6
 
@@ -8,14 +8,6 @@ export const DEFAULT_FILTERS: EventFilters = {
   locationId: "kyiv",
   maxDistanceKm: 15,
 }
-
-// TODO(api): replace with a locations endpoint once it exists.
-export const LOCATION_OPTIONS: LocationOption[] = [
-  { id: "kyiv", label: "Kyiv, Ukraine" },
-  { id: "lviv", label: "Lviv, Ukraine" },
-  { id: "kharkiv", label: "Kharkiv, Ukraine" },
-  { id: "dnipro", label: "Dnipro, Ukraine" },
-]
 
 export const CREATE_EVENT_LIMITS = {
   titleMin: 3,

@@ -12,7 +12,7 @@ export function EventGrid({ children, className, ...props }: EventGridProps) {
     <div
       {...props}
       className={cn(
-        'grid w-full grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4',
+        'grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3',
         className,
       )}
     >

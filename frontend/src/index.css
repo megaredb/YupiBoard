@@ -69,33 +69,33 @@
 :root {
   color-scheme: light;
 
-  --background: oklch(0.9816 0.0017 247.8390);
-  --foreground: oklch(0.2350 0 0);
+  --background: #f8f9fa;
+  --foreground: #18181b;
 
-  --card: oklch(1.0000 0 0);
-  --card-foreground: oklch(0.2350 0 0);
+  --card: #ffffff;
+  --card-foreground: #18181b;
 
-  --popover: oklch(0.9816 0.0017 247.8390);
-  --popover-foreground: oklch(0.2350 0 0);
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
 
-  --primary: oklch(0.6056 0.2189 292.7172);
-  --primary-foreground: oklch(1.0000 0 0);
+  --primary: #8b5cf6;
+  --primary-foreground: #ffffff;
 
-  --secondary: oklch(0.8781 0.1688 91.8567);
-  --secondary-foreground: oklch(0.2350 0 0);
+  --secondary: #fef3c7;
+  --secondary-foreground: #92400e;
 
-  --muted: oklch(0.9579 0.0232 299.3687);
-  --muted-foreground: oklch(0.5544 0.0407 257.4166);
+  --muted: #f3eeff;
+  --muted-foreground: #6b7280;
 
-  --accent: oklch(0.8814 0.1193 157.4149);
-  --accent-foreground: oklch(0.2350 0 0);
+  --accent: #f3eeff;
+  --accent-foreground: #7c3aed;
 
   --destructive: oklch(0.6445 0.2059 25.0609);
   --destructive-foreground: oklch(1.0000 0 0);
 
-  --border: oklch(0.9276 0.0058 264.5313);
-  --input: oklch(0.9670 0.0029 264.5419);
-  --ring: oklch(0.5544 0.0407 257.4166);
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #8b5cf6;
 
   --chart-1: oklch(0.6056 0.2189 292.7172);
   --chart-2: oklch(0.7866 0.1644 75.6667);
@@ -116,7 +116,7 @@
   --font-serif: "Geist Variable", sans-serif;
   --font-mono: ui-monospace, monospace;
 
-  --radius: 1rem;
+  --radius: 0.75rem;
 
   --shadow-x: 0;
   --shadow-y: 1px;

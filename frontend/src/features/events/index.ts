@@ -2,4 +2,5 @@
 export { CreateEventPage } from "./pages/CreateEventPage"
 export { EventCatalogPage } from "./pages/EventCatalogPage"
 export { EventDetailsPage } from "./pages/EventDetailsPage"
+export { EventCollectionPage } from "./pages/EventCollectionPage"
 export { catalogSearchSchema } from "./searchParams"
