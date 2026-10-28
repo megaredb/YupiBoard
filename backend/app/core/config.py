@@ -74,6 +74,16 @@ class Settings(BaseSettings):
     MAIL_SSL_TLS: bool = False
     MAIL_FROM_NAME: str = "YupiBoard Support"
 
+    # Storage & Media
+    STORAGE_BACKEND: str = "local"
+    MEDIA_DIR: str = "media"
+    MEDIA_BASE_URL: str = "/media"
+    S3_ENDPOINT_URL: str | None = None
+    S3_BUCKET_NAME: str = "yupiboard-storage"
+    S3_ACCESS_KEY: str | None = None
+    S3_SECRET_KEY: str | None = None
+    S3_PUBLIC_URL_PREFIX: str = "https://storage.yupiboard.com"
+
     @property
     def is_production(self) -> bool:
         return self.ENVIRONMENT.lower() == "production"

@@ -1,9 +1,11 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.core.database import async_engine
@@ -49,6 +51,11 @@ async def app_exception_handler(request: Request, exc: AppException) -> JSONResp
         headers=exc.headers,
     )
 
+
+# Mount media storage for local development
+media_path = Path(settings.MEDIA_DIR)
+media_path.mkdir(parents=True, exist_ok=True)
+app.mount("/media", StaticFiles(directory=settings.MEDIA_DIR), name="media")
 
 # Include API routers
 app.include_router(api_router)
