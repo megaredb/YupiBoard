@@ -14,7 +14,6 @@ import type { EventFilters as EventFiltersValue } from "../types"
 
 const route = getRouteApi("/_app/events/")
 
-/** /events: browse and filter upcoming events. Filters and page live in the URL. */
 export function EventCatalogPage() {
   const { t } = useTranslation()
   const search = route.useSearch()

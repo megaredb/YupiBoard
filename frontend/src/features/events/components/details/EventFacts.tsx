@@ -16,7 +16,6 @@ function Fact({ icon, children }: { icon: ReactNode; children: ReactNode }) {
   )
 }
 
-/** Date/time, venue and (mobile only) seats summary. */
 export function EventFacts({ event }: { event: EventDetails }) {
   const { t } = useTranslation()
   const { venue } = event

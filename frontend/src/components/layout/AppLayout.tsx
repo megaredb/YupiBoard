@@ -28,7 +28,6 @@ export function AppLayout() {
   const [menuOpenedAt, setMenuOpenedAt] = useState<string | null>(null)
   const isUserMenuOpen = menuOpenedAt === pathname
 
-  // Outside click and Escape close the menu.
   useEffect(() => {
     if (!isUserMenuOpen) return
     const onPointerDown = (event: PointerEvent) => {

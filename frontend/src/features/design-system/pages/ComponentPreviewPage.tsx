@@ -112,7 +112,7 @@ const LIST_CARDS = [promoted, promoted, promoted, purple, purple, purple].map(
 
 function PhoneFrame({ children }: { children: ReactNode }) {
   return (
-    <div className="mx-auto flex h-[760px] w-[375px] max-w-full flex-col overflow-hidden rounded-[2.5rem] border-[10px] border-neutral-900 bg-neutral-50 shadow-xl">
+    <div className="mx-auto flex h-190 w-93.75 max-w-full flex-col overflow-hidden rounded-[2.5rem] border-10 border-neutral-900 bg-neutral-50 shadow-xl">
       <div className="flex items-center justify-between px-6 pt-3 text-xs font-semibold">
         <span>9:41</span>
         <span className="flex items-center gap-1">
@@ -130,7 +130,7 @@ export function ComponentPreviewPage() {
   return (
     <div
       style={LIGHT_THEME}
-      className="fixed inset-0 z-[100] overflow-y-auto bg-background text-foreground"
+      className="fixed inset-0 z-100 overflow-y-auto bg-background text-foreground"
     >
       <div className="min-h-screen w-full bg-neutral-50">
         <Header

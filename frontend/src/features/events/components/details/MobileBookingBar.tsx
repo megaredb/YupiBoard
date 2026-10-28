@@ -4,7 +4,6 @@ import { formatPrice } from "../../lib/format"
 import type { EventDetails } from "../../types"
 import { useBookingAction } from "./useBookingAction"
 
-/** Mobile sticky bottom bar: price + Apply. */
 export function MobileBookingBar({ event }: { event: EventDetails }) {
   const { t } = useTranslation()
   const action = useBookingAction(event)

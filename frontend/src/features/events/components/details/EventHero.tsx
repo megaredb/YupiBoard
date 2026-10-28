@@ -6,7 +6,6 @@ import type { EventDetails } from "../../types"
 import { FavoriteButton } from "./FavoriteButton"
 import { ShareButton } from "./ShareButton"
 
-/** Cover image with promo badge, share / favorite actions and (mobile only) a back button. */
 export function EventHero({ event }: { event: EventDetails }) {
   const { t } = useTranslation()
   const goBack = useGoBack("/events")

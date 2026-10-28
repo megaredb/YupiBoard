@@ -27,7 +27,6 @@ function DetailsSkeleton() {
   )
 }
 
-/** /events/$eventId */
 export function EventDetailsPage() {
   const { t } = useTranslation()
   const { eventId } = route.useParams()

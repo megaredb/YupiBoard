@@ -9,7 +9,6 @@ interface EventFiltersFieldsProps {
   onChange: (next: EventFilters) => void
 }
 
-/** The filter controls themselves; wrapped by the desktop sidebar and the mobile sheet. */
 export function EventFiltersFields({ value, onChange }: EventFiltersFieldsProps) {
   const { t } = useTranslation()
 
