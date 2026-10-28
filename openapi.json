@@ -1157,10 +1157,129 @@
           }
         }
       }
+    },
+    "/api/v1/events/{id}/bookings": {
+      "post": {
+        "tags": [
+          "bookings"
+        ],
+        "summary": "Player submits seat booking request",
+        "operationId": "create_booking_request_api_v1_events__id__bookings_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "name": "access_token",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Access Token"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingCreateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "BookingCreateResponse": {
+        "properties": {
+          "booking_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Booking Id"
+          },
+          "event_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Event Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/BookingStatus"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "booking_id",
+          "event_id",
+          "status",
+          "message"
+        ],
+        "title": "BookingCreateResponse"
+      },
+      "BookingStatus": {
+        "type": "string",
+        "enum": [
+          "Pending",
+          "Confirmed",
+          "Rejected",
+          "Waitlist",
+          "CancelledByPlayer",
+          "CancelledBySystem",
+          "RemovedByOrganizer",
+          "Attended",
+          "NoShow"
+        ],
+        "title": "BookingStatus"
+      },
       "EmailVerifyRequest": {
         "properties": {
           "token": {
