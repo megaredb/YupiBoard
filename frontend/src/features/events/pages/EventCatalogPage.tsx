@@ -37,7 +37,7 @@ export function EventCatalogPage() {
         description={t("events.catalog.subtitle", { city })}
       />
 
-      <div className="mt-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start lg:gap-7">
+      <div className="lg:mt-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start lg:gap-7">
         <aside className="hidden lg:sticky lg:top-20 lg:block">
           <EventFilters value={filters} onChange={applyFilters} onClear={() => applyFilters(DEFAULT_FILTERS)} />
         </aside>

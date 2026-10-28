@@ -124,7 +124,7 @@ export function AppLayout() {
         />
       )}
 
-      <Footer className="hidden lg:block" copyright={t("layout.copyright")} />
+      <Footer className="hidden lg:block" brandName={t("layout.brand")} copyright={t("layout.copyright")} />
     </div>
   )
 }

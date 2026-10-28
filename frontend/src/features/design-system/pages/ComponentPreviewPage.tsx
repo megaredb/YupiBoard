@@ -261,7 +261,7 @@ export function ComponentPreviewPage() {
             <h2 className="text-xl font-semibold">Footer</h2>
 
             <div className="overflow-hidden rounded-lg border">
-              <Footer copyright={COPYRIGHT} />
+              <Footer brandName="YuppiBoard" copyright={COPYRIGHT} />
             </div>
           </section>
 
