@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next"
-import logoSvg from "@/assets/logo.svg"
 import { cn } from "@/lib/utils"
 
 interface BrandLogoProps {
@@ -24,7 +23,7 @@ export function BrandLogo({
   return (
     <span className={cn("inline-flex items-center gap-2.5 select-none", className)}>
       <img
-        src={logoSvg}
+        src="/images/logo.svg"
         alt=""
         className={cn("shrink-0 object-contain", iconClasses)}
       />

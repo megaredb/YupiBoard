@@ -1,13 +1,14 @@
 import { useState } from "react"
 import { useParams } from "@tanstack/react-router"
-import { Calendar, MapPin, Shield, Star, Users } from "lucide-react"
+import { MapPin, Shield, Star } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useGetUserProfileByIdApiV1UsersUserIdGet } from "@/api/endpoints/users/users"
-import logoSvg from "@/assets/logo.svg"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { EventCard } from "@/components/ui/event-card"
+import { EventGrid } from "@/components/ui/event-grid"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const PLACEHOLDER_CARD_SLOTS = [0, 1, 2] as const
@@ -20,55 +21,6 @@ function formatMemberSince(isoDate: string | undefined, fallback: string): strin
     month: "short",
     year: "numeric",
   })
-}
-
-function EventPlaceholderCard() {
-  const { t } = useTranslation()
-  const dash = t("profile.notProvided")
-
-  return (
-    <Card className="gap-0 overflow-hidden rounded-2xl border border-border bg-card py-0 shadow-xs">
-      <div className="relative h-48 w-full overflow-hidden bg-linear-to-br from-foreground/85 via-primary/35 to-muted">
-        <div className="flex size-full items-center justify-center">
-          <img
-            src={logoSvg}
-            alt=""
-            className="size-16 object-contain opacity-80"
-          />
-        </div>
-
-        <Badge
-          variant="secondary"
-          className="absolute right-3 bottom-3 z-10 rounded-lg bg-card/95 px-2.5 py-1 text-xs font-semibold shadow-xs"
-        >
-          <span>{dash}</span>
-          <Users className="size-3.5" aria-hidden="true" />
-        </Badge>
-      </div>
-
-      <div className="space-y-3 p-4 sm:p-5">
-        <h3 className="line-clamp-2 text-base font-semibold leading-snug text-foreground">
-          {dash}
-        </h3>
-
-        <div className="space-y-1.5 text-xs text-muted-foreground">
-          <div className="flex items-center justify-between gap-2">
-            <span className="inline-flex items-center gap-1.5">
-              <MapPin className="size-3.5 shrink-0" aria-hidden="true" />
-              <span>{dash}</span>
-            </span>
-
-            <span className="text-sm font-semibold text-foreground">{dash}</span>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <Calendar className="size-3.5 shrink-0" aria-hidden="true" />
-            <span>{dash}</span>
-          </div>
-        </div>
-      </div>
-    </Card>
-  )
 }
 
 export function PublicProfilePage() {
@@ -228,11 +180,18 @@ export function PublicProfilePage() {
           </div>
 
           <TabsContent value="hosted" className="space-y-8">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <EventGrid>
               {PLACEHOLDER_CARD_SLOTS.map((slot) => (
-                <EventPlaceholderCard key={slot} />
+                <EventCard
+                  key={slot}
+                  title={dash}
+                  date={dash}
+                  distance={dash}
+                  price={dash}
+                  participants={{ current: 0, max: 0 }}
+                />
               ))}
-            </div>
+            </EventGrid>
 
             <div className="flex justify-center">
               <Button
@@ -246,11 +205,18 @@ export function PublicProfilePage() {
           </TabsContent>
 
           <TabsContent value="joined" className="space-y-8">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <EventGrid>
               {PLACEHOLDER_CARD_SLOTS.map((slot) => (
-                <EventPlaceholderCard key={slot} />
+                <EventCard
+                  key={slot}
+                  title={dash}
+                  date={dash}
+                  distance={dash}
+                  price={dash}
+                  participants={{ current: 0, max: 0 }}
+                />
               ))}
-            </div>
+            </EventGrid>
 
             <div className="flex justify-center">
               <Button
