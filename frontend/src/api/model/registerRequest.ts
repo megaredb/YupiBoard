@@ -12,5 +12,6 @@ export interface RegisterRequest {
      * @maxLength 128
      */
   password: string;
-  full_name?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
 }

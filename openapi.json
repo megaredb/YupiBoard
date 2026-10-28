@@ -913,6 +913,250 @@
           }
         }
       }
+    },
+    "/api/v1/events": {
+      "post": {
+        "tags": [
+          "events"
+        ],
+        "summary": "Organizer creates a new event session",
+        "operationId": "create_event_api_v1_events_post",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "name": "access_token",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Access Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventCreateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "summary": "Browse nearby published events",
+        "operationId": "list_events_api_v1_events_get",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "maximum": 90,
+                  "minimum": -90
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Lat"
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "maximum": 180,
+                  "minimum": -180
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Lon"
+            }
+          },
+          {
+            "name": "radius_km",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter events within radius in kilometers",
+              "title": "Radius Km"
+            },
+            "description": "Filter events within radius in kilometers"
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "City"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/events/{event_id}": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "summary": "Retrieve public details of a published event",
+        "operationId": "get_event_api_v1_events__event_id__get",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Event Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -929,6 +1173,447 @@
           "token"
         ],
         "title": "EmailVerifyRequest"
+      },
+      "EventCreate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 3,
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Description"
+          },
+          "game_title": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 1,
+            "title": "Game Title"
+          },
+          "address": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Address"
+          },
+          "city": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "City"
+          },
+          "lat": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Lon"
+          },
+          "start_datetime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Datetime"
+          },
+          "end_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Datetime"
+          },
+          "min_players": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Min Players",
+            "default": 1
+          },
+          "max_players": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Max Players"
+          },
+          "entry_cost": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Entry Cost",
+            "default": "0.00"
+          },
+          "photo_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "description",
+          "game_title",
+          "address",
+          "city",
+          "lat",
+          "lon",
+          "start_datetime",
+          "max_players"
+        ],
+        "title": "EventCreate"
+      },
+      "EventCreateResponse": {
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Event Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EventStatus"
+          },
+          "is_verified": {
+            "type": "boolean",
+            "title": "Is Verified"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_id",
+          "status",
+          "is_verified",
+          "message"
+        ],
+        "title": "EventCreateResponse"
+      },
+      "EventListItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "game_title": {
+            "type": "string",
+            "title": "Game Title"
+          },
+          "city": {
+            "type": "string",
+            "title": "City"
+          },
+          "address": {
+            "type": "string",
+            "title": "Address"
+          },
+          "start_datetime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Datetime"
+          },
+          "entry_cost": {
+            "type": "string",
+            "title": "Entry Cost"
+          },
+          "max_players": {
+            "type": "integer",
+            "title": "Max Players"
+          },
+          "current_confirmed": {
+            "type": "integer",
+            "title": "Current Confirmed"
+          },
+          "available_seats": {
+            "type": "integer",
+            "title": "Available Seats"
+          },
+          "distance_km": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance Km"
+          },
+          "is_promoted": {
+            "type": "boolean",
+            "title": "Is Promoted"
+          },
+          "organizer": {
+            "$ref": "#/components/schemas/EventOrganizerSummary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "game_title",
+          "city",
+          "address",
+          "start_datetime",
+          "entry_cost",
+          "max_players",
+          "current_confirmed",
+          "available_seats",
+          "is_promoted",
+          "organizer"
+        ],
+        "title": "EventListItem"
+      },
+      "EventOrganizerSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "rating_as_organizer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating As Organizer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "EventOrganizerSummary"
+      },
+      "EventPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EventListItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "total_pages": {
+            "type": "integer",
+            "title": "Total Pages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "total_pages"
+        ],
+        "title": "EventPage"
+      },
+      "EventRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "organizer_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Organizer Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "game_title": {
+            "type": "string",
+            "title": "Game Title"
+          },
+          "address": {
+            "type": "string",
+            "title": "Address"
+          },
+          "city": {
+            "type": "string",
+            "title": "City"
+          },
+          "lat": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Lon"
+          },
+          "start_datetime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Datetime"
+          },
+          "end_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Datetime"
+          },
+          "min_players": {
+            "type": "integer",
+            "title": "Min Players"
+          },
+          "max_players": {
+            "type": "integer",
+            "title": "Max Players"
+          },
+          "current_confirmed": {
+            "type": "integer",
+            "title": "Current Confirmed"
+          },
+          "available_seats": {
+            "type": "integer",
+            "title": "Available Seats"
+          },
+          "entry_cost": {
+            "type": "string",
+            "title": "Entry Cost"
+          },
+          "photo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo Url"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EventStatus"
+          },
+          "is_verified": {
+            "type": "boolean",
+            "title": "Is Verified"
+          },
+          "is_promoted": {
+            "type": "boolean",
+            "title": "Is Promoted"
+          },
+          "organizer": {
+            "$ref": "#/components/schemas/EventOrganizerSummary"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "organizer_id",
+          "title",
+          "description",
+          "game_title",
+          "address",
+          "city",
+          "lat",
+          "lon",
+          "start_datetime",
+          "end_datetime",
+          "min_players",
+          "max_players",
+          "current_confirmed",
+          "available_seats",
+          "entry_cost",
+          "photo_url",
+          "status",
+          "is_verified",
+          "is_promoted",
+          "organizer",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "EventRead"
+      },
+      "EventStatus": {
+        "type": "string",
+        "enum": [
+          "OnModeration",
+          "Rejected",
+          "Published",
+          "Ongoing",
+          "Completed",
+          "Cancelled"
+        ],
+        "title": "EventStatus"
       },
       "GoogleAuthRequest": {
         "properties": {
@@ -1087,17 +1772,29 @@
             "minLength": 8,
             "title": "Password"
           },
-          "full_name": {
+          "first_name": {
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 255
+                "maxLength": 50
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Full Name"
+            "title": "First Name"
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name"
           }
         },
         "type": "object",
@@ -1147,34 +1844,34 @@
             "format": "email",
             "title": "Email"
           },
-          "full_name": {
+          "first_name": {
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 255
+                "maxLength": 50
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Full Name"
+            "title": "First Name"
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name"
           },
           "id": {
             "type": "string",
             "format": "uuid",
             "title": "Id"
-          },
-          "is_active": {
-            "type": "boolean",
-            "title": "Is Active"
-          },
-          "is_verified": {
-            "type": "boolean",
-            "title": "Is Verified"
-          },
-          "is_superuser": {
-            "type": "boolean",
-            "title": "Is Superuser"
           },
           "avatar_url": {
             "anyOf": [
@@ -1222,7 +1919,7 @@
           "rating_as_player": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -1233,40 +1930,73 @@
           "rating_as_organizer": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ],
             "title": "Rating As Organizer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UserStatus",
+            "default": "Active"
+          },
+          "is_verified": {
+            "type": "boolean",
+            "title": "Is Verified"
+          },
+          "is_superuser": {
+            "type": "boolean",
+            "title": "Is Superuser"
           }
         },
         "type": "object",
         "required": [
           "email",
           "id",
-          "is_active",
-          "is_verified",
-          "is_superuser",
           "created_at",
-          "updated_at"
+          "updated_at",
+          "is_verified",
+          "is_superuser"
         ],
         "title": "UserRead"
       },
+      "UserStatus": {
+        "type": "string",
+        "enum": [
+          "Active",
+          "Banned"
+        ],
+        "title": "UserStatus"
+      },
       "UserUpdate": {
         "properties": {
-          "full_name": {
+          "first_name": {
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 255
+                "maxLength": 50,
+                "minLength": 2
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Full Name"
+            "title": "First Name"
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name"
           },
           "avatar_url": {
             "anyOf": [
