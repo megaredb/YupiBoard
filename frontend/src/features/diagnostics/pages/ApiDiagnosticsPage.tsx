@@ -125,7 +125,7 @@ function Session() {
   )
 }
 
-export function HomePage() {
+export function ApiDiagnosticsPage() {
   const { t } = useTranslation()
 
   return (

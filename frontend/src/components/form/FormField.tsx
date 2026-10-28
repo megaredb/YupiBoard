@@ -8,7 +8,7 @@ interface FormFieldProps extends ComponentProps<typeof Input> {
 
 export function FormField({ label, error, ...inputProps }: FormFieldProps) {
   const id = useId()
-  const errorId = `${id}-error`
+  const errorId = `${id}-description`
 
   return (
     <div className="space-y-1.5">
