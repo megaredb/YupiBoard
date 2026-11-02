@@ -2,8 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { ChevronRight, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Card } from "@/shared/ui/card";
-import { UserAvatar } from "@/features/users";
 import type { EventOrganizer } from "@/features/events/hooks/use-event-organizer";
+import { UserAvatar } from "@/features/users";
 
 /** Phone "Organizer" card: the whole row links to the public profile. */
 export function OrganizerRow({ organizer }: { organizer: EventOrganizer }) {

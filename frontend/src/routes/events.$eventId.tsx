@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { EventDetailsSkeleton, eventDetailsQueryOptions } from "@/features/events";
+import { eventDetailsQueryOptions, EventDetailsSkeleton } from "@/features/events";
 import { EventDetailsPage } from "@/features/events/pages/event-details-page";
 import { ensureSavedEvents } from "@/features/saved-events";
 

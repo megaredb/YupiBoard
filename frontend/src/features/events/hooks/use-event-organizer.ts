@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { EventRead } from "@/shared/api/generated/model";
-import { formatMemberSince, formatRating, getDisplayName } from "@/features/users";
 import { organizerQueryOptions } from "@/features/events/api/event-queries";
+import { formatMemberSince, formatRating, getDisplayName } from "@/features/users";
 
 export interface EventOrganizer {
   id: string;

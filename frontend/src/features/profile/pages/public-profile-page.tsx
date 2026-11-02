@@ -2,10 +2,10 @@ import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/shared/ui/badge";
 import { EventList, EventPagination, useHostedEvents } from "@/features/events";
-import { UserAvatar, getDisplayName } from "@/features/users";
 import { ProfileBanner } from "@/features/profile/components/profile-banner";
 import { ProfileSummaryCard } from "@/features/profile/components/profile-summary-card";
 import { usePublicUser } from "@/features/profile/hooks/use-public-user";
+import { getDisplayName, UserAvatar } from "@/features/users";
 
 const route = getRouteApi("/users/$userId");
 

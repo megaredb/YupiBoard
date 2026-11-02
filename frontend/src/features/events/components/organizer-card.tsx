@@ -2,8 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Card } from "@/shared/ui/card";
-import { UserAvatar } from "@/features/users";
 import type { EventOrganizer } from "@/features/events/hooks/use-event-organizer";
+import { UserAvatar } from "@/features/users";
 
 /** Desktop "Meet your organizer" card. */
 export function OrganizerCard({ organizer }: { organizer: EventOrganizer }) {

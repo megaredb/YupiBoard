@@ -1,6 +1,6 @@
-import { useSavedEventIds } from "@/features/saved-events";
-import { useInterimEventList } from "@/features/events/hooks/use-interim-event-list";
 import type { PagedEvents } from "@/features/events/hooks/use-event-catalog";
+import { useInterimEventList } from "@/features/events/hooks/use-interim-event-list";
+import { useSavedEventIds } from "@/features/saved-events";
 
 // INTERIM: needs `GET /users/me/bookings` and favorites endpoints; ids are device-local until then.
 export function useSavedEventList(kind: "favorites" | "bookings", page: number): PagedEvents {

@@ -1,6 +1,6 @@
 import type { UserRead } from "@/shared/api/generated/model";
-import { UserAvatar, getDisplayName } from "@/features/users";
 import { AvatarPicker } from "@/features/profile/components/avatar-picker";
+import { getDisplayName, UserAvatar } from "@/features/users";
 
 interface ProfileAvatarProps {
   user: UserRead;

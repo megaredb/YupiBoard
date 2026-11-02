@@ -1,5 +1,5 @@
-import { useTranslation } from "react-i18next";
 import googleIcon from "@/assets/google.svg";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/shared/ui/button";
 import { Separator } from "@/shared/ui/separator";
 

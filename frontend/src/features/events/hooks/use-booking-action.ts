@@ -4,8 +4,8 @@ import { useCreateBookingRequestApiV1EventsIdBookingsPost } from "@/shared/api/g
 import { getGetEventApiV1EventsEventIdGetQueryKey } from "@/shared/api/generated/endpoints/events/events";
 import type { EventRead } from "@/shared/api/generated/model";
 import { useCurrentUser } from "@/features/auth";
-import { setEventSaved, useSavedEventIds } from "@/features/saved-events";
 import { getBookingState, type BookingState } from "@/features/events/lib/get-booking-state";
+import { setEventSaved, useSavedEventIds } from "@/features/saved-events";
 
 export interface BookingAction {
   state: BookingState;

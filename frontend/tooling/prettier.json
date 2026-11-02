@@ -3,7 +3,20 @@
   "singleQuote": false,
   "trailingComma": "all",
   "printWidth": 100,
-  "plugins": ["prettier-plugin-tailwindcss"],
+  "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
+  "importOrder": [
+    "<BUILTIN_MODULES>",
+    "^react$",
+    "^react-dom(/.*)?$",
+    "<THIRD_PARTY_MODULES>",
+    "^@/app/",
+    "^@/routeTree",
+    "^@/routes/",
+    "^@/shared/",
+    "^@/features/",
+    "^[.]"
+  ],
+  "importOrderTypeScriptVersion": "5.0.0",
   "tailwindStylesheet": "./src/shared/styles/index.css",
   "tailwindFunctions": ["cn", "cva"]
 }

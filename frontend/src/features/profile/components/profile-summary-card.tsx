@@ -3,8 +3,8 @@ import { MapPin, Shield, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { UserRead } from "@/shared/api/generated/model";
 import { Card } from "@/shared/ui/card";
-import { formatMemberSince, formatRating, getDisplayName } from "@/features/users";
 import { RatingTile } from "@/features/profile/components/rating-tile";
+import { formatMemberSince, formatRating, getDisplayName } from "@/features/users";
 
 interface ProfileSummaryCardProps {
   user: UserRead;

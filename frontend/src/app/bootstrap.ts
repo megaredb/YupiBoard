@@ -1,8 +1,8 @@
 import type { QueryClient } from "@tanstack/react-query";
 import i18next from "i18next";
+import { readEnv } from "@/app/env";
 import { createQueryClient } from "@/app/query-client";
 import { createAppRouter } from "@/app/router";
-import { readEnv } from "@/app/env";
 import { configureApiClient, onSessionExpired } from "@/shared/api/client";
 import { setRuntimeConfig } from "@/shared/config/runtime-config";
 import { initI18n } from "@/shared/i18n/init-i18n";

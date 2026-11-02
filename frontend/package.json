@@ -58,6 +58,7 @@
   "devDependencies": {
     "@capacitor/android": "~8.5.3",
     "@capacitor/cli": "^8.5.3",
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/router-plugin": "^1.168.46",
     "@types/node": "^26.6.5",

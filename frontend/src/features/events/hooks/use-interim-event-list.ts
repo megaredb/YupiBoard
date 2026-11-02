@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import type { EventListItem } from "@/shared/api/generated/model";
 import { toListState } from "@/shared/lib/list-state";
 import { interimAllEventsQueryOptions } from "@/features/events/api/event-queries";
-import { paginateInterim } from "@/features/events/lib/paginate-interim";
 import type { PagedEvents } from "@/features/events/hooks/use-event-catalog";
+import { paginateInterim } from "@/features/events/lib/paginate-interim";
 
 // INTERIM: replace with the backend's filtered endpoints (organizer, bookings, favorites).
 export function useInterimEventList(

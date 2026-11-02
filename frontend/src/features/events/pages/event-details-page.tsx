@@ -2,7 +2,6 @@ import { getRouteApi } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Breadcrumbs } from "@/shared/components/breadcrumbs";
 import { PageContainer } from "@/shared/layout/page-container";
-import { useFavoriteToggle } from "@/features/saved-events";
 import { BookingPanel } from "@/features/events/components/booking-panel";
 import { EventAbout } from "@/features/events/components/event-about";
 import { EventActionButtons } from "@/features/events/components/event-action-buttons";
@@ -16,6 +15,7 @@ import { useEventDetails } from "@/features/events/hooks/use-event-details";
 import { useEventOrganizer } from "@/features/events/hooks/use-event-organizer";
 import { useGoBack } from "@/features/events/hooks/use-go-back";
 import { useShareEvent } from "@/features/events/hooks/use-share-event";
+import { useFavoriteToggle } from "@/features/saved-events";
 
 const route = getRouteApi("/events/$eventId");
 

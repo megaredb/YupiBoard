@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import type { EventListItem } from "@/shared/api/generated/model";
 import { formatCardDate } from "@/shared/lib/format/format-date";
 import { formatDecimal } from "@/shared/lib/format/format-number";
-import { formatRating } from "@/features/users";
 import { EventCard } from "@/features/events/components/event-card";
 import { getEventPrice } from "@/features/events/lib/get-event-price";
+import { formatRating } from "@/features/users";
 
 interface EventLinkCardProps {
   event: EventListItem;

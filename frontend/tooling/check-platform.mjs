@@ -1,9 +1,9 @@
-// TOOL-5: browser globals that lint cannot ban by name stay inside shared/platform and app/env.ts.
+// TOOL-5: browser globals that lint cannot ban by name stay inside shared/platform.
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
 const SRC = path.resolve("src");
-const ALLOWED = [path.join(SRC, "shared", "platform") + path.sep, path.join(SRC, "app", "env.ts")];
+const ALLOWED = [path.join(SRC, "shared", "platform") + path.sep];
 const SKIPPED = [
   path.join(SRC, "shared", "api", "generated") + path.sep,
   path.join(SRC, "routeTree.gen.ts"),

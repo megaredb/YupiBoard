@@ -5,11 +5,11 @@ import { FormAlert } from "@/shared/components/form-alert";
 import { BrandLogo } from "@/shared/layout/brand-logo";
 import { Card } from "@/shared/ui/card";
 import { useSignedInUser } from "@/features/auth";
-import { getDisplayName } from "@/features/users";
 import { AvatarPicker } from "@/features/profile/components/avatar-picker";
 import { CompleteProfileForm } from "@/features/profile/components/complete-profile-form";
 import { useUpdateProfile } from "@/features/profile/hooks/use-update-profile";
 import type { CompleteProfileFormValues } from "@/features/profile/schemas/profile.schema";
+import { getDisplayName } from "@/features/users";
 
 export function CompleteProfilePage() {
   const { t } = useTranslation();

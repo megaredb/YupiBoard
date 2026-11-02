@@ -2,8 +2,8 @@ import { useTranslation } from "react-i18next";
 import { FormAlert } from "@/shared/components/form-alert";
 import { TextField } from "@/shared/components/text-field";
 import { useAppForm } from "@/shared/hooks/use-app-form";
-import { useFieldError } from "@/shared/i18n/use-field-error";
 import type { TranslationKey } from "@/shared/i18n/translation-key";
+import { useFieldError } from "@/shared/i18n/use-field-error";
 import { Button } from "@/shared/ui/button";
 import { Dialog } from "@/shared/ui/dialog";
 import {

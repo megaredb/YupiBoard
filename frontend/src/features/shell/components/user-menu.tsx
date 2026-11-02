@@ -3,7 +3,7 @@ import { Globe, LogOut, User as UserIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { UserRead } from "@/shared/api/generated/model";
 import { DropdownMenu } from "@/shared/ui/dropdown-menu";
-import { UserAvatar, getDisplayName } from "@/features/users";
+import { getDisplayName, UserAvatar } from "@/features/users";
 
 interface UserMenuProps {
   user: UserRead;

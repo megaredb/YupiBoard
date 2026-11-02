@@ -54,7 +54,7 @@
         "patterns": [
           {
             "group": ["./*/**", "../*", "../**"],
-            "message": "Import with the @/ alias (TS-10)."
+            "message": "Import with the @/ alias (TOOL-3)."
           },
           {
             "group": ["@capacitor/*"],
@@ -171,7 +171,7 @@
             "patterns": [
               {
                 "group": ["./*/**", "../*", "../**"],
-                "message": "Import with the @/ alias (TS-10)."
+                "message": "Import with the @/ alias (TOOL-3)."
               },
               {
                 "group": [
@@ -194,7 +194,7 @@
             "patterns": [
               {
                 "group": ["./*/**", "../*", "../**"],
-                "message": "Import with the @/ alias (TS-10)."
+                "message": "Import with the @/ alias (TOOL-3)."
               },
               {
                 "group": ["@capacitor/*"],
@@ -221,7 +221,7 @@
             "patterns": [
               {
                 "group": ["./*/**", "../*", "../**"],
-                "message": "Import with the @/ alias (TS-10)."
+                "message": "Import with the @/ alias (TOOL-3)."
               },
               {
                 "group": [

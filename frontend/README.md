@@ -63,15 +63,15 @@ with `pnpm --filter frontend <script>`.
 
 ## Code quality tooling
 
-| Tool               | Config                           | Notes                                                    |
-| ------------------ | -------------------------------- | -------------------------------------------------------- |
-| Prettier           | `tooling/prettier.json`          | Semicolons, double quotes, width 100, Tailwind sorting   |
-| Prettier ignore    | `tooling/prettierignore`         | Passed with `--ignore-path`; paths relative to `tooling` |
-| oxlint             | `.oxlintrc.json`                 | Must stay in `frontend/`: oxlint rejects `..` in globs   |
-| knip               | `tooling/knip.json`              |                                                          |
-| dependency-cruiser | `tooling/dependency-cruiser.cjs` | Run through `tooling/depcruise.mjs` (see its header)     |
-| EditorConfig       | `.editorconfig`                  | Must stay in `frontend/` for editors to find it          |
-| Custom checks      | `tooling/*.mjs`                  | i18n, platform ban, route tree, Android build            |
+| Tool               | Config                           | Notes                                                                   |
+| ------------------ | -------------------------------- | ----------------------------------------------------------------------- |
+| Prettier           | `tooling/prettier.json`          | Semicolons, double quotes, width 100, import and Tailwind class sorting |
+| Prettier ignore    | `tooling/prettierignore`         | Passed with `--ignore-path`; paths relative to `tooling`                |
+| oxlint             | `.oxlintrc.json`                 | Must stay in `frontend/`: oxlint rejects `..` in globs                  |
+| knip               | `tooling/knip.json`              |                                                                         |
+| dependency-cruiser | `tooling/dependency-cruiser.cjs` | Run through `tooling/depcruise.mjs` (see its header)                    |
+| EditorConfig       | `.editorconfig`                  | Must stay in `frontend/` for editors to find it                         |
+| Custom checks      | `tooling/*.mjs`                  | i18n, platform ban, route tree, Android build                           |
 
 Generated code (`src/shared/api/generated/`, `src/routeTree.gen.ts`) is excluded from every
 lint, format, dead-code and boundary check and from `pnpm fix`; only `tsc` reads it, because

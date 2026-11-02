@@ -250,6 +250,9 @@ importers:
       '@capacitor/cli':
         specifier: ^8.5.3
         version: 8.5.3(supports-color@7.2.0)
+      '@ianvs/prettier-plugin-sort-imports':
+        specifier: ^4.7.1
+        version: 4.7.1(prettier@3.9.10)(supports-color@7.2.0)
       '@tailwindcss/vite':
         specifier: ^4.3.3
         version: 4.3.3(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
@@ -288,7 +291,7 @@ importers:
         version: 3.9.10
       prettier-plugin-tailwindcss:
         specifier: ^0.8.1
-        version: 0.8.1(prettier@3.9.10)
+        version: 0.8.1(@ianvs/prettier-plugin-sort-imports@4.7.1(prettier@3.9.10)(supports-color@7.2.0))(prettier@3.9.10)
       shadcn:
         specifier: ^4.23.0
         version: 4.23.0(supports-color@7.2.0)
@@ -802,6 +805,24 @@ packages:
       yup:
         optional: true
       zod:
+        optional: true
+
+  '@ianvs/prettier-plugin-sort-imports@4.7.1':
+    resolution: {integrity: sha512-jmTNYGlg95tlsoG3JLCcuC4BrFELJtLirLAkQW/71lXSyOhVt/Xj7xWbbGcuVbNq1gwWgSyMrPjJc9Z30hynVw==}
+    peerDependencies:
+      '@prettier/plugin-oxc': ^0.0.4 || ^0.1.0
+      '@vue/compiler-sfc': 2.7.x || 3.x
+      content-tag: ^4.0.0
+      prettier: 2 || 3 || ^4.0.0-0
+      prettier-plugin-ember-template-tag: ^2.1.0
+    peerDependenciesMeta:
+      '@prettier/plugin-oxc':
+        optional: true
+      '@vue/compiler-sfc':
+        optional: true
+      content-tag:
+        optional: true
+      prettier-plugin-ember-template-tag:
         optional: true
 
   '@ionic/cli-framework-output@2.2.8':
@@ -4024,6 +4045,17 @@ snapshots:
       ajv-formats: 2.1.1(ajv@8.20.0)
       zod: 4.6.7
 
+  '@ianvs/prettier-plugin-sort-imports@4.7.1(prettier@3.9.10)(supports-color@7.2.0)':
+    dependencies:
+      '@babel/generator': 7.29.12
+      '@babel/parser': 7.29.12
+      '@babel/traverse': 7.29.12(supports-color@7.2.0)
+      '@babel/types': 7.29.11
+      prettier: 3.9.10
+      semver: 7.8.5
+    transitivePeerDependencies:
+      - supports-color
+
   '@ionic/cli-framework-output@2.2.8(supports-color@7.2.0)':
     dependencies:
       '@ionic/utils-terminal': 2.3.5(supports-color@7.2.0)
@@ -5913,9 +5945,11 @@ snapshots:
 
   powershell-utils@0.2.1: {}
 
-  prettier-plugin-tailwindcss@0.8.1(prettier@3.9.10):
+  prettier-plugin-tailwindcss@0.8.1(@ianvs/prettier-plugin-sort-imports@4.7.1(prettier@3.9.10)(supports-color@7.2.0))(prettier@3.9.10):
     dependencies:
       prettier: 3.9.10
+    optionalDependencies:
+      '@ianvs/prettier-plugin-sort-imports': 4.7.1(prettier@3.9.10)(supports-color@7.2.0)
 
   prettier@3.9.10: {}
 
