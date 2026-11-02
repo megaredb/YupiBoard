@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_authenticated/my-bookings")({
   validateSearch: pageSearchSchema,
   loader: ({ context }) =>
     Promise.all([
-      context.queryClient.ensureQueryData(interimAllEventsQueryOptions()),
+      context.queryClient.query({ ...interimAllEventsQueryOptions(), staleTime: "static" }),
       ensureSavedEvents(context.queryClient),
     ]),
   staticData: { titleKey: "events.myBookings.title" },

@@ -6,7 +6,10 @@ import { ensureSavedEvents } from "@/features/saved-events";
 export const Route = createFileRoute("/events/$eventId")({
   loader: ({ context, params }) =>
     Promise.all([
-      context.queryClient.ensureQueryData(eventDetailsQueryOptions(params.eventId)),
+      context.queryClient.query({
+        ...eventDetailsQueryOptions(params.eventId),
+        staleTime: "static",
+      }),
       ensureSavedEvents(context.queryClient),
     ]),
   pendingComponent: EventDetailsSkeleton,

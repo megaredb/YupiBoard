@@ -4,7 +4,8 @@ import { MyEventsPage } from "@/features/events/pages/my-events-page";
 
 export const Route = createFileRoute("/_authenticated/my-events")({
   validateSearch: pageSearchSchema,
-  loader: ({ context }) => context.queryClient.ensureQueryData(interimAllEventsQueryOptions()),
+  loader: ({ context }) =>
+    context.queryClient.query({ ...interimAllEventsQueryOptions(), staleTime: "static" }),
   staticData: { titleKey: "events.myEvents.title" },
   component: MyEventsPage,
 });

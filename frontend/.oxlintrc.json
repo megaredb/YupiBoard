@@ -97,6 +97,7 @@
     "typescript/restrict-template-expressions": "error",
     "typescript/no-base-to-string": "error",
     "typescript/switch-exhaustiveness-check": "error",
+    "typescript/no-deprecated": "error",
     "import/no-default-export": "error",
     "import/no-cycle": "error",
     "react/rules-of-hooks": "error",

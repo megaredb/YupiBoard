@@ -7,8 +7,8 @@ export const Route = createFileRoute("/users/$userId")({
   validateSearch: pageSearchSchema,
   loader: ({ context, params }) =>
     Promise.all([
-      context.queryClient.ensureQueryData(publicUserQueryOptions(params.userId)),
-      context.queryClient.ensureQueryData(interimAllEventsQueryOptions()),
+      context.queryClient.query({ ...publicUserQueryOptions(params.userId), staleTime: "static" }),
+      context.queryClient.query({ ...interimAllEventsQueryOptions(), staleTime: "static" }),
     ]),
   staticData: { titleKey: "profile.public.pageTitle" },
   component: PublicProfilePage,

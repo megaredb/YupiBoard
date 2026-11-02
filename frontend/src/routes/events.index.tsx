@@ -6,9 +6,10 @@ export const Route = createFileRoute("/events/")({
   validateSearch: catalogSearchSchema,
   loaderDeps: ({ search }) => search,
   loader: ({ context, deps }) =>
-    context.queryClient.ensureQueryData(
-      catalogQueryOptions({ city: deps.city, distance: deps.distance }, deps.page),
-    ),
+    context.queryClient.query({
+      ...catalogQueryOptions({ city: deps.city, distance: deps.distance }, deps.page),
+      staleTime: "static",
+    }),
   staticData: { titleKey: "shell.nav.events" },
   component: EventCatalogPage,
 });

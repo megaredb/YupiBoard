@@ -25,7 +25,7 @@ export function currentUserQueryOptions() {
 /** For route guards: `null` when signed out; network failures still throw (never a logout). */
 export async function ensureCurrentUser(queryClient: QueryClient): Promise<UserRead | null> {
   try {
-    return await queryClient.ensureQueryData(currentUserQueryOptions());
+    return await queryClient.query({ ...currentUserQueryOptions(), staleTime: "static" });
   } catch (error) {
     if (isApiError(error) && (error.status === 401 || error.status === 403)) return null;
     throw error;
@@ -39,5 +39,6 @@ export function getCachedCurrentUser(queryClient: QueryClient): UserRead | null 
 
 /** For the root route: warms the cache so the header renders the right state; never throws. */
 export async function prefetchCurrentUser(queryClient: QueryClient): Promise<void> {
-  await queryClient.prefetchQuery(currentUserQueryOptions());
+  // A failure stays in the query's state, where the header reads it; navigation goes on.
+  await queryClient.query(currentUserQueryOptions()).catch(() => undefined);
 }

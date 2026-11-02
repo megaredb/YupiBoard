@@ -195,7 +195,7 @@ Inside a feature: **page → component → hook → lib → api**.
 - **RT-5** One URL, one meaning: duplicate routes redirect to one. Labels match destinations.
 - **RT-6** A search schema used by more than one route is defined once in its feature.
 - **RT-7** The router sets `defaultPendingComponent`, `defaultErrorComponent`, `defaultNotFoundComponent`, and `defaultPreload: "intent"` (off on native).
-- **RT-8** Data a route needs is prefetched in its `loader` with `queryClient.ensureQueryData`. No waterfalls from nested components.
+- **RT-8** Data a route needs is loaded in its `loader` with `queryClient.query({ ...options, staleTime: "static" })` (cached data is reused as is). No waterfalls from nested components.
 - **RT-9** Android back button and deep links go through `shared/platform` into the router. `/verify-email?token=` and `/reset-password?token=` MUST open from an App Link.
 
 ---
@@ -318,7 +318,7 @@ These must exist and pass through `pnpm check`. Tool configs live in `tooling/`,
 
 - **TOOL-1 Formatter:** Prettier: semicolons, double quotes, trailing commas, width 100, Tailwind class sorting. `pnpm format` and `pnpm format:check`. Generated files are excluded.
 - **TOOL-2 `.editorconfig`:** LF, UTF-8 without BOM, 2 spaces, final newline.
-- **TOOL-3 Lint:** oxlint with `--type-aware` (oxlint-tsgolint), configured so that every rule in this file that lint can express is an `error`, not a `warn`: the limits in §6, `no-explicit-any`, no non-null assertion, no `ts-` comments, no `console`, no default exports (except routes/config), no import cycles, `jsx-no-literals`, hooks rules, `jsx-a11y`, no nested ternaries, no shadowed variables, no floating or misused promises, no unsafe `any` flow, strict equality (`== null` allowed), restricted imports (`../`, generated API outside feature hooks/api, `@capacitor/*` outside `shared/platform`). Generated code is ignored.
+- **TOOL-3 Lint:** oxlint with `--type-aware` (oxlint-tsgolint), configured so that every rule in this file that lint can express is an `error`, not a `warn`: the limits in §6, `no-explicit-any`, no non-null assertion, no `ts-` comments, no `console`, no default exports (except routes/config), no import cycles, `jsx-no-literals`, hooks rules, `jsx-a11y`, no nested ternaries, no shadowed variables, no deprecated APIs, no floating or misused promises, no unsafe `any` flow, strict equality (`== null` allowed), restricted imports (`../`, generated API outside feature hooks/api, `@capacitor/*` outside `shared/platform`). Generated code is ignored.
 - **TOOL-4 Layer boundaries:** `dependency-cruiser` (`pnpm depcruise`): `shared` ↛ `features|routes|app`; no cross-feature deep imports; no cycles; `shared/ui` ↛ api/router/i18n/stores; only feature hooks → generated API.
 - **TOOL-5 Platform ban:** lint restricts the globals `localStorage`, `sessionStorage`, `navigator`, `alert`, `confirm`, `prompt` outside `shared/platform`. `pnpm check:platform` (a grep script) fails on `window.location`, `window.open` and `document.documentElement` outside `shared/platform` and `app/env.ts`.
 - **TOOL-6 Dead code:** `knip` (files, exports, dependencies) and an i18n check script (`pnpm i18n:check`): every literal `t("…")` key exists, no key is unused, `en` and `uk` have the same keys.
