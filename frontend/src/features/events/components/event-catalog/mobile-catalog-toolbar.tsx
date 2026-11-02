@@ -7,13 +7,13 @@ import { NativeSelect } from "@/shared/ui/native-select";
 import { useCityOptions } from "@/features/events/hooks/use-city-options";
 import type { CatalogFilters } from "@/features/events/schemas/catalog-search.schema";
 
-interface CatalogMobileToolbarProps {
+interface MobileCatalogToolbarProps {
   value: CatalogFilters;
   onApply: (next: CatalogFilters) => void;
   onOpenFilters: () => void;
 }
 
-export function CatalogMobileToolbar({ value, onApply, onOpenFilters }: CatalogMobileToolbarProps) {
+export function MobileCatalogToolbar({ value, onApply, onOpenFilters }: MobileCatalogToolbarProps) {
   const { t } = useTranslation();
   const selectId = useId();
   const cityOptions = useCityOptions();

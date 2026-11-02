@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import type { EventRead } from "@/shared/api/generated/model";
 import { Card } from "@/shared/ui/card";
 import { SeatsProgress } from "@/shared/ui/seats-progress";
-import { BookingButton } from "@/features/events/components/booking-button";
-import { PriceLabel } from "@/features/events/components/price-label";
+import { BookingButton } from "@/features/events/components/event-details/booking-button";
+import { PriceLabel } from "@/features/events/components/event-details/price-label";
 import type { BookingAction } from "@/features/events/hooks/use-booking-action";
 import { getEventPrice } from "@/features/events/lib/get-event-price";
 

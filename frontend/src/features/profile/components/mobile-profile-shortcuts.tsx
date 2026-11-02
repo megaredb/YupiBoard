@@ -16,7 +16,7 @@ function RowLabel({ children }: { children: ReactNode }) {
 }
 
 /** Phone-only: what the desktop header and user menu offer, reached from the Profile tab. */
-export function ProfileShortcuts({ userId }: { userId: string }) {
+export function MobileProfileShortcuts({ userId }: { userId: string }) {
   const { t } = useTranslation();
   const isDark = useResolvedTheme() === "dark";
   const { logout } = useLogout();

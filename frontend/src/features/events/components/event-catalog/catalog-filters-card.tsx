@@ -2,7 +2,7 @@ import { SlidersHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
-import { CatalogFilterFields } from "@/features/events/components/catalog-filter-fields";
+import { CatalogFilterFields } from "@/features/events/components/event-catalog/catalog-filter-fields";
 import {
   DEFAULT_CATALOG_FILTERS,
   type CatalogFilters,

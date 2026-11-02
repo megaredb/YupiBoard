@@ -2,14 +2,14 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BottomSheet } from "@/shared/ui/bottom-sheet";
 import { Button } from "@/shared/ui/button";
-import { CatalogFilterFields } from "@/features/events/components/catalog-filter-fields";
+import { CatalogFilterFields } from "@/features/events/components/event-catalog/catalog-filter-fields";
 import { useCatalogResultCount } from "@/features/events/hooks/use-catalog-result-count";
 import {
   DEFAULT_CATALOG_FILTERS,
   type CatalogFilters,
 } from "@/features/events/schemas/catalog-search.schema";
 
-interface CatalogFiltersSheetProps {
+interface MobileFiltersSheetProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   value: CatalogFilters;
@@ -17,12 +17,12 @@ interface CatalogFiltersSheetProps {
 }
 
 /** Phone filters: edits a draft and shows the live result count on the apply button. */
-export function CatalogFiltersSheet({
+export function MobileFiltersSheet({
   isOpen,
   onOpenChange,
   value,
   onApply,
-}: CatalogFiltersSheetProps) {
+}: MobileFiltersSheetProps) {
   const { t } = useTranslation();
   const handleApply = (next: CatalogFilters) => {
     onApply(next);

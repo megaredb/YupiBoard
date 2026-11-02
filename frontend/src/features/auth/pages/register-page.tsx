@@ -2,8 +2,8 @@ import { getRouteApi, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { FormAlert } from "@/shared/components/form-alert";
 import { AuthCard } from "@/features/auth/components/auth-card";
-import { AuthModeTabs } from "@/features/auth/components/auth-mode-tabs";
 import { GoogleSignInSection } from "@/features/auth/components/google-sign-in-section";
+import { MobileAuthTabs } from "@/features/auth/components/mobile-auth-tabs";
 import { RegisterForm } from "@/features/auth/components/register-form";
 import { useGoogleSignIn } from "@/features/auth/hooks/use-google-sign-in";
 import { useRegister } from "@/features/auth/hooks/use-register";
@@ -21,7 +21,7 @@ export function RegisterPage() {
     <AuthCard
       title={t("auth.register.title")}
       subtitle={t("auth.register.subtitle")}
-      tabs={<AuthModeTabs redirect={redirect} />}
+      tabs={<MobileAuthTabs redirect={redirect} />}
       footer={
         <p>
           {t("auth.register.hasAccount")}{" "}

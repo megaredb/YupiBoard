@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PageContainer } from "@/shared/layout/page-container";
 import { PageHeader } from "@/shared/layout/page-header";
-import { CatalogFiltersCard } from "@/features/events/components/catalog-filters-card";
-import { CatalogFiltersSheet } from "@/features/events/components/catalog-filters-sheet";
-import { CatalogMobileToolbar } from "@/features/events/components/catalog-mobile-toolbar";
+import { CatalogFiltersCard } from "@/features/events/components/event-catalog/catalog-filters-card";
+import { MobileCatalogToolbar } from "@/features/events/components/event-catalog/mobile-catalog-toolbar";
+import { MobileFiltersSheet } from "@/features/events/components/event-catalog/mobile-filters-sheet";
 import { EventList } from "@/features/events/components/event-list";
 import { EventPagination } from "@/features/events/components/event-pagination";
 import { useCatalogFilters } from "@/features/events/hooks/use-catalog-filters";
@@ -35,7 +35,7 @@ export function EventCatalogPage() {
 
         <section className="min-w-0 space-y-6">
           <div>
-            <CatalogMobileToolbar
+            <MobileCatalogToolbar
               value={filters}
               onApply={applyFilters}
               onOpenFilters={handleOpenSheet}
@@ -67,7 +67,7 @@ export function EventCatalogPage() {
         </section>
       </div>
 
-      <CatalogFiltersSheet
+      <MobileFiltersSheet
         isOpen={isSheetOpen}
         onOpenChange={setSheetOpen}
         value={filters}

@@ -8,7 +8,7 @@ import {
   formatTimeZoneName,
 } from "@/shared/lib/format/format-date";
 import { SeatsProgress } from "@/shared/ui/seats-progress";
-import { EventMapLink } from "@/features/events/components/event-map-link";
+import { EventMapLink } from "@/features/events/components/event-details/event-map-link";
 
 function Fact({ icon, title, detail }: { icon: ReactNode; title: string; detail: ReactNode }) {
   return (

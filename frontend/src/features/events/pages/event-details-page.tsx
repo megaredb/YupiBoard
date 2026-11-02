@@ -2,14 +2,14 @@ import { getRouteApi } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Breadcrumbs } from "@/shared/components/breadcrumbs";
 import { PageContainer } from "@/shared/layout/page-container";
-import { BookingPanel } from "@/features/events/components/booking-panel";
-import { EventAbout } from "@/features/events/components/event-about";
-import { EventActionButtons } from "@/features/events/components/event-action-buttons";
-import { EventMobileTopBar } from "@/features/events/components/event-mobile-top-bar";
-import { EventSummary } from "@/features/events/components/event-summary";
-import { MobileBookingBar } from "@/features/events/components/mobile-booking-bar";
-import { OrganizerCard } from "@/features/events/components/organizer-card";
-import { OrganizerRow } from "@/features/events/components/organizer-row";
+import { BookingPanel } from "@/features/events/components/event-details/booking-panel";
+import { EventAbout } from "@/features/events/components/event-details/event-about";
+import { EventActionButtons } from "@/features/events/components/event-details/event-action-buttons";
+import { EventSummary } from "@/features/events/components/event-details/event-summary";
+import { MobileBookingBar } from "@/features/events/components/event-details/mobile-booking-bar";
+import { MobileOrganizerRow } from "@/features/events/components/event-details/mobile-organizer-row";
+import { OrganizerCard } from "@/features/events/components/event-details/organizer-card";
+import { MobileTopBar } from "@/features/events/components/mobile-top-bar";
 import { useBookingAction } from "@/features/events/hooks/use-booking-action";
 import { useEventDetails } from "@/features/events/hooks/use-event-details";
 import { useEventOrganizer } from "@/features/events/hooks/use-event-organizer";
@@ -40,7 +40,7 @@ export function EventDetailsPage() {
 
   return (
     <>
-      <EventMobileTopBar onBack={goBack} actions={renderActions("bar")} />
+      <MobileTopBar onBack={goBack} actions={renderActions("bar")} />
       <PageContainer className="max-lg:p-0 max-lg:pb-32 lg:pb-12">
         <Breadcrumbs
           className="mb-6 hidden lg:block"
@@ -53,7 +53,7 @@ export function EventDetailsPage() {
             <div className="space-y-6 max-lg:px-4">
               <EventAbout description={event.description} />
               <OrganizerCard organizer={organizer} />
-              <OrganizerRow organizer={organizer} />
+              <MobileOrganizerRow organizer={organizer} />
             </div>
           </div>
           <aside className="hidden lg:sticky lg:top-20 lg:block">

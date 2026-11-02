@@ -6,7 +6,7 @@ const TAB_CLASS =
 const ACTIVE_TAB = { className: "bg-background text-foreground shadow-xs" };
 
 /** Phone-only switch between `/login` and `/register`, keeping the post-sign-in redirect. */
-export function AuthModeTabs({ redirect }: { redirect: string | undefined }) {
+export function MobileAuthTabs({ redirect }: { redirect: string | undefined }) {
   const { t } = useTranslation();
 
   return (

@@ -3,9 +3,9 @@ import { getRouteApi, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { FormAlert } from "@/shared/components/form-alert";
 import { AuthCard } from "@/features/auth/components/auth-card";
-import { AuthModeTabs } from "@/features/auth/components/auth-mode-tabs";
 import { GoogleSignInSection } from "@/features/auth/components/google-sign-in-section";
 import { LoginForm } from "@/features/auth/components/login-form";
+import { MobileAuthTabs } from "@/features/auth/components/mobile-auth-tabs";
 import { PasswordRecoveryDialog } from "@/features/auth/components/password-recovery-dialog";
 import { useGoogleSignIn } from "@/features/auth/hooks/use-google-sign-in";
 import { useLogin } from "@/features/auth/hooks/use-login";
@@ -34,7 +34,7 @@ export function LoginPage() {
       subtitle={t("auth.login.subtitle")}
       mobileTitle={t("auth.login.mobileTitle")}
       mobileSubtitle={t("auth.login.mobileSubtitle")}
-      tabs={<AuthModeTabs redirect={redirect} />}
+      tabs={<MobileAuthTabs redirect={redirect} />}
       footer={
         <p>
           {t("auth.login.noAccount")}{" "}

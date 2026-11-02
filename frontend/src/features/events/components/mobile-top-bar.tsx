@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/shared/ui/button";
 
-interface EventMobileTopBarProps {
+interface MobileTopBarProps {
   onBack: () => void;
   /** Page heading next to the back button, for pages that have no other `h1` on phones. */
   title?: string;
@@ -11,7 +11,7 @@ interface EventMobileTopBarProps {
 }
 
 /** Replaces the app header on phones (the route hides it there). */
-export function EventMobileTopBar({ onBack, title, actions }: EventMobileTopBarProps) {
+export function MobileTopBar({ onBack, title, actions }: MobileTopBarProps) {
   const { t } = useTranslation();
 
   return (

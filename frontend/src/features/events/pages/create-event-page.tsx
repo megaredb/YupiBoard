@@ -6,7 +6,7 @@ import { Button } from "@/shared/ui/button";
 import { buttonVariants } from "@/shared/ui/button-variants";
 import { StatusMessage } from "@/shared/ui/status-message";
 import { CreateEventForm } from "@/features/events/components/create-event/create-event-form";
-import { EventMobileTopBar } from "@/features/events/components/event-mobile-top-bar";
+import { MobileTopBar } from "@/features/events/components/mobile-top-bar";
 import { useCreateEvent } from "@/features/events/hooks/use-create-event";
 import { useGoBack } from "@/features/events/hooks/use-go-back";
 
@@ -18,7 +18,7 @@ export function CreateEventPage() {
 
   return (
     <>
-      <EventMobileTopBar onBack={goBack} title={t("events.create.title")} />
+      <MobileTopBar onBack={goBack} title={t("events.create.title")} />
       <div className="mx-auto w-full max-w-2xl px-4 pb-12 lg:pt-safe">
         <div className="max-lg:hidden">
           <Link to="/events" className="mt-6 inline-flex items-center rounded-lg">

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { EventRead } from "@/shared/api/generated/model";
-import { EventFacts } from "@/features/events/components/event-facts";
-import { EventHero } from "@/features/events/components/event-hero";
+import { EventFacts } from "@/features/events/components/event-details/event-facts";
+import { EventHero } from "@/features/events/components/event-details/event-hero";
 
 interface EventSummaryProps {
   event: EventRead;
