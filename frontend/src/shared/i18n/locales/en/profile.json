@@ -50,5 +50,7 @@
     "upcomingHostedBy": "Games hosted by {{name}}",
     "noHostedEvents": "No hosted events",
     "noHostedEventsDescription": "This organizer has not hosted any events yet."
-  }
+  },
+  "shortcutsLabel": "Shortcuts",
+  "uploadPhoto": "Upload photo"
 }

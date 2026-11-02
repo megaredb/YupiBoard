@@ -71,7 +71,9 @@
     "share": "Share event",
     "shareFailed": "Couldn't share the link",
     "linkCopied": "Link copied",
-    "favorite": "Favorite"
+    "favorite": "Favorite",
+    "opensMap": "(opens a map)",
+    "timeWithZone": "{{time}} · {{zone}}"
   },
   "booking": {
     "title": "Your seat at the table",

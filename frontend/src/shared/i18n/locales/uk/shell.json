@@ -8,11 +8,11 @@
   "backToEvents": "Усі події",
   "nav": {
     "label": "Головна навігація",
-    "open": "Відкрити навігацію",
     "events": "Події",
     "myEvents": "Мої події",
     "myBookings": "Мої бронювання",
-    "favorites": "Обране"
+    "favorites": "Обране",
+    "profile": "Профіль"
   },
   "userMenu": {
     "open": "Відкрити меню користувача",

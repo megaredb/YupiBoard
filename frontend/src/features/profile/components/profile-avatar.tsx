@@ -29,7 +29,7 @@ export function ProfileAvatar({
       value={pickedAvatar}
       onChange={onPick}
       isDisabled={isDisabled}
-      size="md"
+      variant="inline"
     />
   );
 }

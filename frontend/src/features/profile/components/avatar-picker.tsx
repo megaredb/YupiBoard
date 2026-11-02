@@ -1,4 +1,4 @@
-import { useId, useState, type ChangeEvent } from "react";
+import { useId, useRef, useState, type ChangeEvent } from "react";
 import { cva } from "class-variance-authority";
 import { Camera, CircleAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -6,6 +6,7 @@ import { useObjectUrl } from "@/shared/hooks/use-object-url";
 import type { TranslationKey } from "@/shared/i18n/translation-key";
 import { IMAGE_MIME_TYPES } from "@/shared/lib/image/image-constraints";
 import { prepareImage } from "@/shared/lib/image/prepare-image";
+import { Button } from "@/shared/ui/button";
 import { UserAvatar } from "@/features/users";
 
 interface AvatarPickerProps {
@@ -14,12 +15,26 @@ interface AvatarPickerProps {
   value: File | null;
   onChange: (file: File) => void;
   isDisabled: boolean;
-  size: "md" | "lg";
+  /** `standalone`: large, centred, with an upload button. `inline`: compact, inside a profile card. */
+  variant: "standalone" | "inline";
 }
 
-const avatarVariants = cva("", {
-  variants: { size: { md: "size-16 sm:size-20", lg: "size-24 sm:size-28" } },
+const pickerVariants = cva("flex flex-col items-center gap-2", {
+  variants: { variant: { standalone: "", inline: "sm:items-start" } },
 });
+
+const avatarVariants = cva("", {
+  variants: { variant: { standalone: "size-24 sm:size-28", inline: "size-16 sm:size-20" } },
+});
+
+function PhotoError({ message }: { message: string }) {
+  return (
+    <p role="alert" className="flex items-center gap-1.5 text-xs text-destructive">
+      <CircleAlert aria-hidden className="size-3.5 shrink-0" />
+      <span>{message}</span>
+    </p>
+  );
+}
 
 /** Picks, validates and downsizes a new photo through the shared image pipeline. */
 export function AvatarPicker({
@@ -28,10 +43,11 @@ export function AvatarPicker({
   value,
   onChange,
   isDisabled,
-  size,
+  variant,
 }: AvatarPickerProps) {
   const { t } = useTranslation();
   const inputId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
   const previewUrl = useObjectUrl(value);
   const [errorKey, setErrorKey] = useState<TranslationKey | null>(null);
 
@@ -45,14 +61,15 @@ export function AvatarPicker({
     event.target.value = "";
     if (file) void pickFile(file);
   };
+  const handleBrowse = () => inputRef.current?.click();
 
   return (
-    <div className="flex flex-col items-center gap-2 sm:items-start">
+    <div className={pickerVariants({ variant })}>
       <div className="relative">
         <UserAvatar
           name={name}
           avatarUrl={previewUrl ?? currentUrl}
-          className={avatarVariants({ size })}
+          className={avatarVariants({ variant })}
           fallbackClassName="text-xl font-bold"
         />
         <label
@@ -64,6 +81,7 @@ export function AvatarPicker({
         </label>
       </div>
       <input
+        ref={inputRef}
         id={inputId}
         type="file"
         accept={IMAGE_MIME_TYPES.join(",")}
@@ -71,13 +89,19 @@ export function AvatarPicker({
         disabled={isDisabled}
         onChange={handleFileChange}
       />
-      <p className="text-xs text-muted-foreground">{t("profile.photoHint")}</p>
-      {errorKey && (
-        <p role="alert" className="flex items-center gap-1.5 text-xs text-destructive">
-          <CircleAlert aria-hidden className="size-3.5 shrink-0" />
-          <span>{t(errorKey)}</span>
-        </p>
+      {variant === "standalone" && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={isDisabled}
+          onClick={handleBrowse}
+        >
+          {t("profile.uploadPhoto")}
+        </Button>
       )}
+      <p className="text-xs text-muted-foreground">{t("profile.photoHint")}</p>
+      {errorKey && <PhotoError message={t(errorKey)} />}
     </div>
   );
 }

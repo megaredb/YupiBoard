@@ -8,6 +8,7 @@ import { ProfileAvatar } from "@/features/profile/components/profile-avatar";
 import { ProfileBanner } from "@/features/profile/components/profile-banner";
 import { ProfileDetails } from "@/features/profile/components/profile-details";
 import { ProfileEditForm } from "@/features/profile/components/profile-edit-form";
+import { ProfileShortcuts } from "@/features/profile/components/profile-shortcuts";
 import { ProfileSummaryCard } from "@/features/profile/components/profile-summary-card";
 import { useChangePassword } from "@/features/profile/hooks/use-change-password";
 import { useProfileEditMode } from "@/features/profile/hooks/use-profile-edit-mode";
@@ -52,6 +53,7 @@ export function ProfilePage() {
             />
           }
         />
+        <ProfileShortcuts userId={user.id} />
         {errorKey && <FormAlert message={t(errorKey)} />}
         {editMode.isEditing ? (
           <ProfileEditForm

@@ -2,10 +2,15 @@ import type { ReactNode } from "react";
 import { Calendar, MapPin, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { EventRead } from "@/shared/api/generated/model";
-import { formatLongDate, formatTimeRange } from "@/shared/lib/format/format-date";
+import {
+  formatLongDate,
+  formatTimeRange,
+  formatTimeZoneName,
+} from "@/shared/lib/format/format-date";
 import { SeatsProgress } from "@/shared/ui/seats-progress";
+import { EventMapLink } from "@/features/events/components/event-map-link";
 
-function Fact({ icon, title, detail }: { icon: ReactNode; title: string; detail: string }) {
+function Fact({ icon, title, detail }: { icon: ReactNode; title: string; detail: ReactNode }) {
   return (
     <div className="flex items-start gap-3.5">
       <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary [&_svg]:size-5">
@@ -28,12 +33,15 @@ export function EventFacts({ event }: { event: EventRead }) {
         <Fact
           icon={<Calendar aria-hidden />}
           title={formatLongDate(event.start_datetime)}
-          detail={formatTimeRange(event.start_datetime, event.end_datetime)}
+          detail={t("events.details.timeWithZone", {
+            time: formatTimeRange(event.start_datetime, event.end_datetime),
+            zone: formatTimeZoneName(event.start_datetime),
+          })}
         />
         <Fact
           icon={<MapPin aria-hidden />}
           title={event.game_title}
-          detail={[event.address, event.city].filter(Boolean).join(", ")}
+          detail={<EventMapLink event={event} />}
         />
       </div>
 

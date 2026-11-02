@@ -6,40 +6,37 @@ import { useCurrentUser, useLogout } from "@/features/auth";
 import { ThemeToggle } from "@/features/shell/components/theme-toggle";
 import { UserMenu } from "@/features/shell/components/user-menu";
 
-/** Right side of the header: create, theme, and the user menu or sign-in links. */
+/**
+ * Right side of the header. Signed-in users reach these actions from the Profile tab on phones,
+ * so the phone header shows only the logo; guests keep the sign-in links everywhere.
+ */
 export function HeaderActions() {
   const { t } = useTranslation();
   const user = useCurrentUser();
   const { logout } = useLogout();
 
+  if (user) {
+    return (
+      <div className="ml-auto flex items-center gap-3 max-md:hidden">
+        <Link to="/events/new" className={buttonVariants({ size: "lg", className: "px-4" })}>
+          <Plus aria-hidden />
+          {t("shell.createEvent")}
+        </Link>
+        <ThemeToggle />
+        <UserMenu user={user} onLogout={logout} />
+      </div>
+    );
+  }
+
   return (
     <div className="ml-auto flex items-center gap-1 sm:gap-3">
-      {user && (
-        <Link
-          to="/events/new"
-          aria-label={t("shell.createEvent")}
-          className={buttonVariants({ size: "lg", className: "px-3 sm:px-4" })}
-        >
-          <Plus aria-hidden />
-          <span className="max-sm:hidden">{t("shell.createEvent")}</span>
-        </Link>
-      )}
       <ThemeToggle />
-      {user ? (
-        <UserMenu user={user} onLogout={logout} />
-      ) : (
-        <>
-          <Link to="/login" className={buttonVariants({ variant: "ghost", size: "lg" })}>
-            {t("shell.login")}
-          </Link>
-          <Link
-            to="/register"
-            className={buttonVariants({ size: "lg", className: "rounded-xl px-5" })}
-          >
-            {t("shell.register")}
-          </Link>
-        </>
-      )}
+      <Link to="/login" className={buttonVariants({ variant: "ghost", size: "lg" })}>
+        {t("shell.login")}
+      </Link>
+      <Link to="/register" className={buttonVariants({ size: "lg", className: "rounded-xl px-5" })}>
+        {t("shell.register")}
+      </Link>
     </div>
   );
 }

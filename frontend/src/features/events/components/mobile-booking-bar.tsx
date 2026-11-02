@@ -25,7 +25,10 @@ export function MobileBookingBar({ event, action }: MobileBookingBarProps) {
                 : t("events.booking.full")}
             </p>
           </div>
-          <BookingButton action={action} className="max-w-44 flex-1" />
+          <BookingButton
+            action={action}
+            className="min-w-0 flex-1 text-center text-sm leading-tight whitespace-normal"
+          />
         </div>
         {action.hasFailed && (
           <p role="alert" className="pb-2 text-center text-xs text-destructive">

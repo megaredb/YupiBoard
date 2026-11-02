@@ -233,7 +233,7 @@ The same bundle runs in browsers and in an Android WebView. **Platform-specific 
 ## 12. UI and styling
 
 - **UI-1** `shared/ui` holds dumb primitives with no business logic or copy. Menus, popovers, dropdowns, dialogs and tabs use the **base-ui** primitive; no hand-written outside-click or Esc listeners. Add primitives with `pnpm dlx shadcn@latest add`, then conform them to this file.
-- **UI-2** Colours, radii, shadows and spacing come from **design tokens** (CSS variables in `shared/styles`). Raw palette classes (`bg-amber-100`) and hex/rgb values are forbidden outside the token file. Every token has light **and** dark values.
+- **UI-2** Colours, radii, shadows and spacing come from **design tokens** (CSS variables in `shared/styles/theme.css`). Raw palette classes (`bg-amber-100`) and hex/rgb values are forbidden outside that file. Every colour works in light **and** dark; `.dark` overrides only the values that differ. Remove tokens nothing uses.
 - **UI-3** `cn()` is the only class merger; `className` is the last argument so callers can override.
 - **UI-4** Variants use `cva`, beside the component.
 - **UI-5** No inline `style` except truly dynamic values. No arbitrary values (`w-[137px]`) when a scale step exists. Class strings repeated 3+ times become a component or variant.

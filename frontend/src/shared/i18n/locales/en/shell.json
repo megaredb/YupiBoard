@@ -8,11 +8,11 @@
   "backToEvents": "All events",
   "nav": {
     "label": "Main",
-    "open": "Open navigation",
     "events": "Events",
     "myEvents": "My events",
     "myBookings": "My bookings",
-    "favorites": "Favorites"
+    "favorites": "Favorites",
+    "profile": "Profile"
   },
   "userMenu": {
     "open": "Open user menu",

@@ -50,5 +50,7 @@
     "upcomingHostedBy": "Ігри, які організовує {{name}}",
     "noHostedEvents": "Немає організованих подій",
     "noHostedEventsDescription": "Цей організатор ще не провів жодної події."
-  }
+  },
+  "shortcutsLabel": "Швидкі дії",
+  "uploadPhoto": "Завантажити фото"
 }

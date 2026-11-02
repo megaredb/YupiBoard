@@ -40,7 +40,7 @@ export function CompleteProfilePage() {
             value={avatar}
             onChange={setAvatar}
             isDisabled={isPending}
-            size="lg"
+            variant="standalone"
           />
           {errorKey && <FormAlert message={t(errorKey)} />}
           <CompleteProfileForm user={user} isPending={isPending} onSubmit={handleSubmit} />

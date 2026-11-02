@@ -1,0 +1,44 @@
+/* Phone layout: safe areas, the on-screen keyboard and fixed bottom bars (PLAT-6, PLAT-9). */
+
+:root {
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+  /* Set by shared/platform/keyboard.ts while the Android keyboard is open. */
+  --keyboard-inset: 0px;
+  --tab-bar-height: 4rem;
+  /* Space taken by a fixed bottom bar; fixed and scrolling content stays clear of it. */
+  --bottom-bar-inset: 0px;
+}
+
+/* Set by shared/platform/keyboard.ts while the Android on-screen keyboard is shown. */
+@custom-variant keyboard-open (&:where([data-keyboard="open"] *));
+
+/* Safe areas are applied through these utilities only. */
+@utility pt-safe {
+  padding-top: var(--safe-top);
+}
+
+@utility pb-safe {
+  padding-bottom: var(--safe-bottom);
+}
+
+@utility with-tab-bar {
+  --bottom-bar-inset: calc(var(--tab-bar-height) + var(--safe-bottom));
+}
+
+@utility pb-bottom-bar {
+  padding-bottom: var(--bottom-bar-inset);
+}
+
+/* Grows the pointer target of small controls to 44x44 px without changing their look. */
+@utility touch-hitbox {
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+}

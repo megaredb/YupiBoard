@@ -5,10 +5,12 @@ const INSET_PROPERTY = "--keyboard-inset";
 
 function setInset(px: number): void {
   document.documentElement.style.setProperty(INSET_PROPERTY, `${px}px`);
+  document.documentElement.dataset.keyboard = px > 0 ? "open" : "closed";
 }
 
 /**
- * Exposes the on-screen keyboard height as `--keyboard-inset` so fixed bars can sit above it.
+ * Exposes the on-screen keyboard height as `--keyboard-inset` so fixed bars can sit above it, and
+ * `data-keyboard` on `<html>` so bottom navigation can hide while typing.
  * Browsers resize the viewport themselves, so the web variable stays `0px`.
  */
 export function initKeyboardInsets(): () => void {

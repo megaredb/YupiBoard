@@ -77,7 +77,9 @@
     "share": "Поділитися подією",
     "shareFailed": "Не вдалося поділитися посиланням",
     "linkCopied": "Посилання скопійовано",
-    "favorite": "Обране"
+    "favorite": "Обране",
+    "opensMap": "(відкриває мапу)",
+    "timeWithZone": "{{time}} · {{zone}}"
   },
   "booking": {
     "title": "Ваше місце за столом",

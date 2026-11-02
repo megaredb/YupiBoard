@@ -42,7 +42,7 @@ export function Toaster() {
   return (
     <ol
       aria-live="polite"
-      className="pointer-events-none fixed inset-x-0 bottom-[max(1rem,var(--safe-bottom))] z-60 mx-auto flex w-full max-w-md flex-col gap-2 px-4 *:pointer-events-auto"
+      className="pointer-events-none fixed inset-x-0 bottom-[max(1rem,var(--safe-bottom),calc(var(--bottom-bar-inset)+0.5rem))] z-60 mx-auto flex w-full max-w-md flex-col gap-2 px-4 *:pointer-events-auto"
     >
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} closeLabel={t("common.close")} />
