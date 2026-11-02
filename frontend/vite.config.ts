@@ -1,17 +1,13 @@
-import path from "node:path";
-import tailwindcss from "@tailwindcss/vite";
-import { tanstackRouter } from "@tanstack/router-plugin/vite";
-import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import path from "node:path"
+import tailwindcss from "@tailwindcss/vite"
+import { tanstackRouter } from "@tanstack/router-plugin/vite"
+import react from "@vitejs/plugin-react"
+import { defineConfig } from "vite"
 
-// https://vite.dev/config/
 export default defineConfig({
+  // The monorepo keeps one `.env` at its root for backend and frontend.
   envDir: path.resolve(import.meta.dirname, ".."),
-  plugins: [
-    tanstackRouter({ target: "react", autoCodeSplitting: true }),
-    react(),
-    tailwindcss(),
-  ],
+  plugins: [tanstackRouter({ target: "react", autoCodeSplitting: true }), react(), tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"),
@@ -22,4 +18,4 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
   },
-});
+})

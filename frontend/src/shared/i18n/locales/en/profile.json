@@ -1,0 +1,54 @@
+{
+  "pageTitle": "My profile",
+  "memberSince": "Member since {{date}}",
+  "playerRating": "Player rating",
+  "organizerRating": "Organizer rating",
+  "outOfFive": "/5.0",
+  "accountDetails": "Account details",
+  "editProfile": "Edit profile",
+  "changePhoto": "Change photo",
+  "photoHint": "JPEG/PNG under 2 MB",
+  "bioHint": "Tell others about your board game preferences…",
+  "deviceOnlyNote": "Saved on this device only",
+  "emailLinkedNote": "Your email cannot be changed",
+  "locationHint": "Distance to events is calculated from the city centre",
+  "locationEditHint": "Set an exact address or a city; for a city, distance is calculated from its centre",
+  "useGps": "Use GPS",
+  "gpsLocating": "Locating…",
+  "locationUnavailable": "Couldn't get your location",
+  "passwordMasked": "••••••••",
+  "changePassword": "Change password",
+  "saveChanges": "Save changes",
+  "updatedMessage": "Profile updated",
+  "updateFailed": "Failed to update profile. Please try again.",
+  "fields": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "bio": "Bio",
+    "contactInfo": "Contact info",
+    "contacts": "Contacts / socials",
+    "email": "Email",
+    "location": "Location",
+    "city": "City",
+    "password": "Password"
+  },
+  "passwordDialog": {
+    "title": "Change password",
+    "description": "Enter your new password below (at least 8 characters).",
+    "submit": "Update password",
+    "success": "Password updated"
+  },
+  "complete": {
+    "title": "Complete your profile",
+    "subtitle": "Tell other players and organizers a little bit about yourself.",
+    "submit": "Save and continue",
+    "footerNote": "You can update these details anytime."
+  },
+  "public": {
+    "pageTitle": "Player profile",
+    "hostedEvents": "Hosted events",
+    "upcomingHostedBy": "Games hosted by {{name}}",
+    "noHostedEvents": "No hosted events",
+    "noHostedEventsDescription": "This organizer has not hosted any events yet."
+  }
+}

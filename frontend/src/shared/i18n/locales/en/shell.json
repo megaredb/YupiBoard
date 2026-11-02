@@ -1,0 +1,31 @@
+{
+  "titleFormat": "{{page}} · {{brand}}",
+  "copyright": "© 2026 YupiBoard. Find your next board game night.",
+  "createEvent": "Create event",
+  "darkTheme": "Dark theme",
+  "login": "Log in",
+  "register": "Register",
+  "backToEvents": "All events",
+  "nav": {
+    "label": "Main",
+    "open": "Open navigation",
+    "events": "Events",
+    "myEvents": "My events",
+    "myBookings": "My bookings",
+    "favorites": "Favorites"
+  },
+  "userMenu": {
+    "open": "Open user menu",
+    "myProfile": "My profile",
+    "publicProfile": "Public profile",
+    "logout": "Log out"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "description": "We couldn't load this page."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "This page may have been removed or the link is incorrect."
+  }
+}

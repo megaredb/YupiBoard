@@ -2,16 +2,18 @@ import { defineConfig } from "orval"
 
 export default defineConfig({
   yupiboard: {
-    input: "../openapi.json",
+    input: "./openapi/openapi.json",
     output: {
       mode: "tags-split",
-      target: "./src/api/endpoints",
-      schemas: "./src/api/model",
+      target: "./src/shared/api/generated/endpoints",
+      schemas: "./src/shared/api/generated/model",
       client: "react-query",
       httpClient: "axios",
+      clean: true,
+      formatter: "prettier",
       override: {
         mutator: {
-          path: "./src/lib/axios.ts",
+          path: "./src/shared/api/mutator.ts",
           name: "customInstance",
         },
       },

@@ -1,0 +1,23 @@
+{
+  "brand": "YupiBoard",
+  "optional": "Необов'язково",
+  "readOnly": "Лише для читання",
+  "requiredFields": "* Обов'язкові поля",
+  "notProvided": "—",
+  "showPassword": "Показати пароль",
+  "cancel": "Скасувати",
+  "edit": "Редагувати",
+  "back": "Назад",
+  "close": "Закрити",
+  "retry": "Спробувати ще раз",
+  "loadFailed": "Не вдалося завантажити дані.",
+  "breadcrumbs": "Навігаційний ланцюжок",
+  "browseImage": "Натисніть, щоб завантажити",
+  "dropImage": "або перетягніть файл",
+  "removeImage": "Видалити зображення",
+  "pagination": {
+    "label": "Сторінки",
+    "previous": "Попередня",
+    "next": "Наступна"
+  }
+}

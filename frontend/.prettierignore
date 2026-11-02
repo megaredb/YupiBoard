@@ -1,0 +1,8 @@
+dist
+android
+node_modules
+openapi
+pnpm-lock.yaml
+src/shared/api/generated
+src/routeTree.gen.ts
+.tanstack

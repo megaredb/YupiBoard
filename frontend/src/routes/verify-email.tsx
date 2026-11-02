@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { z } from "zod"
-import { VerifyEmailPage } from "@/components/pages/VerifyEmailPage"
-
-const verifyEmailSearchSchema = z.object({
-  token: z.string().optional(),
-})
+import { tokenSearchSchema, verifyEmailToken } from "@/features/auth"
+import { VerifyEmailPage } from "@/features/auth/pages/verify-email-page"
 
 export const Route = createFileRoute("/verify-email")({
-  validateSearch: verifyEmailSearchSchema,
+  validateSearch: tokenSearchSchema,
+  loaderDeps: ({ search }) => ({ token: search.token }),
+  loader: ({ deps }) => verifyEmailToken(deps.token),
+  // The token is single-use: never re-run the verification for the same URL.
+  staleTime: Number.POSITIVE_INFINITY,
+  staticData: { layout: "standalone", titleKey: "auth.verifyEmail.pageTitle" },
   component: VerifyEmailPage,
 })

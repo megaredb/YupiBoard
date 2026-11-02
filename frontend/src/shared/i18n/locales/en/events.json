@@ -1,0 +1,141 @@
+{
+  "free": "Free",
+  "promoted": "Promoted",
+  "cities": {
+    "kyiv": "Kyiv, Ukraine",
+    "lviv": "Lviv, Ukraine",
+    "kharkiv": "Kharkiv, Ukraine",
+    "dnipro": "Dnipro, Ukraine"
+  },
+  "card": {
+    "distance": "{{km}} km away",
+    "participants": "{{current}} of {{max}} participants"
+  },
+  "pagination": {
+    "summary": "Showing {{from}}–{{to}} of {{total}} events"
+  },
+  "catalog": {
+    "title": "Find a board game table near you",
+    "mobileTitle": "Nearby events",
+    "subtitle": "Discover board game sessions happening around {{city}}",
+    "found_one": "{{count}} event found",
+    "found_other": "{{count}} events found",
+    "emptyTitle": "No events match these filters",
+    "emptyDescription": "Try increasing the distance or picking another city."
+  },
+  "collection": {
+    "found_one": "{{count}} event",
+    "found_other": "{{count}} events"
+  },
+  "myEvents": {
+    "title": "My events",
+    "emptyTitle": "You have not created any events yet",
+    "emptyDescription": "Create your first board game event and manage it here."
+  },
+  "myBookings": {
+    "title": "My bookings",
+    "emptyTitle": "You have no bookings yet",
+    "emptyDescription": "Apply to an event in the catalog to see your bookings here."
+  },
+  "favorites": {
+    "title": "Favorites",
+    "emptyTitle": "You have no favorite events yet",
+    "emptyDescription": "Save events with the heart button to find them quickly here."
+  },
+  "filters": {
+    "title": "Filters",
+    "location": "Location",
+    "fromCityCenter": "Distance calculated from city centre",
+    "distance": "Distance",
+    "within": "Within {{km}} km",
+    "km": "{{km}} km",
+    "clear": "Clear filters",
+    "clearAll": "Clear all",
+    "show": "Show results",
+    "showResults_one": "Show {{count}} result",
+    "showResults_other": "Show {{count}} results"
+  },
+  "details": {
+    "pageTitle": "Event",
+    "backToEvents": "Back to events",
+    "about": "About this night",
+    "readMore": "Read more",
+    "organizer": "Organizer",
+    "meetOrganizer": "Meet your organizer",
+    "viewProfile": "View profile",
+    "organizerRating": "Organizer rating: {{rating}}",
+    "organizerRatingShort": "{{rating}} (organizer)",
+    "memberSince": "On YupiBoard since {{date}}",
+    "playersJoined": "{{taken}} of {{total}} players joined",
+    "seatsProgress": "Seats taken",
+    "share": "Share event",
+    "shareFailed": "Couldn't share the link",
+    "linkCopied": "Link copied",
+    "favorite": "Favorite"
+  },
+  "booking": {
+    "title": "Your seat at the table",
+    "subtitle": "One evening. Plenty of great moves.",
+    "perPerson": "/ person",
+    "seatsAvailable": "Seats available ({{left}} of {{total}} remaining)",
+    "seatsAvailableShort": "Seats available",
+    "playersJoining_one": "{{count}} player joining",
+    "playersJoining_other": "{{count}} players joining",
+    "seatsTotal_one": "{{count}} seat total",
+    "seatsTotal_other": "{{count}} seats total",
+    "apply": "Apply",
+    "pending": "Application pending",
+    "approved": "You're going",
+    "waitlist": "You're on the waitlist",
+    "hosting": "You're hosting this event",
+    "full": "No seats left",
+    "closed": "Bookings closed",
+    "failed": "Couldn't send your application. Please try again.",
+    "reviewNote": "The organizer will review your request after submission.",
+    "payAtVenue": "Pay at the venue after approval"
+  },
+  "create": {
+    "title": "Create new event",
+    "successTitle": "Event submitted for review",
+    "successDescription": "Your event has been submitted to moderators and will be published once approved.",
+    "moderationBanner": "New events are reviewed by a moderator before appearing in the catalog.",
+    "submit": "Submit for moderation",
+    "reviewNote": "Usually reviewed within 24 hours",
+    "failed": "Couldn't create the event. Please try again.",
+    "general": {
+      "title": "General information",
+      "description": "Give your session a clear title and let players know what to expect."
+    },
+    "when": {
+      "title": "When & where"
+    },
+    "players": {
+      "title": "Players & price"
+    },
+    "cover": {
+      "title": "Cover image",
+      "hint": "JPEG or PNG, up to 5 MB · 16:9 works best"
+    },
+    "fields": {
+      "title": "Event title",
+      "titlePlaceholder": "e.g., Catan & expansions night",
+      "titleHint": "{{min}}–{{max}} characters",
+      "gameTitle": "Board game name",
+      "gameTitlePlaceholder": "e.g., Catan, Dune: Imperium, Wingspan…",
+      "description": "Description",
+      "descriptionPlaceholder": "What games will you play, experience level, house rules, what to bring…",
+      "date": "Date",
+      "time": "Start time",
+      "city": "City",
+      "address": "Address or venue",
+      "addressPlaceholder": "Street, building, or venue name",
+      "addressHint": "Type the full street address or the venue name",
+      "seats": "Max players",
+      "seatsHint": "Including you, {{min}}–{{max}} players",
+      "seatsDecrease": "Fewer seats",
+      "seatsIncrease": "More seats",
+      "price": "Price per player (UAH)",
+      "priceHint": "Set 0 for a free session"
+    }
+  }
+}
