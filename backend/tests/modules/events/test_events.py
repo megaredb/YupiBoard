@@ -99,9 +99,22 @@ def test_event_routes_are_registered() -> None:
     event_get_params = {
         param["name"] for param in paths["/api/v1/events"]["get"]["parameters"]
     }
-    assert "city" in event_get_params
-    assert "lat" in event_get_params
-    assert "lon" in event_get_params
-    assert "radius_km" in event_get_params
-    assert "limit" in event_get_params
-    assert "page" in event_get_params
+    assert event_get_params == {
+        "title",
+        "organizer_id",
+        "organizer_name",
+        "organizer_rating_min",
+        "organizer_rating_max",
+        "city",
+        "lat",
+        "lon",
+        "radius_km",
+        "date_from",
+        "date_to",
+        "cost_min",
+        "cost_max",
+        "sort_by",
+        "sort_order",
+        "page",
+        "limit",
+    }

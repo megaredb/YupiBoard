@@ -4,15 +4,31 @@
  * YupiBoard
  * OpenAPI spec version: 0.1.0
  */
+import type { EventSortBy } from './eventSortBy.ts';
+import type { SortOrder } from './sortOrder.ts';
 
 export type ListEventsApiV1EventsGetParams = {
+title?: string | null;
+organizer_id?: string | null;
+/**
+ * Search by organizer first or last name
+ */
+organizer_name?: string | null;
+organizer_rating_min?: number | string | null;
+organizer_rating_max?: number | string | null;
+city?: string | null;
 lat?: number | null;
 lon?: number | null;
 /**
  * Filter events within radius in kilometers
  */
 radius_km?: number | null;
-city?: string | null;
+date_from?: string | null;
+date_to?: string | null;
+cost_min?: number | string | null;
+cost_max?: number | string | null;
+sort_by?: EventSortBy | null;
+sort_order?: SortOrder;
 /**
  * @minimum 1
  */
