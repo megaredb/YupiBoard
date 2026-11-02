@@ -1,19 +1,19 @@
-import { Link } from "@tanstack/react-router"
-import { ArrowLeft, Info } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { BrandLogo } from "@/shared/layout/brand-logo"
-import { Button } from "@/shared/ui/button"
-import { buttonVariants } from "@/shared/ui/button-variants"
-import { StatusMessage } from "@/shared/ui/status-message"
-import { CreateEventForm } from "@/features/events/components/create-event/create-event-form"
-import { useCreateEvent } from "@/features/events/hooks/use-create-event"
-import { useGoBack } from "@/features/events/hooks/use-go-back"
+import { Link } from "@tanstack/react-router";
+import { ArrowLeft, Info } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { BrandLogo } from "@/shared/layout/brand-logo";
+import { Button } from "@/shared/ui/button";
+import { buttonVariants } from "@/shared/ui/button-variants";
+import { StatusMessage } from "@/shared/ui/status-message";
+import { CreateEventForm } from "@/features/events/components/create-event/create-event-form";
+import { useCreateEvent } from "@/features/events/hooks/use-create-event";
+import { useGoBack } from "@/features/events/hooks/use-go-back";
 
 /** `/events/new`: a focused flow without the app header and footer. */
 export function CreateEventPage() {
-  const { t } = useTranslation()
-  const goBack = useGoBack()
-  const { createEvent, isPending, isCreated, errorKey } = useCreateEvent()
+  const { t } = useTranslation();
+  const goBack = useGoBack();
+  const { createEvent, isPending, isCreated, errorKey } = useCreateEvent();
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 pt-safe pb-12">
@@ -62,5 +62,5 @@ export function CreateEventPage() {
         </>
       )}
     </div>
-  )
+  );
 }

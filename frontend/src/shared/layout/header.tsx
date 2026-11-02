@@ -1,9 +1,9 @@
-import type { ReactNode } from "react"
-import { cn } from "@/shared/lib/cn"
+import type { ReactNode } from "react";
+import { cn } from "@/shared/lib/cn";
 
 interface HeaderProps {
-  children: ReactNode
-  className?: string
+  children: ReactNode;
+  className?: string;
 }
 
 /** Sticky top bar of the app shell; its content is composed by the caller. */
@@ -17,5 +17,5 @@ export function Header({ children, className }: HeaderProps) {
     >
       <div className="flex h-14 w-full items-center gap-2 px-4 sm:px-6">{children}</div>
     </header>
-  )
+  );
 }

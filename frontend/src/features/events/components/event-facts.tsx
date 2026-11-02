@@ -1,9 +1,9 @@
-import type { ReactNode } from "react"
-import { Calendar, MapPin, Users } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import type { EventRead } from "@/shared/api/generated/model"
-import { formatLongDate, formatTimeRange } from "@/shared/lib/format/format-date"
-import { SeatsProgress } from "@/shared/ui/seats-progress"
+import type { ReactNode } from "react";
+import { Calendar, MapPin, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import type { EventRead } from "@/shared/api/generated/model";
+import { formatLongDate, formatTimeRange } from "@/shared/lib/format/format-date";
+import { SeatsProgress } from "@/shared/ui/seats-progress";
 
 function Fact({ icon, title, detail }: { icon: ReactNode; title: string; detail: string }) {
   return (
@@ -16,11 +16,11 @@ function Fact({ icon, title, detail }: { icon: ReactNode; title: string; detail:
         <p className="text-xs text-muted-foreground sm:text-sm">{detail}</p>
       </div>
     </div>
-  )
+  );
 }
 
 export function EventFacts({ event }: { event: EventRead }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-5">
@@ -54,5 +54,5 @@ export function EventFacts({ event }: { event: EventRead }) {
         />
       </div>
     </div>
-  )
+  );
 }

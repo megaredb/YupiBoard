@@ -1,0 +1,7 @@
+../dist
+../android
+../node_modules
+../openapi
+../.tanstack
+../src/shared/api/generated
+../src/routeTree.gen.ts

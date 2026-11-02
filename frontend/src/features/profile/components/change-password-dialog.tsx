@@ -1,15 +1,15 @@
-import { useTranslation } from "react-i18next"
-import { FormAlert } from "@/shared/components/form-alert"
-import type { TranslationKey } from "@/shared/i18n/translation-key"
-import { Button } from "@/shared/ui/button"
-import { Dialog } from "@/shared/ui/dialog"
-import { NewPasswordForm, type NewPasswordFormValues } from "@/features/auth"
+import { useTranslation } from "react-i18next";
+import { FormAlert } from "@/shared/components/form-alert";
+import type { TranslationKey } from "@/shared/i18n/translation-key";
+import { Button } from "@/shared/ui/button";
+import { Dialog } from "@/shared/ui/dialog";
+import { NewPasswordForm, type NewPasswordFormValues } from "@/features/auth";
 
 interface ChangePasswordDialogProps {
-  onClose: () => void
-  isPending: boolean
-  errorKey: TranslationKey | null
-  onSubmit: (values: NewPasswordFormValues) => void
+  onClose: () => void;
+  isPending: boolean;
+  errorKey: TranslationKey | null;
+  onSubmit: (values: NewPasswordFormValues) => void;
 }
 
 /** Mounted only while open, so the form always starts empty. */
@@ -19,10 +19,10 @@ export function ChangePasswordDialog({
   errorKey,
   onSubmit,
 }: ChangePasswordDialogProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const handleOpenChange = (open: boolean) => {
-    if (!open) onClose()
-  }
+    if (!open) onClose();
+  };
 
   return (
     <Dialog open onOpenChange={handleOpenChange}>
@@ -48,5 +48,5 @@ export function ChangePasswordDialog({
         />
       </Dialog.Content>
     </Dialog>
-  )
+  );
 }

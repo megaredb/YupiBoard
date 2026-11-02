@@ -34,7 +34,7 @@ module.exports = {
       from: { path: "^src/features/([^/]+)/" },
       to: {
         path: "^src/features/([^/]+)/.+",
-        // `.js`: scripts/depcruise.mjs cruises a transpiled copy of src/.
+        // `.js`: tooling/depcruise.mjs cruises a transpiled copy of src/.
         pathNot: ["^src/features/$1/", "^src/features/[^/]+/index\\.(ts|js)$"],
       },
     },
@@ -66,13 +66,13 @@ module.exports = {
     },
   ],
   options: {
-    doNotFollow: { path: "node_modules" },
-    exclude: { path: "^src/shared/api/generated/" },
-    // Written next to the transpiled copy by scripts/depcruise.mjs, for the `@/` alias only.
-    tsConfig: { fileName: "tsconfig.json" },
+    // Generated code is never analysed, but imports of it are still checked against the rules.
+    doNotFollow: { path: ["node_modules", "^src/shared/api/generated/"] },
+    // Written next to the transpiled copy by tooling/depcruise.mjs; it only maps the `@/` alias.
+    webpackConfig: { fileName: "alias.config.cjs" },
     enhancedResolveOptions: {
       exportsFields: ["exports"],
       conditionNames: ["import", "require", "node", "default", "types"],
     },
   },
-}
+};

@@ -1,10 +1,10 @@
-import { cn } from "@/shared/lib/cn"
+import { cn } from "@/shared/lib/cn";
 
 interface SeatsProgressProps {
-  taken: number
-  total: number
-  label: string
-  className?: string
+  taken: number;
+  total: number;
+  label: string;
+  className?: string;
 }
 
 /** Segmented bar, one segment per seat; a hidden native `<progress>` carries the semantics. */
@@ -23,5 +23,5 @@ export function SeatsProgress({ taken, total, label, className }: SeatsProgressP
         />
       ))}
     </div>
-  )
+  );
 }

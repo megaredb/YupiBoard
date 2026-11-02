@@ -1,22 +1,22 @@
-import { cva } from "class-variance-authority"
-import { Calendar, MapPin, Star, Users } from "lucide-react"
-import { cn } from "@/shared/lib/cn"
-import { Card } from "@/shared/ui/card"
-import { UserAvatar } from "@/features/users"
+import { cva } from "class-variance-authority";
+import { Calendar, MapPin, Star, Users } from "lucide-react";
+import { cn } from "@/shared/lib/cn";
+import { Card } from "@/shared/ui/card";
+import { UserAvatar } from "@/features/users";
 
 interface EventCardOrganizer {
-  name: string
-  rating: string | null
+  name: string;
+  rating: string | null;
 }
 
 interface EventCardProps {
-  title: string
-  meta: { date: string; location: string }
-  price: { label: string; isFree: boolean }
-  promotedLabel: string | null
-  participants: { current: number; max: number; label: string }
-  organizer: EventCardOrganizer | null
-  className?: string
+  title: string;
+  meta: { date: string; location: string };
+  price: { label: string; isFree: boolean };
+  promotedLabel: string | null;
+  participants: { current: number; max: number; label: string };
+  organizer: EventCardOrganizer | null;
+  className?: string;
 }
 
 const participantsVariants = cva(
@@ -29,7 +29,7 @@ const participantsVariants = cva(
       },
     },
   },
-)
+);
 
 // `EventListItem` has no `photo_url` yet, so list cards always show the placeholder artwork.
 export function EventCard({
@@ -87,7 +87,7 @@ export function EventCard({
         </div>
       </Card.Content>
     </Card>
-  )
+  );
 }
 
 function CardOrganizer({ organizer }: { organizer: EventCardOrganizer }) {
@@ -104,5 +104,5 @@ function CardOrganizer({ organizer }: { organizer: EventCardOrganizer }) {
         )}
       </div>
     </div>
-  )
+  );
 }

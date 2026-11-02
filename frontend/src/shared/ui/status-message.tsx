@@ -1,11 +1,11 @@
-import type { ReactNode } from "react"
-import { cn } from "@/shared/lib/cn"
+import type { ReactNode } from "react";
+import { cn } from "@/shared/lib/cn";
 
 interface StatusMessageProps {
-  title: string
-  description?: string
-  action?: ReactNode
-  className?: string
+  title: string;
+  description?: string;
+  action?: ReactNode;
+  className?: string;
 }
 
 /** Centered empty / error / not-found box. */
@@ -21,5 +21,5 @@ export function StatusMessage({ title, description, action, className }: StatusM
       {description && <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
-  )
+  );
 }

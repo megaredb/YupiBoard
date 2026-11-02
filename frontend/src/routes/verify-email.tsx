@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { tokenSearchSchema, verifyEmailToken } from "@/features/auth"
-import { VerifyEmailPage } from "@/features/auth/pages/verify-email-page"
+import { createFileRoute } from "@tanstack/react-router";
+import { tokenSearchSchema, verifyEmailToken } from "@/features/auth";
+import { VerifyEmailPage } from "@/features/auth/pages/verify-email-page";
 
 export const Route = createFileRoute("/verify-email")({
   validateSearch: tokenSearchSchema,
@@ -10,4 +10,4 @@ export const Route = createFileRoute("/verify-email")({
   staleTime: Number.POSITIVE_INFINITY,
   staticData: { layout: "standalone", titleKey: "auth.verifyEmail.pageTitle" },
   component: VerifyEmailPage,
-})
+});

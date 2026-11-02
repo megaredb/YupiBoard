@@ -1,33 +1,33 @@
-import { getRouteApi } from "@tanstack/react-router"
-import { useTranslation } from "react-i18next"
-import { Breadcrumbs } from "@/shared/components/breadcrumbs"
-import { PageContainer } from "@/shared/layout/page-container"
-import { useFavoriteToggle } from "@/features/saved-events"
-import { BookingPanel } from "@/features/events/components/booking-panel"
-import { EventAbout } from "@/features/events/components/event-about"
-import { EventActionButtons } from "@/features/events/components/event-action-buttons"
-import { EventMobileTopBar } from "@/features/events/components/event-mobile-top-bar"
-import { EventSummary } from "@/features/events/components/event-summary"
-import { MobileBookingBar } from "@/features/events/components/mobile-booking-bar"
-import { OrganizerCard } from "@/features/events/components/organizer-card"
-import { OrganizerRow } from "@/features/events/components/organizer-row"
-import { useBookingAction } from "@/features/events/hooks/use-booking-action"
-import { useEventDetails } from "@/features/events/hooks/use-event-details"
-import { useEventOrganizer } from "@/features/events/hooks/use-event-organizer"
-import { useGoBack } from "@/features/events/hooks/use-go-back"
-import { useShareEvent } from "@/features/events/hooks/use-share-event"
+import { getRouteApi } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { Breadcrumbs } from "@/shared/components/breadcrumbs";
+import { PageContainer } from "@/shared/layout/page-container";
+import { useFavoriteToggle } from "@/features/saved-events";
+import { BookingPanel } from "@/features/events/components/booking-panel";
+import { EventAbout } from "@/features/events/components/event-about";
+import { EventActionButtons } from "@/features/events/components/event-action-buttons";
+import { EventMobileTopBar } from "@/features/events/components/event-mobile-top-bar";
+import { EventSummary } from "@/features/events/components/event-summary";
+import { MobileBookingBar } from "@/features/events/components/mobile-booking-bar";
+import { OrganizerCard } from "@/features/events/components/organizer-card";
+import { OrganizerRow } from "@/features/events/components/organizer-row";
+import { useBookingAction } from "@/features/events/hooks/use-booking-action";
+import { useEventDetails } from "@/features/events/hooks/use-event-details";
+import { useEventOrganizer } from "@/features/events/hooks/use-event-organizer";
+import { useGoBack } from "@/features/events/hooks/use-go-back";
+import { useShareEvent } from "@/features/events/hooks/use-share-event";
 
-const route = getRouteApi("/events/$eventId")
+const route = getRouteApi("/events/$eventId");
 
 export function EventDetailsPage() {
-  const { t } = useTranslation()
-  const { eventId } = route.useParams()
-  const event = useEventDetails(eventId)
-  const booking = useBookingAction(event)
-  const organizer = useEventOrganizer(event)
-  const { isFavorite, toggleFavorite } = useFavoriteToggle(event.id)
-  const shareEvent = useShareEvent(event)
-  const goBack = useGoBack()
+  const { t } = useTranslation();
+  const { eventId } = route.useParams();
+  const event = useEventDetails(eventId);
+  const booking = useBookingAction(event);
+  const organizer = useEventOrganizer(event);
+  const { isFavorite, toggleFavorite } = useFavoriteToggle(event.id);
+  const shareEvent = useShareEvent(event);
+  const goBack = useGoBack();
 
   const renderActions = (placement: "overlay" | "bar") => (
     <EventActionButtons
@@ -36,7 +36,7 @@ export function EventDetailsPage() {
       onShare={shareEvent}
       placement={placement}
     />
-  )
+  );
 
   return (
     <>
@@ -63,5 +63,5 @@ export function EventDetailsPage() {
       </PageContainer>
       <MobileBookingBar event={event} action={booking} />
     </>
-  )
+  );
 }

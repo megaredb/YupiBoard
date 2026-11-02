@@ -1,23 +1,23 @@
-import { useFormContext } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import { TextField } from "@/shared/components/text-field"
-import { useFieldError } from "@/shared/i18n/use-field-error"
-import { PERSON_NAME_LIMITS } from "@/shared/lib/validators/person-name"
-import type { CompleteProfileFormValues } from "@/features/profile/schemas/profile.schema"
+import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { TextField } from "@/shared/components/text-field";
+import { useFieldError } from "@/shared/i18n/use-field-error";
+import { PERSON_NAME_LIMITS } from "@/shared/lib/validators/person-name";
+import type { CompleteProfileFormValues } from "@/features/profile/schemas/profile.schema";
 
 interface PersonNameFieldsProps {
-  isPending: boolean
-  className?: string
+  isPending: boolean;
+  className?: string;
 }
 
 /** First and last name; used inside both profile forms (via `FormProvider`). */
 export function PersonNameFields({ isPending, className }: PersonNameFieldsProps) {
-  const { t } = useTranslation()
-  const fieldError = useFieldError()
+  const { t } = useTranslation();
+  const fieldError = useFieldError();
   const {
     register,
     formState: { errors },
-  } = useFormContext<CompleteProfileFormValues>()
+  } = useFormContext<CompleteProfileFormValues>();
 
   return (
     <div className={className}>
@@ -40,5 +40,5 @@ export function PersonNameFields({ isPending, className }: PersonNameFieldsProps
         {...register("last_name")}
       />
     </div>
-  )
+  );
 }

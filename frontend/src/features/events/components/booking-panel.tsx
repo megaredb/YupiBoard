@@ -1,22 +1,22 @@
-import { ShieldCheck, Users } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import type { EventRead } from "@/shared/api/generated/model"
-import { Card } from "@/shared/ui/card"
-import { SeatsProgress } from "@/shared/ui/seats-progress"
-import { BookingButton } from "@/features/events/components/booking-button"
-import { PriceLabel } from "@/features/events/components/price-label"
-import type { BookingAction } from "@/features/events/hooks/use-booking-action"
-import { getEventPrice } from "@/features/events/lib/get-event-price"
+import { ShieldCheck, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import type { EventRead } from "@/shared/api/generated/model";
+import { Card } from "@/shared/ui/card";
+import { SeatsProgress } from "@/shared/ui/seats-progress";
+import { BookingButton } from "@/features/events/components/booking-button";
+import { PriceLabel } from "@/features/events/components/price-label";
+import type { BookingAction } from "@/features/events/hooks/use-booking-action";
+import { getEventPrice } from "@/features/events/lib/get-event-price";
 
 interface BookingPanelProps {
-  event: EventRead
-  action: BookingAction
+  event: EventRead;
+  action: BookingAction;
 }
 
 /** Desktop sidebar card with price, seats and the booking call to action. */
 export function BookingPanel({ event, action }: BookingPanelProps) {
-  const { t } = useTranslation()
-  const price = getEventPrice(event)
+  const { t } = useTranslation();
+  const price = getEventPrice(event);
 
   return (
     <Card className="rounded-2xl p-6 shadow-sm">
@@ -66,5 +66,5 @@ export function BookingPanel({ event, action }: BookingPanelProps) {
         </div>
       </Card.Content>
     </Card>
-  )
+  );
 }

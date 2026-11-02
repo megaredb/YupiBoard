@@ -1,6 +1,6 @@
-import type { ComponentProps } from "react"
-import { Input as InputPrimitive } from "@base-ui/react/input"
-import { cn } from "@/shared/lib/cn"
+import type { ComponentProps } from "react";
+import { Input as InputPrimitive } from "@base-ui/react/input";
+import { cn } from "@/shared/lib/cn";
 
 export function Input({ className, type, ...props }: ComponentProps<typeof InputPrimitive>) {
   return (
@@ -13,5 +13,5 @@ export function Input({ className, type, ...props }: ComponentProps<typeof Input
       )}
       {...props}
     />
-  )
+  );
 }

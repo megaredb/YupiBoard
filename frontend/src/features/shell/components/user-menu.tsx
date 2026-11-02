@@ -1,18 +1,18 @@
-import { Link } from "@tanstack/react-router"
-import { Globe, LogOut, User as UserIcon } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import type { UserRead } from "@/shared/api/generated/model"
-import { DropdownMenu } from "@/shared/ui/dropdown-menu"
-import { UserAvatar, getDisplayName } from "@/features/users"
+import { Link } from "@tanstack/react-router";
+import { Globe, LogOut, User as UserIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import type { UserRead } from "@/shared/api/generated/model";
+import { DropdownMenu } from "@/shared/ui/dropdown-menu";
+import { UserAvatar, getDisplayName } from "@/features/users";
 
 interface UserMenuProps {
-  user: UserRead
-  onLogout: () => void
+  user: UserRead;
+  onLogout: () => void;
 }
 
 export function UserMenu({ user, onLogout }: UserMenuProps) {
-  const { t } = useTranslation()
-  const name = getDisplayName(user)
+  const { t } = useTranslation();
+  const name = getDisplayName(user);
 
   return (
     <DropdownMenu>
@@ -42,5 +42,5 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
-  )
+  );
 }

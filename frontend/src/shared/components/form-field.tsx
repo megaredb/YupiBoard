@@ -1,32 +1,32 @@
-import { useId, type ReactNode } from "react"
-import { CircleAlert } from "lucide-react"
-import { cn } from "@/shared/lib/cn"
-import { Label } from "@/shared/ui/label"
+import { useId, type ReactNode } from "react";
+import { CircleAlert } from "lucide-react";
+import { cn } from "@/shared/lib/cn";
+import { Label } from "@/shared/ui/label";
 
 /** Attributes the wrapped control spreads onto itself. */
 export interface FieldControlProps {
-  id: string
-  "aria-invalid"?: boolean
-  "aria-describedby"?: string
+  id: string;
+  "aria-invalid"?: boolean;
+  "aria-describedby"?: string;
 }
 
 interface FormFieldProps {
-  label: string
-  isRequired?: boolean
-  optionalText?: string
-  hint?: string
-  error?: string
+  label: string;
+  isRequired?: boolean;
+  optionalText?: string;
+  hint?: string;
+  error?: string;
   /** Right-aligned note under the control, e.g. `"42/2000"`. */
-  counter?: string
-  isLabelHidden?: boolean
-  className?: string
-  children: (control: FieldControlProps) => ReactNode
+  counter?: string;
+  isLabelHidden?: boolean;
+  className?: string;
+  children: (control: FieldControlProps) => ReactNode;
 }
 
 type FieldLabelProps = Pick<
   FormFieldProps,
   "label" | "isRequired" | "optionalText" | "isLabelHidden"
->
+>;
 
 function FieldLabel({
   id,
@@ -47,7 +47,7 @@ function FieldLabel({
         <span className="text-xs font-normal text-muted-foreground">{optionalText}</span>
       )}
     </Label>
-  )
+  );
 }
 
 function FieldError({ id, message }: { id: string; message: string }) {
@@ -56,7 +56,7 @@ function FieldError({ id, message }: { id: string; message: string }) {
       <CircleAlert aria-hidden className="size-3.5 shrink-0" />
       <span>{message}</span>
     </p>
-  )
+  );
 }
 
 /** Label, control, hint and error wired together through `id` / `aria-describedby` (FORM-5). */
@@ -68,10 +68,10 @@ export function FormField({
   children,
   ...labelProps
 }: FormFieldProps) {
-  const id = useId()
-  const hintId = `${id}-hint`
-  const errorId = `${id}-error`
-  const visibleHint = error ? undefined : hint
+  const id = useId();
+  const hintId = `${id}-hint`;
+  const errorId = `${id}-error`;
+  const visibleHint = error ? undefined : hint;
 
   return (
     <div className={cn("space-y-1.5", className)}>
@@ -89,5 +89,5 @@ export function FormField({
       )}
       {error && <FieldError id={errorId} message={error} />}
     </div>
-  )
+  );
 }

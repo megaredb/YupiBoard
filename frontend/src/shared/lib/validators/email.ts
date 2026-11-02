@@ -1,4 +1,4 @@
-import { z } from "zod"
-import type { TranslationKey } from "@/shared/i18n/translation-key"
+import { z } from "zod";
+import type { TranslationKey } from "@/shared/i18n/translation-key";
 
-export const emailSchema = z.email("validation.email" satisfies TranslationKey)
+export const emailSchema = z.email("validation.email" satisfies TranslationKey);

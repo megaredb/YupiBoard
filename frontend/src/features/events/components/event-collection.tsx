@@ -1,19 +1,19 @@
-import type { ReactNode } from "react"
-import { useTranslation } from "react-i18next"
-import { PageContainer } from "@/shared/layout/page-container"
-import { PageHeader } from "@/shared/layout/page-header"
-import { EventList } from "@/features/events/components/event-list"
-import { EventPagination } from "@/features/events/components/event-pagination"
-import type { PagedEvents } from "@/features/events/hooks/use-event-catalog"
+import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+import { PageContainer } from "@/shared/layout/page-container";
+import { PageHeader } from "@/shared/layout/page-header";
+import { EventList } from "@/features/events/components/event-list";
+import { EventPagination } from "@/features/events/components/event-pagination";
+import type { PagedEvents } from "@/features/events/hooks/use-event-catalog";
 
 interface EventCollectionProps {
-  title: string
-  aside?: ReactNode
-  events: PagedEvents
-  page: number
-  onPageChange: (page: number) => void
-  empty: { title: string; description: string }
-  showOrganizer: boolean
+  title: string;
+  aside?: ReactNode;
+  events: PagedEvents;
+  page: number;
+  onPageChange: (page: number) => void;
+  empty: { title: string; description: string };
+  showOrganizer: boolean;
 }
 
 /** Layout shared by "My events", "My bookings" and "Favorites". */
@@ -26,7 +26,7 @@ export function EventCollection({
   empty,
   showOrganizer,
 }: EventCollectionProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <PageContainer size="wide">
@@ -46,5 +46,5 @@ export function EventCollection({
         />
       </div>
     </PageContainer>
-  )
+  );
 }

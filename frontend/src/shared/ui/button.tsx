@@ -1,10 +1,10 @@
-import { Button as ButtonPrimitive } from "@base-ui/react/button"
-import { LoaderCircle } from "lucide-react"
-import { cn } from "@/shared/lib/cn"
-import { buttonVariants, type ButtonVariantProps } from "@/shared/ui/button-variants"
+import { Button as ButtonPrimitive } from "@base-ui/react/button";
+import { LoaderCircle } from "lucide-react";
+import { cn } from "@/shared/lib/cn";
+import { buttonVariants, type ButtonVariantProps } from "@/shared/ui/button-variants";
 
 interface ButtonProps extends ButtonPrimitive.Props, ButtonVariantProps {
-  isLoading?: boolean
+  isLoading?: boolean;
 }
 
 export function Button({
@@ -26,5 +26,5 @@ export function Button({
       {isLoading && <LoaderCircle aria-hidden className="animate-spin" />}
       {children}
     </ButtonPrimitive>
-  )
+  );
 }

@@ -1,24 +1,24 @@
-import { useId, type ChangeEvent } from "react"
-import { SlidersHorizontal } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { Button } from "@/shared/ui/button"
-import { Label } from "@/shared/ui/label"
-import { NativeSelect } from "@/shared/ui/native-select"
-import { useCityOptions } from "@/features/events/hooks/use-city-options"
-import type { CatalogFilters } from "@/features/events/schemas/catalog-search.schema"
+import { useId, type ChangeEvent } from "react";
+import { SlidersHorizontal } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/shared/ui/button";
+import { Label } from "@/shared/ui/label";
+import { NativeSelect } from "@/shared/ui/native-select";
+import { useCityOptions } from "@/features/events/hooks/use-city-options";
+import type { CatalogFilters } from "@/features/events/schemas/catalog-search.schema";
 
 interface CatalogMobileToolbarProps {
-  value: CatalogFilters
-  onApply: (next: CatalogFilters) => void
-  onOpenFilters: () => void
+  value: CatalogFilters;
+  onApply: (next: CatalogFilters) => void;
+  onOpenFilters: () => void;
 }
 
 export function CatalogMobileToolbar({ value, onApply, onOpenFilters }: CatalogMobileToolbarProps) {
-  const { t } = useTranslation()
-  const selectId = useId()
-  const cityOptions = useCityOptions()
+  const { t } = useTranslation();
+  const selectId = useId();
+  const cityOptions = useCityOptions();
   const handleCityChange = (event: ChangeEvent<HTMLSelectElement>) =>
-    onApply({ ...value, city: event.target.value })
+    onApply({ ...value, city: event.target.value });
 
   return (
     <div className="mb-4 flex items-center justify-between gap-3 lg:hidden">
@@ -39,5 +39,5 @@ export function CatalogMobileToolbar({ value, onApply, onOpenFilters }: CatalogM
         {t("events.filters.title")}
       </Button>
     </div>
-  )
+  );
 }

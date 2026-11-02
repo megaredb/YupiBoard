@@ -1,5 +1,5 @@
-import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar"
-import { cn } from "@/shared/lib/cn"
+import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
+import { cn } from "@/shared/lib/cn";
 
 export function Avatar({ className, ...props }: AvatarPrimitive.Root.Props) {
   return (
@@ -11,7 +11,7 @@ export function Avatar({ className, ...props }: AvatarPrimitive.Root.Props) {
       )}
       {...props}
     />
-  )
+  );
 }
 
 function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
@@ -21,7 +21,7 @@ function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
       className={cn("aspect-square size-full object-cover", className)}
       {...props}
     />
-  )
+  );
 }
 
 function AvatarFallback({ className, ...props }: AvatarPrimitive.Fallback.Props) {
@@ -34,8 +34,8 @@ function AvatarFallback({ className, ...props }: AvatarPrimitive.Fallback.Props)
       )}
       {...props}
     />
-  )
+  );
 }
 
-Avatar.Image = AvatarImage
-Avatar.Fallback = AvatarFallback
+Avatar.Image = AvatarImage;
+Avatar.Fallback = AvatarFallback;

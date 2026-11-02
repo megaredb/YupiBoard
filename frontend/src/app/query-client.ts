@@ -1,13 +1,13 @@
-import { QueryClient } from "@tanstack/react-query"
-import { isApiError } from "@/shared/api/errors"
+import { QueryClient } from "@tanstack/react-query";
+import { isApiError } from "@/shared/api/errors";
 
-const STALE_TIME_MS = 30_000
-const MAX_RETRIES = 2
+const STALE_TIME_MS = 30_000;
+const MAX_RETRIES = 2;
 
 function shouldRetry(failureCount: number, error: unknown): boolean {
   // Client errors (4xx) never succeed on retry; offline and 5xx may.
-  const isClientError = isApiError(error) && error.status !== null && error.status < 500
-  return !isClientError && failureCount < MAX_RETRIES
+  const isClientError = isApiError(error) && error.status !== null && error.status < 500;
+  return !isClientError && failureCount < MAX_RETRIES;
 }
 
 /**
@@ -21,5 +21,5 @@ export function createQueryClient(): QueryClient {
       queries: { staleTime: STALE_TIME_MS, retry: shouldRetry },
       mutations: { retry: false },
     },
-  })
+  });
 }

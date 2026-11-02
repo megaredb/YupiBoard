@@ -1,11 +1,11 @@
-import type { ReactNode } from "react"
-import { cn } from "@/shared/lib/cn"
+import type { ReactNode } from "react";
+import { cn } from "@/shared/lib/cn";
 
 interface PageHeaderProps {
-  title: string
-  description?: string
-  aside?: ReactNode
-  className?: string
+  title: string;
+  description?: string;
+  aside?: ReactNode;
+  className?: string;
 }
 
 export function PageHeader({ title, description, aside, className }: PageHeaderProps) {
@@ -17,5 +17,5 @@ export function PageHeader({ title, description, aside, className }: PageHeaderP
       </div>
       {aside}
     </div>
-  )
+  );
 }

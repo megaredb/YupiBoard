@@ -1,6 +1,6 @@
-import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox"
-import { Check } from "lucide-react"
-import { cn } from "@/shared/lib/cn"
+import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox";
+import { Check } from "lucide-react";
+import { cn } from "@/shared/lib/cn";
 
 export function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
   return (
@@ -19,5 +19,5 @@ export function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) 
         <Check aria-hidden className="size-3 stroke-3" />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
-  )
+  );
 }

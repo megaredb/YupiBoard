@@ -1,15 +1,15 @@
-import type { ReactNode } from "react"
-import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
-import { X } from "lucide-react"
-import { cn } from "@/shared/lib/cn"
+import type { ReactNode } from "react";
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import { X } from "lucide-react";
+import { cn } from "@/shared/lib/cn";
 
 interface BottomSheetProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  title: string
-  closeLabel: string
-  children: ReactNode
-  className?: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  closeLabel: string;
+  children: ReactNode;
+  className?: string;
 }
 
 /** Mobile bottom sheet (same Base UI dialog primitive as `Dialog`). */
@@ -45,5 +45,5 @@ export function BottomSheet({
         </DialogPrimitive.Popup>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
-  )
+  );
 }

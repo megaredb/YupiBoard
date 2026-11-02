@@ -1,30 +1,30 @@
-import { useId, type ChangeEvent } from "react"
-import { LocateFixed } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { Label } from "@/shared/ui/label"
-import { NativeSelect } from "@/shared/ui/native-select"
-import { RangeSlider } from "@/shared/ui/range-slider"
-import { useCityOptions } from "@/features/events/hooks/use-city-options"
+import { useId, type ChangeEvent } from "react";
+import { LocateFixed } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Label } from "@/shared/ui/label";
+import { NativeSelect } from "@/shared/ui/native-select";
+import { RangeSlider } from "@/shared/ui/range-slider";
+import { useCityOptions } from "@/features/events/hooks/use-city-options";
 import {
   DISTANCE_RANGE_KM,
   type CatalogFilters,
-} from "@/features/events/schemas/catalog-search.schema"
+} from "@/features/events/schemas/catalog-search.schema";
 
 interface CatalogFilterFieldsProps {
-  value: CatalogFilters
-  onChange: (next: CatalogFilters) => void
+  value: CatalogFilters;
+  onChange: (next: CatalogFilters) => void;
 }
 
 export function CatalogFilterFields({ value, onChange }: CatalogFilterFieldsProps) {
-  const { t } = useTranslation()
-  const cityId = useId()
-  const cityOptions = useCityOptions()
+  const { t } = useTranslation();
+  const cityId = useId();
+  const cityOptions = useCityOptions();
 
   const handleCityChange = (event: ChangeEvent<HTMLSelectElement>) =>
-    onChange({ ...value, city: event.target.value })
-  const handleDistanceCommit = (distance: number) => onChange({ ...value, distance })
-  const formatWithin = (km: number) => t("events.filters.within", { km })
-  const formatBound = (km: number) => t("events.filters.km", { km })
+    onChange({ ...value, city: event.target.value });
+  const handleDistanceCommit = (distance: number) => onChange({ ...value, distance });
+  const formatWithin = (km: number) => t("events.filters.within", { km });
+  const formatBound = (km: number) => t("events.filters.km", { km });
 
   return (
     <div className="space-y-5">
@@ -53,5 +53,5 @@ export function CatalogFilterFields({ value, onChange }: CatalogFilterFieldsProp
         onCommit={handleDistanceCommit}
       />
     </div>
-  )
+  );
 }

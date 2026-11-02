@@ -18,7 +18,7 @@
 | Forms           | react-hook-form + zod                                |
 | UI              | Tailwind 4, shadcn/ui                                |
 | i18n            | i18next + react-i18next                              |
-| Lint / format   | oxlint (type-aware)                                  |
+| Lint / format   | oxlint (type-aware), Prettier                        |
 | Tests           | **None. Do not write tests (§16)**                   |
 
 - **DEP-1** Dependencies change only when a human explicitly approves it. AI agents add, remove or upgrade packages only if the task names them; otherwise they list the proposal in their report.
@@ -73,7 +73,7 @@ src/
     ├── layout/             app shell, header, footer, page container
     ├── components/         generic composed components (form-field …)
     ├── hooks/ · lib/       generic hooks · pure functions (cn, format, validators)
-    ├── i18n/               index.ts · locales/{en,uk}/<namespace>.json
+    ├── i18n/               init-i18n.ts · resources.ts · locales/{en,uk}/<namespace>.json
     └── config/ · styles/
 ```
 
@@ -108,18 +108,18 @@ src/
   type ListState<T> =
     | { status: "pending" }
     | { status: "error"; retry: () => void }
-    | { status: "success"; items: T[] }
+    | { status: "success"; items: T[] };
   ```
 - **TS-7** No `enum`; use `as const` objects and unions.
 - **TS-8** Derive types from their source (`z.infer`, generated models, `typeof`). Exported functions have explicit return types.
 - **TS-9** Named exports only. Default exports only where the router or a config file requires them.
-- **TS-10** Imports use the `@/` alias, never `../`. Order: react/node → third-party → `@/app|routes` → `@/features` → `@/shared` → `./` (same folder only).
+- **TS-10** Imports use the `@/` alias, never `../`. Order: react/node → third-party → `@/app|routes` → `@/shared` → other features → the file's own feature.
 
 ---
 
 ## 6. Code organisation
 
-**Hard limits** (lint-enforced). When exceeded, split the code; do not raise the limit.
+**Hard limits.** File, function, complexity, parameter, JSX-depth and ternary limits are lint-enforced; the props and hook counts are checked in review. When exceeded, split the code; do not raise the limit.
 
 | Unit                                   | Limit                      |
 | -------------------------------------- | -------------------------- |
@@ -156,10 +156,10 @@ Inside a feature: **page → component → hook → lib → api**.
   ```ts
   // features/events/hooks/use-create-booking.ts
   export function useCreateBooking(eventId: string) {
-    const qc = useQueryClient()
+    const qc = useQueryClient();
     return useCreateBookingRequestApiV1EventsIdBookingsPost({
       mutation: { onSuccess: () => qc.invalidateQueries({ queryKey: getEventQueryKey(eventId) }) },
-    })
+    });
   }
   ```
 - **API-5** **Server data lives only in TanStack Query.** Never copy it into Zustand, `useState` or context. The signed-in user is `useCurrentUser()`, the `GET /users/me` query.
@@ -224,7 +224,7 @@ The same bundle runs in browsers and in an Android WebView. **Platform-specific 
 - **PLAT-5** Tokens are handled in one place (`features/auth/lib/session-storage.ts` over `platform/secure-storage`): web keeps the refresh token in an HttpOnly cookie; native stores both tokens in secure storage. All on-device user data is namespaced `yupiboard:<userId>:<key>` and **wiped on logout**.
 - **PLAT-6** Safe areas (`env(safe-area-inset-*)`) are applied once, in the app shell and shared utility classes; `viewport-fit=cover` is set. Fixed bars and sheets respect safe areas and the keyboard.
 - **PLAT-7** One `platform/theme.ts` handles system preference, persisted choice and status bar. `index.html` never hard-codes `class="dark"`; an inline head script applies the stored theme before paint.
-- **PLAT-8** `capacitor.config.ts` and `android/` live in the repo (build artefacts ignored). Scripts `cap:sync` and `cap:android` exist. Every native plugin in use is in `package.json`.
+- **PLAT-8** `capacitor.config.ts` and `android/` live in the repo (build artefacts ignored). Scripts `cap:sync`, `cap:android` and `cap:build` exist. Every native plugin in use is in `package.json`. Run `pnpm cap:sync` after adding or updating a plugin and commit the regenerated Gradle files.
 - **PLAT-9** Mobile UX: touch targets ≥ 44×44 px; no hover-only actions; `100dvh`, not `100vh`. Network features show an offline state, and **a network error never logs the user out** (only an explicit 401/403 on refresh does).
 - **PLAT-10** Code MUST work on web **and** Android. For changes touching `shared/platform`, auth, uploads, geolocation or routing, name in your report what needs a manual device check.
 
@@ -271,7 +271,7 @@ The same bundle runs in browsers and in an Android WebView. **Platform-specific 
 
 - **ERR-1** Every route has an error boundary (RT-7). No empty `catch {}` unless it only ignores a user-cancelled action, with a comment.
 - **ERR-2** Users only see text from i18n via the `ApiError` mapping (API-10), never raw backend messages.
-- **ERR-3** No `console.*`. Use `shared/lib/logger`.
+- **ERR-3** No `console.*`. Errors reach the user through the UI states above, not through logs.
 
 **Security**
 
@@ -305,7 +305,7 @@ AI agents **only touch code**: they edit project files and run local `pnpm` scri
 - **AI-4** Don't add dependencies (unless the task names them), polyfills, config flags or lint disables.
 - **AI-5** Leave no `TODO`, placeholder text, mock data, `console.log`, commented-out code or temporary fallback. The only allowed stopgap is an `INTERIM:` adapter (API-9).
 - **AI-6** Respect the size limits (§6) while writing. If a file is already over a limit, don't grow it; extract what you touch.
-- **AI-7** After changes, run `pnpm check` and fix every failure. Report what you ran; never claim something works without running it.
+- **AI-7** After changes, run `pnpm fix`, then `pnpm check`, and fix every failure. Report what you ran; never claim something works without running it.
 - **AI-8** If a rule blocks the solution, **ask**; don't bypass.
 - **AI-9** Comments explain _why_ (constraints, backend quirks), never what the code does, and never reference mockup filenames.
 - **AI-10** Delivery, integration and release are done by humans. Finish with a short report: what changed, what was reused, gaps found (API-9), exceptions used (§19), what needs a manual device check.
@@ -314,18 +314,18 @@ AI agents **only touch code**: they edit project files and run local `pnpm` scri
 
 ## 18. Tooling
 
-These must exist and pass through `pnpm check`.
+These must exist and pass through `pnpm check`. Tool configs live in `tooling/`, except `.oxlintrc.json` and `.editorconfig`, which their tools only find in `frontend/`.
 
-- **TOOL-1 Formatter:** Prettier (or oxfmt): no semicolons, double quotes, trailing commas, width 100, Tailwind class sorting. `pnpm format` and `pnpm format:check`. Generated files are excluded.
+- **TOOL-1 Formatter:** Prettier: semicolons, double quotes, trailing commas, width 100, Tailwind class sorting. `pnpm format` and `pnpm format:check`. Generated files are excluded.
 - **TOOL-2 `.editorconfig`:** LF, UTF-8 without BOM, 2 spaces, final newline.
-- **TOOL-3 Lint:** oxlint, type-aware, configured so that every rule in this file that lint can express is an `error`, not a `warn`: the limits in §6, `no-explicit-any`, no non-null assertion, no `ts-` comments, no `console`, no default exports (except routes/config), no import cycles, `jsx-no-literals`, hooks rules, `jsx-a11y`, no nested ternaries, restricted imports (`../`, generated API outside feature hooks/api, `@capacitor/*` outside `shared/platform`). Generated code is ignored.
+- **TOOL-3 Lint:** oxlint with `--type-aware` (oxlint-tsgolint), configured so that every rule in this file that lint can express is an `error`, not a `warn`: the limits in §6, `no-explicit-any`, no non-null assertion, no `ts-` comments, no `console`, no default exports (except routes/config), no import cycles, `jsx-no-literals`, hooks rules, `jsx-a11y`, no nested ternaries, no shadowed variables, no floating or misused promises, no unsafe `any` flow, strict equality (`== null` allowed), restricted imports (`../`, generated API outside feature hooks/api, `@capacitor/*` outside `shared/platform`). Generated code is ignored.
 - **TOOL-4 Layer boundaries:** `dependency-cruiser` (`pnpm depcruise`): `shared` ↛ `features|routes|app`; no cross-feature deep imports; no cycles; `shared/ui` ↛ api/router/i18n/stores; only feature hooks → generated API.
 - **TOOL-5 Platform ban:** lint restricts the globals `localStorage`, `sessionStorage`, `navigator`, `alert`, `confirm`, `prompt` outside `shared/platform`. `pnpm check:platform` (a grep script) fails on `window.location`, `window.open` and `document.documentElement` outside `shared/platform` and `app/env.ts`.
 - **TOOL-6 Dead code:** `knip` (files, exports, dependencies) and an i18n check script (`pnpm i18n:check`): every literal `t("…")` key exists, no key is unused, `en` and `uk` have the same keys.
 - **TOOL-7 `tsconfig`:** flags from TS-1; single alias `@/* → src/*`.
-- **TOOL-8 Scripts** (names are fixed): `dev` `build` `preview` `typecheck` `lint` `lint:fix` `format` `format:check` `knip` `depcruise` `i18n:check` `check:platform` `api:generate` `cap:sync` `cap:android` `check`. `check` = typecheck + lint + format:check + knip + depcruise + i18n:check + check:platform. There is no `test` script.
+- **TOOL-8 Scripts** (names are fixed): `dev` `build` `preview` `typecheck` `lint` `lint:fix` `format` `format:check` `fix` `knip` `depcruise` `i18n:check` `check:platform` `api:generate` `cap:sync` `cap:android` `cap:build` `check`. `check` = typecheck + lint + format:check + knip + depcruise + i18n:check + check:platform. `fix` = lint:fix + format. There is no `test` script.
 - **TOOL-9 Orval:** `clean: true`, formatted output, input `openapi/openapi.json`, mutator at `src/shared/api/mutator.ts`. Never hand-edit the output.
-- **TOOL-10 Docs:** the README covers setup, env table, scripts, running web and Android, regenerating the API, and links to this file. Architecture decisions go in `docs/adr/NNN-title.md`.
+- **TOOL-10 Docs:** the README covers setup, env table, scripts, tooling, running web and Android, regenerating the API, and links to this file.
 
 ---
 

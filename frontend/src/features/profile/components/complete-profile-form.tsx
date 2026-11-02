@@ -1,31 +1,31 @@
-import { MapPin } from "lucide-react"
-import { FormProvider } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import type { UserRead } from "@/shared/api/generated/model"
-import { TextField } from "@/shared/components/text-field"
-import { useAppForm } from "@/shared/hooks/use-app-form"
-import { useFieldError } from "@/shared/i18n/use-field-error"
-import { applyServerFieldErrors } from "@/shared/lib/form/apply-server-field-errors"
-import { CITY_MAX_LENGTH } from "@/shared/lib/validators/city"
-import { CONTACT_INFO_MAX_LENGTH } from "@/shared/lib/validators/contact-info"
-import { Button } from "@/shared/ui/button"
-import { PersonNameFields } from "@/features/profile/components/person-name-fields"
+import { MapPin } from "lucide-react";
+import { FormProvider } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import type { UserRead } from "@/shared/api/generated/model";
+import { TextField } from "@/shared/components/text-field";
+import { useAppForm } from "@/shared/hooks/use-app-form";
+import { useFieldError } from "@/shared/i18n/use-field-error";
+import { applyServerFieldErrors } from "@/shared/lib/form/apply-server-field-errors";
+import { CITY_MAX_LENGTH } from "@/shared/lib/validators/city";
+import { CONTACT_INFO_MAX_LENGTH } from "@/shared/lib/validators/contact-info";
+import { Button } from "@/shared/ui/button";
+import { PersonNameFields } from "@/features/profile/components/person-name-fields";
 import {
   completeProfileSchema,
   type CompleteProfileFormValues,
-} from "@/features/profile/schemas/profile.schema"
+} from "@/features/profile/schemas/profile.schema";
 
 interface CompleteProfileFormProps {
-  user: UserRead
-  isPending: boolean
-  onSubmit: (values: CompleteProfileFormValues, onError: (error: unknown) => void) => void
+  user: UserRead;
+  isPending: boolean;
+  onSubmit: (values: CompleteProfileFormValues, onError: (error: unknown) => void) => void;
 }
 
-const SERVER_FIELDS = ["first_name", "last_name", "city", "contact_info"] as const
+const SERVER_FIELDS = ["first_name", "last_name", "city", "contact_info"] as const;
 
 export function CompleteProfileForm({ user, isPending, onSubmit }: CompleteProfileFormProps) {
-  const { t } = useTranslation()
-  const fieldError = useFieldError()
+  const { t } = useTranslation();
+  const fieldError = useFieldError();
   const form = useAppForm(completeProfileSchema, {
     defaultValues: {
       first_name: user.first_name ?? "",
@@ -33,11 +33,11 @@ export function CompleteProfileForm({ user, isPending, onSubmit }: CompleteProfi
       city: user.city ?? "",
       contact_info: user.contact_info ?? "",
     },
-  })
-  const { errors } = form.formState
+  });
+  const { errors } = form.formState;
   const submit = form.handleSubmit((values) =>
     onSubmit(values, (error) => applyServerFieldErrors(error, SERVER_FIELDS, form.setError)),
-  )
+  );
 
   return (
     <FormProvider {...form}>
@@ -66,5 +66,5 @@ export function CompleteProfileForm({ user, isPending, onSubmit }: CompleteProfi
         </Button>
       </form>
     </FormProvider>
-  )
+  );
 }

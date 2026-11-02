@@ -1,15 +1,15 @@
-import type { ReactNode } from "react"
-import { cva } from "class-variance-authority"
-import { CheckCircle2, CircleAlert, LoaderCircle } from "lucide-react"
-import { Card } from "@/shared/ui/card"
+import type { ReactNode } from "react";
+import { cva } from "class-variance-authority";
+import { CheckCircle2, CircleAlert, LoaderCircle } from "lucide-react";
+import { Card } from "@/shared/ui/card";
 
-type StatusTone = "pending" | "success" | "error"
+type StatusTone = "pending" | "success" | "error";
 
 interface StatusCardProps {
-  tone: StatusTone
-  title: string
-  description: string
-  children?: ReactNode
+  tone: StatusTone;
+  title: string;
+  description: string;
+  children?: ReactNode;
 }
 
 const iconWrapperVariants = cva(
@@ -23,13 +23,13 @@ const iconWrapperVariants = cva(
       },
     },
   },
-)
+);
 
-const ICONS = { pending: LoaderCircle, success: CheckCircle2, error: CircleAlert } as const
+const ICONS = { pending: LoaderCircle, success: CheckCircle2, error: CircleAlert } as const;
 
 /** Result card for one-shot flows (email verification, password reset). */
 export function StatusCard({ tone, title, description, children }: StatusCardProps) {
-  const Icon = ICONS[tone]
+  const Icon = ICONS[tone];
   return (
     <Card className="w-full rounded-2xl p-2 shadow-sm sm:p-4">
       <Card.Header className="text-center">
@@ -43,5 +43,5 @@ export function StatusCard({ tone, title, description, children }: StatusCardPro
         <Card.Footer className="flex-col gap-2 border-0 bg-transparent">{children}</Card.Footer>
       )}
     </Card>
-  )
+  );
 }

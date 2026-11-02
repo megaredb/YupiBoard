@@ -1,14 +1,14 @@
-import { useEffect } from "react"
+import { useEffect } from "react";
 
-const urls = new WeakMap<Blob, string>()
-const pendingRevokes = new WeakMap<Blob, ReturnType<typeof setTimeout>>()
+const urls = new WeakMap<Blob, string>();
+const pendingRevokes = new WeakMap<Blob, ReturnType<typeof setTimeout>>();
 
 function acquireUrl(blob: Blob): string {
-  const existing = urls.get(blob)
-  if (existing) return existing
-  const created = URL.createObjectURL(blob)
-  urls.set(blob, created)
-  return created
+  const existing = urls.get(blob);
+  if (existing) return existing;
+  const created = URL.createObjectURL(blob);
+  urls.set(blob, created);
+  return created;
 }
 
 /**
@@ -18,17 +18,17 @@ function acquireUrl(blob: Blob): string {
  */
 export function useObjectUrl(blob: Blob | null): string | null {
   useEffect(() => {
-    if (!blob) return
-    clearTimeout(pendingRevokes.get(blob))
+    if (!blob) return;
+    clearTimeout(pendingRevokes.get(blob));
     return () => {
       const timer = setTimeout(() => {
-        const url = urls.get(blob)
-        if (url) URL.revokeObjectURL(url)
-        urls.delete(blob)
-      })
-      pendingRevokes.set(blob, timer)
-    }
-  }, [blob])
+        const url = urls.get(blob);
+        if (url) URL.revokeObjectURL(url);
+        urls.delete(blob);
+      });
+      pendingRevokes.set(blob, timer);
+    };
+  }, [blob]);
 
-  return blob ? acquireUrl(blob) : null
+  return blob ? acquireUrl(blob) : null;
 }

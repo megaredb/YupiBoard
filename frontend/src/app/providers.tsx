@@ -1,10 +1,10 @@
-import { QueryClientProvider, type QueryClient } from "@tanstack/react-query"
-import { RouterProvider } from "@tanstack/react-router"
-import type { createAppRouter } from "@/app/router"
+import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
+import { RouterProvider } from "@tanstack/react-router";
+import type { createAppRouter } from "@/app/router";
 
 interface AppProvidersProps {
-  queryClient: QueryClient
-  router: ReturnType<typeof createAppRouter>
+  queryClient: QueryClient;
+  router: ReturnType<typeof createAppRouter>;
 }
 
 export function AppProviders({ queryClient, router }: AppProvidersProps) {
@@ -12,5 +12,5 @@ export function AppProviders({ queryClient, router }: AppProvidersProps) {
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>
-  )
+  );
 }

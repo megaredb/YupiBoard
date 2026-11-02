@@ -1,20 +1,20 @@
-import { Link } from "@tanstack/react-router"
-import { useTranslation } from "react-i18next"
-import { FormAlert } from "@/shared/components/form-alert"
-import type { TranslationKey } from "@/shared/i18n/translation-key"
-import { Button } from "@/shared/ui/button"
-import { Card } from "@/shared/ui/card"
-import { NewPasswordForm } from "@/features/auth/components/new-password-form"
-import type { NewPasswordFormValues } from "@/features/auth/schemas/new-password.schema"
+import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { FormAlert } from "@/shared/components/form-alert";
+import type { TranslationKey } from "@/shared/i18n/translation-key";
+import { Button } from "@/shared/ui/button";
+import { Card } from "@/shared/ui/card";
+import { NewPasswordForm } from "@/features/auth/components/new-password-form";
+import type { NewPasswordFormValues } from "@/features/auth/schemas/new-password.schema";
 
 interface ResetPasswordCardProps {
-  isPending: boolean
-  errorKey: TranslationKey | null
-  onSubmit: (values: NewPasswordFormValues) => void
+  isPending: boolean;
+  errorKey: TranslationKey | null;
+  onSubmit: (values: NewPasswordFormValues) => void;
 }
 
 export function ResetPasswordCard({ isPending, errorKey, onSubmit }: ResetPasswordCardProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <Card className="w-full rounded-2xl p-2 shadow-sm sm:p-4">
@@ -42,5 +42,5 @@ export function ResetPasswordCard({ isPending, errorKey, onSubmit }: ResetPasswo
         </Link>
       </Card.Footer>
     </Card>
-  )
+  );
 }

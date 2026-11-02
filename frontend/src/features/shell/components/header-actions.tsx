@@ -1,16 +1,16 @@
-import { Link } from "@tanstack/react-router"
-import { Plus } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { buttonVariants } from "@/shared/ui/button-variants"
-import { useCurrentUser, useLogout } from "@/features/auth"
-import { ThemeToggle } from "@/features/shell/components/theme-toggle"
-import { UserMenu } from "@/features/shell/components/user-menu"
+import { Link } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { buttonVariants } from "@/shared/ui/button-variants";
+import { useCurrentUser, useLogout } from "@/features/auth";
+import { ThemeToggle } from "@/features/shell/components/theme-toggle";
+import { UserMenu } from "@/features/shell/components/user-menu";
 
 /** Right side of the header: create, theme, and the user menu or sign-in links. */
 export function HeaderActions() {
-  const { t } = useTranslation()
-  const user = useCurrentUser()
-  const { logout } = useLogout()
+  const { t } = useTranslation();
+  const user = useCurrentUser();
+  const { logout } = useLogout();
 
   return (
     <div className="ml-auto flex items-center gap-1 sm:gap-3">
@@ -41,5 +41,5 @@ export function HeaderActions() {
         </>
       )}
     </div>
-  )
+  );
 }

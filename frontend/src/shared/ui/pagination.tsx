@@ -1,25 +1,25 @@
-import { cva } from "class-variance-authority"
-import { cn } from "@/shared/lib/cn"
-import type { PaginationPage } from "@/shared/lib/pagination/build-pagination-pages"
+import { cva } from "class-variance-authority";
+import { cn } from "@/shared/lib/cn";
+import type { PaginationPage } from "@/shared/lib/pagination/build-pagination-pages";
 
 interface PaginationLabels {
-  navigation: string
-  previous: string
-  next: string
+  navigation: string;
+  previous: string;
+  next: string;
 }
 
 interface PaginationProps {
-  pages: PaginationPage[]
-  currentPage: number
-  totalPages: number
-  summary?: string
-  labels: PaginationLabels
-  onPageChange: (page: number) => void
-  className?: string
+  pages: PaginationPage[];
+  currentPage: number;
+  totalPages: number;
+  summary?: string;
+  labels: PaginationLabels;
+  onPageChange: (page: number) => void;
+  className?: string;
 }
 
 // Decorative gap marker (aria-hidden), not language text.
-const ELLIPSIS = "…"
+const ELLIPSIS = "…";
 
 const controlVariants = cva(
   "touch-hitbox relative inline-flex h-8 min-w-8 items-center justify-center rounded-md px-2 text-sm font-medium text-foreground disabled:pointer-events-none disabled:opacity-50",
@@ -33,7 +33,7 @@ const controlVariants = cva(
     },
     defaultVariants: { state: "idle" },
   },
-)
+);
 
 export function Pagination({
   pages,
@@ -44,8 +44,8 @@ export function Pagination({
   onPageChange,
   className,
 }: PaginationProps) {
-  const handlePrevious = () => onPageChange(currentPage - 1)
-  const handleNext = () => onPageChange(currentPage + 1)
+  const handlePrevious = () => onPageChange(currentPage - 1);
+  const handleNext = () => onPageChange(currentPage + 1);
 
   return (
     <div className={cn("flex flex-col items-center justify-between gap-3 sm:flex-row", className)}>
@@ -89,5 +89,5 @@ export function Pagination({
         </button>
       </nav>
     </div>
-  )
+  );
 }

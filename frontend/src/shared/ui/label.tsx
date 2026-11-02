@@ -1,8 +1,8 @@
-import type { ComponentProps } from "react"
-import { cn } from "@/shared/lib/cn"
+import type { ComponentProps } from "react";
+import { cn } from "@/shared/lib/cn";
 
 interface LabelProps extends ComponentProps<"label"> {
-  htmlFor: string
+  htmlFor: string;
 }
 
 export function Label({ className, htmlFor, ...props }: LabelProps) {
@@ -16,5 +16,5 @@ export function Label({ className, htmlFor, ...props }: LabelProps) {
       )}
       {...props}
     />
-  )
+  );
 }

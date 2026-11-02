@@ -1,7 +1,6 @@
-import { PageContainer } from "@/shared/layout/page-container"
-import { Skeleton } from "@/shared/ui/skeleton"
+import { PageContainer } from "@/shared/layout/page-container";
+import { Skeleton } from "@/shared/ui/skeleton";
 
-/** Pending state of `/events/$eventId`, shaped like the loaded page. */
 export function EventDetailsSkeleton() {
   return (
     <PageContainer>
@@ -15,5 +14,5 @@ export function EventDetailsSkeleton() {
         <Skeleton className="hidden h-96 w-full rounded-2xl lg:block" />
       </div>
     </PageContainer>
-  )
+  );
 }

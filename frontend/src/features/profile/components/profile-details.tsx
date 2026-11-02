@@ -1,21 +1,21 @@
-import { useTranslation } from "react-i18next"
-import type { UserRead } from "@/shared/api/generated/model"
-import { Badge } from "@/shared/ui/badge"
-import { Button } from "@/shared/ui/button"
-import { Card } from "@/shared/ui/card"
-import { DetailsRow } from "@/features/profile/components/details-row"
+import { useTranslation } from "react-i18next";
+import type { UserRead } from "@/shared/api/generated/model";
+import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
+import { Card } from "@/shared/ui/card";
+import { DetailsRow } from "@/features/profile/components/details-row";
 
 interface ProfileDetailsProps {
-  user: UserRead
-  bio: string
-  onEdit: () => void
-  onChangePassword: () => void
+  user: UserRead;
+  bio: string;
+  onEdit: () => void;
+  onChangePassword: () => void;
 }
 
 /** View mode of "My profile" (ORG-5). */
 export function ProfileDetails({ user, bio, onEdit, onChangePassword }: ProfileDetailsProps) {
-  const { t } = useTranslation()
-  const dash = t("common.notProvided")
+  const { t } = useTranslation();
+  const dash = t("common.notProvided");
 
   return (
     <Card className="rounded-2xl p-6 shadow-sm sm:p-8">
@@ -56,5 +56,5 @@ export function ProfileDetails({ user, bio, onEdit, onChangePassword }: ProfileD
         </DetailsRow>
       </dl>
     </Card>
-  )
+  );
 }

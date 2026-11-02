@@ -1,22 +1,22 @@
-import { useWatch } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import { FormField } from "@/shared/components/form-field"
-import { useFieldError } from "@/shared/i18n/use-field-error"
-import { Input } from "@/shared/ui/input"
-import { Textarea } from "@/shared/ui/textarea"
-import { FormSection } from "@/features/events/components/create-event/form-section"
-import { useCreateEventFormContext } from "@/features/events/hooks/use-create-event-form-context"
-import { CREATE_EVENT_LIMITS } from "@/features/events/schemas/create-event.schema"
+import { useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { FormField } from "@/shared/components/form-field";
+import { useFieldError } from "@/shared/i18n/use-field-error";
+import { Input } from "@/shared/ui/input";
+import { Textarea } from "@/shared/ui/textarea";
+import { FormSection } from "@/features/events/components/create-event/form-section";
+import { useCreateEventFormContext } from "@/features/events/hooks/use-create-event-form-context";
+import { CREATE_EVENT_LIMITS } from "@/features/events/schemas/create-event.schema";
 
 export function GeneralSection() {
-  const { t } = useTranslation()
-  const fieldError = useFieldError()
+  const { t } = useTranslation();
+  const fieldError = useFieldError();
   const {
     register,
     control,
     formState: { errors },
-  } = useCreateEventFormContext()
-  const descriptionLength = useWatch({ control, name: "description" }).length
+  } = useCreateEventFormContext();
+  const descriptionLength = useWatch({ control, name: "description" }).length;
 
   return (
     <FormSection
@@ -32,9 +32,9 @@ export function GeneralSection() {
         })}
         error={fieldError(errors.title?.message)}
       >
-        {(control) => (
+        {(fieldControl) => (
           <Input
-            {...control}
+            {...fieldControl}
             {...register("title")}
             maxLength={CREATE_EVENT_LIMITS.titleMax}
             placeholder={t("events.create.fields.titlePlaceholder")}
@@ -47,9 +47,9 @@ export function GeneralSection() {
         isRequired
         error={fieldError(errors.gameTitle?.message)}
       >
-        {(control) => (
+        {(fieldControl) => (
           <Input
-            {...control}
+            {...fieldControl}
             {...register("gameTitle")}
             maxLength={CREATE_EVENT_LIMITS.gameTitleMax}
             placeholder={t("events.create.fields.gameTitlePlaceholder")}
@@ -63,9 +63,9 @@ export function GeneralSection() {
         error={fieldError(errors.description?.message)}
         counter={`${descriptionLength}/${CREATE_EVENT_LIMITS.descriptionMax}`}
       >
-        {(control) => (
+        {(fieldControl) => (
           <Textarea
-            {...control}
+            {...fieldControl}
             {...register("description")}
             rows={4}
             maxLength={CREATE_EVENT_LIMITS.descriptionMax}
@@ -74,5 +74,5 @@ export function GeneralSection() {
         )}
       </FormField>
     </FormSection>
-  )
+  );
 }

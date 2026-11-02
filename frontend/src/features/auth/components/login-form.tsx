@@ -1,25 +1,25 @@
-import { Lock, Mail } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { TextField } from "@/shared/components/text-field"
-import { useAppForm } from "@/shared/hooks/use-app-form"
-import { useFieldError } from "@/shared/i18n/use-field-error"
-import { Button } from "@/shared/ui/button"
-import { loginSchema, type LoginFormValues } from "@/features/auth/schemas/login.schema"
+import { Lock, Mail } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { TextField } from "@/shared/components/text-field";
+import { useAppForm } from "@/shared/hooks/use-app-form";
+import { useFieldError } from "@/shared/i18n/use-field-error";
+import { Button } from "@/shared/ui/button";
+import { loginSchema, type LoginFormValues } from "@/features/auth/schemas/login.schema";
 
 interface LoginFormProps {
-  isPending: boolean
-  onSubmit: (values: LoginFormValues) => void
-  onForgotPassword: () => void
+  isPending: boolean;
+  onSubmit: (values: LoginFormValues) => void;
+  onForgotPassword: () => void;
 }
 
 export function LoginForm({ isPending, onSubmit, onForgotPassword }: LoginFormProps) {
-  const { t } = useTranslation()
-  const fieldError = useFieldError()
+  const { t } = useTranslation();
+  const fieldError = useFieldError();
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useAppForm(loginSchema, { defaultValues: { email: "", password: "" } })
+  } = useAppForm(loginSchema, { defaultValues: { email: "", password: "" } });
 
   return (
     <form noValidate className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
@@ -51,5 +51,5 @@ export function LoginForm({ isPending, onSubmit, onForgotPassword }: LoginFormPr
         {t("auth.login.submit")}
       </Button>
     </form>
-  )
+  );
 }

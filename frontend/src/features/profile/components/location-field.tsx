@@ -1,19 +1,19 @@
-import type { ComponentProps } from "react"
-import { MapPin } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { TextField } from "@/shared/components/text-field"
-import { CITY_MAX_LENGTH } from "@/shared/lib/validators/city"
-import { Button } from "@/shared/ui/button"
-import { useLocateMe } from "@/features/profile/hooks/use-locate-me"
+import type { ComponentProps } from "react";
+import { MapPin } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { TextField } from "@/shared/components/text-field";
+import { CITY_MAX_LENGTH } from "@/shared/lib/validators/city";
+import { Button } from "@/shared/ui/button";
+import { useLocateMe } from "@/features/profile/hooks/use-locate-me";
 
 interface LocationFieldProps extends Omit<ComponentProps<typeof TextField>, "label"> {
-  onLocated: (location: string) => void
+  onLocated: (location: string) => void;
 }
 
 /** City / address input with a "Use GPS" shortcut. */
 export function LocationField({ onLocated, disabled, ...inputProps }: LocationFieldProps) {
-  const { t } = useTranslation()
-  const { locate, isLocating } = useLocateMe(onLocated)
+  const { t } = useTranslation();
+  const { locate, isLocating } = useLocateMe(onLocated);
 
   return (
     <TextField
@@ -36,5 +36,5 @@ export function LocationField({ onLocated, disabled, ...inputProps }: LocationFi
       }
       {...inputProps}
     />
-  )
+  );
 }

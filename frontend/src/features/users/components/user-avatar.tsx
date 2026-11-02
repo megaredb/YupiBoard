@@ -1,12 +1,12 @@
-import { cn } from "@/shared/lib/cn"
-import { Avatar } from "@/shared/ui/avatar"
-import { getInitials } from "@/features/users/lib/get-initials"
+import { cn } from "@/shared/lib/cn";
+import { Avatar } from "@/shared/ui/avatar";
+import { getInitials } from "@/features/users/lib/get-initials";
 
 interface UserAvatarProps {
-  name: string
-  avatarUrl?: string | null
-  className?: string
-  fallbackClassName?: string
+  name: string;
+  avatarUrl?: string | null;
+  className?: string;
+  fallbackClassName?: string;
 }
 
 /** Photo with the person's initials as fallback. */
@@ -18,5 +18,5 @@ export function UserAvatar({ name, avatarUrl, className, fallbackClassName }: Us
         {getInitials(name)}
       </Avatar.Fallback>
     </Avatar>
-  )
+  );
 }

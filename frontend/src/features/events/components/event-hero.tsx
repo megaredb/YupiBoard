@@ -1,15 +1,15 @@
-import type { ReactNode } from "react"
-import { useTranslation } from "react-i18next"
+import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 interface EventHeroProps {
-  photoUrl: string | null
-  isPromoted: boolean
+  photoUrl: string | null;
+  isPromoted: boolean;
   /** Desktop-only overlay actions (share, favorite). */
-  actions: ReactNode
+  actions: ReactNode;
 }
 
 export function EventHero({ photoUrl, isPromoted, actions }: EventHeroProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="relative aspect-video w-full overflow-hidden bg-linear-to-br from-primary/20 via-primary/10 to-muted lg:rounded-2xl">
@@ -23,5 +23,5 @@ export function EventHero({ photoUrl, isPromoted, actions }: EventHeroProps) {
       )}
       <div className="absolute top-4 right-4 hidden lg:block">{actions}</div>
     </div>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import type { CapacitorConfig } from "@capacitor/cli"
+import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
   appId: "com.yupiboard.app",
@@ -13,6 +13,6 @@ const config: CapacitorConfig = {
       group: "YupiBoardPreferences",
     },
   },
-}
+};
 
-export default config
+export default config;

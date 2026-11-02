@@ -1,26 +1,26 @@
-import { getRouteApi, useNavigate } from "@tanstack/react-router"
-import { useTranslation } from "react-i18next"
-import { Badge } from "@/shared/ui/badge"
-import { EventList, EventPagination, useHostedEvents } from "@/features/events"
-import { UserAvatar, getDisplayName } from "@/features/users"
-import { ProfileBanner } from "@/features/profile/components/profile-banner"
-import { ProfileSummaryCard } from "@/features/profile/components/profile-summary-card"
-import { usePublicUser } from "@/features/profile/hooks/use-public-user"
+import { getRouteApi, useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { Badge } from "@/shared/ui/badge";
+import { EventList, EventPagination, useHostedEvents } from "@/features/events";
+import { UserAvatar, getDisplayName } from "@/features/users";
+import { ProfileBanner } from "@/features/profile/components/profile-banner";
+import { ProfileSummaryCard } from "@/features/profile/components/profile-summary-card";
+import { usePublicUser } from "@/features/profile/hooks/use-public-user";
 
-const route = getRouteApi("/users/$userId")
+const route = getRouteApi("/users/$userId");
 
 // Only `UserRead` fields are shown: bio, banner, review counts and joined events are not part of
 // the public API yet.
 export function PublicProfilePage() {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
-  const { userId } = route.useParams()
-  const { page } = route.useSearch()
-  const user = usePublicUser(userId)
-  const hosted = useHostedEvents(userId, page)
-  const name = getDisplayName(user)
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { userId } = route.useParams();
+  const { page } = route.useSearch();
+  const user = usePublicUser(userId);
+  const hosted = useHostedEvents(userId, page);
+  const name = getDisplayName(user);
   const handlePageChange = (next: number) =>
-    void navigate({ to: "/users/$userId", params: { userId }, search: { page: next } })
+    void navigate({ to: "/users/$userId", params: { userId }, search: { page: next } });
 
   return (
     <div className="space-y-8 pb-12">
@@ -62,5 +62,5 @@ export function PublicProfilePage() {
         </section>
       </div>
     </div>
-  )
+  );
 }

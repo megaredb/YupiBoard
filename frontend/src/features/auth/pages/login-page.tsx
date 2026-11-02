@@ -1,32 +1,32 @@
-import { useState } from "react"
-import { getRouteApi, Link } from "@tanstack/react-router"
-import { useTranslation } from "react-i18next"
-import { FormAlert } from "@/shared/components/form-alert"
-import { AuthCard } from "@/features/auth/components/auth-card"
-import { AuthModeTabs } from "@/features/auth/components/auth-mode-tabs"
-import { GoogleSignInSection } from "@/features/auth/components/google-sign-in-section"
-import { LoginForm } from "@/features/auth/components/login-form"
-import { PasswordRecoveryDialog } from "@/features/auth/components/password-recovery-dialog"
-import { useGoogleSignIn } from "@/features/auth/hooks/use-google-sign-in"
-import { useLogin } from "@/features/auth/hooks/use-login"
-import { usePasswordRecovery } from "@/features/auth/hooks/use-password-recovery"
+import { useState } from "react";
+import { getRouteApi, Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { FormAlert } from "@/shared/components/form-alert";
+import { AuthCard } from "@/features/auth/components/auth-card";
+import { AuthModeTabs } from "@/features/auth/components/auth-mode-tabs";
+import { GoogleSignInSection } from "@/features/auth/components/google-sign-in-section";
+import { LoginForm } from "@/features/auth/components/login-form";
+import { PasswordRecoveryDialog } from "@/features/auth/components/password-recovery-dialog";
+import { useGoogleSignIn } from "@/features/auth/hooks/use-google-sign-in";
+import { useLogin } from "@/features/auth/hooks/use-login";
+import { usePasswordRecovery } from "@/features/auth/hooks/use-password-recovery";
 
-const route = getRouteApi("/_public/login")
+const route = getRouteApi("/_public/login");
 
 export function LoginPage() {
-  const { t } = useTranslation()
-  const { redirect } = route.useSearch()
-  const { login, isPending, errorKey } = useLogin(redirect)
-  const google = useGoogleSignIn(redirect)
-  const recovery = usePasswordRecovery()
-  const [isRecoveryOpen, setRecoveryOpen] = useState(false)
-  const shownErrorKey = errorKey ?? google.errorKey
+  const { t } = useTranslation();
+  const { redirect } = route.useSearch();
+  const { login, isPending, errorKey } = useLogin(redirect);
+  const google = useGoogleSignIn(redirect);
+  const recovery = usePasswordRecovery();
+  const [isRecoveryOpen, setRecoveryOpen] = useState(false);
+  const shownErrorKey = errorKey ?? google.errorKey;
 
-  const handleOpenRecovery = () => setRecoveryOpen(true)
+  const handleOpenRecovery = () => setRecoveryOpen(true);
   const handleCloseRecovery = () => {
-    setRecoveryOpen(false)
-    recovery.reset()
-  }
+    setRecoveryOpen(false);
+    recovery.reset();
+  };
 
   return (
     <AuthCard
@@ -58,7 +58,6 @@ export function LoginPage() {
       <LoginForm isPending={isPending} onSubmit={login} onForgotPassword={handleOpenRecovery} />
       {isRecoveryOpen && (
         <PasswordRecoveryDialog
-          isOpen={isRecoveryOpen}
           onClose={handleCloseRecovery}
           isPending={recovery.isPending}
           isSent={recovery.isSent}
@@ -67,5 +66,5 @@ export function LoginPage() {
         />
       )}
     </AuthCard>
-  )
+  );
 }

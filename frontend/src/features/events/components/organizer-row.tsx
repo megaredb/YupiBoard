@@ -1,13 +1,13 @@
-import { Link } from "@tanstack/react-router"
-import { ChevronRight, Star } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { Card } from "@/shared/ui/card"
-import { UserAvatar } from "@/features/users"
-import type { EventOrganizer } from "@/features/events/hooks/use-event-organizer"
+import { Link } from "@tanstack/react-router";
+import { ChevronRight, Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Card } from "@/shared/ui/card";
+import { UserAvatar } from "@/features/users";
+import type { EventOrganizer } from "@/features/events/hooks/use-event-organizer";
 
 /** Phone "Organizer" card: the whole row links to the public profile. */
 export function OrganizerRow({ organizer }: { organizer: EventOrganizer }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <Card className="rounded-2xl p-5 shadow-sm lg:hidden">
@@ -40,5 +40,5 @@ export function OrganizerRow({ organizer }: { organizer: EventOrganizer }) {
         </Link>
       </Card.Content>
     </Card>
-  )
+  );
 }

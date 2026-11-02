@@ -1,16 +1,16 @@
-import { useState } from "react"
-import { useTranslation } from "react-i18next"
-import { cn } from "@/shared/lib/cn"
-import { Button } from "@/shared/ui/button"
-import { Card } from "@/shared/ui/card"
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { cn } from "@/shared/lib/cn";
+import { Button } from "@/shared/ui/button";
+import { Card } from "@/shared/ui/card";
 
-const COLLAPSIBLE_AFTER_CHARS = 160
+const COLLAPSIBLE_AFTER_CHARS = 160;
 
 export function EventAbout({ description }: { description: string }) {
-  const { t } = useTranslation()
-  const [isExpanded, setExpanded] = useState(false)
-  const isCollapsible = description.length > COLLAPSIBLE_AFTER_CHARS
-  const handleExpand = () => setExpanded(true)
+  const { t } = useTranslation();
+  const [isExpanded, setExpanded] = useState(false);
+  const isCollapsible = description.length > COLLAPSIBLE_AFTER_CHARS;
+  const handleExpand = () => setExpanded(true);
 
   return (
     <Card className="rounded-2xl p-6 shadow-sm">
@@ -35,5 +35,5 @@ export function EventAbout({ description }: { description: string }) {
         )}
       </Card.Content>
     </Card>
-  )
+  );
 }

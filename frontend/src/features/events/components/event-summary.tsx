@@ -1,15 +1,14 @@
-import type { ReactNode } from "react"
-import type { EventRead } from "@/shared/api/generated/model"
-import { EventFacts } from "@/features/events/components/event-facts"
-import { EventHero } from "@/features/events/components/event-hero"
+import type { ReactNode } from "react";
+import type { EventRead } from "@/shared/api/generated/model";
+import { EventFacts } from "@/features/events/components/event-facts";
+import { EventHero } from "@/features/events/components/event-hero";
 
 interface EventSummaryProps {
-  event: EventRead
+  event: EventRead;
   /** Share and favorite buttons shown on the hero image on desktop. */
-  heroActions: ReactNode
+  heroActions: ReactNode;
 }
 
-/** Hero image, title and key facts of an event. */
 export function EventSummary({ event, heroActions }: EventSummaryProps) {
   return (
     <article className="overflow-hidden lg:rounded-2xl lg:border lg:border-border lg:bg-card">
@@ -23,5 +22,5 @@ export function EventSummary({ event, heroActions }: EventSummaryProps) {
         </div>
       </div>
     </article>
-  )
+  );
 }

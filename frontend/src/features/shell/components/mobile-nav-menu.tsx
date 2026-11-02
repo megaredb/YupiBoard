@@ -1,13 +1,13 @@
-import { Link } from "@tanstack/react-router"
-import { Menu } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { DropdownMenu } from "@/shared/ui/dropdown-menu"
-import { NAV_ITEMS } from "@/features/shell/lib/nav-items"
+import { Link } from "@tanstack/react-router";
+import { Menu } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { DropdownMenu } from "@/shared/ui/dropdown-menu";
+import { NAV_ITEMS } from "@/features/shell/lib/nav-items";
 
-const ACTIVE_ITEM = { className: "text-primary" }
+const ACTIVE_ITEM = { className: "text-primary" };
 
 export function MobileNavMenu() {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <DropdownMenu>
@@ -25,5 +25,5 @@ export function MobileNavMenu() {
         ))}
       </DropdownMenu.Content>
     </DropdownMenu>
-  )
+  );
 }

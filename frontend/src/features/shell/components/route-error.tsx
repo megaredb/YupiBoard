@@ -1,21 +1,21 @@
-import { Link, useRouter, type ErrorComponentProps } from "@tanstack/react-router"
-import { useTranslation } from "react-i18next"
-import { isApiError } from "@/shared/api/errors"
-import { getApiErrorKey } from "@/shared/i18n/get-api-error-key"
-import { PageContainer } from "@/shared/layout/page-container"
-import { Button } from "@/shared/ui/button"
-import { buttonVariants } from "@/shared/ui/button-variants"
-import { StatusMessage } from "@/shared/ui/status-message"
+import { Link, useRouter, type ErrorComponentProps } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { isApiError } from "@/shared/api/errors";
+import { getApiErrorKey } from "@/shared/i18n/get-api-error-key";
+import { PageContainer } from "@/shared/layout/page-container";
+import { Button } from "@/shared/ui/button";
+import { buttonVariants } from "@/shared/ui/button-variants";
+import { StatusMessage } from "@/shared/ui/status-message";
 
 /** Router `defaultErrorComponent`: every route gets a retryable error state (ERR-1). */
 export function RouteError({ error, reset }: ErrorComponentProps) {
-  const { t } = useTranslation()
-  const router = useRouter()
-  const isNotFound = isApiError(error) && error.status === 404
+  const { t } = useTranslation();
+  const router = useRouter();
+  const isNotFound = isApiError(error) && error.status === 404;
   const handleRetry = () => {
-    reset()
-    void router.invalidate()
-  }
+    reset();
+    void router.invalidate();
+  };
 
   return (
     <PageContainer size="narrow">
@@ -40,5 +40,5 @@ export function RouteError({ error, reset }: ErrorComponentProps) {
         }
       />
     </PageContainer>
-  )
+  );
 }

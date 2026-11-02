@@ -1,11 +1,11 @@
-import { useTranslation } from "react-i18next"
-import { Button } from "@/shared/ui/button"
-import { Separator } from "@/shared/ui/separator"
+import { useTranslation } from "react-i18next";
+import { Button } from "@/shared/ui/button";
+import { Separator } from "@/shared/ui/separator";
 
 interface ProfileEditActionsProps {
-  isPending: boolean
-  onCancel: () => void
-  onChangePassword: () => void
+  isPending: boolean;
+  onCancel: () => void;
+  onChangePassword: () => void;
 }
 
 export function ProfileEditActions({
@@ -13,7 +13,7 @@ export function ProfileEditActions({
   onCancel,
   onChangePassword,
 }: ProfileEditActionsProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <>
@@ -40,5 +40,5 @@ export function ProfileEditActions({
         </Button>
       </div>
     </>
-  )
+  );
 }

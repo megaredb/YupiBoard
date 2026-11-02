@@ -1,13 +1,13 @@
-import { Link } from "@tanstack/react-router"
-import { ArrowUpRight } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { Card } from "@/shared/ui/card"
-import { UserAvatar } from "@/features/users"
-import type { EventOrganizer } from "@/features/events/hooks/use-event-organizer"
+import { Link } from "@tanstack/react-router";
+import { ArrowUpRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Card } from "@/shared/ui/card";
+import { UserAvatar } from "@/features/users";
+import type { EventOrganizer } from "@/features/events/hooks/use-event-organizer";
 
 /** Desktop "Meet your organizer" card. */
 export function OrganizerCard({ organizer }: { organizer: EventOrganizer }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <Card className="hidden rounded-2xl p-6 shadow-sm lg:flex">
@@ -48,5 +48,5 @@ export function OrganizerCard({ organizer }: { organizer: EventOrganizer }) {
         </Link>
       </Card.Content>
     </Card>
-  )
+  );
 }

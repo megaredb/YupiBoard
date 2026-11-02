@@ -1,30 +1,30 @@
-import type { ReactNode } from "react"
-import { useTranslation } from "react-i18next"
-import { TextField } from "@/shared/components/text-field"
-import { useAppForm } from "@/shared/hooks/use-app-form"
-import { useFieldError } from "@/shared/i18n/use-field-error"
-import { PASSWORD_LIMITS } from "@/shared/lib/validators/password"
+import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+import { TextField } from "@/shared/components/text-field";
+import { useAppForm } from "@/shared/hooks/use-app-form";
+import { useFieldError } from "@/shared/i18n/use-field-error";
+import { PASSWORD_LIMITS } from "@/shared/lib/validators/password";
 import {
   newPasswordSchema,
   type NewPasswordFormValues,
-} from "@/features/auth/schemas/new-password.schema"
+} from "@/features/auth/schemas/new-password.schema";
 
 interface NewPasswordFormProps {
-  isPending: boolean
-  onSubmit: (values: NewPasswordFormValues) => void
+  isPending: boolean;
+  onSubmit: (values: NewPasswordFormValues) => void;
   /** Submit (and cancel) buttons, so dialogs and pages lay them out their own way. */
-  actions: ReactNode
+  actions: ReactNode;
 }
 
 /** New password + confirmation; shared by password reset and "change password". */
 export function NewPasswordForm({ isPending, onSubmit, actions }: NewPasswordFormProps) {
-  const { t } = useTranslation()
-  const fieldError = useFieldError()
+  const { t } = useTranslation();
+  const fieldError = useFieldError();
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useAppForm(newPasswordSchema, { defaultValues: { password: "", confirmPassword: "" } })
+  } = useAppForm(newPasswordSchema, { defaultValues: { password: "", confirmPassword: "" } });
 
   return (
     <form noValidate className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
@@ -48,5 +48,5 @@ export function NewPasswordForm({ isPending, onSubmit, actions }: NewPasswordFor
       />
       {actions}
     </form>
-  )
+  );
 }

@@ -1,17 +1,17 @@
-import { Link } from "@tanstack/react-router"
-import { ChevronRight } from "lucide-react"
-import { cn } from "@/shared/lib/cn"
+import { Link } from "@tanstack/react-router";
+import { ChevronRight } from "lucide-react";
+import { cn } from "@/shared/lib/cn";
 
 interface BreadcrumbItem {
-  label: string
+  label: string;
   /** Omit for the current (last) crumb. */
-  to?: "/events"
+  to?: "/events";
 }
 
 interface BreadcrumbsProps {
-  label: string
-  items: BreadcrumbItem[]
-  className?: string
+  label: string;
+  items: BreadcrumbItem[];
+  className?: string;
 }
 
 export function Breadcrumbs({ label, items, className }: BreadcrumbsProps) {
@@ -34,5 +34,5 @@ export function Breadcrumbs({ label, items, className }: BreadcrumbsProps) {
         ))}
       </ol>
     </nav>
-  )
+  );
 }

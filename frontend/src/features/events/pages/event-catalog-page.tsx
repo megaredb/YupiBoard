@@ -1,24 +1,24 @@
-import { useState } from "react"
-import { useTranslation } from "react-i18next"
-import { PageContainer } from "@/shared/layout/page-container"
-import { PageHeader } from "@/shared/layout/page-header"
-import { CatalogFiltersCard } from "@/features/events/components/catalog-filters-card"
-import { CatalogFiltersSheet } from "@/features/events/components/catalog-filters-sheet"
-import { CatalogMobileToolbar } from "@/features/events/components/catalog-mobile-toolbar"
-import { EventList } from "@/features/events/components/event-list"
-import { EventPagination } from "@/features/events/components/event-pagination"
-import { useCatalogFilters } from "@/features/events/hooks/use-catalog-filters"
-import { useEventCatalog } from "@/features/events/hooks/use-event-catalog"
-import { getCity } from "@/features/events/lib/cities"
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { PageContainer } from "@/shared/layout/page-container";
+import { PageHeader } from "@/shared/layout/page-header";
+import { CatalogFiltersCard } from "@/features/events/components/catalog-filters-card";
+import { CatalogFiltersSheet } from "@/features/events/components/catalog-filters-sheet";
+import { CatalogMobileToolbar } from "@/features/events/components/catalog-mobile-toolbar";
+import { EventList } from "@/features/events/components/event-list";
+import { EventPagination } from "@/features/events/components/event-pagination";
+import { useCatalogFilters } from "@/features/events/hooks/use-catalog-filters";
+import { useEventCatalog } from "@/features/events/hooks/use-event-catalog";
+import { getCity } from "@/features/events/lib/cities";
 
 export function EventCatalogPage() {
-  const { t } = useTranslation()
-  const { filters, page, applyFilters, goToPage } = useCatalogFilters()
-  const { list, total, totalPages, isRefreshing } = useEventCatalog(filters, page)
-  const [isSheetOpen, setSheetOpen] = useState(false)
-  const cityName = t(getCity(filters.city).labelKey)
-  const foundLabel = total === null ? null : t("events.catalog.found", { count: total })
-  const handleOpenSheet = () => setSheetOpen(true)
+  const { t } = useTranslation();
+  const { filters, page, applyFilters, goToPage } = useCatalogFilters();
+  const { list, total, totalPages, isRefreshing } = useEventCatalog(filters, page);
+  const [isSheetOpen, setSheetOpen] = useState(false);
+  const cityName = t(getCity(filters.city).labelKey);
+  const foundLabel = total === null ? null : t("events.catalog.found", { count: total });
+  const handleOpenSheet = () => setSheetOpen(true);
 
   return (
     <PageContainer size="wide">
@@ -74,5 +74,5 @@ export function EventCatalogPage() {
         onApply={applyFilters}
       />
     </PageContainer>
-  )
+  );
 }

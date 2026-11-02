@@ -1,27 +1,27 @@
-import { ShieldCheck } from "lucide-react"
-import { FormProvider } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import { FormAlert } from "@/shared/components/form-alert"
-import { useAppForm } from "@/shared/hooks/use-app-form"
-import type { TranslationKey } from "@/shared/i18n/translation-key"
-import { Button } from "@/shared/ui/button"
-import { CoverSection } from "@/features/events/components/create-event/cover-section"
-import { GeneralSection } from "@/features/events/components/create-event/general-section"
-import { PlayersSection } from "@/features/events/components/create-event/players-section"
-import { ScheduleSection } from "@/features/events/components/create-event/schedule-section"
-import { DEFAULT_CITY_ID } from "@/features/events/lib/cities"
+import { ShieldCheck } from "lucide-react";
+import { FormProvider } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { FormAlert } from "@/shared/components/form-alert";
+import { useAppForm } from "@/shared/hooks/use-app-form";
+import type { TranslationKey } from "@/shared/i18n/translation-key";
+import { Button } from "@/shared/ui/button";
+import { CoverSection } from "@/features/events/components/create-event/cover-section";
+import { GeneralSection } from "@/features/events/components/create-event/general-section";
+import { PlayersSection } from "@/features/events/components/create-event/players-section";
+import { ScheduleSection } from "@/features/events/components/create-event/schedule-section";
+import { DEFAULT_CITY_ID } from "@/features/events/lib/cities";
 import {
   CREATE_EVENT_LIMITS,
   createEventSchema,
   type CreateEventFormInput,
   type CreateEventFormValues,
-} from "@/features/events/schemas/create-event.schema"
+} from "@/features/events/schemas/create-event.schema";
 
 interface CreateEventFormProps {
-  isPending: boolean
-  errorKey: TranslationKey | null
-  onSubmit: (values: CreateEventFormValues) => void
-  onCancel: () => void
+  isPending: boolean;
+  errorKey: TranslationKey | null;
+  onSubmit: (values: CreateEventFormValues) => void;
+  onCancel: () => void;
 }
 
 const DEFAULT_VALUES: CreateEventFormInput = {
@@ -35,11 +35,11 @@ const DEFAULT_VALUES: CreateEventFormInput = {
   maxPlayers: CREATE_EVENT_LIMITS.playersMin,
   price: 0,
   coverImage: null,
-}
+};
 
 export function CreateEventForm({ isPending, errorKey, onSubmit, onCancel }: CreateEventFormProps) {
-  const { t } = useTranslation()
-  const form = useAppForm(createEventSchema, { defaultValues: DEFAULT_VALUES })
+  const { t } = useTranslation();
+  const form = useAppForm(createEventSchema, { defaultValues: DEFAULT_VALUES });
 
   return (
     <FormProvider {...form}>
@@ -75,5 +75,5 @@ export function CreateEventForm({ isPending, errorKey, onSubmit, onCancel }: Cre
         </div>
       </form>
     </FormProvider>
-  )
+  );
 }

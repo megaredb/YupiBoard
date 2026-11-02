@@ -1,23 +1,22 @@
-import { useTranslation } from "react-i18next"
-import googleIcon from "@/assets/google.svg"
-import { Button } from "@/shared/ui/button"
-import { Separator } from "@/shared/ui/separator"
+import { useTranslation } from "react-i18next";
+import googleIcon from "@/assets/google.svg";
+import { Button } from "@/shared/ui/button";
+import { Separator } from "@/shared/ui/separator";
 
 interface GoogleSignInSectionProps {
-  label: string
-  isPending: boolean
-  isDisabled: boolean
-  onSignIn: () => void
+  label: string;
+  isPending: boolean;
+  isDisabled: boolean;
+  onSignIn: () => void;
 }
 
-/** "Continue with Google" followed by the "or with e-mail" divider. */
 export function GoogleSignInSection({
   label,
   isPending,
   isDisabled,
   onSignIn,
 }: GoogleSignInSectionProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-5">
@@ -39,5 +38,5 @@ export function GoogleSignInSection({
         <Separator className="flex-1" />
       </div>
     </div>
-  )
+  );
 }

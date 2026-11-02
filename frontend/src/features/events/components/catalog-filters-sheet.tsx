@@ -1,19 +1,19 @@
-import { useState } from "react"
-import { useTranslation } from "react-i18next"
-import { BottomSheet } from "@/shared/ui/bottom-sheet"
-import { Button } from "@/shared/ui/button"
-import { CatalogFilterFields } from "@/features/events/components/catalog-filter-fields"
-import { useCatalogResultCount } from "@/features/events/hooks/use-catalog-result-count"
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { BottomSheet } from "@/shared/ui/bottom-sheet";
+import { Button } from "@/shared/ui/button";
+import { CatalogFilterFields } from "@/features/events/components/catalog-filter-fields";
+import { useCatalogResultCount } from "@/features/events/hooks/use-catalog-result-count";
 import {
   DEFAULT_CATALOG_FILTERS,
   type CatalogFilters,
-} from "@/features/events/schemas/catalog-search.schema"
+} from "@/features/events/schemas/catalog-search.schema";
 
 interface CatalogFiltersSheetProps {
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
-  value: CatalogFilters
-  onApply: (next: CatalogFilters) => void
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  value: CatalogFilters;
+  onApply: (next: CatalogFilters) => void;
 }
 
 /** Phone filters: edits a draft and shows the live result count on the apply button. */
@@ -23,11 +23,11 @@ export function CatalogFiltersSheet({
   value,
   onApply,
 }: CatalogFiltersSheetProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const handleApply = (next: CatalogFilters) => {
-    onApply(next)
-    onOpenChange(false)
-  }
+    onApply(next);
+    onOpenChange(false);
+  };
 
   return (
     <BottomSheet
@@ -39,21 +39,21 @@ export function CatalogFiltersSheet({
       {/* Mounted per opening so the draft always starts from the applied filters. */}
       {isOpen && <FiltersDraft initial={value} onApply={handleApply} />}
     </BottomSheet>
-  )
+  );
 }
 
 function FiltersDraft({
   initial,
   onApply,
 }: {
-  initial: CatalogFilters
-  onApply: (next: CatalogFilters) => void
+  initial: CatalogFilters;
+  onApply: (next: CatalogFilters) => void;
 }) {
-  const { t } = useTranslation()
-  const [draft, setDraft] = useState(initial)
-  const resultCount = useCatalogResultCount(draft)
-  const handleClear = () => setDraft(DEFAULT_CATALOG_FILTERS)
-  const handleApply = () => onApply(draft)
+  const { t } = useTranslation();
+  const [draft, setDraft] = useState(initial);
+  const resultCount = useCatalogResultCount(draft);
+  const handleClear = () => setDraft(DEFAULT_CATALOG_FILTERS);
+  const handleApply = () => onApply(draft);
 
   return (
     <div className="space-y-6">
@@ -69,5 +69,5 @@ function FiltersDraft({
         </Button>
       </div>
     </div>
-  )
+  );
 }

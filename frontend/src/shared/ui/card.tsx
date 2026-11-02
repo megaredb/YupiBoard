@@ -1,5 +1,5 @@
-import type { ComponentProps } from "react"
-import { cn } from "@/shared/lib/cn"
+import type { ComponentProps } from "react";
+import { cn } from "@/shared/lib/cn";
 
 export function Card({
   className,
@@ -16,7 +16,7 @@ export function Card({
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CardHeader({ className, ...props }: ComponentProps<"div">) {
@@ -29,7 +29,7 @@ function CardHeader({ className, ...props }: ComponentProps<"div">) {
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CardTitle({ className, ...props }: ComponentProps<"div">) {
@@ -42,7 +42,7 @@ function CardTitle({ className, ...props }: ComponentProps<"div">) {
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CardDescription({ className, ...props }: ComponentProps<"div">) {
@@ -52,13 +52,13 @@ function CardDescription({ className, ...props }: ComponentProps<"div">) {
       className={cn("text-sm text-muted-foreground", className)}
       {...props}
     />
-  )
+  );
 }
 
 function CardContent({ className, ...props }: ComponentProps<"div">) {
   return (
     <div data-slot="card-content" className={cn("px-(--card-spacing)", className)} {...props} />
-  )
+  );
 }
 
 function CardFooter({ className, ...props }: ComponentProps<"div">) {
@@ -71,11 +71,11 @@ function CardFooter({ className, ...props }: ComponentProps<"div">) {
       )}
       {...props}
     />
-  )
+  );
 }
 
-Card.Header = CardHeader
-Card.Title = CardTitle
-Card.Description = CardDescription
-Card.Content = CardContent
-Card.Footer = CardFooter
+Card.Header = CardHeader;
+Card.Title = CardTitle;
+Card.Description = CardDescription;
+Card.Content = CardContent;
+Card.Footer = CardFooter;

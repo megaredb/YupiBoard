@@ -1,21 +1,21 @@
-import { getRouteApi, Link, useNavigate } from "@tanstack/react-router"
-import { Plus } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { buttonVariants } from "@/shared/ui/button-variants"
-import { useCurrentUser } from "@/features/auth"
-import { EventCollection } from "@/features/events/components/event-collection"
-import { useHostedEvents } from "@/features/events/hooks/use-hosted-events"
+import { getRouteApi, Link, useNavigate } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { buttonVariants } from "@/shared/ui/button-variants";
+import { useSignedInUser } from "@/features/auth";
+import { EventCollection } from "@/features/events/components/event-collection";
+import { useHostedEvents } from "@/features/events/hooks/use-hosted-events";
 
-const route = getRouteApi("/_authenticated/my-events")
+const route = getRouteApi("/_authenticated/my-events");
 
 export function MyEventsPage() {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
-  const { page } = route.useSearch()
-  const user = useCurrentUser()
-  const events = useHostedEvents(user?.id ?? "", page)
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { page } = route.useSearch();
+  const user = useSignedInUser();
+  const events = useHostedEvents(user.id, page);
   const handlePageChange = (next: number) =>
-    void navigate({ to: "/my-events", search: { page: next } })
+    void navigate({ to: "/my-events", search: { page: next } });
 
   return (
     <EventCollection
@@ -35,5 +35,5 @@ export function MyEventsPage() {
       }}
       showOrganizer={false}
     />
-  )
+  );
 }

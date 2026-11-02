@@ -1,6 +1,6 @@
-import { useSyncExternalStore } from "react"
-import { getResolvedTheme, subscribeTheme, type ResolvedTheme } from "@/shared/platform/theme"
+import { useSyncExternalStore } from "react";
+import { getResolvedTheme, subscribeTheme, type ResolvedTheme } from "@/shared/platform/theme";
 
 export function useResolvedTheme(): ResolvedTheme {
-  return useSyncExternalStore(subscribeTheme, getResolvedTheme)
+  return useSyncExternalStore(subscribeTheme, getResolvedTheme);
 }

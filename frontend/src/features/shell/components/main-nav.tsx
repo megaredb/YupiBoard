@@ -1,13 +1,13 @@
-import { Link } from "@tanstack/react-router"
-import { useTranslation } from "react-i18next"
-import { NAV_ITEMS } from "@/features/shell/lib/nav-items"
+import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { NAV_ITEMS } from "@/features/shell/lib/nav-items";
 
-const ACTIVE_LINK = { className: "text-primary" }
-const INACTIVE_LINK = { className: "text-muted-foreground hover:text-foreground" }
+const ACTIVE_LINK = { className: "text-primary" };
+const INACTIVE_LINK = { className: "text-muted-foreground hover:text-foreground" };
 
 /** Desktop navigation; on phones the same items live in `MobileNavMenu`. */
 export function MainNav() {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <nav aria-label={t("shell.nav.label")} className="ml-8 hidden items-center gap-6 md:flex">
@@ -23,5 +23,5 @@ export function MainNav() {
         </Link>
       ))}
     </nav>
-  )
+  );
 }

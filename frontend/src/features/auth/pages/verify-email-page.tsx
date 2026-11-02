@@ -1,14 +1,14 @@
-import { getRouteApi, Link } from "@tanstack/react-router"
-import { useTranslation } from "react-i18next"
-import { StatusCard } from "@/shared/components/status-card"
-import { BrandLogo } from "@/shared/layout/brand-logo"
-import { buttonVariants } from "@/shared/ui/button-variants"
+import { getRouteApi, Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { StatusCard } from "@/shared/components/status-card";
+import { BrandLogo } from "@/shared/layout/brand-logo";
+import { buttonVariants } from "@/shared/ui/button-variants";
 
-const route = getRouteApi("/verify-email")
+const route = getRouteApi("/verify-email");
 
 export function VerifyEmailPage() {
-  const { t } = useTranslation()
-  const result = route.useLoaderData()
+  const { t } = useTranslation();
+  const result = route.useLoaderData();
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center gap-6 p-4">
@@ -43,5 +43,5 @@ export function VerifyEmailPage() {
         </StatusCard>
       )}
     </div>
-  )
+  );
 }

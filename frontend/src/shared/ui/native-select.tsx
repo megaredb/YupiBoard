@@ -1,19 +1,19 @@
-import type { ComponentProps, ReactNode } from "react"
-import { cva } from "class-variance-authority"
-import { ChevronDown } from "lucide-react"
-import { cn } from "@/shared/lib/cn"
+import type { ComponentProps, ReactNode } from "react";
+import { cva } from "class-variance-authority";
+import { ChevronDown } from "lucide-react";
+import { cn } from "@/shared/lib/cn";
 
 export interface NativeSelectOption {
-  value: string
-  label: string
+  value: string;
+  label: string;
 }
 
-type NativeSelectVariant = "default" | "tinted" | "ghost"
+type NativeSelectVariant = "default" | "tinted" | "ghost";
 
 interface NativeSelectProps extends Omit<ComponentProps<"select">, "children"> {
-  options: NativeSelectOption[]
-  startIcon?: ReactNode
-  variant?: NativeSelectVariant
+  options: NativeSelectOption[];
+  startIcon?: ReactNode;
+  variant?: NativeSelectVariant;
 }
 
 const selectVariants = cva(
@@ -28,7 +28,7 @@ const selectVariants = cva(
       hasIcon: { true: "pl-9", false: "pl-3" },
     },
   },
-)
+);
 
 const iconVariants = cva("pointer-events-none absolute top-1/2 -translate-y-1/2", {
   variants: {
@@ -38,7 +38,7 @@ const iconVariants = cva("pointer-events-none absolute top-1/2 -translate-y-1/2"
       ghost: "text-muted-foreground",
     },
   },
-})
+});
 
 /** Styled native `<select>`: keeps the OS picker on mobile. */
 export function NativeSelect({
@@ -67,5 +67,5 @@ export function NativeSelect({
       </select>
       <ChevronDown aria-hidden className={cn(iconVariants({ variant }), "right-3 size-4")} />
     </div>
-  )
+  );
 }

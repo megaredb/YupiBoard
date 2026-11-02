@@ -1,25 +1,25 @@
-import { Link } from "@tanstack/react-router"
-import { useTranslation } from "react-i18next"
-import type { EventListItem } from "@/shared/api/generated/model"
-import { formatCardDate } from "@/shared/lib/format/format-date"
-import { formatDecimal } from "@/shared/lib/format/format-number"
-import { formatRating } from "@/features/users"
-import { EventCard } from "@/features/events/components/event-card"
-import { getEventPrice } from "@/features/events/lib/get-event-price"
+import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import type { EventListItem } from "@/shared/api/generated/model";
+import { formatCardDate } from "@/shared/lib/format/format-date";
+import { formatDecimal } from "@/shared/lib/format/format-number";
+import { formatRating } from "@/features/users";
+import { EventCard } from "@/features/events/components/event-card";
+import { getEventPrice } from "@/features/events/lib/get-event-price";
 
 interface EventLinkCardProps {
-  event: EventListItem
-  showOrganizer: boolean
+  event: EventListItem;
+  showOrganizer: boolean;
 }
 
 /** Maps a catalog item to the presentational `EventCard`, wrapped in a link to the event. */
 export function EventLinkCard({ event, showOrganizer }: EventLinkCardProps) {
-  const { t } = useTranslation()
-  const price = getEventPrice(event)
+  const { t } = useTranslation();
+  const price = getEventPrice(event);
   const location =
     event.distance_km == null
       ? event.address
-      : t("events.card.distance", { km: formatDecimal(event.distance_km) })
+      : t("events.card.distance", { km: formatDecimal(event.distance_km) });
 
   return (
     <Link
@@ -51,5 +51,5 @@ export function EventLinkCard({ event, showOrganizer }: EventLinkCardProps) {
         }
       />
     </Link>
-  )
+  );
 }

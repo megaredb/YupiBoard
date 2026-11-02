@@ -1,15 +1,15 @@
-import { cva } from "class-variance-authority"
-import { Heart, Share2 } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { cn } from "@/shared/lib/cn"
-import { Button } from "@/shared/ui/button"
+import { cva } from "class-variance-authority";
+import { Heart, Share2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { cn } from "@/shared/lib/cn";
+import { Button } from "@/shared/ui/button";
 
 interface EventActionButtonsProps {
-  isFavorite: boolean
-  onToggleFavorite: () => void
-  onShare: () => void
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
+  onShare: () => void;
   /** `overlay` floats on the hero image, `bar` sits in the phone top bar. */
-  placement: "overlay" | "bar"
+  placement: "overlay" | "bar";
 }
 
 const actionVariants = cva("rounded-full text-foreground", {
@@ -19,7 +19,7 @@ const actionVariants = cva("rounded-full text-foreground", {
       bar: "bg-transparent hover:bg-muted",
     },
   },
-})
+});
 
 export function EventActionButtons({
   isFavorite,
@@ -27,7 +27,7 @@ export function EventActionButtons({
   onShare,
   placement,
 }: EventActionButtonsProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="flex items-center gap-2">
@@ -53,5 +53,5 @@ export function EventActionButtons({
         <Heart aria-hidden className={cn("size-5", isFavorite && "fill-primary text-primary")} />
       </Button>
     </div>
-  )
+  );
 }

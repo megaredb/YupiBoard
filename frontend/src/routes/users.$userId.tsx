@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { interimAllEventsQueryOptions, pageSearchSchema } from "@/features/events"
-import { publicUserQueryOptions } from "@/features/profile"
-import { PublicProfilePage } from "@/features/profile/pages/public-profile-page"
+import { createFileRoute } from "@tanstack/react-router";
+import { interimAllEventsQueryOptions, pageSearchSchema } from "@/features/events";
+import { publicUserQueryOptions } from "@/features/profile";
+import { PublicProfilePage } from "@/features/profile/pages/public-profile-page";
 
 export const Route = createFileRoute("/users/$userId")({
   validateSearch: pageSearchSchema,
@@ -12,4 +12,4 @@ export const Route = createFileRoute("/users/$userId")({
     ]),
   staticData: { titleKey: "profile.public.pageTitle" },
   component: PublicProfilePage,
-})
+});

@@ -1,8 +1,8 @@
-import { Menu as MenuPrimitive } from "@base-ui/react/menu"
-import { cn } from "@/shared/lib/cn"
+import { Menu as MenuPrimitive } from "@base-ui/react/menu";
+import { cn } from "@/shared/lib/cn";
 
 export function DropdownMenu(props: MenuPrimitive.Root.Props) {
-  return <MenuPrimitive.Root {...props} />
+  return <MenuPrimitive.Root {...props} />;
 }
 
 function DropdownMenuTrigger({ className, ...props }: MenuPrimitive.Trigger.Props) {
@@ -15,11 +15,11 @@ function DropdownMenuTrigger({ className, ...props }: MenuPrimitive.Trigger.Prop
       )}
       {...props}
     />
-  )
+  );
 }
 
 interface DropdownMenuContentProps extends MenuPrimitive.Popup.Props {
-  align?: MenuPrimitive.Positioner.Props["align"]
+  align?: MenuPrimitive.Positioner.Props["align"];
 }
 
 function DropdownMenuContent({ className, align = "end", ...props }: DropdownMenuContentProps) {
@@ -36,11 +36,11 @@ function DropdownMenuContent({ className, align = "end", ...props }: DropdownMen
         />
       </MenuPrimitive.Positioner>
     </MenuPrimitive.Portal>
-  )
+  );
 }
 
 interface DropdownMenuItemProps extends MenuPrimitive.Item.Props {
-  variant?: "default" | "destructive"
+  variant?: "default" | "destructive";
 }
 
 function DropdownMenuItem({ className, variant = "default", ...props }: DropdownMenuItemProps) {
@@ -54,7 +54,7 @@ function DropdownMenuItem({ className, variant = "default", ...props }: Dropdown
       )}
       {...props}
     />
-  )
+  );
 }
 
 function DropdownMenuSeparator({ className, ...props }: MenuPrimitive.Separator.Props) {
@@ -64,10 +64,10 @@ function DropdownMenuSeparator({ className, ...props }: MenuPrimitive.Separator.
       className={cn("-mx-1 my-1 h-px bg-border", className)}
       {...props}
     />
-  )
+  );
 }
 
-DropdownMenu.Trigger = DropdownMenuTrigger
-DropdownMenu.Content = DropdownMenuContent
-DropdownMenu.Item = DropdownMenuItem
-DropdownMenu.Separator = DropdownMenuSeparator
+DropdownMenu.Trigger = DropdownMenuTrigger;
+DropdownMenu.Content = DropdownMenuContent;
+DropdownMenu.Item = DropdownMenuItem;
+DropdownMenu.Separator = DropdownMenuSeparator;

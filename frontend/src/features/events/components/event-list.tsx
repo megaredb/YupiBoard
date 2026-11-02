@@ -1,22 +1,22 @@
-import { useTranslation } from "react-i18next"
-import type { EventListItem } from "@/shared/api/generated/model"
-import { cn } from "@/shared/lib/cn"
-import type { ListState } from "@/shared/lib/list-state"
-import { Button } from "@/shared/ui/button"
-import { Skeleton } from "@/shared/ui/skeleton"
-import { StatusMessage } from "@/shared/ui/status-message"
-import { EventLinkCard } from "@/features/events/components/event-link-card"
+import { useTranslation } from "react-i18next";
+import type { EventListItem } from "@/shared/api/generated/model";
+import { cn } from "@/shared/lib/cn";
+import type { ListState } from "@/shared/lib/list-state";
+import { Button } from "@/shared/ui/button";
+import { Skeleton } from "@/shared/ui/skeleton";
+import { StatusMessage } from "@/shared/ui/status-message";
+import { EventLinkCard } from "@/features/events/components/event-link-card";
 
 interface EventListProps {
-  state: ListState<EventListItem>
-  empty: { title: string; description: string }
-  showOrganizer: boolean
+  state: ListState<EventListItem>;
+  empty: { title: string; description: string };
+  showOrganizer: boolean;
   /** Dims the grid while the next page loads. */
-  isRefreshing?: boolean
+  isRefreshing?: boolean;
 }
 
-const GRID_CLASS = "grid w-full grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4"
-const SKELETON_COUNT = 6
+const GRID_CLASS = "grid w-full grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4";
+const SKELETON_COUNT = 6;
 
 function EventCardSkeleton() {
   return (
@@ -28,12 +28,12 @@ function EventCardSkeleton() {
         <Skeleton className="h-3.5 w-2/5" />
       </div>
     </div>
-  )
+  );
 }
 
 /** Grid of event cards with loading, error, empty and data states (UI-7). */
 export function EventList({ state, empty, showOrganizer, isRefreshing = false }: EventListProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   if (state.status === "error") {
     return (
@@ -45,7 +45,7 @@ export function EventList({ state, empty, showOrganizer, isRefreshing = false }:
           </Button>
         }
       />
-    )
+    );
   }
 
   if (state.status === "pending") {
@@ -55,11 +55,11 @@ export function EventList({ state, empty, showOrganizer, isRefreshing = false }:
           <EventCardSkeleton key={index} />
         ))}
       </div>
-    )
+    );
   }
 
   if (state.items.length === 0) {
-    return <StatusMessage title={empty.title} description={empty.description} />
+    return <StatusMessage title={empty.title} description={empty.description} />;
   }
 
   return (
@@ -68,5 +68,5 @@ export function EventList({ state, empty, showOrganizer, isRefreshing = false }:
         <EventLinkCard key={event.id} event={event} showOrganizer={showOrganizer} />
       ))}
     </div>
-  )
+  );
 }

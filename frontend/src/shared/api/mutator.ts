@@ -1,6 +1,6 @@
-import axios, { type AxiosRequestConfig } from "axios"
-import { apiClient } from "@/shared/api/client"
-import { toApiError, type ApiError } from "@/shared/api/errors"
+import axios, { type AxiosRequestConfig } from "axios";
+import { apiClient } from "@/shared/api/client";
+import { toApiError, type ApiError } from "@/shared/api/errors";
 
 /** Orval mutator: every request goes through `apiClient` and every failure becomes `ApiError`. */
 export async function customInstance<T>(
@@ -8,14 +8,14 @@ export async function customInstance<T>(
   options?: AxiosRequestConfig,
 ): Promise<T> {
   try {
-    const response = await apiClient.request<T>({ ...config, ...options })
-    return response.data
+    const response = await apiClient.request<T>({ ...config, ...options });
+    return response.data;
   } catch (error) {
     // Aborts are rethrown untouched so TanStack Query recognises and ignores them.
-    if (axios.isCancel(error)) throw error
-    throw toApiError(error)
+    if (axios.isCancel(error)) throw error;
+    throw toApiError(error);
   }
 }
 
 // Read by Orval to type the `error` of every generated hook.
-export type ErrorType<_Error> = ApiError
+export type ErrorType<_Error> = ApiError;

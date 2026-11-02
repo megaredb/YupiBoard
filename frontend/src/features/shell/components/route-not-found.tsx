@@ -1,12 +1,12 @@
-import { Link } from "@tanstack/react-router"
-import { useTranslation } from "react-i18next"
-import { PageContainer } from "@/shared/layout/page-container"
-import { buttonVariants } from "@/shared/ui/button-variants"
-import { StatusMessage } from "@/shared/ui/status-message"
+import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { PageContainer } from "@/shared/layout/page-container";
+import { buttonVariants } from "@/shared/ui/button-variants";
+import { StatusMessage } from "@/shared/ui/status-message";
 
 /** Router `defaultNotFoundComponent`. */
 export function RouteNotFound() {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <PageContainer size="narrow">
@@ -20,5 +20,5 @@ export function RouteNotFound() {
         }
       />
     </PageContainer>
-  )
+  );
 }

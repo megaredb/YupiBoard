@@ -1,11 +1,11 @@
-import { cva } from "class-variance-authority"
-import { CheckCircle2, CircleAlert } from "lucide-react"
-import { cn } from "@/shared/lib/cn"
+import { cva } from "class-variance-authority";
+import { CheckCircle2, CircleAlert } from "lucide-react";
+import { cn } from "@/shared/lib/cn";
 
 interface FormAlertProps {
-  message: string
-  tone?: "error" | "success"
-  className?: string
+  message: string;
+  tone?: "error" | "success";
+  className?: string;
 }
 
 const alertVariants = cva(
@@ -18,11 +18,11 @@ const alertVariants = cva(
       },
     },
   },
-)
+);
 
 /** Form-level message (server error, saved). Field errors belong to `FormField`. */
 export function FormAlert({ message, tone = "error", className }: FormAlertProps) {
-  const Icon = tone === "error" ? CircleAlert : CheckCircle2
+  const Icon = tone === "error" ? CircleAlert : CheckCircle2;
   return (
     <div
       role={tone === "error" ? "alert" : "status"}
@@ -31,5 +31,5 @@ export function FormAlert({ message, tone = "error", className }: FormAlertProps
       <Icon aria-hidden className="size-4 shrink-0" />
       <span>{message}</span>
     </div>
-  )
+  );
 }

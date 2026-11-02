@@ -31,6 +31,14 @@
     "max-params": ["error", 5],
     "no-nested-ternary": "error",
     "no-console": "error",
+    "no-shadow": "error",
+    "eqeqeq": [
+      "error",
+      "always",
+      {
+        "null": "ignore"
+      }
+    ],
     "no-restricted-globals": [
       "error",
       "localStorage",
@@ -69,6 +77,26 @@
         "ts-nocheck": true
       }
     ],
+    "typescript/no-floating-promises": "error",
+    "typescript/no-misused-promises": [
+      "error",
+      {
+        "checksVoidReturn": {
+          "attributes": false
+        }
+      }
+    ],
+    "typescript/await-thenable": "error",
+    "typescript/return-await": "error",
+    "typescript/no-unsafe-argument": "error",
+    "typescript/no-unsafe-assignment": "error",
+    "typescript/no-unsafe-call": "error",
+    "typescript/no-unsafe-member-access": "error",
+    "typescript/no-unsafe-return": "error",
+    "typescript/no-unnecessary-type-assertion": "error",
+    "typescript/restrict-template-expressions": "error",
+    "typescript/no-base-to-string": "error",
+    "typescript/switch-exhaustiveness-check": "error",
     "import/no-default-export": "error",
     "import/no-cycle": "error",
     "react/rules-of-hooks": "error",
@@ -204,6 +232,16 @@
             ]
           }
         ]
+      }
+    },
+    {
+      "files": ["tooling/*.mjs"],
+      "rules": {
+        "typescript/no-unsafe-argument": "off",
+        "typescript/no-unsafe-assignment": "off",
+        "typescript/no-unsafe-call": "off",
+        "typescript/no-unsafe-member-access": "off",
+        "typescript/no-unsafe-return": "off"
       }
     }
   ]

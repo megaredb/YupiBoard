@@ -7,17 +7,17 @@
     <title>YupiBoard</title>
     <script>
       // Applies the stored or system theme before first paint; must match shared/platform/theme.ts.
-      ;(function () {
-        var stored = null
+      (function () {
+        var stored = null;
         try {
-          stored = localStorage.getItem("yupiboard:theme")
+          stored = localStorage.getItem("yupiboard:theme");
         } catch (error) {
-          stored = null
+          stored = null;
         }
-        var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
-        var isDark = stored === "dark" || (stored !== "light" && prefersDark)
-        document.documentElement.classList.toggle("dark", isDark)
-      })()
+        var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var isDark = stored === "dark" || (stored !== "light" && prefersDark);
+        document.documentElement.classList.toggle("dark", isDark);
+      })();
     </script>
   </head>
   <body>

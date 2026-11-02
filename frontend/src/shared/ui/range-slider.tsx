@@ -1,18 +1,18 @@
-import { useId, useState, type ChangeEvent, type SyntheticEvent } from "react"
-import { Label } from "@/shared/ui/label"
+import { useId, useState, type ChangeEvent, type SyntheticEvent } from "react";
+import { Label } from "@/shared/ui/label";
 
 interface RangeSliderProps {
-  label: string
+  label: string;
   /** Text shown next to the label for the current value, e.g. "Within 15 km". */
-  formatValue: (value: number) => string
+  formatValue: (value: number) => string;
   /** Text under the track ends, e.g. "1 km". */
-  formatBound: (value: number) => string
-  min: number
-  max: number
+  formatBound: (value: number) => string;
+  min: number;
+  max: number;
   /** Initial position; remount with a new `key` to reset it from outside. */
-  value: number
+  value: number;
   /** Called when the user releases the thumb (or key), not on every tick. */
-  onCommit: (value: number) => void
+  onCommit: (value: number) => void;
 }
 
 export function RangeSlider({
@@ -24,19 +24,19 @@ export function RangeSlider({
   value,
   onCommit,
 }: RangeSliderProps) {
-  const id = useId()
-  const [draft, setDraft] = useState(value)
-  const progress = ((draft - min) / (max - min)) * 100
+  const id = useId();
+  const [draft, setDraft] = useState(value);
+  const progress = ((draft - min) / (max - min)) * 100;
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) =>
-    setDraft(Number(event.target.value))
+    setDraft(Number(event.target.value));
   const handleCommit = (event: SyntheticEvent<HTMLInputElement>) => {
-    const next = Number(event.currentTarget.value)
-    if (next !== value) onCommit(next)
-  }
+    const next = Number(event.currentTarget.value);
+    if (next !== value) onCommit(next);
+  };
   // The filled part of the track is drawn from this variable (see `.range-slider` in the styles).
   const paintProgress = (node: HTMLInputElement | null) =>
-    node?.style.setProperty("--slider-progress", `${progress}%`)
+    node?.style.setProperty("--slider-progress", `${progress}%`);
 
   return (
     <div className="space-y-2">
@@ -64,5 +64,5 @@ export function RangeSlider({
         <span>{formatBound(max)}</span>
       </div>
     </div>
-  )
+  );
 }

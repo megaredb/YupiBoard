@@ -1,21 +1,21 @@
-import type { ReactNode } from "react"
-import { MapPin, Shield, Star } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import type { UserRead } from "@/shared/api/generated/model"
-import { Card } from "@/shared/ui/card"
-import { formatMemberSince, formatRating, getDisplayName } from "@/features/users"
-import { RatingTile } from "@/features/profile/components/rating-tile"
+import type { ReactNode } from "react";
+import { MapPin, Shield, Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import type { UserRead } from "@/shared/api/generated/model";
+import { Card } from "@/shared/ui/card";
+import { formatMemberSince, formatRating, getDisplayName } from "@/features/users";
+import { RatingTile } from "@/features/profile/components/rating-tile";
 
 interface ProfileSummaryCardProps {
-  user: UserRead
+  user: UserRead;
   /** Plain avatar, or the avatar picker while editing. */
-  avatar: ReactNode
-  showCity?: boolean
+  avatar: ReactNode;
+  showCity?: boolean;
 }
 
 export function ProfileSummaryCard({ user, avatar, showCity = false }: ProfileSummaryCardProps) {
-  const { t } = useTranslation()
-  const memberSince = formatMemberSince(user.created_at)
+  const { t } = useTranslation();
+  const memberSince = formatMemberSince(user.created_at);
 
   return (
     <Card className="relative z-10 rounded-2xl p-5 shadow-sm sm:p-6">
@@ -53,5 +53,5 @@ export function ProfileSummaryCard({ user, avatar, showCity = false }: ProfileSu
         </div>
       </div>
     </Card>
-  )
+  );
 }

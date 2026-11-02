@@ -1,8 +1,8 @@
-import type { QueryClient } from "@tanstack/react-query"
-import { createRouter } from "@tanstack/react-router"
-import { routeTree } from "@/routeTree.gen"
-import { RouteError, RouteNotFound, RoutePending } from "@/features/shell"
-import { isNativePlatform } from "@/shared/platform/is-native"
+import type { QueryClient } from "@tanstack/react-query";
+import { createRouter } from "@tanstack/react-router";
+import { routeTree } from "@/routeTree.gen";
+import { isNativePlatform } from "@/shared/platform/is-native";
+import { RouteError, RouteNotFound, RoutePending } from "@/features/shell";
 
 export function createAppRouter(queryClient: QueryClient) {
   return createRouter({
@@ -16,11 +16,11 @@ export function createAppRouter(queryClient: QueryClient) {
     defaultErrorComponent: RouteError,
     defaultNotFoundComponent: RouteNotFound,
     scrollRestoration: true,
-  })
+  });
 }
 
 declare module "@tanstack/react-router" {
   interface Register {
-    router: ReturnType<typeof createAppRouter>
+    router: ReturnType<typeof createAppRouter>;
   }
 }

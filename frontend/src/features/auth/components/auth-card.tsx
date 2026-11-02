@@ -1,16 +1,16 @@
-import type { ReactNode } from "react"
-import { BrandLogo } from "@/shared/layout/brand-logo"
-import { Card } from "@/shared/ui/card"
+import type { ReactNode } from "react";
+import { BrandLogo } from "@/shared/layout/brand-logo";
+import { Card } from "@/shared/ui/card";
 
 interface AuthCardProps {
-  title: string
-  subtitle: string
+  title: string;
+  subtitle: string;
   /** Shorter heading for phones; falls back to `title`. */
-  mobileTitle?: string
-  mobileSubtitle?: string
-  tabs?: ReactNode
-  footer?: ReactNode
-  children: ReactNode
+  mobileTitle?: string;
+  mobileSubtitle?: string;
+  tabs?: ReactNode;
+  footer?: ReactNode;
+  children: ReactNode;
 }
 
 export function AuthCard({
@@ -47,5 +47,5 @@ export function AuthCard({
         )}
       </Card>
     </div>
-  )
+  );
 }

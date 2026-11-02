@@ -1,5 +1,5 @@
-import type { ComponentProps } from "react"
-import { cn } from "@/shared/lib/cn"
+import type { ComponentProps } from "react";
+import { cn } from "@/shared/lib/cn";
 
 export function Textarea({ className, ...props }: ComponentProps<"textarea">) {
   return (
@@ -11,5 +11,5 @@ export function Textarea({ className, ...props }: ComponentProps<"textarea">) {
       )}
       {...props}
     />
-  )
+  );
 }

@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { interimAllEventsQueryOptions, pageSearchSchema } from "@/features/events"
-import { FavoritesPage } from "@/features/events/pages/favorites-page"
-import { ensureSavedEvents } from "@/features/saved-events"
+import { createFileRoute } from "@tanstack/react-router";
+import { interimAllEventsQueryOptions, pageSearchSchema } from "@/features/events";
+import { FavoritesPage } from "@/features/events/pages/favorites-page";
+import { ensureSavedEvents } from "@/features/saved-events";
 
 export const Route = createFileRoute("/_authenticated/favorites")({
   validateSearch: pageSearchSchema,
@@ -12,4 +12,4 @@ export const Route = createFileRoute("/_authenticated/favorites")({
     ]),
   staticData: { titleKey: "events.favorites.title" },
   component: FavoritesPage,
-})
+});

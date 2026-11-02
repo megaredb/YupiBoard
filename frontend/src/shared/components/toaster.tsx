@@ -1,20 +1,19 @@
-import { useEffect } from "react"
-import { CheckCircle2, Info, X } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { dismissToast, useToasts, type Toast } from "@/shared/lib/toast/toast-store"
-import { Button } from "@/shared/ui/button"
+import { useEffect } from "react";
+import { CheckCircle2, Info, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { dismissToast, useToasts, type Toast } from "@/shared/lib/toast/toast-store";
+import { Button } from "@/shared/ui/button";
 
-const AUTO_DISMISS_MS = 5000
+const AUTO_DISMISS_MS = 5000;
 
 function ToastItem({ toast, closeLabel }: { toast: Toast; closeLabel: string }) {
-  const Icon = toast.tone === "success" ? CheckCircle2 : Info
-  const handleDismiss = () => dismissToast(toast.id)
+  const Icon = toast.tone === "success" ? CheckCircle2 : Info;
+  const handleDismiss = () => dismissToast(toast.id);
 
-  // A timer is an external system: the effect only schedules and cancels it.
   useEffect(() => {
-    const timer = setTimeout(() => dismissToast(toast.id), AUTO_DISMISS_MS)
-    return () => clearTimeout(timer)
-  }, [toast.id])
+    const timer = setTimeout(() => dismissToast(toast.id), AUTO_DISMISS_MS);
+    return () => clearTimeout(timer);
+  }, [toast.id]);
 
   return (
     <li className="flex items-center justify-between gap-3 rounded-xl border border-border bg-popover px-4 py-2.5 text-sm font-medium text-popover-foreground shadow-lg">
@@ -32,13 +31,13 @@ function ToastItem({ toast, closeLabel }: { toast: Toast; closeLabel: string }) 
         <X aria-hidden />
       </Button>
     </li>
-  )
+  );
 }
 
 /** Renders the shared toast queue; mounted once by the app shell. */
 export function Toaster() {
-  const { t } = useTranslation()
-  const toasts = useToasts()
+  const { t } = useTranslation();
+  const toasts = useToasts();
 
   return (
     <ol
@@ -49,5 +48,5 @@ export function Toaster() {
         <ToastItem key={toast.id} toast={toast} closeLabel={t("common.close")} />
       ))}
     </ol>
-  )
+  );
 }

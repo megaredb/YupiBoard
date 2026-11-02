@@ -1,16 +1,16 @@
-import { Minus, Plus } from "lucide-react"
-import { Button } from "@/shared/ui/button"
+import { Minus, Plus } from "lucide-react";
+import { Button } from "@/shared/ui/button";
 
 interface NumberStepperProps {
-  id?: string
-  value: number
-  onChange: (next: number) => void
-  min: number
-  max: number
-  decreaseLabel: string
-  increaseLabel: string
-  "aria-describedby"?: string
-  "aria-invalid"?: boolean
+  id?: string;
+  value: number;
+  onChange: (next: number) => void;
+  min: number;
+  max: number;
+  decreaseLabel: string;
+  increaseLabel: string;
+  "aria-describedby"?: string;
+  "aria-invalid"?: boolean;
 }
 
 export function NumberStepper({
@@ -23,8 +23,8 @@ export function NumberStepper({
   increaseLabel,
   ...aria
 }: NumberStepperProps) {
-  const handleDecrease = () => onChange(Math.max(min, value - 1))
-  const handleIncrease = () => onChange(Math.min(max, value + 1))
+  const handleDecrease = () => onChange(Math.max(min, value - 1));
+  const handleIncrease = () => onChange(Math.min(max, value + 1));
 
   return (
     <div className="flex h-10 items-center justify-between rounded-lg border border-input bg-transparent px-1.5">
@@ -56,5 +56,5 @@ export function NumberStepper({
         <Plus aria-hidden />
       </Button>
     </div>
-  )
+  );
 }

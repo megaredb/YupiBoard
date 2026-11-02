@@ -1,10 +1,10 @@
-import type { ReactNode } from "react"
-import { Card } from "@/shared/ui/card"
+import type { ReactNode } from "react";
+import { Card } from "@/shared/ui/card";
 
 interface FormSectionProps {
-  title: string
-  description?: string
-  children: ReactNode
+  title: string;
+  description?: string;
+  children: ReactNode;
 }
 
 export function FormSection({ title, description, children }: FormSectionProps) {
@@ -16,5 +16,5 @@ export function FormSection({ title, description, children }: FormSectionProps) 
       </Card.Header>
       <Card.Content className="space-y-5">{children}</Card.Content>
     </Card>
-  )
+  );
 }

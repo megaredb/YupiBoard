@@ -1,14 +1,14 @@
-import type { ComponentProps } from "react"
-import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
-import { X } from "lucide-react"
-import { cn } from "@/shared/lib/cn"
+import type { ComponentProps } from "react";
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import { X } from "lucide-react";
+import { cn } from "@/shared/lib/cn";
 
 export function Dialog(props: DialogPrimitive.Root.Props) {
-  return <DialogPrimitive.Root {...props} />
+  return <DialogPrimitive.Root {...props} />;
 }
 
 interface DialogContentProps extends DialogPrimitive.Popup.Props {
-  closeLabel: string
+  closeLabel: string;
 }
 
 function DialogContent({ className, children, closeLabel, ...props }: DialogContentProps) {
@@ -37,7 +37,7 @@ function DialogContent({ className, children, closeLabel, ...props }: DialogCont
         </DialogPrimitive.Popup>
       </DialogPrimitive.Viewport>
     </DialogPrimitive.Portal>
-  )
+  );
 }
 
 function DialogHeader({ className, ...props }: ComponentProps<"div">) {
@@ -47,7 +47,7 @@ function DialogHeader({ className, ...props }: ComponentProps<"div">) {
       className={cn("flex flex-col gap-1.5 text-left", className)}
       {...props}
     />
-  )
+  );
 }
 
 function DialogFooter({ className, ...props }: ComponentProps<"div">) {
@@ -57,7 +57,7 @@ function DialogFooter({ className, ...props }: ComponentProps<"div">) {
       className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)}
       {...props}
     />
-  )
+  );
 }
 
 function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
@@ -67,7 +67,7 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
       className={cn("text-lg leading-none font-semibold tracking-tight", className)}
       {...props}
     />
-  )
+  );
 }
 
 function DialogDescription({ className, ...props }: DialogPrimitive.Description.Props) {
@@ -77,11 +77,11 @@ function DialogDescription({ className, ...props }: DialogPrimitive.Description.
       className={cn("text-sm text-muted-foreground", className)}
       {...props}
     />
-  )
+  );
 }
 
-Dialog.Content = DialogContent
-Dialog.Header = DialogHeader
-Dialog.Footer = DialogFooter
-Dialog.Title = DialogTitle
-Dialog.Description = DialogDescription
+Dialog.Content = DialogContent;
+Dialog.Header = DialogHeader;
+Dialog.Footer = DialogFooter;
+Dialog.Title = DialogTitle;
+Dialog.Description = DialogDescription;

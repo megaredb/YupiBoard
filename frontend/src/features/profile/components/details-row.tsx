@@ -1,9 +1,9 @@
-import type { ReactNode } from "react"
+import type { ReactNode } from "react";
 
 interface DetailsRowProps {
-  label: string
-  note?: string
-  children: ReactNode
+  label: string;
+  note?: string;
+  children: ReactNode;
 }
 
 /** One `dt`/`dd` pair of a profile `dl`. */
@@ -16,5 +16,5 @@ export function DetailsRow({ label, note, children }: DetailsRowProps) {
       </dt>
       <dd className="text-foreground sm:col-span-2">{children}</dd>
     </div>
-  )
+  );
 }

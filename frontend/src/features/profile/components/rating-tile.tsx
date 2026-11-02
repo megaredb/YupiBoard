@@ -1,15 +1,15 @@
-import type { ReactNode } from "react"
-import { useTranslation } from "react-i18next"
+import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 interface RatingTileProps {
-  label: string
-  icon: ReactNode
-  rating: string | null
+  label: string;
+  icon: ReactNode;
+  rating: string | null;
 }
 
 // Review counts are not part of `UserRead` yet, so only the rating itself is shown.
 export function RatingTile({ label, icon, rating }: RatingTileProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="rounded-xl border border-border bg-background/60 px-4 py-2.5 text-center">
@@ -22,5 +22,5 @@ export function RatingTile({ label, icon, rating }: RatingTileProps) {
         {rating && <span className="text-xs text-muted-foreground">{t("profile.outOfFive")}</span>}
       </div>
     </div>
-  )
+  );
 }

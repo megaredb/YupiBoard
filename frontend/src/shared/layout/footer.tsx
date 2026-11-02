@@ -1,9 +1,9 @@
-import { cn } from "@/shared/lib/cn"
+import { cn } from "@/shared/lib/cn";
 
 interface FooterProps {
-  brandName: string
-  copyright: string
-  className?: string
+  brandName: string;
+  copyright: string;
+  className?: string;
 }
 
 export function Footer({ brandName, copyright, className }: FooterProps) {
@@ -17,5 +17,5 @@ export function Footer({ brandName, copyright, className }: FooterProps) {
         <span>{copyright}</span>
       </div>
     </footer>
-  )
+  );
 }

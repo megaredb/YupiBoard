@@ -1,17 +1,17 @@
-import type { ReactNode } from "react"
-import { cn } from "@/shared/lib/cn"
+import type { ReactNode } from "react";
+import { cn } from "@/shared/lib/cn";
 
 interface PageContainerProps {
-  children: ReactNode
-  size?: "narrow" | "default" | "wide"
-  className?: string
+  children: ReactNode;
+  size?: "narrow" | "default" | "wide";
+  className?: string;
 }
 
 const maxWidth = {
   narrow: "max-w-2xl",
   default: "max-w-5xl",
   wide: "max-w-7xl",
-} as const
+} as const;
 
 /** Centered horizontal padding + max-width used by every app page. */
 export function PageContainer({ children, size = "default", className }: PageContainerProps) {
@@ -19,5 +19,5 @@ export function PageContainer({ children, size = "default", className }: PageCon
     <div className={cn("mx-auto w-full px-4 py-6 sm:px-6 lg:px-10", maxWidth[size], className)}>
       {children}
     </div>
-  )
+  );
 }

@@ -1,16 +1,16 @@
-import type { ReactNode } from "react"
-import { ArrowLeft } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { Button } from "@/shared/ui/button"
+import type { ReactNode } from "react";
+import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/shared/ui/button";
 
 interface EventMobileTopBarProps {
-  onBack: () => void
-  actions: ReactNode
+  onBack: () => void;
+  actions: ReactNode;
 }
 
 /** Replaces the app header on phones (the route hides it there). */
 export function EventMobileTopBar({ onBack, actions }: EventMobileTopBarProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="sticky top-0 z-30 border-b border-border/50 bg-background/95 pt-safe backdrop-blur-md lg:hidden">
@@ -27,5 +27,5 @@ export function EventMobileTopBar({ onBack, actions }: EventMobileTopBarProps) {
         {actions}
       </div>
     </div>
-  )
+  );
 }
