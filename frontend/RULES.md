@@ -223,7 +223,7 @@ The same bundle runs in browsers and in an Android WebView. **Platform-specific 
 - **PLAT-5** Tokens are handled in one place (`features/auth/lib/session-storage.ts` over `platform/secure-storage`): web keeps the refresh token in an HttpOnly cookie; native stores both tokens in secure storage. All on-device user data is namespaced `yupiboard:<userId>:<key>` and **wiped on logout**.
 - **PLAT-6** Safe areas (`env(safe-area-inset-*)`) are applied once, in the app shell and shared utility classes; `viewport-fit=cover` is set. Fixed bars and sheets respect safe areas and the keyboard.
 - **PLAT-7** One `platform/theme.ts` handles system preference, persisted choice and status bar. `index.html` never hard-codes `class="dark"`; an inline head script applies the stored theme before paint.
-- **PLAT-8** `capacitor.config.ts` and `android/` live in the repo (build artefacts ignored). Scripts `cap:sync`, `cap:android` and `cap:build` exist. Every native plugin in use is in `package.json`. Run `pnpm cap:sync` after adding or updating a plugin and commit the regenerated Gradle files.
+- **PLAT-8** `capacitor.config.ts` and `android/` live in the repo (build artefacts ignored). Scripts `cap:sync`, `cap:android`, `cap:build` and `cap:run` exist. Every native plugin in use is in `package.json`. Run `pnpm cap:sync` after adding or updating a plugin and commit the regenerated Gradle files.
 - **PLAT-9** Mobile UX: touch targets ≥ 44×44 px; no hover-only actions; `100dvh`, not `100vh`. Network features show an offline state, and **a network error never logs the user out** (only an explicit 401/403 on refresh does).
 - **PLAT-10** Code MUST work on web **and** Android. For changes touching `shared/platform`, auth, uploads, geolocation or routing, name in your report what needs a manual device check.
 
@@ -322,7 +322,7 @@ These must exist and pass through `pnpm check`. Tool configs live in `tooling/`,
 - **TOOL-5 Platform ban:** lint restricts the globals `localStorage`, `sessionStorage`, `navigator`, `alert`, `confirm`, `prompt` outside `shared/platform`. `pnpm check:platform` (a grep script) fails on `window.location`, `window.open` and `document.documentElement` outside `shared/platform`.
 - **TOOL-6 Dead code:** `knip` (files, exports, dependencies) and an i18n check script (`pnpm i18n:check`): every literal `t("…")` key exists, no key is unused, `en` and `uk` have the same keys.
 - **TOOL-7 `tsconfig`:** flags from TS-1; single alias `@/* → src/*`.
-- **TOOL-8 Scripts** (names are fixed): `dev` `build` `preview` `typecheck` `lint` `lint:fix` `format` `format:check` `fix` `knip` `depcruise` `i18n:check` `check:platform` `api:generate` `cap:sync` `cap:android` `cap:build` `check`. `check` = typecheck + lint + format:check + knip + depcruise + i18n:check + check:platform. `fix` = lint:fix + format. There is no `test` script.
+- **TOOL-8 Scripts** (names are fixed): `dev` `build` `preview` `typecheck` `lint` `lint:fix` `format` `format:check` `fix` `knip` `depcruise` `i18n:check` `check:platform` `api:generate` `cap:sync` `cap:android` `cap:build` `cap:run` `check`. `check` = typecheck + lint + format:check + knip + depcruise + i18n:check + check:platform. `fix` = lint:fix + format. There is no `test` script.
 - **TOOL-9 Orval:** `clean: true`, formatted output, input `openapi/openapi.json`, mutator at `src/shared/api/mutator.ts`. Never hand-edit the output.
 - **TOOL-10 Docs:** the README covers setup, env table, scripts, tooling, running web and Android, regenerating the API, and links to this file.
 

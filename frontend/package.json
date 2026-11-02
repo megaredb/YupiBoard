@@ -23,9 +23,10 @@
     "i18n:check": "node tooling/check-i18n.mjs",
     "check:platform": "node tooling/check-platform.mjs",
     "api:generate": "orval",
-    "cap:sync": "pnpm build && cap sync android",
+    "cap:sync": "pnpm build && cap sync android && node tooling/android-dev-ca.mjs",
     "cap:android": "cap open android",
     "cap:build": "pnpm cap:sync && node tooling/build-android.mjs",
+    "cap:run": "pnpm cap:sync && node tooling/build-android.mjs --run",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm knip && pnpm depcruise && pnpm i18n:check && pnpm check:platform"
   },
   "dependencies": {

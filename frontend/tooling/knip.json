@@ -3,5 +3,8 @@
   "entry": ["src/routes/**/*.tsx", "tooling/*.mjs"],
   "project": ["src/**/*.{ts,tsx,css}", "tooling/*.mjs"],
   "ignore": ["src/shared/api/generated/**"],
-  "prettier": { "config": ["tooling/prettier.json"] }
+  "prettier": {
+    "config": ["tooling/prettier.json"]
+  },
+  "ignoreBinaries": ["reg", "mkcert"]
 }

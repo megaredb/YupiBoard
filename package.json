@@ -32,6 +32,7 @@
     "test:backend": "cd backend && uv run pytest",
     "cap:sync": "pnpm --filter frontend cap:sync",
     "cap:android": "pnpm --filter frontend cap:android",
-    "cap:build": "pnpm --filter frontend cap:build"
+    "cap:build": "pnpm --filter frontend cap:build",
+    "cap:run": "pnpm --filter frontend cap:run"
   }
 }

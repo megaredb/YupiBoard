@@ -55,7 +55,7 @@ Production-ready monorepo for the **YupiBoard** project, featuring a three-tier 
 
 - **Capacitor 8**: the frontend bundle runs in an Android WebView; `frontend/capacitor.config.ts` and the native project live in `frontend/`.
 - **Plugins**: `app` (back button, App Links), `preferences` (token storage), `geolocation`, `keyboard`, `share`, `status-bar`.
-- **Build requirements**: Android Studio or the Android SDK (`ANDROID_HOME`), and JDK 21 in `JAVA_HOME`.
+- **Build requirements**: Android Studio or the Android SDK (`ANDROID_HOME`), and JDK 21+ (`pnpm cap:build` uses Android Studio's bundled JDK when `JAVA_HOME` is unset or older).
 
 ---
 
@@ -154,11 +154,12 @@ Each one runs the matching script of `frontend/package.json`; details are in
 
 Build requirements are listed under [Android App](#-android-app-frontendandroid).
 
-| Command            | Description                                                                   |
-| ------------------ | ----------------------------------------------------------------------------- |
-| `pnpm cap:sync`    | Build the web app and copy it into the Android project                        |
-| `pnpm cap:android` | Open the Android project in Android Studio                                    |
-| `pnpm cap:build`   | Sync, then build a debug APK (`frontend/android/app/build/outputs/apk/debug`) |
+| Command            | Description                                                                              |
+| ------------------ | ---------------------------------------------------------------------------------------- |
+| `pnpm cap:sync`    | Build the web app and copy it into the Android project                                   |
+| `pnpm cap:android` | Open the Android project in Android Studio                                               |
+| `pnpm cap:build`   | Sync, then build a debug APK (`frontend/android/app/build/outputs/apk/debug`)            |
+| `pnpm cap:run`     | Sync, install and start the app on a USB phone or emulator, with the local API reachable |
 
 ---
 
