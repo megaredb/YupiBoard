@@ -27,6 +27,10 @@ date_from?: string | null;
 date_to?: string | null;
 cost_min?: number | string | null;
 cost_max?: number | string | null;
+/**
+ * Only events with at least this many free seats
+ */
+available_seats_min?: number | null;
 sort_by?: EventSortBy | null;
 sort_order?: SortOrder;
 /**

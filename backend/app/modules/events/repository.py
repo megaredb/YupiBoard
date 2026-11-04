@@ -116,6 +116,12 @@ class EventRepository(BaseRepository[Event]):
         if filters.cost_max is not None:
             conditions.append(Event.entry_cost <= filters.cost_max)
 
+        if filters.available_seats_min is not None:
+            conditions.append(
+                Event.max_players - Event.current_confirmed
+                >= filters.available_seats_min
+            )
+
         return conditions
 
     def _build_ordering(

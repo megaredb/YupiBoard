@@ -1432,6 +1432,26 @@
             }
           },
           {
+            "name": "available_seats_min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 20,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only events with at least this many free seats",
+              "title": "Available Seats Min"
+            },
+            "description": "Only events with at least this many free seats"
+          },
+          {
             "name": "sort_by",
             "in": "query",
             "required": false,

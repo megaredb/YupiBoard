@@ -110,6 +110,12 @@ class EventFilterParams(BaseModel):
     date_to: datetime | None = None
     cost_min: Decimal | None = Field(default=None, ge=Decimal("0.00"))
     cost_max: Decimal | None = Field(default=None, ge=Decimal("0.00"))
+    available_seats_min: int | None = Field(
+        default=None,
+        ge=1,
+        le=20,
+        description="Only events with at least this many free seats",
+    )
     sort_by: EventSortBy | None = None
     sort_order: SortOrder = SortOrder.ASC
     page: int = Field(default=1, ge=1)

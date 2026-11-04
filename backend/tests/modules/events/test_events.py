@@ -7,7 +7,7 @@ from sqlalchemy import Float
 
 from app.main import app
 from app.modules.events.models import Event, EventStatus
-from app.modules.events.schemas import EventCreate
+from app.modules.events.schemas import EventCreate, EventFilterParams
 
 
 def valid_event_data() -> dict[str, object]:
@@ -76,6 +76,19 @@ def test_event_create_checks_player_and_datetime_ranges() -> None:
         EventCreate.model_validate(data)
 
 
+@pytest.mark.parametrize("value", [1, 20])
+def test_event_filters_accept_available_seats_min_in_range(value: int) -> None:
+    filters = EventFilterParams.model_validate({"available_seats_min": value})
+
+    assert filters.available_seats_min == value
+
+
+@pytest.mark.parametrize("value", [0, -1, 21])
+def test_event_filters_reject_available_seats_min_out_of_range(value: int) -> None:
+    with pytest.raises(ValidationError):
+        EventFilterParams.model_validate({"available_seats_min": value})
+
+
 def test_event_model_columns() -> None:
     assert isinstance(Event.__table__.c.lat.type, Float)
     assert isinstance(Event.__table__.c.lon.type, Float)
@@ -113,6 +126,7 @@ def test_event_routes_are_registered() -> None:
         "date_to",
         "cost_min",
         "cost_max",
+        "available_seats_min",
         "sort_by",
         "sort_order",
         "page",
