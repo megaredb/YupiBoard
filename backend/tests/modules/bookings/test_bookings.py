@@ -34,6 +34,10 @@ def test_booking_routes_are_registered() -> None:
     paths = app.openapi()["paths"]
     assert "/api/v1/events/{id}/bookings" in paths
     assert "post" in paths["/api/v1/events/{id}/bookings"]
+    assert "/api/v1/bookings/me" in paths
+    assert "/api/v1/events/{event_id}/bookings/{booking_id}/approve" in paths
+    assert "/api/v1/events/{event_id}/bookings/{booking_id}/reject" in paths
+    assert "/api/v1/events/{event_id}/bookings/me" in paths
 
 
 @pytest.mark.asyncio

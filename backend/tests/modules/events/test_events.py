@@ -105,3 +105,6 @@ def test_event_routes_are_registered() -> None:
     assert "radius_km" in event_get_params
     assert "limit" in event_get_params
     assert "page" in event_get_params
+    assert "/api/v1/events/my/created" in paths
+    assert "/api/v1/events/my/participating" in paths
+    assert "delete" in paths["/api/v1/events/{event_id}"]

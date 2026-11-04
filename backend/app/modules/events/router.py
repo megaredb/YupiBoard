@@ -1,12 +1,13 @@
 import uuid
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, File, Query, UploadFile, status
 
 from app.core.exceptions import BadRequestException
 from app.core.storage import MediaService, get_media_service
-from app.modules.auth.dependencies import get_current_verified_user
+from app.modules.auth.dependencies import get_current_user, get_current_verified_user
 from app.modules.events.dependencies import get_event_service
+from app.modules.events.models import EventStatus
 from app.modules.events.schemas import (
     EventCreate,
     EventCreateResponse,
@@ -87,6 +88,46 @@ async def list_events(
     )
 
 
+@router.get("/my/created", response_model=EventPage, summary="List events created by me")
+async def list_my_created_events(
+    current_user: Annotated[User, Depends(get_current_user)],
+    event_service: Annotated[EventService, Depends(get_event_service)],
+    event_status: Annotated[EventStatus | None, Query(alias="status")] = None,
+    page: Annotated[int, Query(ge=1)] = 1,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    sort_by: Annotated[Literal["date", "name"], Query()] = "date",
+    sort_order: Annotated[Literal["asc", "desc"], Query()] = "desc",
+) -> EventPage:
+    return await event_service.get_organizer_events(
+        current_user.id,
+        status=event_status,
+        page=page,
+        limit=limit,
+        sort_by=sort_by,
+        sort_order=sort_order,
+    )
+
+
+@router.get("/my/participating", response_model=EventPage, summary="List events where I participate")
+async def list_my_participating_events(
+    current_user: Annotated[User, Depends(get_current_user)],
+    event_service: Annotated[EventService, Depends(get_event_service)],
+    event_status: Annotated[EventStatus | None, Query(alias="status")] = None,
+    page: Annotated[int, Query(ge=1)] = 1,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    sort_by: Annotated[Literal["date", "name"], Query()] = "date",
+    sort_order: Annotated[Literal["asc", "desc"], Query()] = "desc",
+) -> EventPage:
+    return await event_service.get_participant_events(
+        current_user.id,
+        status=event_status,
+        page=page,
+        limit=limit,
+        sort_by=sort_by,
+        sort_order=sort_order,
+    )
+
+
 @router.get(
     "/{event_id}",
     response_model=EventRead,
@@ -97,3 +138,12 @@ async def get_event(
     event_service: Annotated[EventService, Depends(get_event_service)],
 ) -> EventRead:
     return await event_service.get_public_event(event_id)
+
+
+@router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def cancel_event(
+    event_id: uuid.UUID,
+    current_user: Annotated[User, Depends(get_current_verified_user)],
+    event_service: Annotated[EventService, Depends(get_event_service)],
+) -> None:
+    await event_service.cancel(event_id, current_user.id)

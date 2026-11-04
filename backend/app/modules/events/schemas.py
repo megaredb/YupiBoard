@@ -66,6 +66,7 @@ class EventListItem(BaseModel):
     available_seats: int
     distance_km: float | None = None
     is_promoted: bool
+    status: EventStatus
     organizer: EventOrganizerSummary
 
     model_config = ConfigDict(from_attributes=True)

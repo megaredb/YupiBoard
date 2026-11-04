@@ -22,3 +22,10 @@ class BookingRead(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class BookingPage(BaseModel):
+    items: list[BookingRead]
+    total: int
+    page: int
+    total_pages: int

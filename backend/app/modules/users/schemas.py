@@ -20,6 +20,7 @@ class UserUpdate(BaseModel):
     avatar_url: str | None = Field(default=None, max_length=1024)
     city: str | None = Field(default=None, max_length=100)
     contact_info: str | None = Field(default=None, max_length=500)
+    bio: str | None = Field(default=None, max_length=1000)
 
     @field_validator("first_name", "last_name", mode="before")
     @classmethod
@@ -40,6 +41,7 @@ class UserRead(UserBase):
     updated_at: datetime
     city: str | None = None
     contact_info: str | None = None
+    bio: str | None = None
     rating_as_player: Decimal | None = None
     rating_as_organizer: Decimal | None = None
     status: UserStatus = UserStatus.ACTIVE
