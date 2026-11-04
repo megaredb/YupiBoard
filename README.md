@@ -55,7 +55,7 @@ Production-ready monorepo for the **YupiBoard** project, featuring a three-tier 
 
 - **Capacitor 8**: the frontend bundle runs in an Android WebView; `frontend/capacitor.config.ts` and the native project live in `frontend/`.
 - **Plugins**: `app` (back button, App Links), `preferences` (token storage), `geolocation`, `keyboard`, `share`, `status-bar`.
-- **Build requirements**: Android Studio or the Android SDK (`ANDROID_HOME`), and JDK 21+ (`pnpm cap:build` uses Android Studio's bundled JDK when `JAVA_HOME` is unset or older).
+- **Build requirements**: Android Studio or the Android SDK (`ANDROID_HOME`), and JDK 21+ (`pnpm fe cap:build` uses Android Studio's bundled JDK when `JAVA_HOME` is unset or older).
 
 ---
 
@@ -96,10 +96,10 @@ In separate terminals:
 
 ```bash
 # FastAPI backend (port 8080)
-pnpm dev:backend
+pnpm be dev
 
 # Vite frontend (port 5173)
-pnpm dev:frontend
+pnpm fe dev
 ```
 
 The application is now accessible via secure local endpoints:
@@ -112,54 +112,56 @@ The application is now accessible via secure local endpoints:
 
 ## 📜 Key Commands (pnpm / package.json)
 
-Commands ending in `:frontend` or `:backend` touch only that part; the rest touch both or the
-infrastructure, except the `cap:*` Android commands, which run in `frontend/`.
+Run everything from the repository root. Two shortcuts forward to the right part:
 
-| Command              | Description                                                           |
-| -------------------- | --------------------------------------------------------------------- |
-| `pnpm run setup`     | Generate SSL certificates, install pnpm dependencies, and `uv sync`   |
-| `pnpm docker:up`     | Start PostgreSQL, Traefik, Mailpit, and pgweb in the background       |
-| `pnpm docker:down`   | Stop Docker containers                                                |
-| `pnpm docker:down:v` | Stop Docker containers and remove persistent volumes                  |
-| `pnpm migrate`       | Apply Alembic migrations                                              |
-| `pnpm generate:api`  | Export `openapi.json` from FastAPI and regenerate the frontend client |
-| `pnpm lint`          | `lint:frontend` + `lint:backend`                                      |
-| `pnpm format`        | `format:frontend` + `format:backend`                                  |
+- `pnpm fe <script>` runs a script of [`frontend/package.json`](frontend/package.json).
+- `pnpm be <script>` runs a script of [`backend/package.json`](backend/package.json).
+
+Plain `pnpm fe` or `pnpm be` lists the available scripts.
+
+### Project commands
+
+| Command                | Description                                                           |
+| ---------------------- | --------------------------------------------------------------------- |
+| `pnpm run setup`       | Generate SSL certificates, install pnpm dependencies, and `uv sync`   |
+| `pnpm run setup:certs` | Generate SSL certificates only                                        |
+| `pnpm docker:up`       | Start PostgreSQL, Traefik, Mailpit, and pgweb in the background       |
+| `pnpm docker:down`     | Stop Docker containers                                                |
+| `pnpm docker:down:v`   | Stop Docker containers and remove persistent volumes                  |
+| `pnpm migrate`         | Apply Alembic migrations                                              |
+| `pnpm generate:api`    | Export `openapi.json` from FastAPI and regenerate the frontend client |
+| `pnpm lint`            | Lint frontend and backend                                             |
+| `pnpm format`          | Format frontend and backend                                           |
+| `pnpm test`            | Run backend tests (`pytest`)                                          |
 
 ### Backend commands
 
-| Command               | Description                                   |
-| --------------------- | --------------------------------------------- |
-| `pnpm dev:backend`    | Start FastAPI server via `uv run fastapi dev` |
-| `pnpm lint:backend`   | `ruff check` and `ty check`                   |
-| `pnpm format:backend` | `ruff format`                                 |
-| `pnpm test`           | Run backend tests (`pytest`)                  |
+| Command           | Description                                          |
+| ----------------- | ---------------------------------------------------- |
+| `pnpm be dev`     | Start FastAPI server via `uv run fastapi dev`        |
+| `pnpm be sync`    | `uv sync`                                            |
+| `pnpm be migrate` | Apply Alembic migrations                             |
+| `pnpm be lint`    | `ruff check` and `ty check`                          |
+| `pnpm be format`  | `ruff format`                                        |
+| `pnpm be test`    | Run tests (`pytest`)                                 |
+| `pnpm be openapi` | Export the schema to `frontend/openapi/openapi.json` |
 
 ### Frontend commands
 
-Each one runs the matching script of `frontend/package.json`; details are in
-[`frontend/README.md`](frontend/README.md).
+The most used ones; every script is listed in [`frontend/README.md`](frontend/README.md#scripts).
 
-| Command                   | Description                                                           |
-| ------------------------- | --------------------------------------------------------------------- |
-| `pnpm dev:frontend`       | Start Vite dev server (port 5173)                                     |
-| `pnpm build:frontend`     | Typecheck and build the frontend into `frontend/dist`                 |
-| `pnpm check:frontend`     | All frontend checks: types, lint, formatting, dead code, layers, i18n |
-| `pnpm fix:frontend`       | Apply lint auto-fixes and Prettier formatting                         |
-| `pnpm typecheck:frontend` | Regenerate the route tree and run `tsc`                               |
-| `pnpm lint:frontend`      | Type-aware oxlint                                                     |
-| `pnpm format:frontend`    | Prettier, write                                                       |
+| Command               | Description                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------------- |
+| `pnpm fe dev`         | Start Vite dev server (port 5173)                                                        |
+| `pnpm fe build`       | Typecheck and build the frontend into `frontend/dist`                                    |
+| `pnpm fe check`       | All frontend checks: types, lint, formatting, dead code, layers, i18n                    |
+| `pnpm fe fix`         | Apply lint auto-fixes and Prettier formatting                                            |
+| `pnpm fe cap:sync`    | Build the web app and copy it into the Android project                                   |
+| `pnpm fe cap:android` | Open the Android project in Android Studio                                               |
+| `pnpm fe cap:build`   | Sync, then build a debug APK (`frontend/android/app/build/outputs/apk/debug`)            |
+| `pnpm fe cap:run`     | Sync, install and start the app on a USB phone or emulator, with the local API reachable |
 
-### Android commands
-
-Build requirements are listed under [Android App](#-android-app-frontendandroid).
-
-| Command            | Description                                                                              |
-| ------------------ | ---------------------------------------------------------------------------------------- |
-| `pnpm cap:sync`    | Build the web app and copy it into the Android project                                   |
-| `pnpm cap:android` | Open the Android project in Android Studio                                               |
-| `pnpm cap:build`   | Sync, then build a debug APK (`frontend/android/app/build/outputs/apk/debug`)            |
-| `pnpm cap:run`     | Sync, install and start the app on a USB phone or emulator, with the local API reachable |
+Android build requirements are listed under [Android App](#-android-app-frontendandroid).
 
 ---
 

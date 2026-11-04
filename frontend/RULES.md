@@ -22,7 +22,7 @@
 | Tests           | **None. Do not write tests (§16)**                   |
 
 - **DEP-1** Dependencies change only when a human explicitly approves it. AI agents add, remove or upgrade packages only if the task names them; otherwise they list the proposal in their report.
-- **DEP-2** **pnpm is the only package manager.** No `npm` or `yarn`. `pnpm-lock.yaml` is the only lockfile. Pin `packageManager` and `engines` in `package.json`.
+- **DEP-2** **pnpm is the only package manager.** No `npm` or `yarn`. `pnpm-lock.yaml` is the only lockfile. Pin `packageManager` in the root `package.json` (pnpm reads it only from the workspace root) and `engines` in `frontend/package.json`.
 - **DEP-3** Tooling packages (`shadcn`, `orval`, `oxlint`, `@capacitor/cli`, …) go in `devDependencies`.
 - **DEP-4** No overlapping packages (one icon set, one date lib, one class merger). `cn()` is `twMerge(clsx(inputs))`; no look-alike packages.
 

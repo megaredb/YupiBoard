@@ -34,9 +34,8 @@ startup and refuses to start when a required one is missing.
 
 ## Scripts
 
-Run them from `frontend/`. From the repository root, the common ones have a `:frontend` alias
-(`pnpm check:frontend`, `pnpm fix:frontend`, …), the Android ones keep their names (`pnpm cap:build`, `pnpm cap:run`); any other script runs
-with `pnpm --filter frontend <script>`.
+Run them from `frontend/`, or from the repository root with the `fe` prefix: `pnpm fe check`,
+`pnpm fe cap:run`, and so on.
 
 | Script                | What it does                                                        |
 | --------------------- | ------------------------------------------------------------------- |
@@ -96,7 +95,7 @@ folder), so an older Java on `PATH` does not matter. Without Android Studio, set
 
 ### Testing on a phone against the local backend
 
-1. Start the stack (`pnpm docker:up`, `pnpm dev:backend` in the repository root) and set
+1. Start the stack (`pnpm docker:up`, `pnpm be dev` in the repository root) and set
    `VITE_ANDROID_API_BASE_URL=https://api.yupiboard.localhost:8443` in the root `.env`.
 2. On the phone, turn on Developer options → USB debugging and connect it with USB (wireless
    debugging works too). An emulator works the same way.
