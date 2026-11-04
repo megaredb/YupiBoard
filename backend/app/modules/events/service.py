@@ -1,7 +1,8 @@
 import uuid
 from datetime import UTC, datetime
+from typing import Literal
 
-from app.core.exceptions import NotFoundException
+from app.core.exceptions import BadRequestException, NotFoundException
 from app.modules.events.models import Event, EventStatus
 from app.modules.events.repository import EventRepository
 from app.modules.events.schemas import (
@@ -65,6 +66,64 @@ class EventService:
             raise NotFoundException("Event not found")
         return self._to_read(event)
 
+    async def get_organizer_events(
+        self,
+        organizer_id: uuid.UUID,
+        *,
+        status: EventStatus | None = None,
+        page: int = 1,
+        limit: int = 20,
+        sort_by: Literal["date", "name"] = "date",
+        sort_order: Literal["asc", "desc"] = "desc",
+    ) -> EventPage:
+        rows, total, total_pages = await self.event_repo.find_by_organizer(
+            organizer_id,
+            status=status,
+            page=page,
+            limit=limit,
+            sort_by=sort_by,
+            sort_order=sort_order,
+        )
+        return EventPage(
+            items=[self._to_list_item(event, None) for event in rows],
+            total=total,
+            page=page,
+            total_pages=total_pages,
+        )
+
+    async def get_participant_events(
+        self,
+        user_id: uuid.UUID,
+        *,
+        status: EventStatus | None = None,
+        page: int = 1,
+        limit: int = 20,
+        sort_by: Literal["date", "name"] = "date",
+        sort_order: Literal["asc", "desc"] = "desc",
+    ) -> EventPage:
+        rows, total, total_pages = await self.event_repo.find_by_participant(
+            user_id,
+            status=status,
+            page=page,
+            limit=limit,
+            sort_by=sort_by,
+            sort_order=sort_order,
+        )
+        return EventPage(
+            items=[self._to_list_item(event, None) for event in rows],
+            total=total,
+            page=page,
+            total_pages=total_pages,
+        )
+
+    async def cancel(self, event_id: uuid.UUID, organizer_id: uuid.UUID) -> Event:
+        event = await self.event_repo.get_owned_event(event_id, organizer_id)
+        if event is None:
+            raise NotFoundException("Event not found")
+        if event.start_datetime <= datetime.now(UTC):
+            raise BadRequestException("Event cancellation is closed after the start time")
+        return await self.event_repo.update(event, status=EventStatus.CANCELLED, is_deleted=True)
+
     def _format_organizer_name(self, organizer: User) -> str:
         if organizer.first_name and organizer.last_name:
             return f"{organizer.first_name} {organizer.last_name[0]}."
@@ -96,6 +155,7 @@ class EventService:
             available_seats=available_seats,
             distance_km=distance_km,
             is_promoted=is_promoted,
+            status=event.status,
             organizer=organizer_summary,
         )
 

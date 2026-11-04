@@ -60,6 +60,7 @@ class User(Base, UUIDMixin, TimestampMixin):
     avatar_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     city: Mapped[str | None] = mapped_column(String(100), nullable=True)
     contact_info: Mapped[str | None] = mapped_column(Text, nullable=True)
+    bio: Mapped[str | None] = mapped_column(Text, nullable=True)
     rating_as_player: Mapped[Decimal | None] = mapped_column(
         Numeric(3, 2), nullable=True
     )
