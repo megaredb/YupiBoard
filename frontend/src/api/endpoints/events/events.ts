@@ -193,7 +193,7 @@ export const useCreateEventApiV1EventsPost = <TError = HTTPValidationError,
       return useMutation(getCreateEventApiV1EventsPostMutationOptions(options), queryClient);
     }
     /**
- * @summary Browse nearby published events
+ * @summary Search, filter and sort active published events
  */
 export const listEventsApiV1EventsGet = (
     params?: ListEventsApiV1EventsGetParams,
@@ -265,7 +265,7 @@ export function useListEventsApiV1EventsGet<TData = Awaited<ReturnType<typeof li
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Browse nearby published events
+ * @summary Search, filter and sort active published events
  */
 
 export function useListEventsApiV1EventsGet<TData = Awaited<ReturnType<typeof listEventsApiV1EventsGet>>, TError = HTTPValidationError>(

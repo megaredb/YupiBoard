@@ -3,13 +3,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Query, UploadFile, status
 
-from app.core.exceptions import BadRequestException
 from app.core.storage import MediaService, get_media_service
 from app.modules.auth.dependencies import get_current_verified_user
 from app.modules.events.dependencies import get_event_service
 from app.modules.events.schemas import (
     EventCreate,
     EventCreateResponse,
+    EventFilterParams,
     EventImageUploadResponse,
     EventPage,
     EventRead,
@@ -57,34 +57,13 @@ async def create_event(
 @router.get(
     "",
     response_model=EventPage,
-    summary="Browse nearby published events",
+    summary="Search, filter and sort active published events",
 )
 async def list_events(
+    filters: Annotated[EventFilterParams, Query()],
     event_service: Annotated[EventService, Depends(get_event_service)],
-    lat: Annotated[float | None, Query(ge=-90, le=90)] = None,
-    lon: Annotated[float | None, Query(ge=-180, le=180)] = None,
-    radius_km: Annotated[
-        float | None,
-        Query(ge=0, description="Filter events within radius in kilometers"),
-    ] = None,
-    city: Annotated[str | None, Query(max_length=100)] = None,
-    page: Annotated[int, Query(ge=1)] = 1,
-    limit: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> EventPage:
-    if (lat is None) != (lon is None):
-        raise BadRequestException("lat and lon must be provided together")
-    if radius_km is not None and (lat is None or lon is None):
-        raise BadRequestException(
-            "lat and lon must be provided when radius_km is specified"
-        )
-    return await event_service.get_catalog(
-        city=city,
-        lat=lat,
-        lon=lon,
-        radius_km=radius_km,
-        page=page,
-        limit=limit,
-    )
+    return await event_service.get_catalog(filters)
 
 
 @router.get(

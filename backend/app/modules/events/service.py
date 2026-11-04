@@ -6,6 +6,7 @@ from app.modules.events.models import Event, EventStatus
 from app.modules.events.repository import EventRepository
 from app.modules.events.schemas import (
     EventCreate,
+    EventFilterParams,
     EventListItem,
     EventOrganizerSummary,
     EventPage,
@@ -33,29 +34,13 @@ class EventService:
             is_deleted=False,
         )
 
-    async def get_catalog(
-        self,
-        *,
-        city: str | None = None,
-        lat: float | None = None,
-        lon: float | None = None,
-        radius_km: float | None = None,
-        page: int = 1,
-        limit: int = 20,
-    ) -> EventPage:
-        rows, total, total_pages = await self.event_repo.find_catalog(
-            city=city,
-            lat=lat,
-            lon=lon,
-            radius_km=radius_km,
-            page=page,
-            limit=limit,
-        )
+    async def get_catalog(self, filters: EventFilterParams) -> EventPage:
+        rows, total, total_pages = await self.event_repo.find_catalog(filters)
         items = [self._to_list_item(event, distance_km) for event, distance_km in rows]
         return EventPage(
             items=items,
             total=total,
-            page=page,
+            page=filters.page,
             total_pages=total_pages,
         )
 
