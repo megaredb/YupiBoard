@@ -1,0 +1,8 @@
+{
+  "network": "No connection. Check your internet and try again.",
+  "offline": "You are offline. Some data may be out of date.",
+  "serviceUnavailable": "Service is temporarily unavailable",
+  "accountBanned": "Your account has been blocked",
+  "forbidden": "You don't have permission to do this",
+  "tooManyRequests": "Too many attempts. Please wait a moment and try again."
+}

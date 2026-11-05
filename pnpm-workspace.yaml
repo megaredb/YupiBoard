@@ -1,5 +1,5 @@
 packages:
   - "frontend"
-  - "mobile"
+  - "backend"
 allowBuilds:
   esbuild: true

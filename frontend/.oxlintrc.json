@@ -1,9 +1,249 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "ignorePatterns": ["src/api/**", "src/routeTree.gen.ts"],
+  "plugins": ["react", "typescript", "oxc", "import", "jsx-a11y", "unicorn"],
+  "ignorePatterns": [
+    "dist/**",
+    "android/**",
+    "src/shared/api/generated/**",
+    "src/routeTree.gen.ts"
+  ],
+  "categories": {
+    "correctness": "error"
+  },
   "rules": {
+    "max-lines": [
+      "error",
+      {
+        "max": 300,
+        "skipBlankLines": true,
+        "skipComments": true
+      }
+    ],
+    "max-lines-per-function": [
+      "error",
+      {
+        "max": 70,
+        "skipBlankLines": true,
+        "skipComments": true
+      }
+    ],
+    "complexity": ["error", 10],
+    "max-params": ["error", 5],
+    "no-nested-ternary": "error",
+    "no-console": "error",
+    "no-shadow": "error",
+    "eqeqeq": [
+      "error",
+      "always",
+      {
+        "null": "ignore"
+      }
+    ],
+    "no-restricted-globals": [
+      "error",
+      "localStorage",
+      "sessionStorage",
+      "navigator",
+      "alert",
+      "confirm",
+      "prompt"
+    ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["./*/**", "../*", "../**"],
+            "message": "Import with the @/ alias (TOOL-3)."
+          },
+          {
+            "group": ["@capacitor/*"],
+            "message": "Capacitor is only used inside src/shared/platform (PLAT-1)."
+          },
+          {
+            "group": ["@/shared/api/generated/endpoints/*", "@/shared/api/generated/endpoints/**"],
+            "message": "Generated API hooks are wrapped in features/*/hooks or features/*/api (API-3)."
+          }
+        ]
+      }
+    ],
+    "typescript/no-explicit-any": "error",
+    "typescript/no-non-null-assertion": "error",
+    "typescript/ban-ts-comment": [
+      "error",
+      {
+        "ts-ignore": true,
+        "ts-expect-error": true,
+        "ts-nocheck": true
+      }
+    ],
+    "typescript/no-floating-promises": "error",
+    "typescript/no-misused-promises": [
+      "error",
+      {
+        "checksVoidReturn": {
+          "attributes": false
+        }
+      }
+    ],
+    "typescript/await-thenable": "error",
+    "typescript/return-await": "error",
+    "typescript/no-unsafe-argument": "error",
+    "typescript/no-unsafe-assignment": "error",
+    "typescript/no-unsafe-call": "error",
+    "typescript/no-unsafe-member-access": "error",
+    "typescript/no-unsafe-return": "error",
+    "typescript/no-unnecessary-type-assertion": "error",
+    "typescript/restrict-template-expressions": "error",
+    "typescript/no-base-to-string": "error",
+    "typescript/switch-exhaustiveness-check": "error",
+    "typescript/no-deprecated": "error",
+    "import/no-default-export": "error",
+    "import/no-cycle": "error",
     "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
+    "react/exhaustive-deps": "error",
+    "react/jsx-max-depth": [
+      "error",
+      {
+        "max": 6
+      }
+    ],
+    "react/jsx-no-literals": "error",
+    "react/only-export-components": "error",
+    "jsx-a11y/alt-text": "error",
+    "jsx-a11y/anchor-ambiguous-text": "error",
+    "jsx-a11y/anchor-has-content": "error",
+    "jsx-a11y/anchor-is-valid": "error",
+    "jsx-a11y/aria-activedescendant-has-tabindex": "error",
+    "jsx-a11y/aria-props": "error",
+    "jsx-a11y/aria-proptypes": "error",
+    "jsx-a11y/aria-role": "error",
+    "jsx-a11y/aria-unsupported-elements": "error",
+    "jsx-a11y/autocomplete-valid": "error",
+    "jsx-a11y/click-events-have-key-events": "error",
+    "jsx-a11y/control-has-associated-label": "error",
+    "jsx-a11y/heading-has-content": "error",
+    "jsx-a11y/html-has-lang": "error",
+    "jsx-a11y/iframe-has-title": "error",
+    "jsx-a11y/img-redundant-alt": "error",
+    "jsx-a11y/interactive-supports-focus": "error",
+    "jsx-a11y/label-has-associated-control": "error",
+    "jsx-a11y/lang": "error",
+    "jsx-a11y/media-has-caption": "error",
+    "jsx-a11y/mouse-events-have-key-events": "error",
+    "jsx-a11y/no-access-key": "error",
+    "jsx-a11y/no-aria-hidden-on-focusable": "error",
+    "jsx-a11y/no-autofocus": "error",
+    "jsx-a11y/no-distracting-elements": "error",
+    "jsx-a11y/no-interactive-element-to-noninteractive-role": "error",
+    "jsx-a11y/no-noninteractive-element-interactions": "error",
+    "jsx-a11y/no-noninteractive-element-to-interactive-role": "error",
+    "jsx-a11y/no-noninteractive-tabindex": "error",
+    "jsx-a11y/no-redundant-roles": "error",
+    "jsx-a11y/no-static-element-interactions": "error",
+    "jsx-a11y/prefer-tag-over-role": "error",
+    "jsx-a11y/role-has-required-aria-props": "error",
+    "jsx-a11y/role-supports-aria-props": "error",
+    "jsx-a11y/scope": "error",
+    "jsx-a11y/tabindex-no-positive": "error"
+  },
+  "overrides": [
+    {
+      "files": ["src/features/*/pages/**"],
+      "rules": {
+        "max-lines": [
+          "error",
+          {
+            "max": 200,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/shared/platform/**"],
+      "rules": {
+        "no-restricted-globals": "off",
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["./*/**", "../*", "../**"],
+                "message": "Import with the @/ alias (TOOL-3)."
+              },
+              {
+                "group": [
+                  "@/shared/api/generated/endpoints/*",
+                  "@/shared/api/generated/endpoints/**"
+                ],
+                "message": "Generated API hooks are wrapped in features/*/hooks or features/*/api (API-3)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/features/*/hooks/**", "src/features/*/api/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["./*/**", "../*", "../**"],
+                "message": "Import with the @/ alias (TOOL-3)."
+              },
+              {
+                "group": ["@capacitor/*"],
+                "message": "Capacitor is only used inside src/shared/platform (PLAT-1)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/routes/**", "*.config.ts"],
+      "rules": {
+        "import/no-default-export": "off",
+        "react/only-export-components": "off"
+      }
+    },
+    {
+      "files": ["*.config.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["./*/**", "../*", "../**"],
+                "message": "Import with the @/ alias (TOOL-3)."
+              },
+              {
+                "group": [
+                  "@/shared/api/generated/endpoints/*",
+                  "@/shared/api/generated/endpoints/**"
+                ],
+                "message": "Generated API hooks are wrapped in features/*/hooks or features/*/api (API-3)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["tooling/*.mjs"],
+      "rules": {
+        "typescript/no-unsafe-argument": "off",
+        "typescript/no-unsafe-assignment": "off",
+        "typescript/no-unsafe-call": "off",
+        "typescript/no-unsafe-member-access": "off",
+        "typescript/no-unsafe-return": "off"
+      }
+    }
+  ]
 }

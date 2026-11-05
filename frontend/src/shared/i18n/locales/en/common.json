@@ -1,0 +1,23 @@
+{
+  "brand": "YupiBoard",
+  "optional": "Optional",
+  "readOnly": "Read-only",
+  "requiredFields": "* Required fields",
+  "notProvided": "—",
+  "showPassword": "Show password",
+  "cancel": "Cancel",
+  "edit": "Edit",
+  "back": "Back",
+  "close": "Close",
+  "retry": "Try again",
+  "loadFailed": "Couldn't load data.",
+  "breadcrumbs": "Breadcrumb",
+  "browseImage": "Click to upload",
+  "dropImage": "or drag and drop",
+  "removeImage": "Remove image",
+  "pagination": {
+    "label": "Pagination",
+    "previous": "Previous",
+    "next": "Next"
+  }
+}

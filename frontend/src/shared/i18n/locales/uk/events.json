@@ -1,0 +1,153 @@
+{
+  "free": "Безкоштовно",
+  "promoted": "Рекомендовано",
+  "cities": {
+    "kyiv": "Київ, Україна",
+    "lviv": "Львів, Україна",
+    "kharkiv": "Харків, Україна",
+    "dnipro": "Дніпро, Україна"
+  },
+  "card": {
+    "distance": "{{km}} км від вас",
+    "participants": "{{current}} з {{max}} учасників"
+  },
+  "pagination": {
+    "summary": "Показано {{from}}–{{to}} з {{total}} подій"
+  },
+  "catalog": {
+    "title": "Знайдіть стіл для настільних ігор поруч",
+    "mobileTitle": "Події поруч",
+    "subtitle": "Ігрові вечори поблизу: {{city}}",
+    "found_one": "Знайдено {{count}} подію",
+    "found_few": "Знайдено {{count}} події",
+    "found_many": "Знайдено {{count}} подій",
+    "found_other": "Знайдено {{count}} події",
+    "emptyTitle": "Немає подій за цими фільтрами",
+    "emptyDescription": "Збільште відстань або оберіть інше місто."
+  },
+  "collection": {
+    "found_one": "{{count}} подія",
+    "found_few": "{{count}} події",
+    "found_many": "{{count}} подій",
+    "found_other": "{{count}} події"
+  },
+  "myEvents": {
+    "title": "Мої події",
+    "emptyTitle": "Ви ще не створили жодної події",
+    "emptyDescription": "Створіть першу подію з настільних ігор і керуйте нею тут."
+  },
+  "myBookings": {
+    "title": "Мої бронювання",
+    "emptyTitle": "У вас ще немає бронювань",
+    "emptyDescription": "Подайте заявку на подію в каталозі, щоб побачити її тут."
+  },
+  "favorites": {
+    "title": "Обране",
+    "emptyTitle": "У вас ще немає обраних подій",
+    "emptyDescription": "Зберігайте події кнопкою із сердечком, щоб швидко знаходити їх тут."
+  },
+  "filters": {
+    "title": "Фільтри",
+    "location": "Місто",
+    "fromCityCenter": "Відстань рахується від центру міста",
+    "distance": "Відстань",
+    "within": "У межах {{km}} км",
+    "km": "{{km}} км",
+    "clear": "Скинути фільтри",
+    "clearAll": "Скинути все",
+    "show": "Показати результати",
+    "showResults_one": "Показати {{count}} результат",
+    "showResults_few": "Показати {{count}} результати",
+    "showResults_many": "Показати {{count}} результатів",
+    "showResults_other": "Показати {{count}} результату"
+  },
+  "details": {
+    "pageTitle": "Подія",
+    "backToEvents": "Назад до подій",
+    "about": "Про цей вечір",
+    "readMore": "Читати далі",
+    "organizer": "Організатор",
+    "meetOrganizer": "Знайомтеся з організатором",
+    "viewProfile": "Переглянути профіль",
+    "organizerRating": "Рейтинг організатора: {{rating}}",
+    "organizerRatingShort": "{{rating}} (організатор)",
+    "memberSince": "На YupiBoard з {{date}}",
+    "playersJoined": "Долучилися {{taken}} з {{total}} гравців",
+    "seatsProgress": "Зайняті місця",
+    "share": "Поділитися подією",
+    "shareFailed": "Не вдалося поділитися посиланням",
+    "linkCopied": "Посилання скопійовано",
+    "favorite": "Обране",
+    "opensMap": "(відкриває мапу)",
+    "timeWithZone": "{{time}} · {{zone}}"
+  },
+  "booking": {
+    "title": "Ваше місце за столом",
+    "subtitle": "Один вечір. Безліч чудових ходів.",
+    "perPerson": "/ особа",
+    "seatsAvailable": "Вільні місця (залишилось {{left}} з {{total}})",
+    "seatsAvailableShort": "Є вільні місця",
+    "playersJoining_one": "Долучається {{count}} гравець",
+    "playersJoining_few": "Долучаються {{count}} гравці",
+    "playersJoining_many": "Долучаються {{count}} гравців",
+    "playersJoining_other": "Долучаються {{count}} гравця",
+    "seatsTotal_one": "Усього {{count}} місце",
+    "seatsTotal_few": "Усього {{count}} місця",
+    "seatsTotal_many": "Усього {{count}} місць",
+    "seatsTotal_other": "Усього {{count}} місця",
+    "apply": "Подати заявку",
+    "pending": "Заявка на розгляді",
+    "approved": "Ви йдете",
+    "waitlist": "Ви в списку очікування",
+    "hosting": "Ви організатор цієї події",
+    "full": "Вільних місць немає",
+    "closed": "Бронювання закрито",
+    "failed": "Не вдалося надіслати заявку. Спробуйте ще раз.",
+    "reviewNote": "Організатор розгляне вашу заявку після надсилання.",
+    "payAtVenue": "Оплата на місці після підтвердження"
+  },
+  "create": {
+    "title": "Нова подія",
+    "successTitle": "Подію надіслано на перевірку",
+    "successDescription": "Вашу подію надіслано модераторам; її опублікують після схвалення.",
+    "moderationBanner": "Нові події перевіряє модератор, перш ніж вони з'являться в каталозі.",
+    "submit": "Надіслати на модерацію",
+    "reviewNote": "Зазвичай перевірка триває до 24 годин",
+    "failed": "Не вдалося створити подію. Спробуйте ще раз.",
+    "general": {
+      "title": "Загальна інформація",
+      "description": "Дайте грі зрозумілу назву й розкажіть гравцям, чого очікувати."
+    },
+    "when": {
+      "title": "Коли й де"
+    },
+    "players": {
+      "title": "Гравці та ціна"
+    },
+    "cover": {
+      "title": "Обкладинка",
+      "hint": "JPEG або PNG, до 5 МБ · найкраще 16:9"
+    },
+    "fields": {
+      "title": "Назва події",
+      "titlePlaceholder": "наприклад, вечір Catan із доповненнями",
+      "titleHint": "{{min}}–{{max}} символів",
+      "gameTitle": "Назва настільної гри",
+      "gameTitlePlaceholder": "наприклад, Catan, Dune: Imperium, Wingspan…",
+      "description": "Опис",
+      "descriptionPlaceholder": "У що гратимете, рівень досвіду, правила, що взяти з собою…",
+      "date": "Дата",
+      "time": "Час початку",
+      "city": "Місто",
+      "address": "Адреса або заклад",
+      "addressPlaceholder": "Вулиця, будинок або назва закладу",
+      "addressHint": "Вкажіть повну адресу або назву закладу",
+      "seats": "Максимум гравців",
+      "seatsHint": "Разом із вами, {{min}}–{{max}} гравців",
+      "seatsDecrease": "Менше місць",
+      "seatsIncrease": "Більше місць",
+      "price": "Ціна для гравця (грн)",
+      "priceHint": "Вкажіть 0 для безкоштовної гри"
+    }
+  }
+}

@@ -48,14 +48,14 @@ Production-ready monorepo for the **YupiBoard** project, featuring a three-tier 
 - **Forms & Validation**: **React Hook Form** + **Zod**.
 - **Styling**: **Tailwind CSS v4** + **shadcn/ui** design system (Glassmorphism, Dark Mode) + **Lucide Icons**.
 - **API Integration**: **Orval** (code generation of React Query hooks and TypeScript models from FastAPI `/openapi.json`).
+- **i18n**: **i18next** (`en`, `uk`).
+- **Code Quality**: **oxlint** (type-aware linter via oxlint-tsgolint), **Prettier** (formatter, semicolons), **knip** (dead code), **dependency-cruiser** (layer boundaries), plus i18n and platform checks. Configs live in `frontend/tooling/`; rules are in [`frontend/RULES.md`](frontend/RULES.md).
 
-### 📱 Mobile Runtime (`mobile/`)
+### 📱 Android App (`frontend/android/`)
 
-- **Capacitor 8**:
-  - `@capacitor/core`, `@capacitor/cli`
-  - `@capacitor/preferences` (secure token storage on iOS / Android)
-  - `@capacitor/browser` (OAuth web authentication)
-  - Bundling: consumes the production build from `../frontend/dist`.
+- **Capacitor 8**: the frontend bundle runs in an Android WebView; `frontend/capacitor.config.ts` and the native project live in `frontend/`.
+- **Plugins**: `app` (back button, App Links), `preferences` (token storage), `geolocation`, `keyboard`, `share`, `status-bar`.
+- **Build requirements**: Android Studio or the Android SDK (`ANDROID_HOME`), and JDK 21+ (`pnpm fe cap:build` uses Android Studio's bundled JDK when `JAVA_HOME` is unset or older).
 
 ---
 
@@ -96,12 +96,10 @@ In separate terminals:
 
 ```bash
 # FastAPI backend (port 8080)
-pnpm dev:backend
+pnpm be dev
 
 # Vite frontend (port 5173)
-pnpm dev:frontend
-# or simply:
-pnpm dev
+pnpm fe dev
 ```
 
 The application is now accessible via secure local endpoints:
@@ -114,21 +112,56 @@ The application is now accessible via secure local endpoints:
 
 ## 📜 Key Commands (pnpm / package.json)
 
-| Command              | Description                                                          |
-| -------------------- | -------------------------------------------------------------------- |
-| `pnpm run setup`     | Generate SSL certificates, install pnpm dependencies, and `uv sync`  |
-| `pnpm docker:up`     | Start PostgreSQL, Traefik, Mailpit, and pgweb in the background      |
-| `pnpm docker:down`   | Stop Docker containers                                               |
-| `pnpm docker:down:v` | Stop Docker containers and remove persistent volumes                 |
-| `pnpm migrate`       | Apply Alembic migrations                                             |
-| `pnpm generate:api`  | Export `openapi.json` from FastAPI and run Orval code generation     |
-| `pnpm dev:backend`   | Start FastAPI server via `uv run fastapi dev`                        |
-| `pnpm dev:frontend`  | Start Vite dev server (`pnpm dev`)                                   |
-| `pnpm test`          | Run backend tests (`pytest`)                                         |
-| `pnpm lint`          | Run linters: `oxlint` for React, `ruff` and `ty` for Python          |
-| `pnpm format`        | Format backend code (`ruff format`)                                  |
-| `pnpm mobile:copy`   | Build frontend and copy bundle to Capacitor                          |
-| `pnpm mobile:sync`   | Build frontend and sync Capacitor plugins/web assets                 |
+Run everything from the repository root. Two shortcuts forward to the right part:
+
+- `pnpm fe <script>` runs a script of [`frontend/package.json`](frontend/package.json).
+- `pnpm be <script>` runs a script of [`backend/package.json`](backend/package.json).
+
+Plain `pnpm fe` or `pnpm be` lists the available scripts.
+
+### Project commands
+
+| Command                | Description                                                           |
+| ---------------------- | --------------------------------------------------------------------- |
+| `pnpm run setup`       | Generate SSL certificates, install pnpm dependencies, and `uv sync`   |
+| `pnpm run setup:certs` | Generate SSL certificates only                                        |
+| `pnpm docker:up`       | Start PostgreSQL, Traefik, Mailpit, and pgweb in the background       |
+| `pnpm docker:down`     | Stop Docker containers                                                |
+| `pnpm docker:down:v`   | Stop Docker containers and remove persistent volumes                  |
+| `pnpm migrate`         | Apply Alembic migrations                                              |
+| `pnpm generate:api`    | Export `openapi.json` from FastAPI and regenerate the frontend client |
+| `pnpm lint`            | Lint frontend and backend                                             |
+| `pnpm format`          | Format frontend and backend                                           |
+| `pnpm test`            | Run backend tests (`pytest`)                                          |
+
+### Backend commands
+
+| Command           | Description                                          |
+| ----------------- | ---------------------------------------------------- |
+| `pnpm be dev`     | Start FastAPI server via `uv run fastapi dev`        |
+| `pnpm be sync`    | `uv sync`                                            |
+| `pnpm be migrate` | Apply Alembic migrations                             |
+| `pnpm be lint`    | `ruff check` and `ty check`                          |
+| `pnpm be format`  | `ruff format`                                        |
+| `pnpm be test`    | Run tests (`pytest`)                                 |
+| `pnpm be openapi` | Export the schema to `frontend/openapi/openapi.json` |
+
+### Frontend commands
+
+The most used ones; every script is listed in [`frontend/README.md`](frontend/README.md#scripts).
+
+| Command               | Description                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------------- |
+| `pnpm fe dev`         | Start Vite dev server (port 5173)                                                        |
+| `pnpm fe build`       | Typecheck and build the frontend into `frontend/dist`                                    |
+| `pnpm fe check`       | All frontend checks: types, lint, formatting, dead code, layers, i18n                    |
+| `pnpm fe fix`         | Apply lint auto-fixes and Prettier formatting                                            |
+| `pnpm fe cap:sync`    | Build the web app and copy it into the Android project                                   |
+| `pnpm fe cap:android` | Open the Android project in Android Studio                                               |
+| `pnpm fe cap:build`   | Sync, then build a debug APK (`frontend/android/app/build/outputs/apk/debug`)            |
+| `pnpm fe cap:run`     | Sync, install and start the app on a USB phone or emulator, with the local API reachable |
+
+Android build requirements are listed under [Android App](#-android-app-frontendandroid).
 
 ---
 

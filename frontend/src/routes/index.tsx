@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { EventCatalogPage } from "@/components/pages/EventCatalogPage"
-import { catalogSearchSchema } from "@/lib/events"
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
+// `/` and `/events` are one page (RT-5).
 export const Route = createFileRoute("/")({
-  validateSearch: catalogSearchSchema,
-  component: EventCatalogPage,
-})
+  beforeLoad: () => {
+    throw redirect({ to: "/events", replace: true });
+  },
+});

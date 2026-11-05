@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config>
+        <trust-anchors>
+            <certificates src="system" />
+            <!-- The developer's mkcert root CA, copied in by tooling/android-dev-ca.mjs (git-ignored). -->
+            <certificates src="@raw/dev_ca" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
