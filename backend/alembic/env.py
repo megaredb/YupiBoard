@@ -13,6 +13,7 @@ from app.core.models import Base
 from app.modules.auth.models import RefreshToken  # noqa: F401
 from app.modules.bookings.models import Booking  # noqa: F401
 from app.modules.events.models import Event  # noqa: F401
+from app.modules.notifications.models import Notification  # noqa: F401
 from app.modules.users.models import User  # noqa: F401
 
 config = context.config
