@@ -1,5 +1,7 @@
 import uuid
+from collections.abc import Sequence
 from datetime import UTC, datetime
+from typing import Literal
 
 from app.core.exceptions import (
     BadRequestException,
@@ -61,3 +63,106 @@ class BookingService:
             user_id=player.id,
             status=BookingStatus.PENDING,
         )
+
+    async def list_for_user(
+        self,
+        user_id: uuid.UUID,
+        page: int,
+        limit: int,
+        sort_by: Literal["date", "name"] = "date",
+        sort_order: Literal["asc", "desc"] = "desc",
+    ):
+        return await self.booking_repo.list_for_user(
+            user_id, page, limit, sort_by, sort_order
+        )
+
+    async def list_for_event(
+        self,
+        event_id: uuid.UUID,
+        user: User,
+        page: int,
+        limit: int,
+        sort_by: Literal["date", "name"] = "date",
+        sort_order: Literal["asc", "desc"] = "desc",
+    ):
+        event = await self.event_repo.get_by_id(event_id)
+        if event is None or event.is_deleted:
+            raise NotFoundException("Event not found")
+        if event.organizer_id != user.id and not user.is_superuser:
+            raise ForbiddenException("Only the event organizer can view event bookings")
+        return await self.booking_repo.list_for_event(
+            event_id, page, limit, sort_by, sort_order
+        )
+
+    async def decide(
+        self,
+        event_id: uuid.UUID,
+        booking_id: uuid.UUID,
+        organizer: User,
+        approve: bool,
+    ) -> Booking:
+        event = await self.event_repo.lock_event(event_id)
+        if event is None:
+            raise NotFoundException("Event not found")
+        if event.organizer_id != organizer.id and not organizer.is_superuser:
+            raise ForbiddenException("Only the event organizer can decide on bookings")
+        if event.start_datetime <= datetime.now(UTC):
+            raise BadRequestException("Booking changes are closed after the start time")
+        booking = await self.booking_repo.get_by_id_for_event(booking_id, event_id)
+        if booking is None:
+            raise NotFoundException("Booking not found")
+        if booking.status != BookingStatus.PENDING:
+            raise BadRequestException("Only pending bookings can be decided")
+        if not approve:
+            return await self.booking_repo.update(
+                booking, status=BookingStatus.REJECTED
+            )
+        if event.current_confirmed >= event.max_players:
+            return await self.booking_repo.update(
+                booking, status=BookingStatus.WAITLIST
+            )
+        await self.event_repo.update(
+            event, current_confirmed=event.current_confirmed + 1
+        )
+        return await self.booking_repo.update(booking, status=BookingStatus.CONFIRMED)
+
+    async def cancel_for_player(
+        self, event_id: uuid.UUID, player_id: uuid.UUID
+    ) -> Booking:
+        event = await self.event_repo.lock_event(event_id)
+        if event is None:
+            raise NotFoundException("Event not found")
+        if event.start_datetime <= datetime.now(UTC):
+            raise BadRequestException(
+                "Registration cancellation is closed after the start time"
+            )
+        booking = await self.booking_repo.get_active_booking(event_id, player_id)
+        if booking is None:
+            raise NotFoundException("Active booking not found")
+        if booking.status == BookingStatus.CONFIRMED:
+            # probably bad idea who cares anyway
+            await self.event_repo.update(
+                event, current_confirmed=max(0, event.current_confirmed - 1)
+            )
+        return await self.booking_repo.update(
+            booking, status=BookingStatus.CANCELLED_BY_PLAYER
+        )
+
+    async def list_confirmed_participants(
+        self, event_id: uuid.UUID, viewer: User
+    ) -> Sequence[User]:
+        event = await self.event_repo.get_by_id(event_id)
+        if event is None or event.is_deleted:
+            raise NotFoundException("Event not found")
+
+        is_host = event.organizer_id == viewer.id or viewer.is_superuser
+        if not is_host:
+            is_confirmed = await self.booking_repo.is_confirmed_participant(
+                event_id, viewer.id
+            )
+            if not is_confirmed:
+                raise ForbiddenException(
+                    "Participants list is only visible to confirmed players and event host"
+                )
+
+        return await self.booking_repo.get_confirmed_participants(event_id)

@@ -22,7 +22,7 @@ from app.core.security import (
     hash_token,
     verify_password,
 )
-from app.modules.auth.repository import RefreshTokenRepository
+from app.modules.auth.repository import ActionTokenRepository, RefreshTokenRepository
 from app.modules.auth.schemas import LoginRequest, RegisterRequest
 from app.modules.users.enums import UserStatus
 from app.modules.users.models import User
@@ -35,10 +35,12 @@ class AuthService:
         user_repo: UserRepository,
         token_repo: RefreshTokenRepository,
         mail_service: MailService,
+        action_token_repo: ActionTokenRepository | None = None,
     ) -> None:
         self.user_repo = user_repo
         self.token_repo = token_repo
         self.mail_service = mail_service
+        self.action_token_repo = action_token_repo
 
     async def _issue_tokens(self, user: User) -> tuple[str, str]:
         access_token = create_access_token(
@@ -151,24 +153,64 @@ class AuthService:
         return await self.user_repo.update(user, is_verified=True)
 
     async def request_password_reset(self, email: str) -> None:
-        user = await self.user_repo.get_by_email(email)
+        user = await self.user_repo.get_by_email(email.strip().lower())
         if not user:
             # Don't leak user existence
             return
 
+        if self.action_token_repo:
+            await self.action_token_repo.invalidate_all_for_user(
+                user.id, token_type="reset_password"
+            )
+
         reset_token = create_action_token(subject=str(user.id), action="reset_password")
+        payload = decode_token(reset_token, expected_type="reset_password")
+        jti = payload["jti"]
+        expires_at = datetime.fromtimestamp(payload["exp"], tz=UTC)
+
+        if self.action_token_repo:
+            await self.action_token_repo.create(
+                jti=jti,
+                user_id=user.id,
+                token_type="reset_password",
+                is_used=False,
+                expires_at=expires_at,
+            )
+
         await self.mail_service.send_password_reset_email(user.email, reset_token)
 
     async def confirm_password_reset(self, token_str: str, new_password: str) -> User:
-        payload = decode_token(token_str, expected_type="reset_password")
+        try:
+            payload = decode_token(token_str, expected_type="reset_password")
+        except UnauthorizedException as e:
+            raise BadRequestException(f"Invalid password reset token: {e.detail}")
+
         user_id_str = payload.get("sub")
-        if not user_id_str:
+        jti = payload.get("jti")
+        if not user_id_str or not jti:
             raise BadRequestException("Invalid password reset token")
 
         user_id = uuid.UUID(user_id_str)
         user = await self.user_repo.get_by_id(user_id)
         if not user:
             raise NotFoundException("User not found")
+
+        if self.action_token_repo:
+            action_token = await self.action_token_repo.get_by_jti(jti)
+            if (
+                not action_token
+                or action_token.token_type != "reset_password"
+                or action_token.user_id != user.id
+            ):
+                raise BadRequestException(
+                    "Invalid or unrecognized password reset token"
+                )
+            if action_token.is_used:
+                raise BadRequestException("Password reset token has already been used")
+            if action_token.expires_at < datetime.now(UTC):
+                raise BadRequestException("Password reset token has expired")
+
+            await self.action_token_repo.mark_used(action_token)
 
         hashed_pwd = get_password_hash(new_password)
         updated_user = await self.user_repo.update(user, hashed_password=hashed_pwd)
@@ -177,14 +219,24 @@ class AuthService:
         return updated_user
 
     async def google_authenticate(self, id_token_str: str) -> tuple[User, str, str]:
+        if not settings.GOOGLE_CLIENT_ID:
+            raise BadRequestException(
+                "Google authentication is not configured on the server"
+            )
+
         try:
             req = google_requests.Request()
-            audience = settings.GOOGLE_CLIENT_ID if settings.GOOGLE_CLIENT_ID else None
             claims = google_id_token.verify_oauth2_token(
-                id_token_str, req, audience=audience
+                id_token_str, req, audience=settings.GOOGLE_CLIENT_ID
             )
         except (ValueError, GoogleAuthError) as e:
             raise BadRequestException(f"Failed to verify Google token: {e}")
+
+        if claims.get("aud") != settings.GOOGLE_CLIENT_ID:
+            raise BadRequestException("Token audience does not match GOOGLE_CLIENT_ID")
+
+        if claims.get("email_verified") is not True:
+            raise BadRequestException("Google account email is not verified")
 
         email = claims.get("email")
         google_sub = claims.get("sub")
@@ -194,14 +246,20 @@ class AuthService:
         if not email or not google_sub:
             raise BadRequestException("Missing required claims in Google token")
 
+        normalized_email = email.strip().lower()
+
         user = await self.user_repo.get_by_google_sub(google_sub)
         if not user:
-            user = await self.user_repo.get_by_email(email)
+            user = await self.user_repo.get_by_email(normalized_email)
             if user:
+                if user.google_sub is not None and user.google_sub != google_sub:
+                    raise ConflictException(
+                        "Email is already linked to another Google account"
+                    )
                 user = await self.user_repo.update(
                     user,
                     google_sub=google_sub,
-                    avatar_url=picture or user.avatar_url,
+                    avatar_url=user.avatar_url or picture,
                     is_verified=True,
                 )
             else:
@@ -213,7 +271,7 @@ class AuthService:
                     family_name = parts[1] if len(parts) > 1 else None
 
                 user = await self.user_repo.create(
-                    email=email.strip().lower(),
+                    email=normalized_email,
                     first_name=given_name,
                     last_name=family_name,
                     google_sub=google_sub,

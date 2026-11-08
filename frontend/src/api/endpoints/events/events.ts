@@ -30,8 +30,11 @@ import type {
   EventImageUploadResponse,
   EventPage,
   EventRead,
+  EventUpdate,
   HTTPValidationError,
-  ListEventsApiV1EventsGetParams
+  ListEventsApiV1EventsGetParams,
+  ListMyCreatedEventsApiV1EventsMyCreatedGetParams,
+  ListMyParticipatingEventsApiV1EventsMyParticipatingGetParams
 } from '../../model';
 
 import { customInstance } from '../../../lib/axios.ts';
@@ -193,7 +196,7 @@ export const useCreateEventApiV1EventsPost = <TError = HTTPValidationError,
       return useMutation(getCreateEventApiV1EventsPostMutationOptions(options), queryClient);
     }
     /**
- * @summary Browse nearby published events
+ * @summary Search, filter and sort active published events
  */
 export const listEventsApiV1EventsGet = (
     params?: ListEventsApiV1EventsGetParams,
@@ -265,7 +268,7 @@ export function useListEventsApiV1EventsGet<TData = Awaited<ReturnType<typeof li
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Browse nearby published events
+ * @summary Search, filter and sort active published events
  */
 
 export function useListEventsApiV1EventsGet<TData = Awaited<ReturnType<typeof listEventsApiV1EventsGet>>, TError = HTTPValidationError>(
@@ -286,7 +289,193 @@ export function useListEventsApiV1EventsGet<TData = Awaited<ReturnType<typeof li
 
 
 /**
- * @summary Retrieve public details of a published event
+ * @summary List events created by me
+ */
+export const listMyCreatedEventsApiV1EventsMyCreatedGet = (
+    params?: ListMyCreatedEventsApiV1EventsMyCreatedGetParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
+      return customInstance<EventPage>(
+      {url: `/api/v1/events/my/created`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+
+
+
+
+export const getListMyCreatedEventsApiV1EventsMyCreatedGetQueryKey = (params?: ListMyCreatedEventsApiV1EventsMyCreatedGetParams,) => {
+    return [
+    `/api/v1/events/my/created`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListMyCreatedEventsApiV1EventsMyCreatedGetQueryOptions = <TData = Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>, TError = HTTPValidationError>(params?: ListMyCreatedEventsApiV1EventsMyCreatedGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMyCreatedEventsApiV1EventsMyCreatedGetQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>> = ({ signal }) => listMyCreatedEventsApiV1EventsMyCreatedGet(params, requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListMyCreatedEventsApiV1EventsMyCreatedGetQueryResult = NonNullable<Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>>
+export type ListMyCreatedEventsApiV1EventsMyCreatedGetQueryError = HTTPValidationError
+
+
+export function useListMyCreatedEventsApiV1EventsMyCreatedGet<TData = Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>, TError = HTTPValidationError>(
+ params: undefined |  ListMyCreatedEventsApiV1EventsMyCreatedGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>,
+          TError,
+          Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMyCreatedEventsApiV1EventsMyCreatedGet<TData = Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>, TError = HTTPValidationError>(
+ params?: ListMyCreatedEventsApiV1EventsMyCreatedGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>,
+          TError,
+          Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMyCreatedEventsApiV1EventsMyCreatedGet<TData = Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>, TError = HTTPValidationError>(
+ params?: ListMyCreatedEventsApiV1EventsMyCreatedGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List events created by me
+ */
+
+export function useListMyCreatedEventsApiV1EventsMyCreatedGet<TData = Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>, TError = HTTPValidationError>(
+ params?: ListMyCreatedEventsApiV1EventsMyCreatedGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyCreatedEventsApiV1EventsMyCreatedGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListMyCreatedEventsApiV1EventsMyCreatedGetQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+/**
+ * @summary List events where I participate
+ */
+export const listMyParticipatingEventsApiV1EventsMyParticipatingGet = (
+    params?: ListMyParticipatingEventsApiV1EventsMyParticipatingGetParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
+      return customInstance<EventPage>(
+      {url: `/api/v1/events/my/participating`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+
+
+
+
+export const getListMyParticipatingEventsApiV1EventsMyParticipatingGetQueryKey = (params?: ListMyParticipatingEventsApiV1EventsMyParticipatingGetParams,) => {
+    return [
+    `/api/v1/events/my/participating`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListMyParticipatingEventsApiV1EventsMyParticipatingGetQueryOptions = <TData = Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>, TError = HTTPValidationError>(params?: ListMyParticipatingEventsApiV1EventsMyParticipatingGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListMyParticipatingEventsApiV1EventsMyParticipatingGetQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>> = ({ signal }) => listMyParticipatingEventsApiV1EventsMyParticipatingGet(params, requestOptions, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListMyParticipatingEventsApiV1EventsMyParticipatingGetQueryResult = NonNullable<Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>>
+export type ListMyParticipatingEventsApiV1EventsMyParticipatingGetQueryError = HTTPValidationError
+
+
+export function useListMyParticipatingEventsApiV1EventsMyParticipatingGet<TData = Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>, TError = HTTPValidationError>(
+ params: undefined |  ListMyParticipatingEventsApiV1EventsMyParticipatingGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>,
+          TError,
+          Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMyParticipatingEventsApiV1EventsMyParticipatingGet<TData = Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>, TError = HTTPValidationError>(
+ params?: ListMyParticipatingEventsApiV1EventsMyParticipatingGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>,
+          TError,
+          Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListMyParticipatingEventsApiV1EventsMyParticipatingGet<TData = Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>, TError = HTTPValidationError>(
+ params?: ListMyParticipatingEventsApiV1EventsMyParticipatingGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List events where I participate
+ */
+
+export function useListMyParticipatingEventsApiV1EventsMyParticipatingGet<TData = Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>, TError = HTTPValidationError>(
+ params?: ListMyParticipatingEventsApiV1EventsMyParticipatingGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listMyParticipatingEventsApiV1EventsMyParticipatingGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListMyParticipatingEventsApiV1EventsMyParticipatingGetQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+/**
+ * @summary Retrieve public details of an event
  */
 export const getEventApiV1EventsEventIdGet = (
     eventId: string,
@@ -357,7 +546,7 @@ export function useGetEventApiV1EventsEventIdGet<TData = Awaited<ReturnType<type
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Retrieve public details of a published event
+ * @summary Retrieve public details of an event
  */
 
 export function useGetEventApiV1EventsEventIdGet<TData = Awaited<ReturnType<typeof getEventApiV1EventsEventIdGet>>, TError = HTTPValidationError>(
@@ -377,3 +566,136 @@ export function useGetEventApiV1EventsEventIdGet<TData = Awaited<ReturnType<type
 
 
 
+/**
+ * @summary Organizer updates event details before start time
+ */
+export const updateEventApiV1EventsEventIdPatch = (
+    eventId: string,
+    eventUpdate: EventUpdate,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
+      return customInstance<EventRead>(
+      {url: `/api/v1/events/${eventId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: eventUpdate, signal
+    },
+      options);
+    }
+
+
+
+
+export const getUpdateEventApiV1EventsEventIdPatchMutationKey = () => ['updateEventApiV1EventsEventIdPatch'] as const;
+
+export const getUpdateEventApiV1EventsEventIdPatchMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEventApiV1EventsEventIdPatch>>, TError,UpdateEventApiV1EventsEventIdPatchMutationVariables, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateEventApiV1EventsEventIdPatch>>, TError,UpdateEventApiV1EventsEventIdPatchMutationVariables, TContext> => {
+
+const mutationKey = getUpdateEventApiV1EventsEventIdPatchMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateEventApiV1EventsEventIdPatch>>, UpdateEventApiV1EventsEventIdPatchMutationVariables> = (props) => {
+          const {eventId,data} = props ?? {};
+
+          return  updateEventApiV1EventsEventIdPatch(eventId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateEventApiV1EventsEventIdPatchMutationResult = NonNullable<Awaited<ReturnType<typeof updateEventApiV1EventsEventIdPatch>>>
+    export type UpdateEventApiV1EventsEventIdPatchMutationBody = EventUpdate
+    export type UpdateEventApiV1EventsEventIdPatchMutationError = HTTPValidationError
+    export type UpdateEventApiV1EventsEventIdPatchMutationVariables = {eventId: string;data: EventUpdate}
+
+    /**
+ * @summary Organizer updates event details before start time
+ */
+export const useUpdateEventApiV1EventsEventIdPatch = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEventApiV1EventsEventIdPatch>>, TError,UpdateEventApiV1EventsEventIdPatchMutationVariables, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateEventApiV1EventsEventIdPatch>>,
+        TError,
+        UpdateEventApiV1EventsEventIdPatchMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateEventApiV1EventsEventIdPatchMutationOptions(options), queryClient);
+    }
+    /**
+ * @summary Cancel Event
+ */
+export const cancelEventApiV1EventsEventIdDelete = (
+    eventId: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
+      return customInstance<void>(
+      {url: `/api/v1/events/${eventId}`, method: 'DELETE', signal
+    },
+      options);
+    }
+
+
+
+
+export const getCancelEventApiV1EventsEventIdDeleteMutationKey = () => ['cancelEventApiV1EventsEventIdDelete'] as const;
+
+export const getCancelEventApiV1EventsEventIdDeleteMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancelEventApiV1EventsEventIdDelete>>, TError,CancelEventApiV1EventsEventIdDeleteMutationVariables, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof cancelEventApiV1EventsEventIdDelete>>, TError,CancelEventApiV1EventsEventIdDeleteMutationVariables, TContext> => {
+
+const mutationKey = getCancelEventApiV1EventsEventIdDeleteMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cancelEventApiV1EventsEventIdDelete>>, CancelEventApiV1EventsEventIdDeleteMutationVariables> = (props) => {
+          const {eventId} = props ?? {};
+
+          return  cancelEventApiV1EventsEventIdDelete(eventId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CancelEventApiV1EventsEventIdDeleteMutationResult = NonNullable<Awaited<ReturnType<typeof cancelEventApiV1EventsEventIdDelete>>>
+
+    export type CancelEventApiV1EventsEventIdDeleteMutationError = HTTPValidationError
+    export type CancelEventApiV1EventsEventIdDeleteMutationVariables = {eventId: string}
+
+    /**
+ * @summary Cancel Event
+ */
+export const useCancelEventApiV1EventsEventIdDelete = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cancelEventApiV1EventsEventIdDelete>>, TError,CancelEventApiV1EventsEventIdDeleteMutationVariables, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof cancelEventApiV1EventsEventIdDelete>>,
+        TError,
+        CancelEventApiV1EventsEventIdDeleteMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCancelEventApiV1EventsEventIdDeleteMutationOptions(options), queryClient);
+    }

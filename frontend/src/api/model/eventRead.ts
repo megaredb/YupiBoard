@@ -13,6 +13,7 @@ export interface EventRead {
   title: string;
   description: string;
   game_title: string;
+  location_name?: string | null;
   address: string;
   city: string;
   /**
@@ -36,6 +37,7 @@ export interface EventRead {
   status: EventStatus;
   is_verified: boolean;
   is_promoted: boolean;
+  is_favorite?: boolean;
   organizer: EventOrganizerSummary;
   created_at: string;
   updated_at: string;

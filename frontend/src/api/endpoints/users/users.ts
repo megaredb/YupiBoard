@@ -25,10 +25,12 @@ import type {
 
 import type {
   BodyUploadAvatarApiV1UsersMeAvatarPost,
+  BodyUploadBannerApiV1UsersMeBannerPost,
   HTTPValidationError,
   ListUsersApiV1UsersGetParams,
   MessageResponse,
   PasswordChangeRequest,
+  UserPublicRead,
   UserRead,
   UserUpdate
 } from '../../model';
@@ -80,7 +82,7 @@ export const getGetCurrentUserProfileApiV1UsersMeGetQueryKey = () => {
     }
 
 
-export const getGetCurrentUserProfileApiV1UsersMeGetQueryOptions = <TData = Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError = HTTPValidationError>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export const getGetCurrentUserProfileApiV1UsersMeGetQueryOptions = <TData = Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -99,10 +101,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetCurrentUserProfileApiV1UsersMeGetQueryResult = NonNullable<Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>>
-export type GetCurrentUserProfileApiV1UsersMeGetQueryError = HTTPValidationError
+export type GetCurrentUserProfileApiV1UsersMeGetQueryError = unknown
 
 
-export function useGetCurrentUserProfileApiV1UsersMeGet<TData = Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError = HTTPValidationError>(
+export function useGetCurrentUserProfileApiV1UsersMeGet<TData = Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>,
@@ -112,7 +114,7 @@ export function useGetCurrentUserProfileApiV1UsersMeGet<TData = Awaited<ReturnTy
       >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetCurrentUserProfileApiV1UsersMeGet<TData = Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError = HTTPValidationError>(
+export function useGetCurrentUserProfileApiV1UsersMeGet<TData = Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>,
@@ -122,7 +124,7 @@ export function useGetCurrentUserProfileApiV1UsersMeGet<TData = Awaited<ReturnTy
       >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetCurrentUserProfileApiV1UsersMeGet<TData = Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError = HTTPValidationError>(
+export function useGetCurrentUserProfileApiV1UsersMeGet<TData = Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -130,7 +132,7 @@ export function useGetCurrentUserProfileApiV1UsersMeGet<TData = Awaited<ReturnTy
  * @summary Get Current User Profile
  */
 
-export function useGetCurrentUserProfileApiV1UsersMeGet<TData = Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError = HTTPValidationError>(
+export function useGetCurrentUserProfileApiV1UsersMeGet<TData = Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserProfileApiV1UsersMeGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -148,6 +150,71 @@ export function useGetCurrentUserProfileApiV1UsersMeGet<TData = Awaited<ReturnTy
 
 
 /**
+ * @summary Delete Current User
+ */
+export const deleteCurrentUserApiV1UsersMeDelete = (
+
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+
+      return customInstance<void>(
+      {url: `/api/v1/users/me`, method: 'DELETE', signal
+    },
+      options);
+    }
+
+
+
+
+export const getDeleteCurrentUserApiV1UsersMeDeleteMutationKey = () => ['deleteCurrentUserApiV1UsersMeDelete'] as const;
+
+export const getDeleteCurrentUserApiV1UsersMeDeleteMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCurrentUserApiV1UsersMeDelete>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteCurrentUserApiV1UsersMeDelete>>, TError,void, TContext> => {
+
+const mutationKey = getDeleteCurrentUserApiV1UsersMeDeleteMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCurrentUserApiV1UsersMeDelete>>, void> = () => {
+
+
+          return  deleteCurrentUserApiV1UsersMeDelete(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteCurrentUserApiV1UsersMeDeleteMutationResult = NonNullable<Awaited<ReturnType<typeof deleteCurrentUserApiV1UsersMeDelete>>>
+
+    export type DeleteCurrentUserApiV1UsersMeDeleteMutationError = unknown
+
+
+    /**
+ * @summary Delete Current User
+ */
+export const useDeleteCurrentUserApiV1UsersMeDelete = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCurrentUserApiV1UsersMeDelete>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteCurrentUserApiV1UsersMeDelete>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getDeleteCurrentUserApiV1UsersMeDeleteMutationOptions(options), queryClient);
+    }
+    /**
  * @summary Update Current User Profile
  */
 export const updateCurrentUserProfileApiV1UsersMePatch = (
@@ -213,71 +280,6 @@ export const useUpdateCurrentUserProfileApiV1UsersMePatch = <TError = HTTPValida
         TContext
       > => {
       return useMutation(getUpdateCurrentUserProfileApiV1UsersMePatchMutationOptions(options), queryClient);
-    }
-    /**
- * @summary Delete Current User
- */
-export const deleteCurrentUserApiV1UsersMeDelete = (
-
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-
-
-      return customInstance<void>(
-      {url: `/api/v1/users/me`, method: 'DELETE', signal
-    },
-      options);
-    }
-
-
-
-
-export const getDeleteCurrentUserApiV1UsersMeDeleteMutationKey = () => ['deleteCurrentUserApiV1UsersMeDelete'] as const;
-
-export const getDeleteCurrentUserApiV1UsersMeDeleteMutationOptions = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCurrentUserApiV1UsersMeDelete>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteCurrentUserApiV1UsersMeDelete>>, TError,void, TContext> => {
-
-const mutationKey = getDeleteCurrentUserApiV1UsersMeDeleteMutationKey();
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCurrentUserApiV1UsersMeDelete>>, void> = () => {
-
-
-          return  deleteCurrentUserApiV1UsersMeDelete(requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteCurrentUserApiV1UsersMeDeleteMutationResult = NonNullable<Awaited<ReturnType<typeof deleteCurrentUserApiV1UsersMeDelete>>>
-
-    export type DeleteCurrentUserApiV1UsersMeDeleteMutationError = HTTPValidationError
-
-
-    /**
- * @summary Delete Current User
- */
-export const useDeleteCurrentUserApiV1UsersMeDelete = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCurrentUserApiV1UsersMeDelete>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof deleteCurrentUserApiV1UsersMeDelete>>,
-        TError,
-        void,
-        TContext
-      > => {
-      return useMutation(getDeleteCurrentUserApiV1UsersMeDeleteMutationOptions(options), queryClient);
     }
     /**
  * @summary Change password of current user
@@ -416,6 +418,75 @@ export const useUploadAvatarApiV1UsersMeAvatarPost = <TError = HTTPValidationErr
       return useMutation(getUploadAvatarApiV1UsersMeAvatarPostMutationOptions(options), queryClient);
     }
     /**
+ * @summary Upload profile banner image (max 5 MB, JPEG/PNG/WebP, converted to WebP)
+ */
+export const uploadBannerApiV1UsersMeBannerPost = (
+    bodyUploadBannerApiV1UsersMeBannerPost: BodyUploadBannerApiV1UsersMeBannerPost,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+
+      const formData = new FormData();
+formData.append(`file`, bodyUploadBannerApiV1UsersMeBannerPost.file);
+
+      return customInstance<UserRead>(
+      {url: `/api/v1/users/me/banner`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData, signal
+    },
+      options);
+    }
+
+
+
+
+export const getUploadBannerApiV1UsersMeBannerPostMutationKey = () => ['uploadBannerApiV1UsersMeBannerPost'] as const;
+
+export const getUploadBannerApiV1UsersMeBannerPostMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadBannerApiV1UsersMeBannerPost>>, TError,UploadBannerApiV1UsersMeBannerPostMutationVariables, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadBannerApiV1UsersMeBannerPost>>, TError,UploadBannerApiV1UsersMeBannerPostMutationVariables, TContext> => {
+
+const mutationKey = getUploadBannerApiV1UsersMeBannerPostMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadBannerApiV1UsersMeBannerPost>>, UploadBannerApiV1UsersMeBannerPostMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  uploadBannerApiV1UsersMeBannerPost(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadBannerApiV1UsersMeBannerPostMutationResult = NonNullable<Awaited<ReturnType<typeof uploadBannerApiV1UsersMeBannerPost>>>
+    export type UploadBannerApiV1UsersMeBannerPostMutationBody = BodyUploadBannerApiV1UsersMeBannerPost
+    export type UploadBannerApiV1UsersMeBannerPostMutationError = HTTPValidationError
+    export type UploadBannerApiV1UsersMeBannerPostMutationVariables = {data: BodyUploadBannerApiV1UsersMeBannerPost}
+
+    /**
+ * @summary Upload profile banner image (max 5 MB, JPEG/PNG/WebP, converted to WebP)
+ */
+export const useUploadBannerApiV1UsersMeBannerPost = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadBannerApiV1UsersMeBannerPost>>, TError,UploadBannerApiV1UsersMeBannerPostMutationVariables, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof uploadBannerApiV1UsersMeBannerPost>>,
+        TError,
+        UploadBannerApiV1UsersMeBannerPostMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUploadBannerApiV1UsersMeBannerPostMutationOptions(options), queryClient);
+    }
+    /**
  * @summary List Users
  */
 export const listUsersApiV1UsersGet = (
@@ -517,7 +588,7 @@ export const getUserApiV1UsersUserIdGet = (
 ) => {
 
 
-      return customInstance<UserRead>(
+      return customInstance<UserPublicRead>(
       {url: `/api/v1/users/${userId}`, method: 'GET', signal
     },
       options);

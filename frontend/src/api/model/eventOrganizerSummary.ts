@@ -8,5 +8,6 @@
 export interface EventOrganizerSummary {
   id: string;
   name: string;
+  avatar_url?: string | null;
   rating_as_organizer?: string | null;
 }

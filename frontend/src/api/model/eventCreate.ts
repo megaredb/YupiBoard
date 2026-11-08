@@ -21,6 +21,7 @@ export interface EventCreate {
      * @maxLength 150
      */
   game_title: string;
+  location_name?: string | null;
   /**
      * @minLength 1
      * @maxLength 255

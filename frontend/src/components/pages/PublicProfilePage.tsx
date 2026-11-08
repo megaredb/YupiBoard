@@ -50,11 +50,11 @@ export function PublicProfilePage() {
     [user?.first_name, user?.last_name]
       .filter(Boolean)
       .join(" ")
-      .trim() || user?.email || dash
-  const firstName = user?.first_name?.trim() || user?.email || dash
+      .trim() || (user as any)?.email || dash
+  const firstName = user?.first_name?.trim() || (user as any)?.email || dash
   const city = user?.city || (user as any)?.location || dash
-  const bio = (user as any)?.bio || dash
-  const contact = user?.contact_info || (user as any)?.contacts || dash
+  const bio = user?.bio || dash
+  const contact = (user as any)?.contact_info || (user as any)?.contacts || dash
   const avatarUrl = user?.avatar_url
   const bannerUrl = (user as any)?.banner_url
 
@@ -71,7 +71,7 @@ export function PublicProfilePage() {
 
   const initials = (
     `${user?.first_name?.trim()?.[0] ?? ""}${user?.last_name?.trim()?.[0] ?? ""}` ||
-    user?.email?.[0] ||
+    (user as any)?.email?.[0] ||
     dash
   ).toUpperCase()
 

@@ -9,6 +9,8 @@ export interface UserUpdate {
   first_name?: string | null;
   last_name?: string | null;
   avatar_url?: string | null;
+  banner_url?: string | null;
   city?: string | null;
   contact_info?: string | null;
+  bio?: string | null;
 }

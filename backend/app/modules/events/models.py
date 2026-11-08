@@ -62,6 +62,7 @@ class Event(Base, UUIDMixin, TimestampMixin):
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     game_title: Mapped[str] = mapped_column(String(150), nullable=False)
+    location_name: Mapped[str | None] = mapped_column(String(150), nullable=True)
     address: Mapped[str] = mapped_column(String(255), nullable=False)
     city: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
     lat: Mapped[float] = mapped_column(Float, nullable=False)
