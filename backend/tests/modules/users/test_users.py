@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import create_access_token
 from app.modules.users.enums import UserStatus
@@ -43,6 +44,29 @@ async def test_get_current_user_profile(
 
 
 @pytest.mark.asyncio
+async def test_get_public_user_profile_does_not_leak_email(
+    async_client: AsyncClient, create_mock_user
+) -> None:
+    user, _ = await create_mock_user(
+        first_name="Public",
+        last_name="Figure",
+        email=f"secret_{uuid.uuid4().hex[:8]}@example.com",
+    )
+
+    r = await async_client.get(f"/api/v1/users/{user.id}")
+    assert r.status_code == 200
+    data = r.json()
+    assert data["id"] == str(user.id)
+    assert data["first_name"] == "Public"
+    assert data["last_name"] == "Figure"
+    # Crucial security assertion: email, contact_info, is_superuser must NOT be in public profile
+    assert "email" not in data
+    assert "contact_info" not in data
+    assert "is_superuser" not in data
+    assert "status" not in data
+
+
+@pytest.mark.asyncio
 async def test_update_current_user_profile(
     async_client: AsyncClient, create_mock_user
 ) -> None:
@@ -64,6 +88,7 @@ async def test_update_current_user_profile(
             "last_name": "NewLast",
             "city": "Kyiv",
             "contact_info": "@yupi",
+            "banner_url": "/media/banners/banner1.webp",
         },
     )
     assert r_patch.status_code == 200
@@ -72,6 +97,7 @@ async def test_update_current_user_profile(
     assert body["last_name"] == "NewLast"
     assert body["city"] == "Kyiv"
     assert body["contact_info"] == "@yupi"
+    assert body["banner_url"] == "/media/banners/banner1.webp"
 
     # Explicit null on city clears it, contact_info stays untouched
     r_clear = await async_client.patch(
@@ -173,10 +199,23 @@ async def test_ghost_token_returns_401(async_client: AsyncClient) -> None:
 
 @pytest.mark.asyncio
 async def test_change_password(
-    async_client: AsyncClient, create_mock_user
+    async_client: AsyncClient, create_mock_user, db_session: AsyncSession
 ) -> None:
-    _user, token = await create_mock_user()
+    from datetime import UTC, datetime, timedelta
+
+    from app.modules.auth.repository import RefreshTokenRepository
+
+    user, token = await create_mock_user(password="InitialPassword123")
     headers = {"Authorization": f"Bearer {token}"}
+
+    # Add active refresh token for user
+    token_repo = RefreshTokenRepository(db_session)
+    active_token = await token_repo.create(
+        token_hash=f"testhash_{uuid.uuid4().hex}",
+        user_id=user.id,
+        expires_at=datetime.now(UTC) + timedelta(days=7),
+    )
+    await db_session.commit()
 
     # Unauthorized
     r_unauth = await async_client.post(
@@ -189,15 +228,54 @@ async def test_change_password(
     r_short = await async_client.post(
         "/api/v1/users/me/change-password",
         headers=headers,
-        json={"new_password": "short"},
+        json={"old_password": "InitialPassword123", "new_password": "short"},
     )
     assert r_short.status_code == 422
 
-    # Success
-    r_ok = await async_client.post(
+    # Missing old_password for user with password returns 400
+    r_no_old = await async_client.post(
         "/api/v1/users/me/change-password",
         headers=headers,
         json={"new_password": "ValidNewPassword123"},
     )
+    assert r_no_old.status_code == 400
+    assert "current password is required" in r_no_old.json()["detail"].lower()
+
+    # Wrong old_password returns 400
+    r_wrong_old = await async_client.post(
+        "/api/v1/users/me/change-password",
+        headers=headers,
+        json={
+            "old_password": "WrongPassword123",
+            "new_password": "ValidNewPassword123",
+        },
+    )
+    assert r_wrong_old.status_code == 400
+    assert "invalid old password" in r_wrong_old.json()["detail"].lower()
+
+    # Success with correct old_password
+    r_ok = await async_client.post(
+        "/api/v1/users/me/change-password",
+        headers=headers,
+        json={
+            "old_password": "InitialPassword123",
+            "new_password": "ValidNewPassword123",
+        },
+    )
     assert r_ok.status_code == 200
     assert r_ok.json()["message"] == "Password successfully updated"
+
+    # Verify refresh tokens revoked
+    await db_session.refresh(active_token)
+    assert active_token.revoked is True
+
+    # Google user (hashed_password is None) can change password without old_password
+    _, google_token = await create_mock_user(password=None)
+    google_headers = {"Authorization": f"Bearer {google_token}"}
+    r_google = await async_client.post(
+        "/api/v1/users/me/change-password",
+        headers=google_headers,
+        json={"new_password": "BrandNewGooglePassword123"},
+    )
+    assert r_google.status_code == 200
+    assert r_google.json()["message"] == "Password successfully updated"

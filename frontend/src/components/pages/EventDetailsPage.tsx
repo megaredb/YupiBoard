@@ -16,7 +16,7 @@ import {
   Users,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useCreateBookingRequestApiV1EventsIdBookingsPost } from "@/api/endpoints/bookings/bookings";
+import { useCreateBookingRequestApiV1EventsEventIdBookingsPost } from "@/api/endpoints/bookings/bookings";
 import {
   getGetEventApiV1EventsEventIdGetQueryKey,
   useGetEventApiV1EventsEventIdGet,
@@ -64,9 +64,9 @@ function useBookingAction(event: EventRead): BookingAction {
     null,
   );
 
-  const booking = useCreateBookingRequestApiV1EventsIdBookingsPost({
+  const booking = useCreateBookingRequestApiV1EventsEventIdBookingsPost({
     mutation: {
-      onSuccess: (response) => {
+      onSuccess: (response: { status: BookingStatus }) => {
         setBookingStatus(response.status);
         toggleSavedEvent("bookings", event.id, true);
         void queryClient.invalidateQueries({
@@ -101,7 +101,7 @@ function useBookingAction(event: EventRead): BookingAction {
     disabled: false,
     label: t("events.booking.apply"),
     onClick: () => {
-      if (user) booking.mutate({ id: event.id });
+      if (user) booking.mutate({ eventId: event.id });
       else void navigate({ to: "/login" });
     },
   };

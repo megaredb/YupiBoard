@@ -11,6 +11,7 @@ from app.modules.users.dependencies import get_user_service
 from app.modules.users.models import User
 from app.modules.users.schemas import (
     PasswordChangeRequest,
+    UserPublicRead,
     UserRead,
     UserUpdate,
 )
@@ -46,7 +47,11 @@ async def change_password(
     current_user: Annotated[User, Depends(get_current_user)],
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> MessageResponse:
-    await user_service.change_password(current_user, data.new_password)
+    await user_service.change_password(
+        user=current_user,
+        new_password=data.new_password,
+        old_password=data.old_password,
+    )
     return MessageResponse(message="Password successfully updated")
 
 
@@ -64,6 +69,24 @@ async def upload_avatar(
     avatar_url = await media_service.upload_avatar(file, current_user.id)
     updated = await user_service.update_profile(
         current_user, UserUpdate(avatar_url=avatar_url)
+    )
+    return UserRead.model_validate(updated)
+
+
+@router.post(
+    "/me/banner",
+    response_model=UserRead,
+    summary="Upload profile banner image (max 5 MB, JPEG/PNG/WebP, converted to WebP)",
+)
+async def upload_banner(
+    file: Annotated[UploadFile, File(...)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    user_service: Annotated[UserService, Depends(get_user_service)],
+    media_service: Annotated[MediaService, Depends(get_media_service)],
+) -> UserRead:
+    banner_url = await media_service.upload_banner(file, current_user.id)
+    updated = await user_service.update_profile(
+        current_user, UserUpdate(banner_url=banner_url)
     )
     return UserRead.model_validate(updated)
 
@@ -100,14 +123,14 @@ async def list_users(
 
 @router.get(
     "/{user_id}",
-    response_model=UserRead,
+    response_model=UserPublicRead,
 )
 async def get_user(
     user_id: UUID7,
     user_service: Annotated[UserService, Depends(get_user_service)],
-) -> UserRead:
+) -> UserPublicRead:
     user = await user_service.get_by_id(user_id)
-    return UserRead.model_validate(user)
+    return UserPublicRead.model_validate(user)
 
 
 @router.patch(

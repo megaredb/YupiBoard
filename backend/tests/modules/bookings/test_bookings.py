@@ -32,8 +32,14 @@ def test_booking_status_enums() -> None:
 
 def test_booking_routes_are_registered() -> None:
     paths = app.openapi()["paths"]
-    assert "/api/v1/events/{id}/bookings" in paths
-    assert "post" in paths["/api/v1/events/{id}/bookings"]
+    assert "/api/v1/events/{event_id}/bookings" in paths
+    assert "post" in paths["/api/v1/events/{event_id}/bookings"]
+    assert "/api/v1/bookings/me" in paths
+    assert "/api/v1/events/{event_id}/bookings/{booking_id}/approve" in paths
+    assert "/api/v1/events/{event_id}/bookings/{booking_id}/reject" in paths
+    assert "/api/v1/events/{event_id}/bookings/me" in paths
+    assert "/api/v1/events/{event_id}/bookings/me/cancel" in paths
+    assert "/api/v1/events/{event_id}/participants" in paths
 
 
 @pytest.mark.asyncio
@@ -231,3 +237,158 @@ async def test_apply_for_seat_creates_pending_booking_successfully() -> None:
         user_id=player.id,
         status=BookingStatus.PENDING,
     )
+
+
+@pytest.mark.asyncio
+async def test_decide_rejects_non_organizer_with_forbidden() -> None:
+    booking_repo = AsyncMock()
+    event_repo = AsyncMock()
+    service = BookingService(booking_repo, event_repo)
+
+    organizer_id = uuid.uuid7()
+    other_user = User(
+        id=uuid.uuid7(),
+        email="other@example.com",
+        status=UserStatus.ACTIVE,
+        is_superuser=False,
+    )
+
+    event = Event(
+        id=uuid.uuid7(),
+        organizer_id=organizer_id,
+        status=EventStatus.PUBLISHED,
+        is_verified=True,
+        start_datetime=datetime.now(UTC) + timedelta(days=1),
+        current_confirmed=0,
+        max_players=5,
+    )
+    event_repo.lock_event.return_value = event
+
+    with pytest.raises(ForbiddenException, match="Only the event organizer can decide"):
+        await service.decide(
+            event_id=event.id,
+            booking_id=uuid.uuid7(),
+            organizer=other_user,
+            approve=True,
+        )
+
+
+@pytest.mark.asyncio
+async def test_decide_allows_superuser() -> None:
+    booking_repo = AsyncMock()
+    event_repo = AsyncMock()
+    service = BookingService(booking_repo, event_repo)
+
+    organizer_id = uuid.uuid7()
+    superuser = User(
+        id=uuid.uuid7(),
+        email="admin@example.com",
+        status=UserStatus.ACTIVE,
+        is_superuser=True,
+    )
+
+    event = Event(
+        id=uuid.uuid7(),
+        organizer_id=organizer_id,
+        status=EventStatus.PUBLISHED,
+        is_verified=True,
+        start_datetime=datetime.now(UTC) + timedelta(days=1),
+        current_confirmed=0,
+        max_players=5,
+    )
+    event_repo.lock_event.return_value = event
+    booking = Booking(
+        id=uuid.uuid7(),
+        event_id=event.id,
+        user_id=uuid.uuid7(),
+        status=BookingStatus.PENDING,
+    )
+    booking_repo.get_by_id_for_event.return_value = booking
+    booking_repo.update.return_value = booking
+
+    await service.decide(
+        event_id=event.id,
+        booking_id=booking.id,
+        organizer=superuser,
+        approve=True,
+    )
+    event_repo.lock_event.assert_called_once_with(event.id)
+    event_repo.update.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_list_for_event_rejects_non_organizer_with_forbidden() -> None:
+    booking_repo = AsyncMock()
+    event_repo = AsyncMock()
+    service = BookingService(booking_repo, event_repo)
+
+    organizer_id = uuid.uuid7()
+    other_user = User(
+        id=uuid.uuid7(),
+        email="other@example.com",
+        status=UserStatus.ACTIVE,
+        is_superuser=False,
+    )
+
+    event = Event(
+        id=uuid.uuid7(),
+        organizer_id=organizer_id,
+        status=EventStatus.PUBLISHED,
+        is_verified=True,
+        is_deleted=False,
+        start_datetime=datetime.now(UTC) + timedelta(days=1),
+        current_confirmed=0,
+        max_players=5,
+    )
+    event_repo.get_by_id.return_value = event
+
+    with pytest.raises(ForbiddenException, match="Only the event organizer can view"):
+        await service.list_for_event(
+            event_id=event.id,
+            user=other_user,
+            page=1,
+            limit=20,
+        )
+
+
+@pytest.mark.asyncio
+async def test_list_confirmed_participants_access_control() -> None:
+    booking_repo = AsyncMock()
+    event_repo = AsyncMock()
+    service = BookingService(booking_repo, event_repo)
+
+    organizer_id = uuid.uuid7()
+    host = User(id=organizer_id, email="host@example.com", status=UserStatus.ACTIVE)
+    confirmed_player = User(
+        id=uuid.uuid7(), email="player@example.com", status=UserStatus.ACTIVE
+    )
+    stranger = User(
+        id=uuid.uuid7(), email="stranger@example.com", status=UserStatus.ACTIVE
+    )
+
+    event = Event(
+        id=uuid.uuid7(),
+        organizer_id=organizer_id,
+        status=EventStatus.PUBLISHED,
+        is_verified=True,
+        is_deleted=False,
+    )
+    event_repo.get_by_id.return_value = event
+    booking_repo.get_confirmed_participants.return_value = [confirmed_player]
+
+    # Host can see confirmed participants
+    res_host = await service.list_confirmed_participants(event.id, host)
+    assert len(res_host) == 1
+
+    # Confirmed player can see confirmed participants
+    booking_repo.is_confirmed_participant.return_value = True
+    res_player = await service.list_confirmed_participants(event.id, confirmed_player)
+    assert len(res_player) == 1
+
+    # Stranger (unconfirmed) gets 403 Forbidden
+    booking_repo.is_confirmed_participant.return_value = False
+    with pytest.raises(
+        ForbiddenException,
+        match="Participants list is only visible to confirmed players",
+    ):
+        await service.list_confirmed_participants(event.id, stranger)

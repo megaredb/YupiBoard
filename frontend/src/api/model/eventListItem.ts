@@ -5,11 +5,13 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { EventOrganizerSummary } from './eventOrganizerSummary.ts';
+import type { EventStatus } from './eventStatus.ts';
 
 export interface EventListItem {
   id: string;
   title: string;
   game_title: string;
+  location_name?: string | null;
   city: string;
   address: string;
   start_datetime: string;
@@ -17,7 +19,10 @@ export interface EventListItem {
   max_players: number;
   current_confirmed: number;
   available_seats: number;
+  photo_url?: string | null;
   distance_km?: number | null;
   is_promoted: boolean;
+  is_favorite?: boolean;
+  status: EventStatus;
   organizer: EventOrganizerSummary;
 }

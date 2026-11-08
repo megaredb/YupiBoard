@@ -12,10 +12,12 @@ export interface UserRead {
   last_name?: string | null;
   id: string;
   avatar_url?: string | null;
+  banner_url?: string | null;
   created_at: string;
   updated_at: string;
   city?: string | null;
   contact_info?: string | null;
+  bio?: string | null;
   rating_as_player?: string | null;
   rating_as_organizer?: string | null;
   status?: UserStatus;

@@ -6,6 +6,7 @@
  */
 
 export interface PasswordChangeRequest {
+  old_password?: string | null;
   /**
      * @minLength 8
      * @maxLength 128
