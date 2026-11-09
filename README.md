@@ -121,30 +121,33 @@ Plain `pnpm fe` or `pnpm be` lists the available scripts.
 
 ### Project commands
 
-| Command                | Description                                                           |
-| ---------------------- | --------------------------------------------------------------------- |
-| `pnpm run setup`       | Generate SSL certificates, install pnpm dependencies, and `uv sync`   |
-| `pnpm run setup:certs` | Generate SSL certificates only                                        |
-| `pnpm docker:up`       | Start PostgreSQL, Traefik, Mailpit, and pgweb in the background       |
-| `pnpm docker:down`     | Stop Docker containers                                                |
-| `pnpm docker:down:v`   | Stop Docker containers and remove persistent volumes                  |
-| `pnpm migrate`         | Apply Alembic migrations                                              |
-| `pnpm generate:api`    | Export `openapi.json` from FastAPI and regenerate the frontend client |
-| `pnpm lint`            | Lint frontend and backend                                             |
-| `pnpm format`          | Format frontend and backend                                           |
-| `pnpm test`            | Run backend tests (`pytest`)                                          |
+| Command                | Description                                                            |
+| ---------------------- | ---------------------------------------------------------------------- |
+| `pnpm run setup`       | Generate SSL certificates, install pnpm dependencies, and `uv sync`    |
+| `pnpm run setup:certs` | Generate SSL certificates only                                         |
+| `pnpm docker:up`       | Start PostgreSQL, Redis, Traefik, Mailpit, and pgweb in the background |
+| `pnpm docker:down`     | Stop Docker containers                                                 |
+| `pnpm docker:down:v`   | Stop Docker containers and remove persistent volumes                   |
+| `pnpm redis:logs`      | Follow the Redis container logs                                        |
+| `pnpm migrate`         | Apply Alembic migrations                                               |
+| `pnpm generate:api`    | Export `openapi.json` from FastAPI and regenerate the frontend client  |
+| `pnpm lint`            | Lint frontend and backend                                              |
+| `pnpm format`          | Format frontend and backend                                            |
+| `pnpm test`            | Run backend tests (`pytest`)                                           |
 
 ### Backend commands
 
-| Command           | Description                                          |
-| ----------------- | ---------------------------------------------------- |
-| `pnpm be dev`     | Start FastAPI server via `uv run fastapi dev`        |
-| `pnpm be sync`    | `uv sync`                                            |
-| `pnpm be migrate` | Apply Alembic migrations                             |
-| `pnpm be lint`    | `ruff check` and `ty check`                          |
-| `pnpm be format`  | `ruff format`                                        |
-| `pnpm be test`    | Run tests (`pytest`)                                 |
-| `pnpm be openapi` | Export the schema to `frontend/openapi/openapi.json` |
+| Command             | Description                                          |
+| ------------------- | ---------------------------------------------------- |
+| `pnpm be dev`       | Start FastAPI server via `uv run fastapi dev`        |
+| `pnpm be sync`      | `uv sync`                                            |
+| `pnpm be migrate`   | Apply Alembic migrations                             |
+| `pnpm be lint`      | `ruff check` and `ty check`                          |
+| `pnpm be format`    | `ruff format`                                        |
+| `pnpm be test`      | Run tests (`pytest`)                                 |
+| `pnpm be worker`    | Start the Taskiq worker for background tasks         |
+| `pnpm be scheduler` | Start the Taskiq scheduler for periodic tasks        |
+| `pnpm be openapi`   | Export the schema to `frontend/openapi/openapi.json` |
 
 ### Frontend commands
 
