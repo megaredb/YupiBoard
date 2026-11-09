@@ -182,6 +182,8 @@ async def test_email_verification_flow(
 async def test_password_recovery_and_reset_flow(
     async_client: AsyncClient, db_session: AsyncSession
 ) -> None:
+    from app.core.mail import MailService
+
     email = f"reset_{uuid.uuid4().hex[:8]}@example.com"
     old_password = "oldpassword123"
     new_password = "newstrongpassword456"
@@ -197,12 +199,17 @@ async def test_password_recovery_and_reset_flow(
     )
     user_id = reg.json()["user"]["id"]
 
-    # Request password recovery for existing user
-    rec_res = await async_client.post(
-        "/api/v1/auth/password-recovery", json={"email": email}
-    )
-    assert rec_res.status_code == 200
-    assert "instructions" in rec_res.json()["message"].lower()
+    # Request password recovery for existing user and intercept real token
+    with patch.object(
+        MailService, "send_password_reset_email", autospec=True
+    ) as mock_send:
+        rec_res = await async_client.post(
+            "/api/v1/auth/password-recovery", json={"email": email}
+        )
+        assert rec_res.status_code == 200
+        assert "instructions" in rec_res.json()["message"].lower()
+        mock_send.assert_called_once()
+        reset_token = mock_send.call_args[0][2]
 
     # Request password recovery for non-existent user returns 200 without leak
     rec_no_user = await async_client.post(
@@ -210,14 +217,30 @@ async def test_password_recovery_and_reset_flow(
     )
     assert rec_no_user.status_code == 200
 
+    # Unrecognized token fails with 400
+    fake_token = create_action_token(subject=user_id, action="reset_password")
+    bad_res = await async_client.post(
+        "/api/v1/auth/reset-password",
+        json={"token": fake_token, "new_password": new_password},
+    )
+    assert bad_res.status_code == 400
+    assert "unrecognized" in bad_res.json()["detail"].lower()
+
     # Reset password with valid token
-    reset_token = create_action_token(subject=user_id, action="reset_password")
     reset_res = await async_client.post(
         "/api/v1/auth/reset-password",
         json={"token": reset_token, "new_password": new_password},
     )
     assert reset_res.status_code == 200
     assert "successfully" in reset_res.json()["message"].lower()
+
+    # Replay prevention: reusing the token fails with 400
+    replay_res = await async_client.post(
+        "/api/v1/auth/reset-password",
+        json={"token": reset_token, "new_password": "AnotherPassword789!"},
+    )
+    assert replay_res.status_code == 400
+    assert "already been used" in replay_res.json()["detail"].lower()
 
     # Verify old password fails
     login_old = await async_client.post(
@@ -233,20 +256,58 @@ async def test_password_recovery_and_reset_flow(
     )
     assert login_new.status_code == 200
 
+    # Invalidation on new reset request test:
+    # 1. Request recovery -> token_1
+    with patch.object(
+        MailService, "send_password_reset_email", autospec=True
+    ) as mock_send_1:
+        await async_client.post("/api/v1/auth/password-recovery", json={"email": email})
+        token_1 = mock_send_1.call_args[0][2]
+
+    # 2. Request recovery again -> token_2 (invalidates token_1)
+    with patch.object(
+        MailService, "send_password_reset_email", autospec=True
+    ) as mock_send_2:
+        await async_client.post("/api/v1/auth/password-recovery", json={"email": email})
+        token_2 = mock_send_2.call_args[0][2]
+
+    # token_1 should now be rejected as already used/invalidated
+    res_token_1 = await async_client.post(
+        "/api/v1/auth/reset-password",
+        json={"token": token_1, "new_password": "NewestPassword1!"},
+    )
+    assert res_token_1.status_code == 400
+    assert "already been used" in res_token_1.json()["detail"].lower()
+
+    # token_2 should succeed
+    res_token_2 = await async_client.post(
+        "/api/v1/auth/reset-password",
+        json={"token": token_2, "new_password": "NewestPassword1!"},
+    )
+    assert res_token_2.status_code == 200
+
 
 @pytest.mark.asyncio
 async def test_google_auth_flow(async_client: AsyncClient) -> None:
+    from app.core.config import settings
+
+    google_client_id = "test-google-client-id-xyz"
     google_sub = f"sub_{uuid.uuid4().hex[:8]}"
     email = f"google_{uuid.uuid4().hex[:8]}@example.com"
     mock_claims = {
+        "aud": google_client_id,
+        "email_verified": True,
         "sub": google_sub,
         "email": email,
         "name": "Google User",
         "picture": "https://example.com/avatar.jpg",
     }
 
-    # Test Google signup
-    with patch("google.oauth2.id_token.verify_oauth2_token", return_value=mock_claims):
+    # Test Google signup with valid token
+    with (
+        patch.object(settings, "GOOGLE_CLIENT_ID", google_client_id),
+        patch("google.oauth2.id_token.verify_oauth2_token", return_value=mock_claims),
+    ):
         res = await async_client.post(
             "/api/v1/auth/google", json={"id_token": "valid-mock-token"}
         )
@@ -259,17 +320,82 @@ async def test_google_auth_flow(async_client: AsyncClient) -> None:
         assert "access_token" in data
 
     # Test Google signin for existing user
-    with patch("google.oauth2.id_token.verify_oauth2_token", return_value=mock_claims):
+    with (
+        patch.object(settings, "GOOGLE_CLIENT_ID", google_client_id),
+        patch("google.oauth2.id_token.verify_oauth2_token", return_value=mock_claims),
+    ):
         res2 = await async_client.post(
             "/api/v1/auth/google", json={"id_token": "valid-mock-token"}
         )
         assert res2.status_code == 200
         assert res2.json()["user"]["email"] == email
 
+    # Test server not configured with GOOGLE_CLIENT_ID
+    with (
+        patch.object(settings, "GOOGLE_CLIENT_ID", ""),
+        patch("google.oauth2.id_token.verify_oauth2_token", return_value=mock_claims),
+    ):
+        res_no_config = await async_client.post(
+            "/api/v1/auth/google", json={"id_token": "valid-mock-token"}
+        )
+        assert res_no_config.status_code == 400
+        assert "not configured" in res_no_config.json()["detail"].lower()
+
+    # Test token audience mismatch
+    bad_aud_claims = {**mock_claims, "aud": "wrong-client-id"}
+    with (
+        patch.object(settings, "GOOGLE_CLIENT_ID", google_client_id),
+        patch(
+            "google.oauth2.id_token.verify_oauth2_token", return_value=bad_aud_claims
+        ),
+    ):
+        res_bad_aud = await async_client.post(
+            "/api/v1/auth/google", json={"id_token": "valid-mock-token"}
+        )
+        assert res_bad_aud.status_code == 400
+        assert "audience" in res_bad_aud.json()["detail"].lower()
+
+    # Test email_verified is False
+    unverified_claims = {**mock_claims, "email_verified": False}
+    with (
+        patch.object(settings, "GOOGLE_CLIENT_ID", google_client_id),
+        patch(
+            "google.oauth2.id_token.verify_oauth2_token",
+            return_value=unverified_claims,
+        ),
+    ):
+        res_unverified = await async_client.post(
+            "/api/v1/auth/google", json={"id_token": "valid-mock-token"}
+        )
+        assert res_unverified.status_code == 400
+        assert "not verified" in res_unverified.json()["detail"].lower()
+
+    # Test account collision guard: existing user with different google_sub
+    collision_claims = {
+        **mock_claims,
+        "sub": "completely-different-sub",
+        "email": email,  # same email already linked to google_sub above
+    }
+    with (
+        patch.object(settings, "GOOGLE_CLIENT_ID", google_client_id),
+        patch(
+            "google.oauth2.id_token.verify_oauth2_token",
+            return_value=collision_claims,
+        ),
+    ):
+        res_collision = await async_client.post(
+            "/api/v1/auth/google", json={"id_token": "valid-mock-token"}
+        )
+        assert res_collision.status_code == 409
+        assert "already linked" in res_collision.json()["detail"].lower()
+
     # Test invalid Google token
-    with patch(
-        "google.oauth2.id_token.verify_oauth2_token",
-        side_effect=ValueError("Invalid Google token"),
+    with (
+        patch.object(settings, "GOOGLE_CLIENT_ID", google_client_id),
+        patch(
+            "google.oauth2.id_token.verify_oauth2_token",
+            side_effect=ValueError("Invalid Google token"),
+        ),
     ):
         err_res = await async_client.post(
             "/api/v1/auth/google", json={"id_token": "invalid-token"}
@@ -277,9 +403,16 @@ async def test_google_auth_flow(async_client: AsyncClient) -> None:
         assert err_res.status_code == 400
 
     # Test Google token missing required claims (e.g. no email)
-    with patch(
-        "google.oauth2.id_token.verify_oauth2_token",
-        return_value={"sub": "12345"},
+    with (
+        patch.object(settings, "GOOGLE_CLIENT_ID", google_client_id),
+        patch(
+            "google.oauth2.id_token.verify_oauth2_token",
+            return_value={
+                "aud": google_client_id,
+                "email_verified": True,
+                "sub": "12345",
+            },
+        ),
     ):
         err_claims = await async_client.post(
             "/api/v1/auth/google", json={"id_token": "missing-claims"}

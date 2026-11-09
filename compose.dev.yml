@@ -48,3 +48,8 @@ services:
       - "traefik.http.routers.pgweb.entrypoints=websecure"
       - "traefik.http.routers.pgweb.tls=true"
       - "traefik.http.services.pgweb.loadbalancer.server.port=8081"
+
+  redis:
+    container_name: yupiboard-redis
+    ports:
+      - "127.0.0.1:6379:6379"

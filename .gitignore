@@ -46,3 +46,7 @@ docs
 media/
 backend/media/
 
+# Agent workspace & local coordination artifacts
+.agents/
+PROJECT.md
+

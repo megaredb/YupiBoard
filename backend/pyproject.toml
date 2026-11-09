@@ -19,6 +19,8 @@ dependencies = [
     "pydantic-settings>=2.15.0",
     "pyjwt[crypto]>=2.15.1",
     "sqlalchemy>=2.1.4",
+    "taskiq>=0.13.0",
+    "taskiq-redis>=1.2.4",
 ]
 
 [dependency-groups]

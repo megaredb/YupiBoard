@@ -84,6 +84,9 @@ class Settings(BaseSettings):
     S3_SECRET_KEY: str | None = None
     S3_PUBLIC_URL_PREFIX: str = "https://storage.yupiboard.com"
 
+    # Redis
+    REDIS_URL: str = "redis://127.0.0.1:6379/0"
+
     @property
     def is_production(self) -> bool:
         return self.ENVIRONMENT.lower() == "production"

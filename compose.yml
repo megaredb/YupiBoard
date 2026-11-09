@@ -61,5 +61,17 @@ services:
       - 'traefik.http.routers.dashboard.service=api@internal'
       - 'traefik.http.routers.dashboard.tls=true'
 
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: [ 'CMD', 'redis-cli', 'ping' ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
 volumes:
   pgdata:
+  redisdata:
