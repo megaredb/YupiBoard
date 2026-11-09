@@ -15,3 +15,4 @@ export {
   catalogSearchSchema,
   pageSearchSchema,
 } from "@/features/events/schemas/catalog-search.schema";
+export { eventDetailsSearchSchema } from "@/features/events/schemas/event-details-search.schema";

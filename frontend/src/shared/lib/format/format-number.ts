@@ -20,3 +20,13 @@ export function parseDecimal(value: string | number | null | undefined): number 
   const amount = Number(value);
   return Number.isFinite(amount) ? amount : 0;
 }
+
+/** "₴" for "UAH" in the active locale, for prefixes of money inputs. */
+export function getCurrencySymbol(currency: string): string {
+  const parts = new Intl.NumberFormat(getActiveLocale(), {
+    style: "currency",
+    currency,
+    currencyDisplay: "narrowSymbol",
+  }).formatToParts(0);
+  return parts.find((part) => part.type === "currency")?.value ?? currency;
+}

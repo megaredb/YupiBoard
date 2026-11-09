@@ -6,20 +6,21 @@ const route = getRouteApi("/events/");
 interface CatalogFiltersState {
   filters: CatalogFilters;
   page: number;
+  /** Any change of filters, search or sort starts again from the first page. */
   applyFilters: (next: CatalogFilters) => void;
   goToPage: (page: number) => void;
 }
 
-/** Filters and page live in the URL so they survive reload and sharing (ST-2). */
+/** Filters, search, sort and page live in the URL so they survive reload and sharing (ST-2). */
 export function useCatalogFilters(): CatalogFiltersState {
-  const { city, distance, page } = route.useSearch();
+  const { page, ...filters } = route.useSearch();
   const navigate = useNavigate();
 
   return {
-    filters: { city, distance },
+    filters,
     page,
     applyFilters: (next) => void navigate({ to: "/events", search: { ...next, page: 1 } }),
     goToPage: (nextPage) =>
-      void navigate({ to: "/events", search: { city, distance, page: nextPage } }),
+      void navigate({ to: "/events", search: { ...filters, page: nextPage } }),
   };
 }

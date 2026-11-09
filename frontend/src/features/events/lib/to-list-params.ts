@@ -1,6 +1,12 @@
-import type { CityRead, ListEventsApiV1EventsGetParams } from "@/shared/api/generated/model";
+import type {
+  CityRead,
+  EventSortBy,
+  ListEventsApiV1EventsGetParams,
+  SortOrder,
+} from "@/shared/api/generated/model";
+import { endOfIsoDate, startOfIsoDate } from "@/shared/lib/date/iso-date";
 import { findCity } from "@/features/events/lib/find-city";
-import type { CatalogFilters } from "@/features/events/schemas/catalog-search.schema";
+import type { CatalogFilters, CatalogSort } from "@/features/events/schemas/catalog-search.schema";
 
 interface ListParamsInput {
   filters: CatalogFilters;
@@ -9,7 +15,16 @@ interface ListParamsInput {
   limit: number;
 }
 
-/** Searches around the chosen city's centre. */
+const SORT_PARAMS = {
+  "distance-asc": ["distance", "asc"],
+  "distance-desc": ["distance", "desc"],
+  "date-asc": ["start_datetime", "asc"],
+  "date-desc": ["start_datetime", "desc"],
+  "cost-asc": ["cost", "asc"],
+  "cost-desc": ["cost", "desc"],
+} as const satisfies Record<CatalogSort, readonly [EventSortBy, SortOrder]>;
+
+/** Catalog filters -> `GET /events` query; unset filters are left out. */
 export function toListParams({
   filters,
   cities,
@@ -18,5 +33,19 @@ export function toListParams({
 }: ListParamsInput): ListEventsApiV1EventsGetParams {
   const city = findCity(cities, filters.city);
   const area = city ? { lat: city.lat, lon: city.lon, radius_km: filters.distance } : {};
-  return { ...area, page, limit };
+  const [sortBy, sortOrder] = SORT_PARAMS[filters.sort];
+  return {
+    ...area,
+    title: filters.q,
+    date_from: filters.from && startOfIsoDate(filters.from),
+    date_to: filters.to && endOfIsoDate(filters.to),
+    cost_min: filters.costMin,
+    cost_max: filters.costMax,
+    available_seats_min: filters.seats,
+    organizer_rating_min: filters.rating,
+    sort_by: sortBy,
+    sort_order: sortOrder,
+    page,
+    limit,
+  };
 }

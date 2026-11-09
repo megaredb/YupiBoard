@@ -27,5 +27,6 @@
   "addressMax": "Address is too long (max 255 characters)",
   "priceInvalid": "Enter 0 or a positive amount",
   "coverType": "Cover image must be a JPEG or PNG file",
-  "coverSize": "Cover image must be smaller than 5 MB"
+  "coverSize": "Cover image must be smaller than 5 MB",
+  "bannerFormatSize": "Please upload a JPEG/PNG image under 5 MB"
 }

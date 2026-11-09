@@ -2,13 +2,16 @@ import { getRouteApi } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Breadcrumbs } from "@/shared/components/breadcrumbs";
 import { PageContainer } from "@/shared/layout/page-container";
+import { BookingActions } from "@/features/events/components/event-details/booking-actions";
 import { BookingPanel } from "@/features/events/components/event-details/booking-panel";
 import { EventAbout } from "@/features/events/components/event-details/event-about";
 import { EventActionButtons } from "@/features/events/components/event-details/event-action-buttons";
+import { EventParticipantsSection } from "@/features/events/components/event-details/event-participants-section";
 import { EventSummary } from "@/features/events/components/event-details/event-summary";
 import { MobileBookingBar } from "@/features/events/components/event-details/mobile-booking-bar";
 import { MobileOrganizerRow } from "@/features/events/components/event-details/mobile-organizer-row";
 import { OrganizerCard } from "@/features/events/components/event-details/organizer-card";
+import { PlayersLink } from "@/features/events/components/event-details/players-link";
 import { MobileTopBar } from "@/features/events/components/mobile-top-bar";
 import { useBookingAction } from "@/features/events/hooks/use-booking-action";
 import { useEventDetails } from "@/features/events/hooks/use-event-details";
@@ -16,6 +19,7 @@ import { useEventOrganizer } from "@/features/events/hooks/use-event-organizer";
 import { useFavoriteToggle } from "@/features/events/hooks/use-favorite-toggle";
 import { useGoBack } from "@/features/events/hooks/use-go-back";
 import { useShareEvent } from "@/features/events/hooks/use-share-event";
+import { getParticipantsViewer } from "@/features/events/lib/get-booking-state";
 
 const route = getRouteApi("/events/$eventId");
 
@@ -28,6 +32,8 @@ export function EventDetailsPage() {
   const { isFavorite, toggleFavorite } = useFavoriteToggle(event);
   const shareEvent = useShareEvent(event);
   const goBack = useGoBack();
+  const isHost = booking.state === "hosting";
+  const participantsViewer = getParticipantsViewer(booking.state);
 
   const renderActions = (placement: "overlay" | "bar") => (
     <EventActionButtons
@@ -52,12 +58,21 @@ export function EventDetailsPage() {
             <EventSummary event={event} heroActions={renderActions("overlay")} />
             <div className="space-y-6 max-lg:px-4">
               <EventAbout description={event.description} />
+              {participantsViewer && (
+                <EventParticipantsSection event={event} viewer={participantsViewer} />
+              )}
               <OrganizerCard organizer={organizer} />
               <MobileOrganizerRow organizer={organizer} />
             </div>
           </div>
           <aside className="hidden lg:sticky lg:top-20 lg:block">
-            <BookingPanel event={event} action={booking} />
+            <BookingPanel event={event} isHost={isHost}>
+              {isHost ? (
+                <PlayersLink eventId={event.id} className="w-full" />
+              ) : (
+                <BookingActions action={booking} />
+              )}
+            </BookingPanel>
           </aside>
         </div>
       </PageContainer>

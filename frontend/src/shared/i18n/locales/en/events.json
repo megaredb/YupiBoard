@@ -15,7 +15,7 @@
     "found_one": "{{count}} event found",
     "found_other": "{{count}} events found",
     "emptyTitle": "No events match these filters",
-    "emptyDescription": "Try increasing the distance or picking another city."
+    "emptyDescription": "Try clearing some filters or changing your search."
   },
   "collection": {
     "found_one": "{{count}} event",
@@ -47,7 +47,25 @@
     "clearAll": "Clear all",
     "show": "Show results",
     "showResults_one": "Show {{count}} result",
-    "showResults_other": "Show {{count}} results"
+    "showResults_other": "Show {{count}} results",
+    "date": "Date",
+    "dateFrom": "From",
+    "dateTo": "To",
+    "datePresets": "Quick dates",
+    "today": "Today",
+    "weekend": "This weekend",
+    "month": "This month",
+    "cost": "Entry cost",
+    "costMin": "Minimum cost",
+    "costMax": "Maximum cost",
+    "freeOnly": "Free only",
+    "withFreeSeats": "Only with free seats",
+    "seats": "Free seats",
+    "seatsValue_one": "At least {{count}} seat",
+    "seatsValue_other": "At least {{count}} seats",
+    "rating": "Minimum organizer rating",
+    "ratingOption_one": "{{count}} star & up",
+    "ratingOption_other": "{{count}} stars & up"
   },
   "details": {
     "pageTitle": "Event",
@@ -80,15 +98,26 @@
     "seatsTotal_one": "{{count}} seat total",
     "seatsTotal_other": "{{count}} seats total",
     "apply": "Apply",
-    "pending": "Application pending",
-    "approved": "You're going",
+    "pending": "Waiting for organizer's approval",
+    "approved": "Approved",
     "waitlist": "You're on the waitlist",
     "hosting": "You're hosting this event",
     "full": "No seats left",
     "closed": "Bookings closed",
     "failed": "Couldn't send your application. Please try again.",
     "reviewNote": "The organizer will review your request after submission.",
-    "payAtVenue": "Pay at the venue after approval"
+    "payAtVenue": "Pay at the venue after approval",
+    "hostTitle": "Cost of the seat at the table",
+    "goToPlayers": "Go to the list of players",
+    "rejected": "Request declined",
+    "cancel": "Cancel booking",
+    "cancelFailed": "Couldn't cancel your booking. Please try again.",
+    "cancelDialog": {
+      "title": "Cancel your application?",
+      "description": "Are you sure you want to cancel your seat? It will immediately become available for other players.",
+      "keep": "Keep my seat",
+      "confirm": "Yes, cancel request"
+    }
   },
   "create": {
     "title": "Create new event",
@@ -133,5 +162,49 @@
       "price": "Price per player (UAH)",
       "priceHint": "Set 0 for a free session"
     }
+  },
+  "search": {
+    "label": "Search events",
+    "placeholder": "Search events, games…",
+    "submit": "Search"
+  },
+  "sort": {
+    "label": "Sort by",
+    "distanceAsc": "Distance ↑",
+    "distanceDesc": "Distance ↓",
+    "dateAsc": "Date ↑",
+    "dateDesc": "Date ↓",
+    "costAsc": "Cost ↑",
+    "costDesc": "Cost ↓"
+  },
+  "bookingStatus": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "waitlist": "Waitlist",
+    "rejected": "Declined",
+    "cancelledByPlayer": "Cancelled by player",
+    "cancelledBySystem": "Cancelled",
+    "removedByOrganizer": "Removed",
+    "attended": "Attended",
+    "noShow": "No-show"
+  },
+  "participants": {
+    "title": "Participants ({{taken}}/{{total}} joined)",
+    "hostHint": "Booking requests for your event. Accept or decline pending ones.",
+    "playerHint": "Players confirmed for this table.",
+    "unnamed": "YupiBoard player",
+    "playerRating": "Player rating: {{rating}}",
+    "noRating": "No player rating yet",
+    "accept": "Accept",
+    "decline": "Decline",
+    "declineDialog": {
+      "title": "Decline this request?",
+      "description": "{{name}} will be told their request was declined. This can't be undone.",
+      "confirm": "Yes, decline"
+    },
+    "decisionFailed": "Couldn't save your decision. Please try again.",
+    "noRequests": "No booking requests yet.",
+    "noPlayers": "No confirmed players yet.",
+    "pagination": "Showing {{from}}–{{to}} of {{total}} requests"
   }
 }

@@ -7,3 +7,8 @@ const INTERIM_EVENT_CURRENCY = "UAH";
 export function getEventCurrency(_event: Pick<EventRead | EventListItem, "id">): string {
   return INTERIM_EVENT_CURRENCY;
 }
+
+/** Currency of the catalog's entry cost filter. */
+export function getCatalogCurrency(): string {
+  return INTERIM_EVENT_CURRENCY;
+}

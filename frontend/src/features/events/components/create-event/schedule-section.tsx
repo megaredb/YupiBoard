@@ -2,12 +2,12 @@ import { MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { FormField } from "@/shared/components/form-field";
 import { useFieldError } from "@/shared/i18n/use-field-error";
+import { getTodayIsoDate } from "@/shared/lib/date/iso-date";
 import { Input } from "@/shared/ui/input";
 import { NativeSelect } from "@/shared/ui/native-select";
 import { FormSection } from "@/features/events/components/create-event/form-section";
 import { useCityOptions } from "@/features/events/hooks/use-city-options";
 import { useCreateEventFormContext } from "@/features/events/hooks/use-create-event-form-context";
-import { getTodayIsoDate } from "@/features/events/lib/get-today-iso-date";
 import { CREATE_EVENT_LIMITS } from "@/features/events/schemas/create-event.schema";
 
 export function ScheduleSection() {

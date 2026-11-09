@@ -17,7 +17,7 @@
     "found_many": "Знайдено {{count}} подій",
     "found_other": "Знайдено {{count}} події",
     "emptyTitle": "Немає подій за цими фільтрами",
-    "emptyDescription": "Збільште відстань або оберіть інше місто."
+    "emptyDescription": "Спробуйте прибрати частину фільтрів або змінити пошуковий запит."
   },
   "collection": {
     "found_one": "{{count}} подія",
@@ -53,7 +53,29 @@
     "showResults_one": "Показати {{count}} результат",
     "showResults_few": "Показати {{count}} результати",
     "showResults_many": "Показати {{count}} результатів",
-    "showResults_other": "Показати {{count}} результату"
+    "showResults_other": "Показати {{count}} результату",
+    "date": "Дата",
+    "dateFrom": "З",
+    "dateTo": "По",
+    "datePresets": "Швидкий вибір дат",
+    "today": "Сьогодні",
+    "weekend": "Ці вихідні",
+    "month": "Цей місяць",
+    "cost": "Вартість участі",
+    "costMin": "Мінімальна вартість",
+    "costMax": "Максимальна вартість",
+    "freeOnly": "Лише безкоштовні",
+    "withFreeSeats": "Лише з вільними місцями",
+    "seats": "Вільні місця",
+    "seatsValue_one": "Щонайменше {{count}} місце",
+    "seatsValue_few": "Щонайменше {{count}} місця",
+    "seatsValue_many": "Щонайменше {{count}} місць",
+    "seatsValue_other": "Щонайменше {{count}} місця",
+    "rating": "Мінімальний рейтинг організатора",
+    "ratingOption_one": "Від {{count}} зірки",
+    "ratingOption_few": "Від {{count}} зірок",
+    "ratingOption_many": "Від {{count}} зірок",
+    "ratingOption_other": "Від {{count}} зірки"
   },
   "details": {
     "pageTitle": "Подія",
@@ -90,15 +112,26 @@
     "seatsTotal_many": "Усього {{count}} місць",
     "seatsTotal_other": "Усього {{count}} місця",
     "apply": "Подати заявку",
-    "pending": "Заявка на розгляді",
-    "approved": "Ви йдете",
+    "pending": "Очікує підтвердження організатора",
+    "approved": "Підтверджено",
     "waitlist": "Ви в списку очікування",
     "hosting": "Ви організатор цієї події",
     "full": "Вільних місць немає",
     "closed": "Бронювання закрито",
     "failed": "Не вдалося надіслати заявку. Спробуйте ще раз.",
     "reviewNote": "Організатор розгляне вашу заявку після надсилання.",
-    "payAtVenue": "Оплата на місці після підтвердження"
+    "payAtVenue": "Оплата на місці після підтвердження",
+    "hostTitle": "Вартість місця за столом",
+    "goToPlayers": "До списку гравців",
+    "rejected": "Заявку відхилено",
+    "cancel": "Скасувати бронювання",
+    "cancelFailed": "Не вдалося скасувати бронювання. Спробуйте ще раз.",
+    "cancelDialog": {
+      "title": "Скасувати заявку?",
+      "description": "Ви впевнені, що хочете відмовитися від місця? Воно одразу стане доступним для інших гравців.",
+      "keep": "Залишити місце",
+      "confirm": "Так, скасувати"
+    }
   },
   "create": {
     "title": "Нова подія",
@@ -143,5 +176,49 @@
       "price": "Ціна для гравця (грн)",
       "priceHint": "Вкажіть 0 для безкоштовної гри"
     }
+  },
+  "search": {
+    "label": "Пошук подій",
+    "placeholder": "Шукати події, ігри…",
+    "submit": "Шукати"
+  },
+  "sort": {
+    "label": "Сортувати",
+    "distanceAsc": "Відстань ↑",
+    "distanceDesc": "Відстань ↓",
+    "dateAsc": "Дата ↑",
+    "dateDesc": "Дата ↓",
+    "costAsc": "Вартість ↑",
+    "costDesc": "Вартість ↓"
+  },
+  "bookingStatus": {
+    "pending": "Очікує",
+    "confirmed": "Підтверджено",
+    "waitlist": "Лист очікування",
+    "rejected": "Відхилено",
+    "cancelledByPlayer": "Скасовано гравцем",
+    "cancelledBySystem": "Скасовано",
+    "removedByOrganizer": "Вилучено",
+    "attended": "Був присутній",
+    "noShow": "Не прийшов"
+  },
+  "participants": {
+    "title": "Учасники (долучилися {{taken}}/{{total}})",
+    "hostHint": "Заявки на вашу подію. Прийміть або відхиліть ті, що очікують.",
+    "playerHint": "Гравці, підтверджені за цим столом.",
+    "unnamed": "Гравець YupiBoard",
+    "playerRating": "Рейтинг гравця: {{rating}}",
+    "noRating": "Ще немає рейтингу гравця",
+    "accept": "Прийняти",
+    "decline": "Відхилити",
+    "declineDialog": {
+      "title": "Відхилити заявку?",
+      "description": "{{name}} отримає повідомлення, що заявку відхилено. Цю дію не можна скасувати.",
+      "confirm": "Так, відхилити"
+    },
+    "decisionFailed": "Не вдалося зберегти рішення. Спробуйте ще раз.",
+    "noRequests": "Заявок поки немає.",
+    "noPlayers": "Підтверджених гравців поки немає.",
+    "pagination": "Показано {{from}}–{{to}} з {{total}} заявок"
   }
 }

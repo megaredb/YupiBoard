@@ -1,0 +1,22 @@
+import { useTranslation } from "react-i18next";
+import type { BookingParticipantSummary } from "@/shared/api/generated/model";
+import { ParticipantListState } from "@/features/events/components/event-details/participant-list-state";
+import { ParticipantRow } from "@/features/events/components/event-details/participant-row";
+import { useEventParticipants } from "@/features/events/hooks/use-event-participants";
+
+/** A confirmed player's view: who else is at the table. */
+export function ParticipantList({ eventId }: { eventId: string }) {
+  const { t } = useTranslation();
+  const participants = useEventParticipants(eventId);
+  const renderParticipant = (participant: BookingParticipantSummary) => (
+    <ParticipantRow key={participant.id} participant={participant} />
+  );
+
+  return (
+    <ParticipantListState
+      state={participants}
+      emptyText={t("events.participants.noPlayers")}
+      renderItem={renderParticipant}
+    />
+  );
+}

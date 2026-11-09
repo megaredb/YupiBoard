@@ -52,5 +52,7 @@
     "unnamedUser": "Гравець YupiBoard"
   },
   "shortcutsLabel": "Швидкі дії",
-  "uploadPhoto": "Завантажити фото"
+  "uploadPhoto": "Завантажити фото",
+  "changeBanner": "Змінити обкладинку",
+  "bannerHint": "JPEG/PNG до 5 МБ · найкраще підходять широкі зображення"
 }

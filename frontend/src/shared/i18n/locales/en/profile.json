@@ -52,5 +52,7 @@
     "unnamedUser": "YupiBoard player"
   },
   "shortcutsLabel": "Shortcuts",
-  "uploadPhoto": "Upload photo"
+  "uploadPhoto": "Upload photo",
+  "changeBanner": "Change cover",
+  "bannerHint": "JPEG/PNG under 5 MB · wide images work best"
 }

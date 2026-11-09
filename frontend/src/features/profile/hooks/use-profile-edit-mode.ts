@@ -5,6 +5,9 @@ interface ProfileEditMode {
   /** New photo picked while editing; uploaded together with the form. */
   pickedAvatar: File | null;
   setPickedAvatar: (file: File) => void;
+  /** New banner picked while editing; uploaded together with the form. */
+  pickedBanner: File | null;
+  setPickedBanner: (file: File) => void;
   startEditing: () => void;
   stopEditing: () => void;
 }
@@ -12,15 +15,19 @@ interface ProfileEditMode {
 export function useProfileEditMode(): ProfileEditMode {
   const [isEditing, setEditing] = useState(false);
   const [pickedAvatar, setPickedAvatar] = useState<File | null>(null);
+  const [pickedBanner, setPickedBanner] = useState<File | null>(null);
 
   return {
     isEditing,
     pickedAvatar,
     setPickedAvatar,
+    pickedBanner,
+    setPickedBanner,
     startEditing: () => setEditing(true),
     stopEditing: () => {
       setEditing(false);
       setPickedAvatar(null);
+      setPickedBanner(null);
     },
   };
 }
