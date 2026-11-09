@@ -35,9 +35,7 @@ export function EventLinkCard({ event, showOrganizer, showStatus }: EventLinkCar
         rating: formatRating(event.organizer.rating_as_organizer),
       }
     : null;
-  const favoriteLabel = t(isFavorite ? "events.card.removeFavorite" : "events.card.addFavorite", {
-    title: event.title,
-  });
+  const favoriteLabel = t("events.card.favorite", { title: event.title });
 
   return (
     <div className="relative h-full">

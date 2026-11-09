@@ -4,8 +4,7 @@
   "card": {
     "participants": "{{current}} of {{max}} participants",
     "placeWithDistance": "{{place}} · {{km}} km away",
-    "addFavorite": "Add {{title}} to favorites",
-    "removeFavorite": "Remove {{title}} from favorites"
+    "favorite": "Favorite: {{title}}"
   },
   "pagination": {
     "summary": "Showing {{from}}–{{to}} of {{total}} events"

@@ -20,7 +20,8 @@ function readJwtPayload(token: string): unknown {
   if (!payload) return null;
   const base64 = payload.replaceAll("-", "+").replaceAll("_", "/");
   try {
-    return JSON.parse(atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, "="))) as unknown;
+    const json: unknown = JSON.parse(atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, "=")));
+    return json;
   } catch {
     // Not base64 or not JSON: the link was cut short or edited.
     return null;
