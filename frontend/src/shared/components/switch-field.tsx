@@ -9,7 +9,6 @@ interface SwitchFieldProps {
   className?: string;
 }
 
-/** A row with a label on the left and an on/off switch on the right; the whole row is clickable. */
 export function SwitchField({
   label,
   isChecked,

@@ -20,5 +20,10 @@
     "previous": "Попередня",
     "next": "Наступна"
   },
-  "notifications": "Сповіщення"
+  "notifications": "Сповіщення",
+  "location": {
+    "useMyLocation": "Моє місцезнаходження",
+    "locating": "Визначаємо…",
+    "unavailable": "Не вдалося визначити ваше місцезнаходження"
+  }
 }

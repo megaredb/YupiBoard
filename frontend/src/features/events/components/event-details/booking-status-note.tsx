@@ -22,7 +22,6 @@ const noteVariants = cva(
   },
 );
 
-/** Where the player's request stands: waiting, waitlisted or approved. */
 export function BookingStatusNote({ state, className }: BookingStatusNoteProps) {
   const { t } = useTranslation();
   const isApproved = state === "approved";

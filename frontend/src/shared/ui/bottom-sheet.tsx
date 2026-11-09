@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
+import { Backdrop } from "@/shared/ui/backdrop";
 
 interface BottomSheetProps {
   open: boolean;
@@ -24,7 +25,7 @@ export function BottomSheet({
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-foreground/40 transition-opacity data-ending-style:opacity-0 data-starting-style:opacity-0" />
+        <Backdrop />
         <DialogPrimitive.Popup
           className={cn(
             "fixed inset-x-0 bottom-(--keyboard-inset) z-50 flex max-h-[85dvh] flex-col rounded-t-3xl bg-background pb-safe transition-transform outline-none data-ending-style:translate-y-full data-starting-style:translate-y-full",

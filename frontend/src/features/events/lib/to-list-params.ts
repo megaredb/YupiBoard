@@ -5,8 +5,8 @@ import type {
   SortOrder,
 } from "@/shared/api/generated/model";
 import { endOfIsoDate, startOfIsoDate } from "@/shared/lib/date/iso-date";
-import { findCity } from "@/features/events/lib/find-city";
 import type { CatalogFilters, CatalogSort } from "@/features/events/schemas/catalog-search.schema";
+import { findCityByName } from "@/features/locations";
 
 interface ListParamsInput {
   filters: CatalogFilters;
@@ -24,14 +24,13 @@ const SORT_PARAMS = {
   "cost-desc": ["cost", "desc"],
 } as const satisfies Record<CatalogSort, readonly [EventSortBy, SortOrder]>;
 
-/** Catalog filters -> `GET /events` query; unset filters are left out. */
 export function toListParams({
   filters,
   cities,
   page,
   limit,
 }: ListParamsInput): ListEventsApiV1EventsGetParams {
-  const city = findCity(cities, filters.city);
+  const city = findCityByName(cities, filters.city);
   const area = city ? { lat: city.lat, lon: city.lon, radius_km: filters.distance } : {};
   const [sortBy, sortOrder] = SORT_PARAMS[filters.sort];
   return {

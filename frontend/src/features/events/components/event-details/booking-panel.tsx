@@ -11,11 +11,9 @@ interface BookingPanelProps {
   event: EventRead;
   /** The host sees the same facts, without the player's notes. */
   isHost: boolean;
-  /** Call to action: the player's booking controls or the host's shortcut. */
   children: ReactNode;
 }
 
-/** Desktop sidebar card with price, seats and the booking call to action. */
 export function BookingPanel({ event, isHost, children }: BookingPanelProps) {
   const { t } = useTranslation();
   const price = getEventPrice(event);

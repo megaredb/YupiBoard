@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Info } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { FormAlert } from "@/shared/components/form-alert";
 import { BrandLogo } from "@/shared/layout/brand-logo";
 import { Button } from "@/shared/ui/button";
-import { buttonVariants } from "@/shared/ui/button-variants";
-import { StatusMessage } from "@/shared/ui/status-message";
+import { useSignedInUser } from "@/features/auth";
 import { CreateEventForm } from "@/features/events/components/create-event/create-event-form";
+import { EventCreatedMessage } from "@/features/events/components/create-event/event-created-message";
 import { MobileTopBar } from "@/features/events/components/mobile-top-bar";
 import { useCreateEvent } from "@/features/events/hooks/use-create-event";
 import { useGoBack } from "@/features/events/hooks/use-go-back";
@@ -14,6 +15,7 @@ import { useGoBack } from "@/features/events/hooks/use-go-back";
 export function CreateEventPage() {
   const { t } = useTranslation();
   const goBack = useGoBack();
+  const user = useSignedInUser();
   const { createEvent, isPending, isCreated, errorKey } = useCreateEvent();
 
   return (
@@ -39,25 +41,21 @@ export function CreateEventPage() {
         </div>
 
         {isCreated ? (
-          <StatusMessage
-            className="mt-6"
-            title={t("events.create.successTitle")}
-            description={t("events.create.successDescription")}
-            action={
-              <Link to="/events" className={buttonVariants({ size: "xl" })}>
-                {t("events.details.backToEvents")}
-              </Link>
-            }
-          />
+          <EventCreatedMessage />
         ) : (
           <>
-            <p className="mt-4 flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2.5 text-sm text-primary">
-              <Info aria-hidden className="size-4 shrink-0" />
-              {t("events.create.moderationBanner")}
-            </p>
+            <FormAlert tone="info" className="mt-4" message={t("events.create.moderationBanner")} />
+            {!user.is_verified && (
+              <FormAlert
+                tone="warning"
+                className="mt-3"
+                message={t("events.create.verifyEmailRequired", { email: user.email })}
+              />
+            )}
             <div className="mt-5">
               <CreateEventForm
                 isPending={isPending}
+                isDisabled={!user.is_verified}
                 errorKey={errorKey}
                 onSubmit={createEvent}
                 onCancel={goBack}

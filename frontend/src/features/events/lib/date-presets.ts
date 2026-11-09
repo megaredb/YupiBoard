@@ -31,7 +31,6 @@ export function getDatePresetRange(preset: DatePreset, today = new Date()): Date
   return { from: toIsoDate(today), to: toIsoDate(monthEnd) };
 }
 
-/** The preset that produces exactly this range, if any. */
 export function findDatePreset(range: DateRange): DatePreset | undefined {
   return DATE_PRESETS.find((preset) => {
     const presetRange = getDatePresetRange(preset);

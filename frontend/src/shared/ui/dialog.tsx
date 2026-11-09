@@ -2,6 +2,7 @@ import type { ComponentProps } from "react";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
+import { Backdrop } from "@/shared/ui/backdrop";
 
 export function Dialog(props: DialogPrimitive.Root.Props) {
   return <DialogPrimitive.Root {...props} />;
@@ -14,10 +15,7 @@ interface DialogContentProps extends DialogPrimitive.Popup.Props {
 function DialogContent({ className, children, closeLabel, ...props }: DialogContentProps) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Backdrop
-        data-slot="dialog-backdrop"
-        className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-xs transition-opacity data-ending-style:opacity-0 data-starting-style:opacity-0"
-      />
+      <Backdrop />
       <DialogPrimitive.Viewport className="fixed inset-0 z-50 flex items-center justify-center p-4 pb-[max(1rem,var(--keyboard-inset))]">
         <DialogPrimitive.Popup
           data-slot="dialog-content"

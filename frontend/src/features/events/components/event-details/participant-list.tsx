@@ -4,7 +4,6 @@ import { ParticipantListState } from "@/features/events/components/event-details
 import { ParticipantRow } from "@/features/events/components/event-details/participant-row";
 import { useEventParticipants } from "@/features/events/hooks/use-event-participants";
 
-/** A confirmed player's view: who else is at the table. */
 export function ParticipantList({ eventId }: { eventId: string }) {
   const { t } = useTranslation();
   const participants = useEventParticipants(eventId);

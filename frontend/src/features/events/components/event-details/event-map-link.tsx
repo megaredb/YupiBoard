@@ -5,7 +5,6 @@ import type { EventRead } from "@/shared/api/generated/model";
 import { openExternalUrl } from "@/shared/platform/external-link";
 import { getEventMapUrl } from "@/features/events/lib/get-event-map-url";
 
-/** The event's address, opening it on a map outside the app. */
 export function EventMapLink({ event }: { event: Pick<EventRead, "address" | "city"> }) {
   const { t } = useTranslation();
   const url = getEventMapUrl(event);

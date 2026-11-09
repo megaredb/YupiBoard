@@ -4,7 +4,6 @@ import { PageContainer } from "@/shared/layout/page-container";
 import { buttonVariants } from "@/shared/ui/button-variants";
 import { StatusMessage } from "@/shared/ui/status-message";
 
-/** Router `defaultNotFoundComponent`. */
 export function RouteNotFound() {
   const { t } = useTranslation();
 

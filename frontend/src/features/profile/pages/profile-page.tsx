@@ -59,7 +59,7 @@ export function ProfilePage() {
             />
           }
         />
-        <MobileProfileShortcuts userId={user.id} />
+        {!editMode.isEditing && <MobileProfileShortcuts userId={user.id} />}
         {errorKey && <FormAlert message={t(errorKey)} />}
         {editMode.isEditing ? (
           <ProfileEditForm

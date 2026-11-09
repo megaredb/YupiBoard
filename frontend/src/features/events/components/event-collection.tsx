@@ -16,7 +16,6 @@ interface EventCollectionProps {
   showOrganizer: boolean;
 }
 
-/** Layout shared by "My events", "My bookings" and "Favorites". */
 export function EventCollection({
   title,
   aside,

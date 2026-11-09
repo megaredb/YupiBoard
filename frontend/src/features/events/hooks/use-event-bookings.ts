@@ -10,7 +10,6 @@ interface EventBookings {
   totalPages: number;
 }
 
-/** Every booking request of the event, oldest first, for its host. */
 export function useEventBookings(eventId: string, page: number): EventBookings {
   const query = useQuery({
     ...getListEventBookingsApiV1EventsEventIdBookingsGetQueryOptions(eventId, {

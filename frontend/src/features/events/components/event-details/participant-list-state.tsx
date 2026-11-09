@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { ListState } from "@/shared/lib/list-state";
 import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { StatusMessage } from "@/shared/ui/status-message";
 
 interface ParticipantListStateProps<T> {
   state: ListState<T>;
@@ -31,20 +32,17 @@ export function ParticipantListState<T>({
   }
   if (state.status === "error") {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed p-4 text-sm">
-        <span>{t("common.loadFailed")}</span>
-        <Button variant="outline" size="lg" onClick={state.retry}>
-          {t("common.retry")}
-        </Button>
-      </div>
+      <StatusMessage
+        size="compact"
+        title={t("common.loadFailed")}
+        action={
+          <Button variant="outline" size="lg" onClick={state.retry}>
+            {t("common.retry")}
+          </Button>
+        }
+      />
     );
   }
-  if (state.items.length === 0) {
-    return (
-      <p className="rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
-        {emptyText}
-      </p>
-    );
-  }
+  if (state.items.length === 0) return <StatusMessage size="compact" title={emptyText} />;
   return <ul className="space-y-2">{state.items.map(renderItem)}</ul>;
 }

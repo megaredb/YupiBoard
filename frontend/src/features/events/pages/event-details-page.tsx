@@ -61,8 +61,8 @@ export function EventDetailsPage() {
               {participantsViewer && (
                 <EventParticipantsSection event={event} viewer={participantsViewer} />
               )}
-              <OrganizerCard organizer={organizer} />
-              <MobileOrganizerRow organizer={organizer} />
+              {!isHost && <OrganizerCard organizer={organizer} />}
+              {!isHost && <MobileOrganizerRow organizer={organizer} />}
             </div>
           </div>
           <aside className="hidden lg:sticky lg:top-20 lg:block">

@@ -1,11 +1,10 @@
-import { useId, type ChangeEvent } from "react";
-import { SlidersHorizontal } from "lucide-react";
+import type { ChangeEvent } from "react";
+import { MapPin, SlidersHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { FormField } from "@/shared/components/form-field";
 import { Button } from "@/shared/ui/button";
-import { Label } from "@/shared/ui/label";
-import { NativeSelect } from "@/shared/ui/native-select";
-import { useCityOptions } from "@/features/events/hooks/use-city-options";
 import type { CatalogFilters } from "@/features/events/schemas/catalog-search.schema";
+import { CitySelect } from "@/features/locations";
 
 interface MobileCatalogToolbarProps {
   value: CatalogFilters;
@@ -15,25 +14,22 @@ interface MobileCatalogToolbarProps {
 
 export function MobileCatalogToolbar({ value, onApply, onOpenFilters }: MobileCatalogToolbarProps) {
   const { t } = useTranslation();
-  const selectId = useId();
-  const cityOptions = useCityOptions();
   const handleCityChange = (event: ChangeEvent<HTMLSelectElement>) =>
     onApply({ ...value, city: event.target.value });
 
   return (
-    <div className="mb-4 flex items-center justify-between gap-3 lg:hidden">
-      <div className="min-w-0 flex-1">
-        <Label htmlFor={selectId} className="sr-only">
-          {t("events.filters.location")}
-        </Label>
-        <NativeSelect
-          id={selectId}
-          variant="ghost"
-          options={cityOptions}
-          value={value.city}
-          onChange={handleCityChange}
-        />
-      </div>
+    <div className="flex items-center justify-between gap-3 lg:hidden">
+      <FormField label={t("events.filters.location")} isLabelHidden className="min-w-0 flex-1">
+        {(fieldControl) => (
+          <CitySelect
+            {...fieldControl}
+            variant="ghost"
+            startIcon={<MapPin />}
+            value={value.city}
+            onChange={handleCityChange}
+          />
+        )}
+      </FormField>
       <Button type="button" variant="outline" size="lg" onClick={onOpenFilters}>
         <SlidersHorizontal aria-hidden />
         {t("events.filters.title")}

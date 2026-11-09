@@ -17,7 +17,7 @@ const ACTION_CLASS = "min-w-0 flex-1 text-center text-sm leading-tight whitespac
 
 function MobileCallToAction({ event, action }: MobileBookingBarProps) {
   if (action.state === "hosting")
-    return <PlayersLink eventId={event.id} className={ACTION_CLASS} />;
+    return <PlayersLink eventId={event.id} isCompact className={ACTION_CLASS} />;
   if (action.canCancel) return <CancelBookingButton action={action} className={ACTION_CLASS} />;
   return <BookingButton action={action} className={ACTION_CLASS} />;
 }

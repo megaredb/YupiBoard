@@ -10,8 +10,8 @@ import { applyServerFieldErrors } from "@/shared/lib/form/apply-server-field-err
 import { CONTACT_INFO_MAX_LENGTH } from "@/shared/lib/validators/contact-info";
 import { Card } from "@/shared/ui/card";
 import { Textarea } from "@/shared/ui/textarea";
-import { LocationField } from "@/features/profile/components/location-field";
 import { PersonNameFields } from "@/features/profile/components/person-name-fields";
+import { ProfileCityField } from "@/features/profile/components/profile-city-field";
 import { ProfileEditActions } from "@/features/profile/components/profile-edit-actions";
 import {
   BIO_MAX_LENGTH,
@@ -47,8 +47,6 @@ export function ProfileEditForm(props: ProfileEditFormProps) {
   const form = useAppForm(profileSchema, { defaultValues: toDefaultValues(user) });
   const { errors } = form.formState;
   const bioLength = useWatch({ control: form.control, name: "bio" }).length;
-  const handleLocated = (location: string) =>
-    form.setValue("city", location, { shouldDirty: true, shouldValidate: true });
   const submit = form.handleSubmit((values) =>
     props.onSubmit(values, (error) => applyServerFieldErrors(error, SERVER_FIELDS, form.setError)),
   );
@@ -94,12 +92,7 @@ export function ProfileEditForm(props: ProfileEditFormProps) {
             startIcon={<Lock />}
             hint={t("profile.emailLinkedNote")}
           />
-          <LocationField
-            onLocated={handleLocated}
-            error={fieldError(errors.city?.message)}
-            disabled={isPending}
-            {...form.register("city")}
-          />
+          <ProfileCityField savedCity={user.city} isPending={isPending} />
           <ProfileEditActions
             isPending={isPending}
             onCancel={props.onCancel}

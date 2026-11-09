@@ -6,7 +6,6 @@ interface DetailsRowProps {
   children: ReactNode;
 }
 
-/** One `dt`/`dd` pair of a profile `dl`. */
 export function DetailsRow({ label, note, children }: DetailsRowProps) {
   return (
     <div className="grid grid-cols-1 gap-1 py-4 sm:grid-cols-3 sm:gap-4">

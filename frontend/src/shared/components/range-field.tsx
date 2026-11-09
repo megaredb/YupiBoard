@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type KeyboardEvent } from "react";
-import { Input } from "@/shared/ui/input";
+import { InputGroup } from "@/shared/ui/input-group";
 import { Slider } from "@/shared/ui/slider";
 
 type Range = readonly [number, number];
@@ -29,7 +29,6 @@ function toRange(values: readonly number[], fallback: Range): Range {
 
 const BOUNDS = [0, 1] as const;
 
-/** Two number inputs and a two-thumb slider editing the same range. */
 export function RangeField({
   label,
   boundLabels,
@@ -63,16 +62,9 @@ export function RangeField({
       <legend className="mb-2 text-sm font-medium">{label}</legend>
       <div className="flex items-center gap-2">
         {BOUNDS.map((index) => (
-          <div key={index} className="relative flex-1">
-            {prefix && (
-              <span
-                aria-hidden
-                className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground"
-              >
-                {prefix}
-              </span>
-            )}
-            <Input
+          <InputGroup key={index} className="flex-1">
+            {prefix && <InputGroup.Addon aria-hidden>{prefix}</InputGroup.Addon>}
+            <InputGroup.Input
               type="number"
               inputMode="numeric"
               aria-label={boundLabels[index]}
@@ -83,9 +75,8 @@ export function RangeField({
               onChange={(event) => handleInput(index, event)}
               onBlur={handleInputCommit}
               onKeyDown={handleInputKeyDown}
-              className={prefix ? "pl-7" : undefined}
             />
-          </div>
+          </InputGroup>
         ))}
       </div>
       <Slider

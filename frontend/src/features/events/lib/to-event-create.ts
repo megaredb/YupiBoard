@@ -12,6 +12,7 @@ export function toEventCreate(
     game_title: values.gameTitle,
     description: values.description,
     city: city.name,
+    location_name: values.venueName || null,
     address: values.address,
     lat: city.lat,
     lon: city.lon,

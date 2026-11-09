@@ -9,7 +9,6 @@ interface UserAvatarProps {
   fallbackClassName?: string;
 }
 
-/** Photo with the person's initials as fallback. */
 export function UserAvatar({ name, avatarUrl, className, fallbackClassName }: UserAvatarProps) {
   return (
     <Avatar className={cn("border-2 border-card shadow-xs", className)}>

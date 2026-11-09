@@ -30,9 +30,6 @@ const DEFAULT_SORT: CatalogSort = "distance-asc";
 
 const DEFAULT_DISTANCE_KM = 15;
 
-/** Backend city name the catalog opens with; any name it does not know falls back too. */
-export const DEFAULT_CITY_NAME = "Kyiv";
-
 function toInteger(min: number, max: number) {
   return (value: unknown) => {
     const number = Number(value);
@@ -64,7 +61,8 @@ const searchQuery = z.preprocess(
 /** `/events?city=Lviv&distance=20&sort=date-asc&costMax=0&page=2`; every param is optional. */
 export const catalogSearchSchema = z.object({
   page: boundedNumber(1, Number.MAX_SAFE_INTEGER, 1),
-  city: z.string().default(DEFAULT_CITY_NAME),
+  /** Absent: the user's own city (or the default one) is searched. */
+  city: z.string().optional().catch(undefined),
   distance: boundedNumber(DISTANCE_RANGE_KM.min, DISTANCE_RANGE_KM.max, DEFAULT_DISTANCE_KM),
   q: searchQuery,
   sort: z.enum(CATALOG_SORTS).default(DEFAULT_SORT).catch(DEFAULT_SORT),
@@ -76,16 +74,24 @@ export const catalogSearchSchema = z.object({
   rating: optionalBoundedNumber(1, ORGANIZER_RATINGS.length),
 });
 
-export type CatalogFilters = Omit<z.infer<typeof catalogSearchSchema>, "page">;
+type CatalogSearch = z.infer<typeof catalogSearchSchema>;
 
-export const DEFAULT_CATALOG_FILTERS: CatalogFilters = {
-  city: DEFAULT_CITY_NAME,
+/** Search params with the city resolved to the one actually searched. */
+export type CatalogFilters = Omit<CatalogSearch, "page" | "city"> & { city: string };
+
+export const DEFAULT_DISTANCE = DEFAULT_DISTANCE_KM;
+
+/** Values left out of catalog URLs, since they are what an absent param means anyway. */
+export const CATALOG_SEARCH_DEFAULTS = {
+  page: 1,
   distance: DEFAULT_DISTANCE_KM,
   sort: DEFAULT_SORT,
-};
+} as const;
 
 /** A 1-based page number; anything else in the URL falls back to the first page. */
 export const pageNumberSchema = boundedNumber(1, Number.MAX_SAFE_INTEGER, 1);
 
 /** `?page=2` of the personal event lists (my events, bookings, favorites). */
 export const pageSearchSchema = z.object({ page: pageNumberSchema });
+
+export const PAGE_SEARCH_DEFAULTS = { page: 1 } as const;

@@ -10,11 +10,7 @@
   "photoHint": "JPEG/PNG under 2 MB",
   "bioHint": "Tell others about your board game preferences…",
   "emailLinkedNote": "Your email cannot be changed",
-  "locationHint": "Distance to events is calculated from the city centre",
-  "locationEditHint": "Set an exact address or a city; for a city, distance is calculated from its centre",
-  "useGps": "Use GPS",
-  "gpsLocating": "Locating…",
-  "locationUnavailable": "Couldn't get your location",
+  "locationHint": "Events are searched around this city by default",
   "passwordMasked": "••••••••",
   "changePassword": "Change password",
   "saveChanges": "Save changes",
@@ -54,5 +50,6 @@
   "shortcutsLabel": "Shortcuts",
   "uploadPhoto": "Upload photo",
   "changeBanner": "Change cover",
-  "bannerHint": "JPEG/PNG under 5 MB · wide images work best"
+  "bannerHint": "JPEG/PNG under 5 MB · wide images work best",
+  "cityNotSet": "Not set"
 }

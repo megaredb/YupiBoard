@@ -12,7 +12,6 @@ interface PasswordDialog {
   errorKey: TranslationKey | null;
 }
 
-/** The "change password" dialog: opens with a clean state and closes once the change succeeds. */
 export function usePasswordDialog(): PasswordDialog {
   const [isOpen, setOpen] = useState(false);
   const close = () => setOpen(false);

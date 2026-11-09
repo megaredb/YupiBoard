@@ -10,7 +10,6 @@ interface CancelBookingButtonProps {
   className?: string;
 }
 
-/** Gives up the seat or request, after the player confirms. */
 export function CancelBookingButton({ action, className }: CancelBookingButtonProps) {
   const { t } = useTranslation();
   const [isConfirming, setConfirming] = useState(false);

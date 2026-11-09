@@ -8,7 +8,6 @@ import { MobileCatalogToolbar } from "@/features/events/components/event-catalog
 import { MobileFiltersSheet } from "@/features/events/components/event-catalog/mobile-filters-sheet";
 import { EventList } from "@/features/events/components/event-list";
 import { EventPagination } from "@/features/events/components/event-pagination";
-import { useCatalogCity } from "@/features/events/hooks/use-catalog-city";
 import { useCatalogFilters } from "@/features/events/hooks/use-catalog-filters";
 import { useEventCatalog } from "@/features/events/hooks/use-event-catalog";
 
@@ -17,7 +16,6 @@ export function EventCatalogPage() {
   const { filters, page, applyFilters, goToPage } = useCatalogFilters();
   const { list, total, totalPages, isRefreshing } = useEventCatalog(filters, page);
   const [isSheetOpen, setSheetOpen] = useState(false);
-  const cityName = useCatalogCity(filters.city)?.name ?? filters.city;
   const foundLabel = total === null ? null : t("events.catalog.found", { count: total });
   const handleOpenSheet = () => setSheetOpen(true);
 
@@ -26,7 +24,7 @@ export function EventCatalogPage() {
       <PageHeader
         className="hidden lg:flex"
         title={t("events.catalog.title")}
-        description={t("events.catalog.subtitle", { city: cityName })}
+        description={t("events.catalog.subtitle", { city: filters.city })}
       />
 
       <div className="lg:mt-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start lg:gap-7">

@@ -2,8 +2,8 @@
   "free": "Безкоштовно",
   "promoted": "Рекомендовано",
   "card": {
-    "distance": "{{km}} км від вас",
-    "participants": "{{current}} з {{max}} учасників"
+    "participants": "{{current}} з {{max}} учасників",
+    "placeWithDistance": "{{place}} · {{km}} км від вас"
   },
   "pagination": {
     "summary": "Показано {{from}}–{{to}} з {{total}} подій"
@@ -137,7 +137,8 @@
     },
     "applied": "Заявку надіслано",
     "appliedDescription": "Організатор незабаром її розгляне.",
-    "cancelled": "Бронювання скасовано"
+    "cancelled": "Бронювання скасовано",
+    "players": "Гравці"
   },
   "create": {
     "title": "Нова подія",
@@ -173,15 +174,20 @@
       "time": "Час початку",
       "city": "Місто",
       "address": "Адреса або заклад",
-      "addressPlaceholder": "Вулиця, будинок або назва закладу",
-      "addressHint": "Вкажіть повну адресу або назву закладу",
+      "addressPlaceholder": "Вулиця та номер будинку",
+      "addressHint": "За нею гравці знайдуть заклад на мапі",
       "seats": "Максимум гравців",
       "seatsHint": "Разом із вами, {{min}}–{{max}} гравців",
       "seatsDecrease": "Менше місць",
       "seatsIncrease": "Більше місць",
       "price": "Ціна для гравця (грн)",
-      "priceHint": "Вкажіть 0 для безкоштовної гри"
-    }
+      "priceHint": "Вкажіть 0 для безкоштовної гри",
+      "venueName": "Назва закладу",
+      "venueNamePlaceholder": "Напр., антикафе «Гільдія»"
+    },
+    "verifyEmailRequired": "Підтвердьте пошту, щоб створювати події. Відкрийте посилання, яке ми надіслали на {{email}}.",
+    "verifyEmailFirst": "Підтвердьте пошту, перш ніж створювати події.",
+    "toMyEvents": "До моїх подій"
   },
   "search": {
     "label": "Пошук подій",

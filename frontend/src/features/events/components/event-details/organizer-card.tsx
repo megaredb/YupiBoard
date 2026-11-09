@@ -5,7 +5,6 @@ import { Card } from "@/shared/ui/card";
 import type { EventOrganizer } from "@/features/events/hooks/use-event-organizer";
 import { UserAvatar } from "@/features/users";
 
-/** Desktop "Meet your organizer" card. */
 export function OrganizerCard({ organizer }: { organizer: EventOrganizer }) {
   const { t } = useTranslation();
 

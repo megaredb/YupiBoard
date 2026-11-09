@@ -40,7 +40,7 @@ export function EventFacts({ event }: { event: EventRead }) {
         />
         <Fact
           icon={<MapPin aria-hidden />}
-          title={event.game_title}
+          title={event.location_name || event.city}
           detail={<EventMapLink event={event} />}
         />
       </div>

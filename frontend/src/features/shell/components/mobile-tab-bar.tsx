@@ -5,7 +5,6 @@ import { TAB_BAR_ITEMS } from "@/features/shell/lib/nav-items";
 const ACTIVE_TAB = { className: "text-primary" };
 const INACTIVE_TAB = { className: "text-muted-foreground" };
 
-/** Phone navigation for signed-in users; desktop uses `MainNav`. */
 export function MobileTabBar() {
   const { t } = useTranslation();
 

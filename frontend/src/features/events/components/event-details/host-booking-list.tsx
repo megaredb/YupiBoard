@@ -13,7 +13,6 @@ import { useEventBookings } from "@/features/events/hooks/use-event-bookings";
 import { EVENT_BOOKINGS_PAGE_SIZE } from "@/features/events/schemas/event-details-search.schema";
 import { getFullName } from "@/features/users";
 
-/** The host's view: every request with its status; pending ones can be accepted or declined. */
 export function HostBookingList({ eventId }: { eventId: string }) {
   const { t } = useTranslation();
   const { page, goToPage } = useBookingsPage();

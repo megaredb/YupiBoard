@@ -15,7 +15,6 @@ interface RangeSliderProps {
   onCommit: (value: number) => void;
 }
 
-/** Labelled single-value slider with its current value and the track bounds. */
 export function RangeSlider({
   label,
   formatValue,

@@ -7,11 +7,12 @@ import { PARTICIPANTS_SECTION_ID } from "@/features/events/lib/participants-sect
 
 interface PlayersLinkProps {
   eventId: string;
+  /** Short label for the phone booking bar. */
+  isCompact?: boolean;
   className?: string;
 }
 
-/** The host's shortcut to the participants and booking requests further down the page. */
-export function PlayersLink({ eventId, className }: PlayersLinkProps) {
+export function PlayersLink({ eventId, isCompact = false, className }: PlayersLinkProps) {
   const { t } = useTranslation();
 
   return (
@@ -24,7 +25,7 @@ export function PlayersLink({ eventId, className }: PlayersLinkProps) {
       className={cn(buttonVariants({ size: "xl" }), "shadow-sm", className)}
     >
       <Users aria-hidden />
-      {t("events.booking.goToPlayers")}
+      {isCompact ? t("events.booking.players") : t("events.booking.goToPlayers")}
     </Link>
   );
 }

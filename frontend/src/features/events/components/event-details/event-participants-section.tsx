@@ -10,7 +10,6 @@ interface EventParticipantsSectionProps {
   viewer: "host" | "participant";
 }
 
-/** "Participants (4/6 joined)": booking requests for the host, the table for its players. */
 export function EventParticipantsSection({ event, viewer }: EventParticipantsSectionProps) {
   const { t } = useTranslation();
   const isHost = viewer === "host";

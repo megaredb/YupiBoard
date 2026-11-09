@@ -29,7 +29,6 @@ function getDecisionMessageKey({ status }: BookingRead) {
   return "events.participants.declined";
 }
 
-/** The host accepts or declines a pending request; seats and lists are refreshed afterwards. */
 export function useBookingDecision(eventId: string): BookingDecision {
   const { t } = useTranslation();
   const queryClient = useQueryClient();

@@ -6,7 +6,6 @@ interface FilterSectionProps {
   children: ReactNode;
 }
 
-/** One block of the filter panel, separated from the previous one by a rule. */
 export function FilterSection({ title, children }: FilterSectionProps) {
   return (
     <section className="space-y-3 border-t border-border pt-4 first:border-t-0 first:pt-0">

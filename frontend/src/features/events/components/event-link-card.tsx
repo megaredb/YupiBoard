@@ -12,14 +12,14 @@ interface EventLinkCardProps {
   showOrganizer: boolean;
 }
 
-/** Maps a catalog item to the presentational `EventCard`, wrapped in a link to the event. */
 export function EventLinkCard({ event, showOrganizer }: EventLinkCardProps) {
   const { t } = useTranslation();
   const price = getEventPrice(event);
+  const place = event.location_name || event.address;
   const location =
     event.distance_km == null
-      ? event.address
-      : t("events.card.distance", { km: formatDecimal(event.distance_km) });
+      ? place
+      : t("events.card.placeWithDistance", { place, km: formatDecimal(event.distance_km) });
 
   return (
     <Link

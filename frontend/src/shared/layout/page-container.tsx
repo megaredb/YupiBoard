@@ -13,7 +13,6 @@ const maxWidth = {
   wide: "max-w-7xl",
 } as const;
 
-/** Centered horizontal padding + max-width used by every app page. */
 export function PageContainer({ children, size = "default", className }: PageContainerProps) {
   return (
     <div className={cn("mx-auto w-full px-4 py-6 sm:px-6 lg:px-10", maxWidth[size], className)}>

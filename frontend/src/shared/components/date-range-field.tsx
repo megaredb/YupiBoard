@@ -13,7 +13,6 @@ interface DateRangeFieldProps {
   toLabel: string;
   value: DateRange;
   onChange: (value: DateRange) => void;
-  /** Earliest selectable date. */
   min?: string;
 }
 

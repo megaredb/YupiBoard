@@ -2,7 +2,7 @@ import type { SubmitEvent } from "react";
 import { Search } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
-import { Input } from "@/shared/ui/input";
+import { InputGroup } from "@/shared/ui/input-group";
 
 interface SearchFieldProps {
   label: string;
@@ -18,7 +18,7 @@ interface SearchFieldProps {
 
 const QUERY_FIELD = "query";
 
-/** Search box that commits on submit, so typing does not refetch on every keystroke. */
+/** Commits on submit, so typing does not refetch on every keystroke. */
 export function SearchField({
   label,
   placeholder,
@@ -36,25 +36,28 @@ export function SearchField({
 
   return (
     <search className={cn("min-w-0 flex-1", className)}>
-      <form onSubmit={handleSubmit} className="relative">
-        <Input
-          type="search"
-          name={QUERY_FIELD}
-          aria-label={label}
-          placeholder={placeholder}
-          maxLength={maxLength}
-          defaultValue={defaultValue}
-          className="bg-card pr-12"
-        />
-        <Button
-          type="submit"
-          variant="ghost"
-          size="icon"
-          aria-label={submitLabel}
-          className="absolute top-1/2 right-1.5 -translate-y-1/2 text-muted-foreground"
-        >
-          <Search aria-hidden />
-        </Button>
+      <form onSubmit={handleSubmit}>
+        <InputGroup className="bg-card">
+          <InputGroup.Input
+            type="search"
+            name={QUERY_FIELD}
+            aria-label={label}
+            placeholder={placeholder}
+            maxLength={maxLength}
+            defaultValue={defaultValue}
+          />
+          <InputGroup.Addon align="inline-end">
+            <Button
+              type="submit"
+              variant="ghost"
+              size="icon"
+              aria-label={submitLabel}
+              className="text-muted-foreground"
+            >
+              <Search aria-hidden />
+            </Button>
+          </InputGroup.Addon>
+        </InputGroup>
       </form>
     </search>
   );

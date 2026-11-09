@@ -2,8 +2,8 @@
   "free": "Free",
   "promoted": "Promoted",
   "card": {
-    "distance": "{{km}} km away",
-    "participants": "{{current}} of {{max}} participants"
+    "participants": "{{current}} of {{max}} participants",
+    "placeWithDistance": "{{place}} · {{km}} km away"
   },
   "pagination": {
     "summary": "Showing {{from}}–{{to}} of {{total}} events"
@@ -123,7 +123,8 @@
     },
     "applied": "Request sent",
     "appliedDescription": "The organizer will review it soon.",
-    "cancelled": "Booking cancelled"
+    "cancelled": "Booking cancelled",
+    "players": "Players"
   },
   "create": {
     "title": "Create new event",
@@ -159,15 +160,20 @@
       "time": "Start time",
       "city": "City",
       "address": "Address or venue",
-      "addressPlaceholder": "Street, building, or venue name",
-      "addressHint": "Type the full street address or the venue name",
+      "addressPlaceholder": "Street and building number",
+      "addressHint": "Players use it to find the venue on a map",
       "seats": "Max players",
       "seatsHint": "Including you, {{min}}–{{max}} players",
       "seatsDecrease": "Fewer seats",
       "seatsIncrease": "More seats",
       "price": "Price per player (UAH)",
-      "priceHint": "Set 0 for a free session"
-    }
+      "priceHint": "Set 0 for a free session",
+      "venueName": "Venue name",
+      "venueNamePlaceholder": "e.g., The Guild board game café"
+    },
+    "verifyEmailRequired": "Confirm your email to create events. Open the link we sent to {{email}}.",
+    "verifyEmailFirst": "Confirm your email before creating events.",
+    "toMyEvents": "Go to my events"
   },
   "search": {
     "label": "Search events",

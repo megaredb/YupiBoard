@@ -28,7 +28,6 @@ function isCatalogSort(value: string): value is CatalogSort {
   return CATALOG_SORTS.some((sort) => sort === value);
 }
 
-/** Title search and sort order above the event grid. */
 export function CatalogSearchBar({ value, onApply }: CatalogSearchBarProps) {
   const { t } = useTranslation();
   const sortId = useId();

@@ -29,7 +29,6 @@ export interface BookingAction {
   cancel: () => void;
 }
 
-/** Apply for and give up a seat; the outcome is reported with a toast. */
 export function useBookingAction(event: EventRead): BookingAction {
   const { t } = useTranslation();
   const navigate = useNavigate();

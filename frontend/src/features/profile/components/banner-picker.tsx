@@ -1,10 +1,10 @@
-import { useId, useState, type ChangeEvent } from "react";
+import { useId } from "react";
 import { ImageUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useImageFilePicker } from "@/shared/hooks/use-image-file-picker";
 import { useObjectUrl } from "@/shared/hooks/use-object-url";
 import { cn } from "@/shared/lib/cn";
 import { IMAGE_MIME_TYPES } from "@/shared/lib/image/image-constraints";
-import { prepareImage } from "@/shared/lib/image/prepare-image";
 import { buttonVariants } from "@/shared/ui/button-variants";
 import { ProfileBanner } from "@/features/profile/components/profile-banner";
 
@@ -15,24 +15,12 @@ interface BannerPickerProps {
   isDisabled: boolean;
 }
 
-/** Edit mode banner: previews a newly picked image, validated by the shared image pipeline. */
 export function BannerPicker({ currentUrl, value, onChange, isDisabled }: BannerPickerProps) {
   const { t } = useTranslation();
   const inputId = useId();
   const hintId = `${inputId}-hint`;
   const previewUrl = useObjectUrl(value);
-  const [hasError, setHasError] = useState(false);
-
-  const pickFile = async (file: File) => {
-    const result = await prepareImage(file, "banner");
-    setHasError(result.status !== "ok");
-    if (result.status === "ok") onChange(result.file);
-  };
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (file) void pickFile(file);
-  };
+  const { handleFileChange, hasError } = useImageFilePicker("banner", onChange);
 
   return (
     <ProfileBanner imageUrl={previewUrl ?? currentUrl}>

@@ -1,7 +1,7 @@
 import { Outlet } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { AppToaster } from "@/shared/components/app-toaster";
 import { OfflineBanner } from "@/shared/components/offline-banner";
-import { Toaster } from "@/shared/components/toaster";
 import { Footer } from "@/shared/layout/footer";
 import { cn } from "@/shared/lib/cn";
 import { useCurrentUser } from "@/features/auth";
@@ -33,15 +33,9 @@ export function AppLayout() {
       <main className="w-full flex-1 pb-bottom-bar">
         <Outlet />
       </main>
-      {hasChrome && (
-        <Footer
-          className="max-md:hidden"
-          brandName={t("common.brand")}
-          copyright={t("shell.copyright")}
-        />
-      )}
+      {hasChrome && <Footer className="max-md:hidden" copyright={t("shell.copyright")} />}
       {hasTabBar && <MobileTabBar />}
-      <Toaster />
+      <AppToaster />
     </div>
   );
 }

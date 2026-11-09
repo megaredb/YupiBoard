@@ -7,11 +7,9 @@ import { formatRating, getFullName, UserAvatar } from "@/features/users";
 
 interface ParticipantRowProps {
   participant: BookingParticipantSummary;
-  /** Status and the host's actions, on the right. */
   aside?: ReactNode;
 }
 
-/** One player: photo, name linking to their profile, and player rating. */
 export function ParticipantRow({ participant, aside }: ParticipantRowProps) {
   const { t } = useTranslation();
   const name = getFullName(participant) ?? t("events.participants.unnamed");

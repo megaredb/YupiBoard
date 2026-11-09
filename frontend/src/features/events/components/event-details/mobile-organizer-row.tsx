@@ -5,7 +5,6 @@ import { Card } from "@/shared/ui/card";
 import type { EventOrganizer } from "@/features/events/hooks/use-event-organizer";
 import { UserAvatar } from "@/features/users";
 
-/** Phone "Organizer" card: the whole row links to the public profile. */
 export function MobileOrganizerRow({ organizer }: { organizer: EventOrganizer }) {
   const { t } = useTranslation();
 
