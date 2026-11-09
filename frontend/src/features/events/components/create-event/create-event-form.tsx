@@ -64,12 +64,12 @@ export function CreateEventForm({
         <div className="space-y-3 border-t pt-5">
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-muted-foreground">{t("common.requiredFields")}</p>
-            <div className="flex gap-3">
+            <div className="flex flex-col-reverse gap-3 sm:flex-row">
               <Button
                 type="button"
                 variant="outline"
                 size="xl"
-                className="flex-1 sm:flex-none"
+                className="w-full sm:w-auto"
                 onClick={onCancel}
               >
                 {t("common.cancel")}
@@ -77,7 +77,7 @@ export function CreateEventForm({
               <Button
                 type="submit"
                 size="xl"
-                className="flex-1 sm:flex-none"
+                className="w-full sm:w-auto"
                 isLoading={isPending}
                 disabled={isDisabled}
               >

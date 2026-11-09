@@ -1,11 +1,26 @@
 /* Phone layout: safe areas, the on-screen keyboard and fixed bottom bars (PLAT-6, PLAT-9). */
 
+/*
+ * The one phone/desktop boundary (UI-6, FS-5). Phone-only UI is `desktop:hidden`, desktop-only UI
+ * is `max-desktop:hidden`. `md` and `lg` are removed so a second boundary cannot creep back in;
+ * `sm` stays for small layout tweaks inside a component.
+ */
+@theme {
+  --breakpoint-md: initial;
+  --breakpoint-lg: initial;
+  --breakpoint-desktop: 64rem;
+}
+
 :root {
   --safe-top: env(safe-area-inset-top);
   --safe-bottom: env(safe-area-inset-bottom);
   /* Set by shared/platform/keyboard.ts while the Android keyboard is open. */
   --keyboard-inset: 0px;
   --tab-bar-height: 4rem;
+  /* Desktop page columns and the event card grid. */
+  --filters-width: 17.5rem;
+  --aside-width: 21.25rem;
+  --card-min-width: 15rem;
   /* Phone action bar of immersive pages (e.g. booking on the event page). */
   --action-bar-height: 4.5rem;
   /* Space taken by a fixed bottom bar; fixed and scrolling content stays clear of it. */
@@ -34,6 +49,29 @@
 
 @utility pb-bottom-bar {
   padding-bottom: var(--bottom-bar-inset);
+}
+
+/* Desktop two-column pages: filters left of the content, or an aside right of it. */
+@utility grid-with-filters {
+  grid-template-columns: var(--filters-width) minmax(0, 1fr);
+}
+
+@utility grid-with-aside {
+  grid-template-columns: minmax(0, 1fr) var(--aside-width);
+}
+
+/* As many cards per row as fit; one full-width card on screens narrower than a card. */
+@utility grid-cards {
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--card-min-width), 100%), 1fr));
+}
+
+/* Android WebView: no grey tap flash and no long-press text selection on controls. */
+[data-platform="android"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+[data-platform="android"] :is(button, a, label, [role="button"]) {
+  user-select: none;
 }
 
 /* Grows the pointer target of small controls to 44x44 px without changing their look. */

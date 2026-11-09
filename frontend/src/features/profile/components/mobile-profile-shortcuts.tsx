@@ -24,7 +24,7 @@ export function MobileProfileShortcuts({ userId }: { userId: string }) {
   const chevron = <ChevronRight aria-hidden className="size-4 text-muted-foreground" />;
 
   return (
-    <Card className="gap-0 divide-y divide-border rounded-2xl py-0 shadow-sm md:hidden">
+    <Card className="gap-0 divide-y divide-border py-0 desktop:hidden">
       <nav aria-label={t("profile.shortcutsLabel")} className="divide-y divide-border">
         <Link to="/events/new" className={ROW_CLASS}>
           <Plus aria-hidden />

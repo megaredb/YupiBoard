@@ -2,7 +2,6 @@ import { useTranslation } from "react-i18next";
 import { useResolvedTheme } from "@/shared/hooks/use-theme";
 import { Toaster } from "@/shared/ui/sonner";
 
-const TOAST_DURATION_MS = 5000;
 const MAX_VISIBLE_TOASTS = 3;
 
 /**
@@ -21,7 +20,6 @@ export function AppToaster() {
     <Toaster
       theme={theme}
       position="bottom-right"
-      duration={TOAST_DURATION_MS}
       visibleToasts={MAX_VISIBLE_TOASTS}
       closeButton
       offset={{ bottom: BOTTOM_OFFSET, right: "1rem" }}

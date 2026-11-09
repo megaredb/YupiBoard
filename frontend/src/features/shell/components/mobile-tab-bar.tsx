@@ -11,7 +11,7 @@ export function MobileTabBar() {
   return (
     <nav
       aria-label={t("shell.nav.label")}
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-safe backdrop-blur-md md:hidden keyboard-open:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-safe backdrop-blur-md desktop:hidden keyboard-open:hidden"
     >
       <ul className="grid h-(--tab-bar-height) grid-cols-4">
         {TAB_BAR_ITEMS.map(({ to, labelKey, icon: Icon }) => (

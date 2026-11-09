@@ -52,54 +52,56 @@ export function ProfileEditForm(props: ProfileEditFormProps) {
   );
 
   return (
-    <Card className="rounded-2xl p-6 shadow-sm sm:p-8">
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="text-lg font-semibold text-foreground">{t("profile.editProfile")}</h2>
-        <span className="text-xs text-muted-foreground">{t("common.requiredFields")}</span>
-      </div>
-      <FormProvider {...form}>
-        <form noValidate className="mt-2 space-y-5" onSubmit={submit}>
-          <PersonNameFields isPending={isPending} className="space-y-5" />
-          <FormField
-            label={t("profile.fields.bio")}
-            optionalText={t("common.optional")}
-            hint={t("profile.bioHint")}
-            error={fieldError(errors.bio?.message)}
-            counter={`${bioLength}/${BIO_MAX_LENGTH}`}
-          >
-            {(fieldControl) => (
-              <Textarea
-                {...fieldControl}
-                maxLength={BIO_MAX_LENGTH}
-                disabled={isPending}
-                {...form.register("bio")}
-              />
-            )}
-          </FormField>
-          <TextField
-            label={t("profile.fields.contactInfo")}
-            autoComplete="tel"
-            maxLength={CONTACT_INFO_MAX_LENGTH}
-            error={fieldError(errors.contact_info?.message)}
-            disabled={isPending}
-            {...form.register("contact_info")}
-          />
-          <TextField
-            label={t("profile.fields.email")}
-            value={user.email}
-            readOnly
-            disabled
-            startIcon={<Lock />}
-            hint={t("profile.emailLinkedNote")}
-          />
-          <ProfileCityField savedCity={user.city} isPending={isPending} />
-          <ProfileEditActions
-            isPending={isPending}
-            onCancel={props.onCancel}
-            onChangePassword={props.onChangePassword}
-          />
-        </form>
-      </FormProvider>
+    <Card size="lg">
+      <Card.Content>
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-lg font-semibold text-foreground">{t("profile.editProfile")}</h2>
+          <span className="text-xs text-muted-foreground">{t("common.requiredFields")}</span>
+        </div>
+        <FormProvider {...form}>
+          <form noValidate className="mt-2 space-y-5" onSubmit={submit}>
+            <PersonNameFields isPending={isPending} className="space-y-5" />
+            <FormField
+              label={t("profile.fields.bio")}
+              optionalText={t("common.optional")}
+              hint={t("profile.bioHint")}
+              error={fieldError(errors.bio?.message)}
+              counter={`${bioLength}/${BIO_MAX_LENGTH}`}
+            >
+              {(fieldControl) => (
+                <Textarea
+                  {...fieldControl}
+                  maxLength={BIO_MAX_LENGTH}
+                  disabled={isPending}
+                  {...form.register("bio")}
+                />
+              )}
+            </FormField>
+            <TextField
+              label={t("profile.fields.contactInfo")}
+              autoComplete="tel"
+              maxLength={CONTACT_INFO_MAX_LENGTH}
+              error={fieldError(errors.contact_info?.message)}
+              disabled={isPending}
+              {...form.register("contact_info")}
+            />
+            <TextField
+              label={t("profile.fields.email")}
+              value={user.email}
+              readOnly
+              disabled
+              startIcon={<Lock />}
+              hint={t("profile.emailLinkedNote")}
+            />
+            <ProfileCityField savedCity={user.city} isPending={isPending} />
+            <ProfileEditActions
+              isPending={isPending}
+              onCancel={props.onCancel}
+              onChangePassword={props.onChangePassword}
+            />
+          </form>
+        </FormProvider>
+      </Card.Content>
     </Card>
   );
 }

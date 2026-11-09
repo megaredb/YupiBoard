@@ -18,7 +18,7 @@ export function MobileCatalogToolbar({ value, onApply, onOpenFilters }: MobileCa
     onApply({ ...value, city: event.target.value });
 
   return (
-    <div className="flex items-center justify-between gap-3 lg:hidden">
+    <div className="flex items-center justify-between gap-3 desktop:hidden">
       <FormField label={t("events.filters.location")} isLabelHidden className="min-w-0 flex-1">
         {(fieldControl) => (
           <CitySelect

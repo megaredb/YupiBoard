@@ -19,7 +19,10 @@ export function MyEventsPage() {
     <EventCollection
       title={t("events.myEvents.title")}
       aside={
-        <Link to="/events/new" className={buttonVariants({ size: "xl", className: "lg:hidden" })}>
+        <Link
+          to="/events/new"
+          className={buttonVariants({ size: "xl", className: "desktop:hidden" })}
+        >
           <Plus aria-hidden />
           {t("shell.createEvent")}
         </Link>

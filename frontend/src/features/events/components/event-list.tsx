@@ -15,7 +15,7 @@ interface EventListProps {
   isRefreshing?: boolean;
 }
 
-const GRID_CLASS = "grid w-full grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4";
+const GRID_CLASS = "grid w-full grid-cards gap-4";
 const SKELETON_COUNT = 6;
 
 function EventCardSkeleton() {

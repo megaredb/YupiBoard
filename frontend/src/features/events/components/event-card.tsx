@@ -44,7 +44,7 @@ export function EventCard({
   className,
 }: EventCardProps) {
   return (
-    <Card className={cn("h-full gap-0 rounded-xl py-0 shadow-sm", className)}>
+    <Card className={cn("h-full gap-0 rounded-xl py-0", className)}>
       <div className="relative aspect-16/10 w-full shrink-0 overflow-hidden bg-linear-to-br from-image-placeholder to-primary/70">
         {imageUrl && (
           <img

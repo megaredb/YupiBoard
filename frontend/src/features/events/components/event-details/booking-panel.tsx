@@ -19,8 +19,8 @@ export function BookingPanel({ event, isHost, children }: BookingPanelProps) {
   const price = getEventPrice(event);
 
   return (
-    <Card className="rounded-2xl p-6 shadow-sm">
-      <Card.Content className="space-y-5 p-0">
+    <Card size="lg">
+      <Card.Content className="space-y-5">
         <div>
           <p className="text-sm font-medium text-foreground">
             {isHost ? t("events.booking.hostTitle") : t("events.booking.title")}

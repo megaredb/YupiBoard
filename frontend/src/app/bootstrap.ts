@@ -10,6 +10,7 @@ import { showToast } from "@/shared/lib/toast/toast-store";
 import { exitApp, onBackButton } from "@/shared/platform/back-button";
 import { onDeepLink } from "@/shared/platform/deep-links";
 import { initKeyboardInsets } from "@/shared/platform/keyboard";
+import { initPlatformAttribute } from "@/shared/platform/platform-attribute";
 import { initTheme } from "@/shared/platform/theme";
 import { endSession, getCachedCurrentUser, sessionTokenStore } from "@/features/auth";
 
@@ -43,6 +44,7 @@ export async function bootstrap(): Promise<{ router: AppRouter; queryClient: Que
   setRuntimeConfig(env);
   configureApiClient({ baseURL: env.apiBaseUrl, tokenStore: sessionTokenStore });
   await initI18n();
+  initPlatformAttribute();
   initTheme();
   initKeyboardInsets();
 

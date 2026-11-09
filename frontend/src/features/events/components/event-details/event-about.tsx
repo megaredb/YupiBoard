@@ -13,23 +13,26 @@ export function EventAbout({ description }: { description: string }) {
   const handleExpand = () => setExpanded(true);
 
   return (
-    <Card className="rounded-2xl p-6 shadow-sm">
-      <Card.Header className="p-0 pb-4">
-        <Card.Title className="text-xl font-bold tracking-tight">
-          {t("events.details.about")}
-        </Card.Title>
+    <Card size="lg">
+      <Card.Header>
+        <Card.Title size="xl">{t("events.details.about")}</Card.Title>
       </Card.Header>
-      <Card.Content className="space-y-3 p-0">
+      <Card.Content className="space-y-3">
         <p
           className={cn(
             "text-sm leading-relaxed whitespace-pre-line text-muted-foreground",
-            !isExpanded && isCollapsible && "line-clamp-4 lg:line-clamp-none",
+            !isExpanded && isCollapsible && "line-clamp-4 desktop:line-clamp-none",
           )}
         >
           {description}
         </p>
         {isCollapsible && !isExpanded && (
-          <Button type="button" variant="link" onClick={handleExpand} className="p-0 lg:hidden">
+          <Button
+            type="button"
+            variant="link"
+            onClick={handleExpand}
+            className="p-0 desktop:hidden"
+          >
             {t("events.details.readMore")}
           </Button>
         )}

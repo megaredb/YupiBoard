@@ -1,9 +1,8 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Breadcrumbs } from "@/shared/components/breadcrumbs";
 import { FormAlert } from "@/shared/components/form-alert";
-import { BrandLogo } from "@/shared/layout/brand-logo";
-import { Button } from "@/shared/ui/button";
+import { PageContainer } from "@/shared/layout/page-container";
+import { PageHeader } from "@/shared/layout/page-header";
 import { useSignedInUser } from "@/features/auth";
 import { CreateEventForm } from "@/features/events/components/create-event/create-event-form";
 import { EventCreatedMessage } from "@/features/events/components/create-event/event-created-message";
@@ -11,7 +10,7 @@ import { MobileTopBar } from "@/features/events/components/mobile-top-bar";
 import { useCreateEvent } from "@/features/events/hooks/use-create-event";
 import { useGoBack } from "@/features/events/hooks/use-go-back";
 
-/** `/events/new`: a focused flow without the app header and footer. */
+/** `/events/new` (immersive): the app header on desktop, its own top bar on phones. */
 export function CreateEventPage() {
   const { t } = useTranslation();
   const goBack = useGoBack();
@@ -21,30 +20,28 @@ export function CreateEventPage() {
   return (
     <>
       <MobileTopBar onBack={goBack} title={t("events.create.title")} />
-      <div className="mx-auto w-full max-w-2xl px-4 pb-12 lg:pt-safe">
-        <div className="max-lg:hidden">
-          <Link to="/events" className="mt-6 inline-flex items-center rounded-lg">
-            <BrandLogo size="sm" />
-          </Link>
-          <div className="mt-5 flex items-center gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-lg"
-              aria-label={t("common.back")}
-              onClick={goBack}
-            >
-              <ArrowLeft aria-hidden />
-            </Button>
-            <h1 className="text-2xl font-bold tracking-tight">{t("events.create.title")}</h1>
-          </div>
+      <PageContainer size="narrow" className="pb-12 max-desktop:pt-4">
+        <div className="max-desktop:hidden">
+          <Breadcrumbs
+            className="mb-4"
+            label={t("common.breadcrumbs")}
+            items={[
+              { label: t("shell.nav.events"), to: "/events" },
+              { label: t("events.create.title") },
+            ]}
+          />
+          <PageHeader title={t("events.create.title")} />
         </div>
 
         {isCreated ? (
           <EventCreatedMessage />
         ) : (
           <>
-            <FormAlert tone="info" className="mt-4" message={t("events.create.moderationBanner")} />
+            <FormAlert
+              tone="info"
+              className="desktop:mt-5"
+              message={t("events.create.moderationBanner")}
+            />
             {!user.is_verified && (
               <FormAlert
                 tone="warning"
@@ -63,7 +60,7 @@ export function CreateEventPage() {
             </div>
           </>
         )}
-      </div>
+      </PageContainer>
     </>
   );
 }

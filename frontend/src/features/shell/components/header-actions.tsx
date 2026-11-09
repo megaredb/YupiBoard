@@ -17,7 +17,7 @@ export function HeaderActions() {
 
   if (user) {
     return (
-      <div className="ml-auto flex items-center gap-3 max-md:hidden">
+      <div className="ml-auto flex items-center gap-3 max-desktop:hidden">
         <Link to="/events/new" className={buttonVariants({ size: "lg", className: "px-4" })}>
           <Plus aria-hidden />
           {t("shell.createEvent")}

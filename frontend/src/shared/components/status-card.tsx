@@ -31,16 +31,18 @@ const ICONS = { pending: LoaderCircle, success: CheckCircle2, error: CircleAlert
 export function StatusCard({ tone, title, description, children }: StatusCardProps) {
   const Icon = ICONS[tone];
   return (
-    <Card className="w-full rounded-2xl p-2 shadow-sm sm:p-4">
+    <Card size="lg" className="w-full">
       <Card.Header className="text-center">
         <div className={iconWrapperVariants({ tone })}>
           <Icon aria-hidden className={tone === "pending" ? "size-6 animate-spin" : "size-6"} />
         </div>
-        <Card.Title className="text-2xl font-bold tracking-tight">{title}</Card.Title>
+        <Card.Title size="2xl">{title}</Card.Title>
         <Card.Description>{description}</Card.Description>
       </Card.Header>
       {children && (
-        <Card.Footer className="flex-col gap-2 border-0 bg-transparent">{children}</Card.Footer>
+        <Card.Footer variant="plain" className="flex-col gap-2">
+          {children}
+        </Card.Footer>
       )}
     </Card>
   );

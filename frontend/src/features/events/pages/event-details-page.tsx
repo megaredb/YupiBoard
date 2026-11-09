@@ -47,16 +47,16 @@ export function EventDetailsPage() {
   return (
     <>
       <MobileTopBar onBack={goBack} actions={renderActions("bar")} />
-      <PageContainer className="max-lg:p-0 max-lg:pb-6 lg:pb-12">
+      <PageContainer className="max-desktop:p-0 max-desktop:pb-6 desktop:pb-12">
         <Breadcrumbs
-          className="mb-6 hidden lg:block"
+          className="mb-6 hidden desktop:block"
           label={t("common.breadcrumbs")}
           items={[{ label: t("shell.nav.events"), to: "/events" }, { label: event.title }]}
         />
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-8">
+        <div className="desktop:grid desktop:grid-with-aside desktop:items-start desktop:gap-8">
           <div className="space-y-6">
             <EventSummary event={event} heroActions={renderActions("overlay")} />
-            <div className="space-y-6 max-lg:px-4">
+            <div className="space-y-6 max-desktop:px-4">
               <EventAbout description={event.description} />
               {participantsViewer && (
                 <EventParticipantsSection event={event} viewer={participantsViewer} />
@@ -65,7 +65,7 @@ export function EventDetailsPage() {
               {!isHost && <MobileOrganizerRow organizer={organizer} />}
             </div>
           </div>
-          <aside className="hidden lg:sticky lg:top-20 lg:block">
+          <aside className="hidden desktop:sticky desktop:top-20 desktop:block">
             <BookingPanel event={event} isHost={isHost}>
               {isHost ? (
                 <PlayersLink eventId={event.id} className="w-full" />

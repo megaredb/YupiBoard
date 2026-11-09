@@ -22,13 +22,13 @@ export function EventCatalogPage() {
   return (
     <PageContainer size="wide">
       <PageHeader
-        className="hidden lg:flex"
+        className="hidden desktop:flex"
         title={t("events.catalog.title")}
         description={t("events.catalog.subtitle", { city: filters.city })}
       />
 
-      <div className="lg:mt-6 lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start lg:gap-7">
-        <aside className="hidden lg:block">
+      <div className="desktop:mt-6 desktop:grid desktop:grid-with-filters desktop:items-start desktop:gap-7">
+        <aside className="hidden desktop:block">
           <CatalogFiltersCard value={filters} onApply={applyFilters} />
         </aside>
 
@@ -40,14 +40,16 @@ export function EventCatalogPage() {
               onOpenFilters={handleOpenSheet}
             />
             <PageHeader
-              className="lg:hidden"
+              className="desktop:hidden"
               title={t("events.catalog.mobileTitle")}
               aside={
                 foundLabel && <span className="text-xs text-muted-foreground">{foundLabel}</span>
               }
             />
             <CatalogSearchBar value={filters} onApply={applyFilters} />
-            {foundLabel && <p className="hidden text-sm font-semibold lg:block">{foundLabel}</p>}
+            {foundLabel && (
+              <p className="hidden text-sm font-semibold desktop:block">{foundLabel}</p>
+            )}
           </div>
           <EventList
             state={list}

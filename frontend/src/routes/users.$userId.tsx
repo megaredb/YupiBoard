@@ -1,4 +1,5 @@
 import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
+import { loadQuery } from "@/shared/api/load-query";
 import {
   hostedEventsQueryOptions,
   PAGE_SEARCH_DEFAULTS,
@@ -13,11 +14,8 @@ export const Route = createFileRoute("/users/$userId")({
   loaderDeps: ({ search }) => ({ page: search.page }),
   loader: ({ context, params, deps }) =>
     Promise.all([
-      context.queryClient.query({ ...publicUserQueryOptions(params.userId), staleTime: "static" }),
-      context.queryClient.query({
-        ...hostedEventsQueryOptions(params.userId, deps.page),
-        staleTime: "static",
-      }),
+      loadQuery(context.queryClient, publicUserQueryOptions(params.userId)),
+      loadQuery(context.queryClient, hostedEventsQueryOptions(params.userId, deps.page)),
     ]),
   staticData: { titleKey: "profile.public.pageTitle" },
   component: PublicProfilePage,

@@ -19,7 +19,7 @@ export function CatalogFiltersCard({ value, onApply }: CatalogFiltersCardProps) 
   return (
     <Card>
       <Card.Header>
-        <Card.Title className="flex items-center justify-between text-lg">
+        <Card.Title size="lg" className="flex items-center justify-between">
           {t("events.filters.title")}
           <SlidersHorizontal aria-hidden className="size-4 text-muted-foreground" />
         </Card.Title>

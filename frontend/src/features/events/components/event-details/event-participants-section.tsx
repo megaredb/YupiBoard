@@ -16,9 +16,9 @@ export function EventParticipantsSection({ event, viewer }: EventParticipantsSec
   const hint = isHost ? t("events.participants.hostHint") : t("events.participants.playerHint");
 
   return (
-    <Card id={PARTICIPANTS_SECTION_ID} className="scroll-mt-20 rounded-2xl p-6 shadow-sm">
-      <Card.Header className="gap-1 p-0">
-        <Card.Title className="text-xl font-bold tracking-tight">
+    <Card id={PARTICIPANTS_SECTION_ID} size="lg" className="scroll-mt-20">
+      <Card.Header>
+        <Card.Title size="xl">
           {t("events.participants.title", {
             taken: event.current_confirmed,
             total: event.max_players,
@@ -26,7 +26,7 @@ export function EventParticipantsSection({ event, viewer }: EventParticipantsSec
         </Card.Title>
         <Card.Description>{hint}</Card.Description>
       </Card.Header>
-      <Card.Content className="p-0">
+      <Card.Content>
         {isHost ? <HostBookingList eventId={event.id} /> : <ParticipantList eventId={event.id} />}
       </Card.Content>
     </Card>

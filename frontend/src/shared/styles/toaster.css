@@ -1,11 +1,20 @@
-/* sonner (shared/components/toaster.tsx) reads its colours from these variables; map them to the
-   design tokens so toasts match the rest of the UI in light and dark themes. */
+/* sonner (shared/ui/sonner.tsx) reads its colours from these variables; map them to the design
+   tokens so toasts match the rest of the UI in light and dark themes. */
 
 [data-sonner-toaster] {
   --normal-bg: var(--card);
   --normal-text: var(--card-foreground);
   --normal-border: var(--border);
   --border-radius: var(--radius-xl);
+  --toast-timer-height: 3px;
+  /* Where a new toast slides in from: below on phones, the right edge on desktop. */
+  --toast-enter-from: 0 calc(100% + 1rem);
+}
+
+@variant desktop {
+  [data-sonner-toaster] {
+    --toast-enter-from: calc(100% + 1rem) 0;
+  }
 }
 
 .dark [data-sonner-toaster] {
@@ -15,4 +24,67 @@
 
 [data-sonner-toaster] [data-sonner-toast] [data-description] {
   color: var(--muted-foreground);
+}
+
+/*
+ * Timer bar along the bottom edge, draining until auto-dismiss. It is a background stripe because
+ * sonner uses the toast's ::before/::after itself. `--toast-duration` comes from `showToast`.
+ */
+[data-sonner-toaster] [data-sonner-toast][data-styled="true"] {
+  --toast-timer-color: var(--primary);
+  background-image: linear-gradient(var(--toast-timer-color), var(--toast-timer-color));
+  background-position: left bottom;
+  background-repeat: no-repeat;
+  background-size: 100% var(--toast-timer-height);
+}
+
+/* Lower specificity than sonner's swipe-out rules, so a swiped toast still animates away. */
+:where([data-sonner-toaster]) [data-sonner-toast][data-styled="true"] {
+  animation:
+    toast-enter 320ms cubic-bezier(0.21, 1.02, 0.73, 1),
+    toast-timer var(--toast-duration, 5s) linear forwards;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="success"] {
+  --toast-timer-color: var(--success);
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-type="error"] {
+  --toast-timer-color: var(--destructive);
+}
+
+/* sonner stops its dismiss timer while the stack is expanded (hovered); the bar waits too. */
+:where([data-sonner-toaster]) [data-sonner-toast][data-expanded="true"] {
+  animation-play-state: running, paused;
+}
+
+/* The slide above replaces sonner's own small lift on mount, so the two do not add up. */
+[data-sonner-toaster] [data-sonner-toast][data-mounted="false"] {
+  --y: translateY(0);
+}
+
+@keyframes toast-enter {
+  from {
+    translate: var(--toast-enter-from);
+  }
+}
+
+@keyframes toast-timer {
+  to {
+    background-size: 0% var(--toast-timer-height);
+  }
+}
+
+/*
+ * Reduced motion: no slide, but the timer bar stays, since it shows time left rather than
+ * decorating. sonner turns every toast animation off with `!important` here, so this must too.
+ */
+@media (prefers-reduced-motion: reduce) {
+  [data-sonner-toaster] [data-sonner-toast][data-styled="true"] {
+    animation: toast-timer var(--toast-duration, 5s) linear forwards !important;
+  }
+
+  [data-sonner-toaster] [data-sonner-toast][data-expanded="true"] {
+    animation-play-state: paused !important;
+  }
 }

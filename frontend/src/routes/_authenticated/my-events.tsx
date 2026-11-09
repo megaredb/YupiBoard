@@ -1,4 +1,5 @@
 import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
+import { loadQuery } from "@/shared/api/load-query";
 import {
   myCreatedEventsQueryOptions,
   PAGE_SEARCH_DEFAULTS,
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/my-events")({
   search: { middlewares: [stripSearchParams(PAGE_SEARCH_DEFAULTS)] },
   loaderDeps: ({ search }) => ({ page: search.page }),
   loader: ({ context, deps }) =>
-    context.queryClient.query({ ...myCreatedEventsQueryOptions(deps.page), staleTime: "static" }),
+    loadQuery(context.queryClient, myCreatedEventsQueryOptions(deps.page)),
   staticData: { titleKey: "events.myEvents.title" },
   component: MyEventsPage,
 });

@@ -9,13 +9,11 @@ export function MobileOrganizerRow({ organizer }: { organizer: EventOrganizer })
   const { t } = useTranslation();
 
   return (
-    <Card className="rounded-2xl p-5 shadow-sm lg:hidden">
-      <Card.Header className="p-0 pb-3">
-        <Card.Title className="text-lg font-bold tracking-tight">
-          {t("events.details.organizer")}
-        </Card.Title>
+    <Card size="lg" className="desktop:hidden">
+      <Card.Header>
+        <Card.Title size="lg">{t("events.details.organizer")}</Card.Title>
       </Card.Header>
-      <Card.Content className="p-0">
+      <Card.Content>
         <Link
           to="/users/$userId"
           params={{ userId: organizer.id }}

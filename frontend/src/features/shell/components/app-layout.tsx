@@ -24,16 +24,19 @@ export function AppLayout() {
     <div
       className={cn(
         "flex min-h-dvh flex-col bg-background text-foreground",
-        hasTabBar && "max-md:with-tab-bar",
-        layout === "immersive" && "max-lg:with-action-bar",
+        hasTabBar && "max-desktop:with-tab-bar",
+        // A fixed phone action bar (booking on the event page) reserves its own space.
+        "max-desktop:has-data-[slot=action-bar]:with-action-bar",
       )}
     >
-      {hasChrome && <AppHeader className={layout === "immersive" ? "max-lg:hidden" : undefined} />}
+      {hasChrome && (
+        <AppHeader className={layout === "immersive" ? "max-desktop:hidden" : undefined} />
+      )}
       <OfflineBanner />
       <main className="w-full flex-1 pb-bottom-bar">
         <Outlet />
       </main>
-      {hasChrome && <Footer className="max-md:hidden" copyright={t("shell.copyright")} />}
+      {hasChrome && <Footer className="max-desktop:hidden" copyright={t("shell.copyright")} />}
       {hasTabBar && <MobileTabBar />}
       <AppToaster />
     </div>

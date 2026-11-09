@@ -1,4 +1,5 @@
 import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
+import { loadQuery } from "@/shared/api/load-query";
 import {
   myParticipatingEventsQueryOptions,
   PAGE_SEARCH_DEFAULTS,
@@ -11,10 +12,7 @@ export const Route = createFileRoute("/_authenticated/my-bookings")({
   search: { middlewares: [stripSearchParams(PAGE_SEARCH_DEFAULTS)] },
   loaderDeps: ({ search }) => ({ page: search.page }),
   loader: ({ context, deps }) =>
-    context.queryClient.query({
-      ...myParticipatingEventsQueryOptions(deps.page),
-      staleTime: "static",
-    }),
+    loadQuery(context.queryClient, myParticipatingEventsQueryOptions(deps.page)),
   staticData: { titleKey: "events.myBookings.title" },
   component: MyBookingsPage,
 });

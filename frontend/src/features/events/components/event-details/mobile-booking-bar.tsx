@@ -28,7 +28,10 @@ export function MobileBookingBar({ event, action }: MobileBookingBarProps) {
     event.available_seats > 0 ? t("events.booking.seatsAvailableShort") : t("events.booking.full");
 
   return (
-    <div className="fixed inset-x-0 bottom-(--keyboard-inset) z-40 border-t border-border bg-background/95 backdrop-blur-md lg:hidden">
+    <div
+      data-slot="action-bar"
+      className="fixed inset-x-0 bottom-(--keyboard-inset) z-40 border-t border-border bg-background/95 backdrop-blur-md desktop:hidden"
+    >
       <div className="px-5 pt-3 pb-safe">
         <div className="flex items-center justify-between gap-4 pb-3">
           <div className="min-w-0">

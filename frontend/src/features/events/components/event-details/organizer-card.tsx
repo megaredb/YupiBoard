@@ -9,13 +9,11 @@ export function OrganizerCard({ organizer }: { organizer: EventOrganizer }) {
   const { t } = useTranslation();
 
   return (
-    <Card className="hidden rounded-2xl p-6 shadow-sm lg:flex">
-      <Card.Header className="p-0 pb-5">
-        <Card.Title className="text-xl font-bold tracking-tight">
-          {t("events.details.meetOrganizer")}
-        </Card.Title>
+    <Card size="lg" className="max-desktop:hidden">
+      <Card.Header>
+        <Card.Title size="xl">{t("events.details.meetOrganizer")}</Card.Title>
       </Card.Header>
-      <Card.Content className="flex items-center justify-between gap-4 p-0">
+      <Card.Content className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <UserAvatar
             name={organizer.name}
