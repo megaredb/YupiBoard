@@ -5,21 +5,16 @@
   "scripts": {
     "fe": "pnpm --filter frontend run",
     "be": "pnpm --filter backend run",
-
     "setup": "pnpm run setup:certs && pnpm install && pnpm be sync",
     "setup:certs": "node -e \"require('fs').mkdirSync('certs',{recursive:true})\" && cd certs && mkcert -install && mkcert \"yupiboard.localhost\" \"*.yupiboard.localhost\"",
-
     "docker:up": "docker compose -f compose.yml -f compose.dev.yml up -d",
     "docker:down": "docker compose -f compose.yml -f compose.dev.yml down",
     "docker:down:v": "docker compose -f compose.yml -f compose.dev.yml down -v",
     "redis:logs": "docker compose -f compose.yml -f compose.dev.yml logs -f redis",
-
     "migrate": "pnpm be migrate",
-    "generate:api": "pnpm be openapi && pnpm fe api:generate",
-
+    "generate:api": "pnpm be openapi && pnpm fe generate:api",
     "lint": "pnpm fe lint && pnpm be lint",
     "format": "pnpm fe format && pnpm be format",
-
     "test": "pnpm be test"
   }
 }
