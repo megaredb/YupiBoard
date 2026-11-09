@@ -44,8 +44,12 @@ claude.md
 .claude
 graphify-out
 docs
-# Frontend generated routes
+
+# Frontend generated files
 frontend/src/routeTree.gen.ts
+frontend/openapi
+frontend/src/routeTree.gen.ts
+frontend/src/shared/api/generated
 
 # Uploaded local media
 media/
