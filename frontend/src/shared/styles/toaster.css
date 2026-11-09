@@ -1,0 +1,18 @@
+/* sonner (shared/components/toaster.tsx) reads its colours from these variables; map them to the
+   design tokens so toasts match the rest of the UI in light and dark themes. */
+
+[data-sonner-toaster] {
+  --normal-bg: var(--card);
+  --normal-text: var(--card-foreground);
+  --normal-border: var(--border);
+  --border-radius: var(--radius-xl);
+}
+
+.dark [data-sonner-toaster] {
+  --normal-bg: var(--popover);
+  --normal-text: var(--popover-foreground);
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-description] {
+  color: var(--muted-foreground);
+}

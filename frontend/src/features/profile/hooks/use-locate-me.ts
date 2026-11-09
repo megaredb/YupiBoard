@@ -18,7 +18,7 @@ export function useLocateMe(onLocated: (location: string) => void): {
       onLocated(
         `${formatDecimal(lat, COORDINATE_DIGITS)}, ${formatDecimal(lon, COORDINATE_DIGITS)}`,
       ),
-    onError: () => showToast(t("profile.locationUnavailable"), "info"),
+    onError: () => showToast(t("profile.locationUnavailable"), { tone: "error" }),
   });
   return { locate: () => mutation.mutate(), isLocating: mutation.isPending };
 }

@@ -39,11 +39,6 @@ export function HostBookingList({ eventId }: { eventId: string }) {
 
   return (
     <div className="space-y-4">
-      {decision.hasFailed && (
-        <p role="alert" className="text-sm text-destructive">
-          {t("events.participants.decisionFailed")}
-        </p>
-      )}
       <ParticipantListState
         state={bookings.list}
         emptyText={t("events.participants.noRequests")}

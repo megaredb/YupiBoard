@@ -1,34 +1,25 @@
-import { create } from "zustand";
+import { toast } from "sonner";
 
-export type ToastTone = "success" | "info";
+type ToastTone = "success" | "error" | "info";
 
-export interface Toast {
-  id: number;
-  message: string;
-  tone: ToastTone;
+interface ToastOptions {
+  tone?: ToastTone;
+  /** Second line under the message, e.g. what the user can do next. */
+  description?: string;
 }
 
-interface ToastState {
-  toasts: Toast[];
-  nextId: number;
-}
+/** Errors stay longer than the default duration of the `Toaster` so they are not missed. */
+const ERROR_DURATION_MS = 8000;
 
-const useToastStore = create<ToastState>(() => ({ toasts: [], nextId: 1 }));
-
-/** The one mechanism for transient notices (logged out, saved, …). Text must already be translated. */
-export function showToast(message: string, tone: ToastTone = "success"): void {
-  useToastStore.setState((state) => ({
-    toasts: [...state.toasts, { id: state.nextId, message, tone }],
-    nextId: state.nextId + 1,
-  }));
-}
-
-export function dismissToast(id: number): void {
-  useToastStore.setState((state) => ({
-    toasts: state.toasts.filter((toast) => toast.id !== id),
-  }));
-}
-
-export function useToasts(): Toast[] {
-  return useToastStore((state) => state.toasts);
+/**
+ * The one mechanism for transient feedback (saved, cancelled, failed…), rendered by the `Toaster`
+ * in the app shell. Text must already be translated.
+ */
+export function showToast(
+  message: string,
+  { tone = "success", description }: ToastOptions = {},
+): void {
+  if (tone === "error") toast.error(message, { description, duration: ERROR_DURATION_MS });
+  else if (tone === "info") toast.info(message, { description });
+  else toast.success(message, { description });
 }

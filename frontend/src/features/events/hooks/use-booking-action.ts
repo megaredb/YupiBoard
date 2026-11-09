@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import {
   getListMyBookingsApiV1BookingsMeGetQueryKey,
   useCancelMyBookingApiV1EventsEventIdBookingsMeDelete,
@@ -10,6 +11,8 @@ import {
   getListMyParticipatingEventsApiV1EventsMyParticipatingGetQueryKey,
 } from "@/shared/api/generated/endpoints/events/events";
 import type { EventRead } from "@/shared/api/generated/model";
+import { getApiErrorKey } from "@/shared/i18n/get-api-error-key";
+import { showToast } from "@/shared/lib/toast/toast-store";
 import { useCurrentUser } from "@/features/auth";
 import { useMyEventBooking } from "@/features/events/hooks/use-my-event-booking";
 import {
@@ -18,25 +21,17 @@ import {
   type BookingState,
 } from "@/features/events/lib/get-booking-state";
 
-export type BookingFailure = "apply" | "cancel";
-
 export interface BookingAction {
   state: BookingState;
   canCancel: boolean;
   isPending: boolean;
-  failure: BookingFailure | null;
   apply: () => void;
   cancel: () => void;
 }
 
-function getFailure(hasApplyFailed: boolean, hasCancelFailed: boolean): BookingFailure | null {
-  if (hasApplyFailed) return "apply";
-  if (hasCancelFailed) return "cancel";
-  return null;
-}
-
-/** Apply for and give up a seat. Returns domain state only; components translate it (ORG-6). */
+/** Apply for and give up a seat; the outcome is reported with a toast. */
 export function useBookingAction(event: EventRead): BookingAction {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const user = useCurrentUser();
@@ -52,14 +47,26 @@ export function useBookingAction(event: EventRead): BookingAction {
     );
 
   const create = useCreateBookingRequestApiV1EventsEventIdBookingsPost({
-    mutation: { onSuccess: refreshBookingData },
+    mutation: {
+      onSuccess: () => {
+        showToast(t("events.booking.applied"), {
+          description: t("events.booking.appliedDescription"),
+        });
+        return refreshBookingData();
+      },
+      onError: (error) =>
+        showToast(t(getApiErrorKey(error, "events.booking.failed")), { tone: "error" }),
+    },
   });
   const cancel = useCancelMyBookingApiV1EventsEventIdBookingsMeDelete({
     mutation: {
       onSuccess: () => {
         create.reset();
+        showToast(t("events.booking.cancelled"));
         return refreshBookingData();
       },
+      onError: (error) =>
+        showToast(t(getApiErrorKey(error, "events.booking.cancelFailed")), { tone: "error" }),
     },
   });
 
@@ -81,7 +88,6 @@ export function useBookingAction(event: EventRead): BookingAction {
     state,
     canCancel: canCancelBooking(state),
     isPending: create.isPending || cancel.isPending || myBooking.isLoading,
-    failure: getFailure(create.isError, cancel.isError),
     apply,
     cancel: handleCancel,
   };

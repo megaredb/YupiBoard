@@ -5,6 +5,7 @@
 
 @import "./theme.css";
 @import "./layout.css";
+@import "./toaster.css";
 
 @custom-variant dark (&:is(.dark *));
 

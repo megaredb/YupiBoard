@@ -14,6 +14,6 @@ export function useShareEvent(event: Pick<EventRead, "id" | "title">): () => voi
       .then((result) => {
         if (result === "copied") showToast(t("events.details.linkCopied"));
       })
-      .catch(() => showToast(t("events.details.shareFailed"), "info"));
+      .catch(() => showToast(t("events.details.shareFailed"), { tone: "error" }));
   };
 }

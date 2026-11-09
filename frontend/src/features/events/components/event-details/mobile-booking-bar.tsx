@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import type { EventRead } from "@/shared/api/generated/model";
 import { BookingButton } from "@/features/events/components/event-details/booking-button";
-import { BookingFailureMessage } from "@/features/events/components/event-details/booking-failure-message";
 import { CancelBookingButton } from "@/features/events/components/event-details/cancel-booking-button";
 import { PlayersLink } from "@/features/events/components/event-details/players-link";
 import { PriceLabel } from "@/features/events/components/event-details/price-label";
@@ -40,7 +39,6 @@ export function MobileBookingBar({ event, action }: MobileBookingBarProps) {
           </div>
           <MobileCallToAction event={event} action={action} />
         </div>
-        <BookingFailureMessage failure={action.failure} className="pb-2" />
       </div>
     </div>
   );

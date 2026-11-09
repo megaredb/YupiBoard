@@ -25,6 +25,7 @@ export function AppLayout() {
       className={cn(
         "flex min-h-dvh flex-col bg-background text-foreground",
         hasTabBar && "max-md:with-tab-bar",
+        layout === "immersive" && "max-lg:with-action-bar",
       )}
     >
       {hasChrome && <AppHeader className={layout === "immersive" ? "max-lg:hidden" : undefined} />}

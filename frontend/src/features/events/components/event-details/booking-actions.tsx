@@ -1,5 +1,4 @@
 import { BookingButton } from "@/features/events/components/event-details/booking-button";
-import { BookingFailureMessage } from "@/features/events/components/event-details/booking-failure-message";
 import { BookingStatusNote } from "@/features/events/components/event-details/booking-status-note";
 import { CancelBookingButton } from "@/features/events/components/event-details/cancel-booking-button";
 import type { BookingAction } from "@/features/events/hooks/use-booking-action";
@@ -16,7 +15,6 @@ export function BookingActions({ action }: { action: BookingAction }) {
       ) : (
         <BookingButton action={action} className="w-full" />
       )}
-      <BookingFailureMessage failure={action.failure} />
     </div>
   );
 }

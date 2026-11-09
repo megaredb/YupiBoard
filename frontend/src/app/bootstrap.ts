@@ -19,7 +19,8 @@ function wireSession(router: AppRouter, queryClient: QueryClient): void {
   onSessionExpired(() => {
     const redirect = router.state.location.href;
     // A guest hitting a protected endpoint had no session to expire; just ask them to sign in.
-    if (getCachedCurrentUser(queryClient)) showToast(i18next.t("auth.session.expired"), "info");
+    if (getCachedCurrentUser(queryClient))
+      showToast(i18next.t("auth.session.expired"), { tone: "info" });
     // Drop the user before navigating: while it is still cached, the guest-only `/login` guard
     // would send the user straight back to the page that just failed.
     void endSession(queryClient).then(() =>

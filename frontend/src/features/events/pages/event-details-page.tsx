@@ -47,7 +47,7 @@ export function EventDetailsPage() {
   return (
     <>
       <MobileTopBar onBack={goBack} actions={renderActions("bar")} />
-      <PageContainer className="max-lg:p-0 max-lg:pb-32 lg:pb-12">
+      <PageContainer className="max-lg:p-0 max-lg:pb-6 lg:pb-12">
         <Breadcrumbs
           className="mb-6 hidden lg:block"
           label={t("common.breadcrumbs")}

@@ -19,5 +19,6 @@
     "label": "Pagination",
     "previous": "Previous",
     "next": "Next"
-  }
+  },
+  "notifications": "Notifications"
 }

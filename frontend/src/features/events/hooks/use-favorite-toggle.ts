@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { getGetEventApiV1EventsEventIdGetQueryKey } from "@/shared/api/generated/endpoints/events/events";
 import {
   addFavoriteApiV1EventsEventIdFavoritePost,
@@ -7,6 +8,7 @@ import {
   removeFavoriteApiV1EventsEventIdFavoriteDelete,
 } from "@/shared/api/generated/endpoints/favorites/favorites";
 import type { EventRead } from "@/shared/api/generated/model";
+import { showToast } from "@/shared/lib/toast/toast-store";
 import { useCurrentUser } from "@/features/auth";
 
 interface FavoriteToggle {
@@ -16,6 +18,7 @@ interface FavoriteToggle {
 
 /** Guests are sent to sign in first, since favorites belong to an account. */
 export function useFavoriteToggle(event: Pick<EventRead, "id" | "is_favorite">): FavoriteToggle {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const user = useCurrentUser();
@@ -25,6 +28,9 @@ export function useFavoriteToggle(event: Pick<EventRead, "id" | "is_favorite">):
       isFavorite
         ? addFavoriteApiV1EventsEventIdFavoritePost(event.id)
         : removeFavoriteApiV1EventsEventIdFavoriteDelete(event.id),
+    onSuccess: (_, isAdded) =>
+      showToast(isAdded ? t("events.favorites.added") : t("events.favorites.removed")),
+    onError: () => showToast(t("events.favorites.toggleFailed"), { tone: "error" }),
     onSettled: () =>
       Promise.all([
         queryClient.invalidateQueries({

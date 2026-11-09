@@ -34,7 +34,10 @@
   "favorites": {
     "title": "Favorites",
     "emptyTitle": "You have no favorite events yet",
-    "emptyDescription": "Save events with the heart button to find them quickly here."
+    "emptyDescription": "Save events with the heart button to find them quickly here.",
+    "added": "Added to favorites",
+    "removed": "Removed from favorites",
+    "toggleFailed": "Couldn't update your favorites. Please try again."
   },
   "filters": {
     "title": "Filters",
@@ -117,7 +120,10 @@
       "description": "Are you sure you want to cancel your seat? It will immediately become available for other players.",
       "keep": "Keep my seat",
       "confirm": "Yes, cancel request"
-    }
+    },
+    "applied": "Request sent",
+    "appliedDescription": "The organizer will review it soon.",
+    "cancelled": "Booking cancelled"
   },
   "create": {
     "title": "Create new event",
@@ -205,6 +211,9 @@
     "decisionFailed": "Couldn't save your decision. Please try again.",
     "noRequests": "No booking requests yet.",
     "noPlayers": "No confirmed players yet.",
-    "pagination": "Showing {{from}}–{{to}} of {{total}} requests"
+    "pagination": "Showing {{from}}–{{to}} of {{total}} requests",
+    "accepted": "Request accepted",
+    "waitlisted": "The table is full, so the player was added to the waitlist",
+    "declined": "Request declined"
   }
 }
