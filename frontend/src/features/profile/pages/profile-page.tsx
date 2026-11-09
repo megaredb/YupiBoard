@@ -15,6 +15,7 @@ import { useProfileEditMode } from "@/features/profile/hooks/use-profile-edit-mo
 import { useSaveProfile } from "@/features/profile/hooks/use-save-profile";
 import { useProfileBio } from "@/features/profile/lib/profile-bio-store";
 import type { ProfileFormValues } from "@/features/profile/schemas/profile.schema";
+import { getDisplayName } from "@/features/users";
 
 export function ProfilePage() {
   const { t } = useTranslation();
@@ -43,6 +44,7 @@ export function ProfilePage() {
       <div className="mx-auto -mt-20 max-w-3xl space-y-6 px-4 sm:px-6">
         <ProfileSummaryCard
           user={user}
+          name={getDisplayName(user)}
           avatar={
             <ProfileAvatar
               user={user}

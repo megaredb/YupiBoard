@@ -49,7 +49,8 @@
     "hostedEvents": "Hosted events",
     "upcomingHostedBy": "Games hosted by {{name}}",
     "noHostedEvents": "No hosted events",
-    "noHostedEventsDescription": "This organizer has not hosted any events yet."
+    "noHostedEventsDescription": "This organizer has not hosted any events yet.",
+    "unnamedUser": "YupiBoard player"
   },
   "shortcutsLabel": "Shortcuts",
   "uploadPhoto": "Upload photo"
