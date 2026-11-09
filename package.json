@@ -10,13 +10,11 @@
     "docker:up": "docker compose -f compose.yml -f compose.dev.yml up -d",
     "docker:down": "docker compose -f compose.yml -f compose.dev.yml down",
     "docker:down:v": "docker compose -f compose.yml -f compose.dev.yml down -v",
+    "redis:logs": "docker compose -f compose.yml -f compose.dev.yml logs -f redis",
     "migrate": "pnpm be migrate",
-    "generate:api": "pnpm be openapi && pnpm fe api:generate",
+    "generate:api": "pnpm be openapi && pnpm fe generate:api",
     "lint": "pnpm fe lint && pnpm be lint",
     "format": "pnpm fe format && pnpm be format",
-    "test": "pnpm be test",
-    "redis:logs": "docker compose -f compose.yml -f compose.dev.yml logs -f redis",
-    "dev:worker": "cd backend && uv run taskiq worker app.core.taskiq:broker --fs-discover --tasks-pattern \"app/modules/**/tasks.py\"",
-    "dev:scheduler": "cd backend && uv run taskiq scheduler app.core.taskiq:scheduler --fs-discover --tasks-pattern \"app/modules/**/tasks.py\""
+    "test": "pnpm be test"
   }
 }

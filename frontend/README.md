@@ -8,11 +8,16 @@ Every contributor, human or AI, follows [RULES.md](./RULES.md).
 Requirements: Node.js 24+ and pnpm 12. pnpm is the only package manager; the lockfile lives at
 the repository root because the frontend is part of the pnpm workspace.
 
+Follow the [root Quick Start](../README.md#-quick-start) first: it creates the root `.env` (which
+already holds the frontend variables below) and starts Docker. Then, from this folder:
+
 ```bash
 pnpm install
-cp .env.example ../.env   # or add the variables below to the existing root .env
+pnpm --dir .. generate:api   # the generated API client is not committed
 pnpm dev
 ```
+
+`.env.example` here lists only the frontend variables; copy them into the root `.env`, never over it.
 
 Open the app at <https://yupiboard.localhost>. Traefik forwards it to the Vite server on port
 5173; start it with `pnpm docker:up` from the repository root. Do not use
@@ -53,7 +58,7 @@ Run them from `frontend/`, or from the repository root with the `fe` prefix: `pn
 | `pnpm depcruise`      | Layer boundaries (`app → routes → features → shared`)               |
 | `pnpm i18n:check`     | Translation keys exist, are used, and match between `en` and `uk`   |
 | `pnpm check:platform` | No browser APIs outside `src/shared/platform`                       |
-| `pnpm api:generate`   | Regenerate the API client from `openapi/openapi.json` with Orval    |
+| `pnpm generate:api`   | Regenerate the API client from `openapi/openapi.json` with Orval    |
 | `pnpm cap:sync`       | Build the web app and copy it into the Android project              |
 | `pnpm cap:android`    | Open the Android project in Android Studio                          |
 | `pnpm cap:build`      | `cap:sync`, then build a debug APK with Gradle                      |
@@ -121,8 +126,9 @@ ignored. Platform-specific code lives only in `src/shared/platform/`.
 ## Regenerating the API client
 
 From the repository root, `pnpm generate:api` exports the backend's OpenAPI schema to
-`openapi/openapi.json` and runs `pnpm api:generate`. Commit the result as a separate change. The
-output in `src/shared/api/generated/` is read-only and never edited by hand.
+`openapi/openapi.json` and then runs this package's `pnpm generate:api` (Orval only). Both the
+schema and the output in `src/shared/api/generated/` are git-ignored, so run it after cloning and
+whenever the backend API changes. The output is read-only and never edited by hand.
 
 ## Project structure
 

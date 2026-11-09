@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useCreateBookingRequestApiV1EventsIdBookingsPost } from "@/shared/api/generated/endpoints/bookings/bookings";
+import { useCreateBookingRequestApiV1EventsEventIdBookingsPost } from "@/shared/api/generated/endpoints/bookings/bookings";
 import { getGetEventApiV1EventsEventIdGetQueryKey } from "@/shared/api/generated/endpoints/events/events";
 import type { EventRead } from "@/shared/api/generated/model";
 import { useCurrentUser } from "@/features/auth";
@@ -21,7 +21,7 @@ export function useBookingAction(event: EventRead): BookingAction {
   const user = useCurrentUser();
   const appliedIds = useSavedEventIds("bookings");
 
-  const booking = useCreateBookingRequestApiV1EventsIdBookingsPost({
+  const booking = useCreateBookingRequestApiV1EventsEventIdBookingsPost({
     mutation: {
       onSuccess: () => {
         void setEventSaved("bookings", event.id, true);
@@ -33,7 +33,7 @@ export function useBookingAction(event: EventRead): BookingAction {
   });
 
   const apply = () => {
-    if (user) booking.mutate({ id: event.id });
+    if (user) booking.mutate({ eventId: event.id });
     else void navigate({ to: "/login", search: { redirect: `/events/${event.id}` } });
   };
 

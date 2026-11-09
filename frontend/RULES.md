@@ -149,7 +149,7 @@ Inside a feature: **page → component → hook → lib → api**.
 
 ## 7. API layer (Orval)
 
-- **API-1** Generated code lives in `shared/api/generated/`, is **read-only**, and is regenerated only with `pnpm api:generate`, in a step separate from hand-written changes. Orval runs with `clean: true`; the output has no duplicate exports.
+- **API-1** Generated code lives in `shared/api/generated/`, is **read-only**, and is regenerated only with `pnpm generate:api`, in a step separate from hand-written changes. Orval runs with `clean: true`; the output has no duplicate exports.
 - **API-2** The OpenAPI spec lives in this repo (`openapi/openapi.json`) and Orval reads it from there. No paths outside the repo.
 - **API-3** Only `features/*/hooks` and `features/*/api` import generated **endpoints** (requests and hooks). Generated **model types** (`EventRead`, `UserRead`…) may be imported anywhere.
 - **API-4** Wrap each generated hook used by the UI in a feature hook with a readable name that owns its invalidation. Components never call `invalidateQueries` or `setQueryData`.
@@ -323,7 +323,7 @@ These must exist and pass through `pnpm check`. Tool configs live in `tooling/`,
 - **TOOL-5 Platform ban:** lint restricts the globals `localStorage`, `sessionStorage`, `navigator`, `alert`, `confirm`, `prompt` outside `shared/platform`. `pnpm check:platform` (a grep script) fails on `window.location`, `window.open` and `document.documentElement` outside `shared/platform`.
 - **TOOL-6 Dead code:** `knip` (files, exports, dependencies) and an i18n check script (`pnpm i18n:check`): every literal `t("…")` key exists, no key is unused, `en` and `uk` have the same keys.
 - **TOOL-7 `tsconfig`:** flags from TS-1; single alias `@/* → src/*`.
-- **TOOL-8 Scripts** (names are fixed): `dev` `build` `preview` `typecheck` `lint` `lint:fix` `format` `format:check` `fix` `knip` `depcruise` `i18n:check` `check:platform` `api:generate` `cap:sync` `cap:android` `cap:build` `cap:run` `check`. `check` = typecheck + lint + format:check + knip + depcruise + i18n:check + check:platform. `fix` = lint:fix + format. There is no `test` script.
+- **TOOL-8 Scripts** (names are fixed): `dev` `build` `preview` `typecheck` `lint` `lint:fix` `format` `format:check` `fix` `knip` `depcruise` `i18n:check` `check:platform` `generate:api` `cap:sync` `cap:android` `cap:build` `cap:run` `check`. `check` = typecheck + lint + format:check + knip + depcruise + i18n:check + check:platform. `fix` = lint:fix + format. There is no `test` script.
 - **TOOL-9 Orval:** `clean: true`, formatted output, input `openapi/openapi.json`, mutator at `src/shared/api/mutator.ts`. Never hand-edit the output.
 - **TOOL-10 Docs:** the README covers setup, env table, scripts, tooling, running web and Android, regenerating the API, and links to this file.
 

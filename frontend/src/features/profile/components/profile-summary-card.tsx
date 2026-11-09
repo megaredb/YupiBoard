@@ -1,19 +1,25 @@
 import type { ReactNode } from "react";
 import { MapPin, Shield, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { UserRead } from "@/shared/api/generated/model";
+import type { UserPublicRead } from "@/shared/api/generated/model";
 import { Card } from "@/shared/ui/card";
 import { RatingTile } from "@/features/profile/components/rating-tile";
-import { formatMemberSince, formatRating, getDisplayName } from "@/features/users";
+import { formatMemberSince, formatRating } from "@/features/users";
 
 interface ProfileSummaryCardProps {
-  user: UserRead;
+  user: UserPublicRead;
+  name: string;
   /** Plain avatar, or the avatar picker while editing. */
   avatar: ReactNode;
   showCity?: boolean;
 }
 
-export function ProfileSummaryCard({ user, avatar, showCity = false }: ProfileSummaryCardProps) {
+export function ProfileSummaryCard({
+  user,
+  name,
+  avatar,
+  showCity = false,
+}: ProfileSummaryCardProps) {
   const { t } = useTranslation();
   const memberSince = formatMemberSince(user.created_at);
 
@@ -23,9 +29,7 @@ export function ProfileSummaryCard({ user, avatar, showCity = false }: ProfileSu
         <div className="flex flex-col items-center gap-4 sm:flex-row">
           {avatar}
           <div className="space-y-1 text-center sm:text-left">
-            <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-              {getDisplayName(user)}
-            </h1>
+            <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">{name}</h1>
             {showCity && user.city && (
               <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                 <MapPin aria-hidden className="size-3.5 shrink-0" />
