@@ -53,9 +53,9 @@ captures/
 .idea/navEditor.xml
 
 # Keystore files
-# Uncomment the following lines if you do not want to check your keystore files in.
-#*.jks
-#*.keystore
+# Signing keys must never be committed
+*.jks
+*.keystore
 
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
@@ -102,3 +102,6 @@ app/src/main/res/xml/config.xml
 
 # Developer mkcert root CA, copied by tooling/android-dev-ca.mjs
 app/src/debug/res/raw/
+
+# Kotlin compiler caches
+.kotlin/
