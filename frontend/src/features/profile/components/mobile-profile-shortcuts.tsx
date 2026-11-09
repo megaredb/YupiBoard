@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { Check, ChevronRight, Globe, Heart, LogOut, Moon, Plus } from "lucide-react";
+import { Check, ChevronRight, Globe, Heart, Languages, LogOut, Moon, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useResolvedTheme } from "@/shared/hooks/use-theme";
+import { changeLanguage, getNextLanguage, useActiveLanguage } from "@/shared/i18n/language";
+import { LANGUAGE_LABEL_KEYS } from "@/shared/i18n/language-labels";
 import { cn } from "@/shared/lib/cn";
 import { setTheme } from "@/shared/platform/theme";
 import { Card } from "@/shared/ui/card";
@@ -20,7 +22,13 @@ export function MobileProfileShortcuts({ userId }: { userId: string }) {
   const { t } = useTranslation();
   const isDark = useResolvedTheme() === "dark";
   const { logout } = useLogout();
+  const language = useActiveLanguage();
+  const nextLanguage = getNextLanguage(language);
   const handleToggleTheme = () => setTheme(isDark ? "light" : "dark");
+  const handleSwitchLanguage = () => changeLanguage(nextLanguage);
+  const switchLanguageLabel = t("shell.language.switchTo", {
+    language: t(LANGUAGE_LABEL_KEYS[nextLanguage].name),
+  });
   const chevron = <ChevronRight aria-hidden className="size-4 text-muted-foreground" />;
 
   return (
@@ -46,6 +54,16 @@ export function MobileProfileShortcuts({ userId }: { userId: string }) {
         <Moon aria-hidden />
         <RowLabel>{t("shell.darkTheme")}</RowLabel>
         {isDark && <Check aria-hidden className="size-4 text-primary" />}
+      </button>
+      <button
+        type="button"
+        aria-label={switchLanguageLabel}
+        onClick={handleSwitchLanguage}
+        className={ROW_CLASS}
+      >
+        <Languages aria-hidden />
+        <RowLabel>{t("shell.language.label")}</RowLabel>
+        <span className="text-muted-foreground">{t(LANGUAGE_LABEL_KEYS[language].name)}</span>
       </button>
       <button type="button" onClick={logout} className={cn(ROW_CLASS, "text-destructive")}>
         <LogOut aria-hidden />

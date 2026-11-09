@@ -3,7 +3,9 @@
   "promoted": "Promoted",
   "card": {
     "participants": "{{current}} of {{max}} participants",
-    "placeWithDistance": "{{place}} · {{km}} km away"
+    "placeWithDistance": "{{place}} · {{km}} km away",
+    "addFavorite": "Add {{title}} to favorites",
+    "removeFavorite": "Remove {{title}} from favorites"
   },
   "pagination": {
     "summary": "Showing {{from}}–{{to}} of {{total}} events"

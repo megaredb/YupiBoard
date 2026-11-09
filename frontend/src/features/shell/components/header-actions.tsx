@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { buttonVariants } from "@/shared/ui/button-variants";
 import { useCurrentUser, useLogout } from "@/features/auth";
+import { LanguageToggle } from "@/features/shell/components/language-toggle";
 import { ThemeToggle } from "@/features/shell/components/theme-toggle";
 import { UserMenu } from "@/features/shell/components/user-menu";
 
@@ -22,6 +23,7 @@ export function HeaderActions() {
           <Plus aria-hidden />
           {t("shell.createEvent")}
         </Link>
+        <LanguageToggle />
         <ThemeToggle />
         <UserMenu user={user} onLogout={logout} />
       </div>
@@ -30,6 +32,7 @@ export function HeaderActions() {
 
   return (
     <div className="ml-auto flex items-center gap-1 sm:gap-3">
+      <LanguageToggle />
       <ThemeToggle />
       <Link to="/login" className={buttonVariants({ variant: "ghost", size: "lg" })}>
         {t("shell.login")}

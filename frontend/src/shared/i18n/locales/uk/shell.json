@@ -27,5 +27,13 @@
   "notFound": {
     "title": "Сторінку не знайдено",
     "description": "Можливо, сторінку видалено або посилання неправильне."
+  },
+  "language": {
+    "label": "Мова",
+    "switchTo": "Змінити мову на: {{language}}",
+    "en": "English",
+    "uk": "Українська",
+    "enShort": "EN",
+    "ukShort": "UA"
   }
 }

@@ -1,7 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { getGetEventApiV1EventsEventIdGetQueryKey } from "@/shared/api/generated/endpoints/events/events";
+import {
+  getGetEventApiV1EventsEventIdGetQueryKey,
+  getListEventsApiV1EventsGetQueryKey,
+  getListMyCreatedEventsApiV1EventsMyCreatedGetQueryKey,
+} from "@/shared/api/generated/endpoints/events/events";
 import {
   addFavoriteApiV1EventsEventIdFavoritePost,
   getListFavoritesApiV1UsersMeFavoritesGetQueryKey,
@@ -21,6 +25,7 @@ export function useFavoriteToggle(event: Pick<EventRead, "id" | "is_favorite">):
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const user = useCurrentUser();
+  const currentHref = useLocation({ select: (location) => location.href });
 
   const mutation = useMutation({
     mutationFn: (isFavorite: boolean) =>
@@ -30,15 +35,16 @@ export function useFavoriteToggle(event: Pick<EventRead, "id" | "is_favorite">):
     onSuccess: (_, isAdded) =>
       showToast(isAdded ? t("events.favorites.added") : t("events.favorites.removed")),
     onError: () => showToast(t("events.favorites.toggleFailed"), { tone: "error" }),
+    // Every list that carries `is_favorite` is refreshed, so cards agree with the details page.
     onSettled: () =>
-      Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: getGetEventApiV1EventsEventIdGetQueryKey(event.id),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: getListFavoritesApiV1UsersMeFavoritesGetQueryKey(),
-        }),
-      ]),
+      Promise.all(
+        [
+          getGetEventApiV1EventsEventIdGetQueryKey(event.id),
+          getListFavoritesApiV1UsersMeFavoritesGetQueryKey(),
+          getListEventsApiV1EventsGetQueryKey(),
+          getListMyCreatedEventsApiV1EventsMyCreatedGetQueryKey(),
+        ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
+      ),
   });
 
   // While the request runs, show the state the user asked for.
@@ -46,7 +52,7 @@ export function useFavoriteToggle(event: Pick<EventRead, "id" | "is_favorite">):
 
   const toggleFavorite = () => {
     if (!user) {
-      void navigate({ to: "/login", search: { redirect: `/events/${event.id}` } });
+      void navigate({ to: "/login", search: { redirect: currentHref } });
       return;
     }
     if (!mutation.isPending) mutation.mutate(!isFavorite);

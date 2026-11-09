@@ -3,7 +3,9 @@
   "promoted": "Рекомендовано",
   "card": {
     "participants": "{{current}} з {{max}} учасників",
-    "placeWithDistance": "{{place}} · {{km}} км від вас"
+    "placeWithDistance": "{{place}} · {{km}} км від вас",
+    "addFavorite": "Додати «{{title}}» до обраного",
+    "removeFavorite": "Прибрати «{{title}}» з обраного"
   },
   "pagination": {
     "summary": "Показано {{from}}–{{to}} з {{total}} подій"

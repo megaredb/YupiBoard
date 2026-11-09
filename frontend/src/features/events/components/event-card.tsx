@@ -63,7 +63,7 @@ export function EventCard({
           className="pointer-events-none absolute inset-0 bg-linear-to-t from-overlay/50 to-transparent"
         />
         {labels.promoted && (
-          <span className="absolute top-3 right-3 z-10 rounded-md bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+          <span className="absolute top-3 left-3 z-10 rounded-md bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
             {labels.promoted}
           </span>
         )}
