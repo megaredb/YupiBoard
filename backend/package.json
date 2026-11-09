@@ -1,0 +1,13 @@
+{
+  "name": "backend",
+  "private": true,
+  "scripts": {
+    "sync": "uv sync",
+    "dev": "uv run fastapi dev app/main.py --host 0.0.0.0 --port 8080",
+    "migrate": "uv run alembic upgrade head",
+    "lint": "uv run ruff check . && uv run ty check app",
+    "format": "uv run ruff format .",
+    "test": "uv run pytest",
+    "openapi": "uv run python -m app.scripts.export_openapi -o ../frontend/openapi/openapi.json"
+  }
+}

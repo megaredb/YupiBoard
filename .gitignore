@@ -25,9 +25,6 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist
-dist-ssr
-*.local
 
 # Editor directories and files
 .vscode/*
@@ -44,8 +41,6 @@ claude.md
 .claude
 graphify-out
 docs
-# Frontend generated routes
-frontend/src/routeTree.gen.ts
 
 # Uploaded local media
 media/

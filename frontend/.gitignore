@@ -1,0 +1,10 @@
+# Build output
+dist
+dist-ssr
+*.local
+
+# Generated files
+/src/routeTree.gen.ts
+/openapi/
+/src/shared/api/generated/
+/.tanstack/

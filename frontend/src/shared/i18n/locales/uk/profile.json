@@ -1,0 +1,56 @@
+{
+  "pageTitle": "Мій профіль",
+  "memberSince": "Учасник з {{date}}",
+  "playerRating": "Рейтинг гравця",
+  "organizerRating": "Рейтинг організатора",
+  "outOfFive": "/5.0",
+  "accountDetails": "Дані облікового запису",
+  "editProfile": "Редагування профілю",
+  "changePhoto": "Змінити фото",
+  "photoHint": "JPEG/PNG до 2 МБ",
+  "bioHint": "Розкажіть іншим про свої улюблені настільні ігри…",
+  "deviceOnlyNote": "Збережено лише на цьому пристрої",
+  "emailLinkedNote": "Електронну пошту змінити не можна",
+  "locationHint": "Відстань до подій рахується від центру міста",
+  "locationEditHint": "Вкажіть точну адресу або місто; для міста відстань рахується від його центру",
+  "useGps": "GPS",
+  "gpsLocating": "Визначаємо…",
+  "locationUnavailable": "Не вдалося визначити ваше місцезнаходження",
+  "passwordMasked": "••••••••",
+  "changePassword": "Змінити пароль",
+  "saveChanges": "Зберегти зміни",
+  "updatedMessage": "Профіль оновлено",
+  "updateFailed": "Не вдалося оновити профіль. Спробуйте ще раз.",
+  "fields": {
+    "firstName": "Ім'я",
+    "lastName": "Прізвище",
+    "bio": "Про себе",
+    "contactInfo": "Контакти",
+    "contacts": "Контакти / соцмережі",
+    "email": "Електронна пошта",
+    "location": "Місцезнаходження",
+    "city": "Місто",
+    "password": "Пароль"
+  },
+  "passwordDialog": {
+    "title": "Зміна пароля",
+    "description": "Введіть новий пароль (щонайменше 8 символів).",
+    "submit": "Оновити пароль",
+    "success": "Пароль оновлено"
+  },
+  "complete": {
+    "title": "Заповніть профіль",
+    "subtitle": "Розкажіть трохи про себе іншим гравцям та організаторам.",
+    "submit": "Зберегти й продовжити",
+    "footerNote": "Ці дані можна змінити будь-коли."
+  },
+  "public": {
+    "pageTitle": "Профіль гравця",
+    "hostedEvents": "Організовані події",
+    "upcomingHostedBy": "Ігри, які організовує {{name}}",
+    "noHostedEvents": "Немає організованих подій",
+    "noHostedEventsDescription": "Цей організатор ще не провів жодної події."
+  },
+  "shortcutsLabel": "Швидкі дії",
+  "uploadPhoto": "Завантажити фото"
+}
