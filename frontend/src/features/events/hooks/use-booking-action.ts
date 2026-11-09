@@ -6,10 +6,7 @@ import {
   useCancelMyBookingApiV1EventsEventIdBookingsMeDelete,
   useCreateBookingRequestApiV1EventsEventIdBookingsPost,
 } from "@/shared/api/generated/endpoints/bookings/bookings";
-import {
-  getGetEventApiV1EventsEventIdGetQueryKey,
-  getListMyParticipatingEventsApiV1EventsMyParticipatingGetQueryKey,
-} from "@/shared/api/generated/endpoints/events/events";
+import { getGetEventApiV1EventsEventIdGetQueryKey } from "@/shared/api/generated/endpoints/events/events";
 import type { EventRead } from "@/shared/api/generated/model";
 import { getApiErrorKey } from "@/shared/i18n/get-api-error-key";
 import { showToast } from "@/shared/lib/toast/toast-store";
@@ -41,7 +38,6 @@ export function useBookingAction(event: EventRead): BookingAction {
       [
         getGetEventApiV1EventsEventIdGetQueryKey(event.id),
         getListMyBookingsApiV1BookingsMeGetQueryKey(),
-        getListMyParticipatingEventsApiV1EventsMyParticipatingGetQueryKey(),
       ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
     );
 

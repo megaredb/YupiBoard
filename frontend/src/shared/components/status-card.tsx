@@ -27,7 +27,6 @@ const iconWrapperVariants = cva(
 
 const ICONS = { pending: LoaderCircle, success: CheckCircle2, error: CircleAlert } as const;
 
-/** Result card for one-shot flows (email verification, password reset). */
 export function StatusCard({ tone, title, description, children }: StatusCardProps) {
   const Icon = ICONS[tone];
   return (

@@ -10,7 +10,6 @@ import { MobileTopBar } from "@/features/events/components/mobile-top-bar";
 import { useCreateEvent } from "@/features/events/hooks/use-create-event";
 import { useGoBack } from "@/features/events/hooks/use-go-back";
 
-/** `/events/new` (immersive): the app header on desktop, its own top bar on phones. */
 export function CreateEventPage() {
   const { t } = useTranslation();
   const goBack = useGoBack();

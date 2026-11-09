@@ -27,7 +27,6 @@ function userKey(userId: string, key: string): string {
   return `${KEY_PREFIX}:${userId}:${key}`;
 }
 
-/** Wipes everything stored for `userId`; called on logout and session expiry. */
 export async function clearUserData(userId: string): Promise<void> {
   const storage = backend();
   const prefix = userKey(userId, "");

@@ -1,11 +1,12 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { myCreatedEventsQueryOptions } from "@/features/events/api/event-queries";
-import { toPagedEvents, type PagedEvents } from "@/features/events/lib/to-paged-events";
+import { toPagedList, type PagedEvents } from "@/features/events/lib/to-paged-list";
+import type { MyEventsSearch } from "@/features/events/schemas/personal-list-search.schema";
 
-export function useMyCreatedEvents(page: number): PagedEvents {
+export function useMyCreatedEvents(search: MyEventsSearch): PagedEvents {
   const query = useQuery({
-    ...myCreatedEventsQueryOptions(page),
+    ...myCreatedEventsQueryOptions(search),
     placeholderData: keepPreviousData,
   });
-  return toPagedEvents(query);
+  return toPagedList(query);
 }

@@ -19,7 +19,6 @@ import { usePreferredCity } from "@/features/locations";
 
 interface CreateEventFormProps {
   isPending: boolean;
-  /** Submitting is blocked, e.g. until the user confirms their email. */
   isDisabled: boolean;
   errorKey: TranslationKey | null;
   onSubmit: (values: CreateEventFormValues) => void;

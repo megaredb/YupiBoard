@@ -38,7 +38,6 @@ function wireNativeNavigation(router: AppRouter): void {
   onDeepLink((href) => void router.navigate({ href }));
 }
 
-/** Everything that must happen once before the first render (ST-4). */
 export async function bootstrap(): Promise<{ router: AppRouter; queryClient: QueryClient }> {
   const env = readEnv();
   setRuntimeConfig(env);

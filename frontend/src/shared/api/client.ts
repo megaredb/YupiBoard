@@ -90,7 +90,6 @@ function attachAccessToken(config: InternalAxiosRequestConfig): InternalAxiosReq
 
 type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
-/** The original request, when it failed with a 401 that a token refresh may fix. */
 function getRetriableConfig(error: unknown): RetriableConfig | null {
   if (!axios.isAxiosError(error) || error.response?.status !== 401) return null;
   // Axios types `error.config` loosely; `_retry` is our own marker on that same object.

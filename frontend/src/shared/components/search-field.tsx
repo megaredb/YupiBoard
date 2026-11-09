@@ -11,7 +11,6 @@ interface SearchFieldProps {
   maxLength: number;
   /** Initial text; remount with a new `key` to reset it from outside. */
   defaultValue: string;
-  /** Called with the trimmed text when the user submits (Enter or the button). */
   onSearch: (query: string) => void;
   className?: string;
 }

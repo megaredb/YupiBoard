@@ -1,6 +1,5 @@
 import type { BookingState } from "@/features/events/lib/get-booking-state";
 
-/** Call-to-action or status text of each booking state (ORG-6: components translate state). */
 export const BOOKING_STATE_LABEL_KEYS = {
   open: "events.booking.apply",
   hosting: "events.booking.hosting",

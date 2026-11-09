@@ -32,7 +32,6 @@ export async function ensureCurrentUser(queryClient: QueryClient): Promise<UserR
   }
 }
 
-/** The user already in the cache (the root route prefetches it), without fetching. */
 export function getCachedCurrentUser(queryClient: QueryClient): UserRead | null {
   return queryClient.getQueryData(currentUserQueryOptions().queryKey) ?? null;
 }

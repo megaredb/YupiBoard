@@ -9,12 +9,10 @@ export function getTodayIsoDate(): string {
   return toIsoDate(new Date());
 }
 
-/** First instant of a local calendar day, as an ISO timestamp for the API. */
 export function startOfIsoDate(isoDate: string): string {
   return new Date(`${isoDate}T00:00:00`).toISOString();
 }
 
-/** Last instant of a local calendar day, as an ISO timestamp for the API. */
 export function endOfIsoDate(isoDate: string): string {
   return new Date(`${isoDate}T23:59:59.999`).toISOString();
 }

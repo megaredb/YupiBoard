@@ -15,7 +15,6 @@ function pickLanguage(candidates: readonly string[]): SupportedLanguage {
   return FALLBACK_LANGUAGE;
 }
 
-/** Called once from `bootstrap()`; keeps `<html lang>` in sync with the active language. */
 export async function initI18n(): Promise<void> {
   i18next.on("languageChanged", setDocumentLanguage);
   await i18next.use(initReactI18next).init({

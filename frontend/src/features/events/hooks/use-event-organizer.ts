@@ -11,7 +11,6 @@ export interface EventOrganizer {
   memberSince: string | null;
 }
 
-/** Summary from the event, enriched with the organizer's profile once it has loaded. */
 export function useEventOrganizer(event: EventRead): EventOrganizer {
   const { data: profile } = useQuery(organizerQueryOptions(event.organizer.id));
   return {

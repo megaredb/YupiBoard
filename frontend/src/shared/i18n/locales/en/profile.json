@@ -29,9 +29,13 @@
   },
   "passwordDialog": {
     "title": "Change password",
-    "description": "Enter your new password below (at least 8 characters).",
+    "description": "Enter your current password, then choose a new one.",
     "submit": "Update password",
-    "success": "Password updated"
+    "success": "Password updated",
+    "currentPassword": "Current password",
+    "currentPasswordHint": "Leave empty if you signed up with Google and have not set a password yet.",
+    "wrongCurrentPassword": "The current password is incorrect.",
+    "failed": "Could not change your password. Please try again."
   },
   "complete": {
     "title": "Complete your profile",

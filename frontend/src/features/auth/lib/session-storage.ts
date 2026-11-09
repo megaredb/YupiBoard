@@ -26,7 +26,6 @@ async function clearTokens(): Promise<void> {
   await Promise.all([removeSecureValue("access_token"), removeSecureValue("refresh_token")]);
 }
 
-/** The one place tokens are handled; handed to the API client in `bootstrap()`. */
 export const sessionTokenStore: TokenStore = {
   getAccessToken: () => accessToken,
   getRefreshToken: () => refreshToken,

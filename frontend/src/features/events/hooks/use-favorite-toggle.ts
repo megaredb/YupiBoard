@@ -16,7 +16,6 @@ interface FavoriteToggle {
   toggleFavorite: () => void;
 }
 
-/** Guests are sent to sign in first, since favorites belong to an account. */
 export function useFavoriteToggle(event: Pick<EventRead, "id" | "is_favorite">): FavoriteToggle {
   const { t } = useTranslation();
   const navigate = useNavigate();

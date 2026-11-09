@@ -11,7 +11,6 @@ interface NearestCity {
   isLocating: boolean;
 }
 
-/** Picks the supported city nearest to the device; a refused or failed lookup shows a toast. */
 export function useNearestCity(onFound: (city: CityRead) => void): NearestCity {
   const { t } = useTranslation();
   const cities = useCities();

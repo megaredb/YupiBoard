@@ -6,7 +6,6 @@ import { EventHero } from "@/features/events/components/event-details/event-hero
 
 interface EventSummaryProps {
   event: EventRead;
-  /** Share and favorite buttons shown on the hero image on desktop. */
   heroActions: ReactNode;
 }
 

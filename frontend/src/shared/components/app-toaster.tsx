@@ -11,7 +11,6 @@ const MAX_VISIBLE_TOASTS = 3;
 const BOTTOM_OFFSET =
   "max(1rem, calc(var(--safe-bottom) + 0.5rem), calc(var(--bottom-bar-inset) + 0.75rem), calc(var(--keyboard-inset) + 0.75rem))";
 
-/** The app's one toaster (ST-5), mounted by the shell; `showToast` feeds it. */
 export function AppToaster() {
   const { t } = useTranslation();
   const theme = useResolvedTheme();

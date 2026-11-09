@@ -31,7 +31,6 @@ const TONE_ICONS = {
   warning: TriangleAlert,
 } as const;
 
-/** A notice above a form or flow (server error, saved, needs action). Field errors belong to `FormField`. */
 export function FormAlert({ message, tone = "error", className }: FormAlertProps) {
   const Icon = TONE_ICONS[tone];
   return (

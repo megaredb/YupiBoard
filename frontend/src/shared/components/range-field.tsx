@@ -6,7 +6,6 @@ type Range = readonly [number, number];
 
 interface RangeFieldProps {
   label: string;
-  /** Accessible names of the lower and upper bound (inputs and thumbs). */
   boundLabels: readonly [string, string];
   min: number;
   max: number;
@@ -14,7 +13,6 @@ interface RangeFieldProps {
   /** Initial range; remount with a new `key` to reset it from outside. */
   value: Range;
   onCommit: (value: Range) => void;
-  /** Shown inside both inputs, e.g. "₴". */
   prefix?: string;
 }
 

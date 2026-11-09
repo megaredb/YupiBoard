@@ -13,7 +13,6 @@ interface ParticipantListStateProps<T> {
 
 const SKELETON_ROWS = 3;
 
-/** Loading, error, empty and data states of a participant list (UI-7). */
 export function ParticipantListState<T>({
   state,
   emptyText,

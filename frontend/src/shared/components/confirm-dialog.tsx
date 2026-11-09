@@ -16,7 +16,6 @@ interface ConfirmDialogProps {
 // Long labels ("Yes, cancel request") wrap inside the button instead of overflowing it.
 const ACTION_CLASS = "h-auto min-h-12 px-3 py-2 text-sm leading-tight whitespace-normal";
 
-/** Asks before an irreversible action. Mounted only while open; Esc and "cancel" close it. */
 export function ConfirmDialog({
   title,
   description,

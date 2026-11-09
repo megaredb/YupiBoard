@@ -10,7 +10,6 @@ interface MyEventBooking {
   isLoading: boolean;
 }
 
-/** The signed-in user's booking for the event; guests have none and nothing is fetched. */
 export function useMyEventBooking(eventId: string, isSignedIn: boolean): MyEventBooking {
   const query = useQuery({
     ...myBookingsInterimQueryOptions(),

@@ -3,7 +3,6 @@ import { getListEventParticipantsApiV1EventsEventIdParticipantsGetQueryOptions }
 import type { BookingParticipantSummary } from "@/shared/api/generated/model";
 import { toListState, type ListState } from "@/shared/lib/list-state";
 
-/** Confirmed players of the event; the backend shows them to its host and confirmed players. */
 export function useEventParticipants(eventId: string): ListState<BookingParticipantSummary> {
   const query = useQuery(
     getListEventParticipantsApiV1EventsEventIdParticipantsGetQueryOptions(eventId),

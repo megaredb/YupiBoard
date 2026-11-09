@@ -6,7 +6,6 @@ type SliderProps<Value extends number | readonly number[]> = SliderPrimitive.Roo
   thumbLabels: readonly string[];
 };
 
-/** Single-value or range slider (pass an array value for a range). */
 export function Slider<Value extends number | readonly number[]>({
   thumbLabels,
   className,

@@ -20,8 +20,7 @@ function dropAccountScopedQueries(queryClient: QueryClient): void {
   queryClient.removeQueries({ predicate: (query) => query.queryHash !== currentUserHash });
 }
 
-/** Stores the tokens of a successful sign-in and publishes the user to the query cache. */
-export async function startSession(
+export async function renewSession(
   queryClient: QueryClient,
   response: TokenResponse,
 ): Promise<UserRead> {
@@ -30,12 +29,19 @@ export async function startSession(
     accessToken: response.access_token,
     refreshToken: response.refresh_token ?? null,
   });
-  dropAccountScopedQueries(queryClient);
   queryClient.setQueryData(currentUserQueryOptions().queryKey, response.user);
   return response.user;
 }
 
-/** Ends the local session: tokens, per-user device data and cached account data are wiped. */
+export async function startSession(
+  queryClient: QueryClient,
+  response: TokenResponse,
+): Promise<UserRead> {
+  const user = await renewSession(queryClient, response);
+  dropAccountScopedQueries(queryClient);
+  return user;
+}
+
 export async function endSession(queryClient: QueryClient): Promise<void> {
   const userId = queryClient.getQueryData(currentUserQueryOptions().queryKey)?.id ?? null;
   await sessionTokenStore.clear();

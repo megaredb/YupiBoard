@@ -24,12 +24,20 @@
   "myEvents": {
     "title": "My events",
     "emptyTitle": "You have not created any events yet",
-    "emptyDescription": "Create your first board game event and manage it here."
+    "emptyDescription": "Create your first board game event and manage it here.",
+    "statusLabel": "Status",
+    "allStatuses": "All statuses",
+    "noMatchTitle": "No events with this status",
+    "noMatchDescription": "Pick another status to see the rest of your events."
   },
   "myBookings": {
     "title": "My bookings",
     "emptyTitle": "You have no bookings yet",
-    "emptyDescription": "Apply to an event in the catalog to see your bookings here."
+    "emptyDescription": "Apply to an event in the catalog to see your bookings here.",
+    "found_one": "{{count}} booking",
+    "found_other": "{{count}} bookings",
+    "sortNewest": "Newest bookings",
+    "sortOldest": "Oldest bookings"
   },
   "favorites": {
     "title": "Favorites",
@@ -68,7 +76,8 @@
     "seatsValue_other": "At least {{count}} seats",
     "rating": "Minimum organizer rating",
     "ratingOption_one": "{{count}} star & up",
-    "ratingOption_other": "{{count}} stars & up"
+    "ratingOption_other": "{{count}} stars & up",
+    "anyDate": "Any date"
   },
   "details": {
     "pageTitle": "Event",
@@ -187,7 +196,9 @@
     "dateAsc": "Date ↑",
     "dateDesc": "Date ↓",
     "costAsc": "Cost ↑",
-    "costDesc": "Cost ↓"
+    "costDesc": "Cost ↓",
+    "nameAsc": "Name A–Z",
+    "nameDesc": "Name Z–A"
   },
   "bookingStatus": {
     "pending": "Pending",
@@ -221,5 +232,13 @@
     "accepted": "Request accepted",
     "waitlisted": "The table is full, so the player was added to the waitlist",
     "declined": "Request declined"
+  },
+  "eventStatus": {
+    "onModeration": "On moderation",
+    "rejected": "Rejected",
+    "published": "Published",
+    "ongoing": "Happening now",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
   }
 }

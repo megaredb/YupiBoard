@@ -5,7 +5,6 @@ import { startSession } from "@/features/auth/api/session-lifecycle";
 import { isProfileComplete } from "@/features/auth/lib/is-profile-complete";
 import { toSafeRedirect } from "@/features/auth/lib/safe-redirect";
 
-/** Shared by e-mail login, registration and Google: start the session, then leave the auth page. */
 export function useSignInMutation<TVariables>(
   signIn: (variables: TVariables) => Promise<TokenResponse>,
   redirectTo: string | undefined,

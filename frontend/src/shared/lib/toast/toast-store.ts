@@ -5,7 +5,6 @@ type ToastTone = "success" | "error" | "info";
 
 interface ToastOptions {
   tone?: ToastTone;
-  /** Second line under the message, e.g. what the user can do next. */
   description?: string;
 }
 

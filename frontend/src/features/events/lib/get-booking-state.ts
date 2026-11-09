@@ -18,7 +18,6 @@ const BOOKING_STATES: Partial<Record<BookingStatus, BookingState>> = {
   RemovedByOrganizer: "rejected",
 };
 
-/** States in which the player still holds a request or a seat they may give up. */
 const CANCELLABLE_STATES: ReadonlySet<BookingState> = new Set(["pending", "approved", "waitlist"]);
 
 export function getBookingState({ event, userId, bookingStatus }: BookingStateInput): BookingState {
@@ -34,7 +33,6 @@ export function canCancelBooking(state: BookingState): boolean {
   return CANCELLABLE_STATES.has(state);
 }
 
-/** Who sees the participants block: the host manages requests, confirmed players see the table. */
 export function getParticipantsViewer(state: BookingState): "host" | "participant" | null {
   if (state === "hosting") return "host";
   if (state === "approved") return "participant";

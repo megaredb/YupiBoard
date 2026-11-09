@@ -9,7 +9,6 @@ async function restore(): Promise<void> {
   if (!hasAccessToken()) await restoreSessionFromRefreshToken();
 }
 
-/** Resolves once a stored or cookie-based session (if any) has been picked up. Runs once. */
 export function restoreSession(): Promise<void> {
   restoring ??= restore();
   return restoring;

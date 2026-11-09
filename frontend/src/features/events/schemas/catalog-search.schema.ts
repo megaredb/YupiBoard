@@ -58,7 +58,6 @@ const searchQuery = z.preprocess(
   z.string().trim().min(1).max(SEARCH_QUERY_MAX_LENGTH).optional().catch(undefined),
 );
 
-/** `/events?city=Lviv&distance=20&sort=date-asc&costMax=0&page=2`; every param is optional. */
 export const catalogSearchSchema = z.object({
   page: boundedNumber(1, Number.MAX_SAFE_INTEGER, 1),
   /** Absent: the user's own city (or the default one) is searched. */
@@ -76,7 +75,6 @@ export const catalogSearchSchema = z.object({
 
 type CatalogSearch = z.infer<typeof catalogSearchSchema>;
 
-/** Search params with the city resolved to the one actually searched. */
 export type CatalogFilters = Omit<CatalogSearch, "page" | "city"> & { city: string };
 
 export const DEFAULT_DISTANCE = DEFAULT_DISTANCE_KM;
@@ -88,10 +86,8 @@ export const CATALOG_SEARCH_DEFAULTS = {
   sort: DEFAULT_SORT,
 } as const;
 
-/** A 1-based page number; anything else in the URL falls back to the first page. */
 export const pageNumberSchema = boundedNumber(1, Number.MAX_SAFE_INTEGER, 1);
 
-/** `?page=2` of the personal event lists (my events, bookings, favorites). */
 export const pageSearchSchema = z.object({ page: pageNumberSchema });
 
 export const PAGE_SEARCH_DEFAULTS = { page: 1 } as const;

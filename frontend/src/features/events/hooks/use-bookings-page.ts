@@ -3,7 +3,6 @@ import { PARTICIPANTS_SECTION_ID } from "@/features/events/lib/participants-sect
 
 const route = getRouteApi("/events/$eventId");
 
-/** Page of the host's booking request list; it lives in the URL (ST-2). */
 export function useBookingsPage(): { page: number; goToPage: (page: number) => void } {
   const { eventId } = route.useParams();
   const { bookingsPage } = route.useSearch();

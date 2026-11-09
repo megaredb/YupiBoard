@@ -3,13 +3,14 @@ import { FormAlert } from "@/shared/components/form-alert";
 import type { TranslationKey } from "@/shared/i18n/translation-key";
 import { Button } from "@/shared/ui/button";
 import { Dialog } from "@/shared/ui/dialog";
-import { NewPasswordForm, type NewPasswordFormValues } from "@/features/auth";
+import { ChangePasswordForm } from "@/features/profile/components/change-password-form";
+import type { ChangePasswordFormValues } from "@/features/profile/schemas/change-password.schema";
 
 interface ChangePasswordDialogProps {
   onClose: () => void;
   isPending: boolean;
   errorKey: TranslationKey | null;
-  onSubmit: (values: NewPasswordFormValues) => void;
+  onSubmit: (values: ChangePasswordFormValues) => void;
 }
 
 /** Mounted only while open, so the form always starts empty. */
@@ -32,7 +33,7 @@ export function ChangePasswordDialog({
           <Dialog.Description>{t("profile.passwordDialog.description")}</Dialog.Description>
         </Dialog.Header>
         {errorKey && <FormAlert message={t(errorKey)} />}
-        <NewPasswordForm
+        <ChangePasswordForm
           isPending={isPending}
           onSubmit={onSubmit}
           actions={

@@ -3,7 +3,6 @@ interface NamedUser {
   last_name?: string | null;
 }
 
-/** "Olena Kovalenko", or `null` when no name is set yet. */
 export function getFullName(user: NamedUser): string | null {
   const fullName = [user.first_name, user.last_name]
     .map((part) => part?.trim())

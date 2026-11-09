@@ -1,7 +1,6 @@
 import { PageContainer } from "@/shared/layout/page-container";
 import { Skeleton } from "@/shared/ui/skeleton";
 
-/** Router `defaultPendingComponent`: a neutral page skeleton. */
 export function RoutePending() {
   return (
     <PageContainer>

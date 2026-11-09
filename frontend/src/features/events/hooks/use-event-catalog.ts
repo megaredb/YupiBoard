@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { catalogQueryOptions } from "@/features/events/api/event-queries";
-import { toPagedEvents, type PagedEvents } from "@/features/events/lib/to-paged-events";
+import { toPagedList, type PagedEvents } from "@/features/events/lib/to-paged-list";
 import type { CatalogFilters } from "@/features/events/schemas/catalog-search.schema";
 import { useCities } from "@/features/locations";
 
@@ -10,5 +10,5 @@ export function useEventCatalog(filters: CatalogFilters, page: number): PagedEve
     ...catalogQueryOptions(filters, cities, page),
     placeholderData: keepPreviousData,
   });
-  return toPagedEvents(query);
+  return toPagedList(query);
 }

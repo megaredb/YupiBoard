@@ -11,7 +11,6 @@ interface NearestCityButtonProps {
   className?: string;
 }
 
-/** "Use my location": chooses the supported city nearest to the device. */
 export function NearestCityButton({ onFound, isDisabled, className }: NearestCityButtonProps) {
   const { t } = useTranslation();
   const { locate, isLocating } = useNearestCity(onFound);

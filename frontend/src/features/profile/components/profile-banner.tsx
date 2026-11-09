@@ -2,11 +2,9 @@ import type { ReactNode } from "react";
 
 interface ProfileBannerProps {
   imageUrl: string | null | undefined;
-  /** Controls laid over the banner, e.g. the picker in edit mode. */
   children?: ReactNode;
 }
 
-/** Header band: the user's banner photo, or a decorative gradient without one. */
 export function ProfileBanner({ imageUrl, children }: ProfileBannerProps) {
   return (
     <div className="relative h-44 w-full overflow-hidden bg-linear-to-r from-foreground/90 via-primary/40 to-foreground/85 sm:h-52 sm:rounded-b-2xl">

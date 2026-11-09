@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { cva } from "class-variance-authority";
 import { Calendar, MapPin, Star, Users } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
@@ -15,8 +16,9 @@ interface EventCardProps {
   imageUrl: string | null;
   meta: { date: string; location: string };
   price: { label: string; isFree: boolean };
-  promotedLabel: string | null;
-  participants: { current: number; max: number; label: string };
+  labels: { promoted: string | null; status?: ReactNode };
+  /** Omitted when the source has no seat counts (booking summaries). */
+  participants: { current: number; max: number; label: string } | null;
   organizer: EventCardOrganizer | null;
   className?: string;
 }
@@ -38,7 +40,7 @@ export function EventCard({
   imageUrl,
   meta,
   price,
-  promotedLabel,
+  labels,
   participants,
   organizer,
   className,
@@ -60,22 +62,17 @@ export function EventCard({
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-linear-to-t from-overlay/50 to-transparent"
         />
-        {promotedLabel && (
+        {labels.promoted && (
           <span className="absolute top-3 right-3 z-10 rounded-md bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
-            {promotedLabel}
+            {labels.promoted}
           </span>
         )}
         {organizer && <CardOrganizer organizer={organizer} />}
-        <span
-          aria-label={participants.label}
-          className={participantsVariants({ isFree: price.isFree })}
-        >
-          <span aria-hidden>{`${participants.current} / ${participants.max}`}</span>
-          <Users aria-hidden className="size-3.5 fill-current" />
-        </span>
+        {participants && <CardParticipants participants={participants} isFree={price.isFree} />}
       </div>
 
       <Card.Content className="flex flex-1 flex-col gap-2 px-3 py-3">
+        {labels.status && <div className="flex">{labels.status}</div>}
         <h3 className="line-clamp-2 text-base leading-snug font-normal">{title}</h3>
         <div className="mt-auto flex items-start justify-between gap-3">
           <ul className="min-w-0 space-y-1 text-xs text-muted-foreground">
@@ -99,6 +96,21 @@ export function EventCard({
         </div>
       </Card.Content>
     </Card>
+  );
+}
+
+function CardParticipants({
+  participants,
+  isFree,
+}: {
+  participants: NonNullable<EventCardProps["participants"]>;
+  isFree: boolean;
+}) {
+  return (
+    <span aria-label={participants.label} className={participantsVariants({ isFree })}>
+      <span aria-hidden>{`${participants.current} / ${participants.max}`}</span>
+      <Users aria-hidden className="size-3.5 fill-current" />
+    </span>
   );
 }
 

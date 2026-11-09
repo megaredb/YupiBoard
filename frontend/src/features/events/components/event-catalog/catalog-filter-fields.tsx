@@ -10,7 +10,6 @@ interface CatalogFilterFieldsProps {
   onChange: (next: CatalogFilters) => void;
 }
 
-/** The filter panel's fields, shared by the desktop sidebar and the phone sheet. */
 export function CatalogFilterFields({ value, onChange }: CatalogFilterFieldsProps) {
   return (
     <div className="space-y-4">

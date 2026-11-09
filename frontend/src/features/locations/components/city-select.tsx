@@ -3,7 +3,6 @@ import { NativeSelect } from "@/shared/ui/native-select";
 import { useCityOptions } from "@/features/locations/hooks/use-city-options";
 
 interface CitySelectProps extends Omit<ComponentProps<typeof NativeSelect>, "options"> {
-  /** Adds a first, empty option for an optional city ("Not set"). */
   emptyLabel?: string;
   /** A stored value the backend no longer lists (e.g. typed before cities existed); kept selectable. */
   legacyValue?: string | null;

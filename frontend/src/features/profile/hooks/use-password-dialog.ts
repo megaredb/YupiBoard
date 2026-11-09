@@ -1,13 +1,13 @@
 import { useState } from "react";
 import type { TranslationKey } from "@/shared/i18n/translation-key";
-import type { NewPasswordFormValues } from "@/features/auth";
 import { useChangePassword } from "@/features/profile/hooks/use-change-password";
+import type { ChangePasswordFormValues } from "@/features/profile/schemas/change-password.schema";
 
 interface PasswordDialog {
   isOpen: boolean;
   open: () => void;
   close: () => void;
-  changePassword: (values: NewPasswordFormValues) => void;
+  changePassword: (values: ChangePasswordFormValues) => void;
   isPending: boolean;
   errorKey: TranslationKey | null;
 }

@@ -13,7 +13,6 @@ interface BottomSheetProps {
   className?: string;
 }
 
-/** Mobile bottom sheet (same Base UI dialog primitive as `Dialog`). */
 export function BottomSheet({
   open,
   onOpenChange,

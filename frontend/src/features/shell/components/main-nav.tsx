@@ -5,7 +5,6 @@ import { useNavItems } from "@/features/shell/hooks/use-nav-items";
 const ACTIVE_LINK = { className: "text-primary" };
 const INACTIVE_LINK = { className: "text-muted-foreground hover:text-foreground" };
 
-/** Desktop navigation; phones use `MobileTabBar` and the Profile tab shortcuts. */
 export function MainNav() {
   const { t } = useTranslation();
   const navItems = useNavItems();

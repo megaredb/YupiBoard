@@ -3,9 +3,7 @@ import { Slider } from "@/shared/ui/slider";
 
 interface RangeSliderProps {
   label: string;
-  /** Text shown next to the label for the current value, e.g. "Within 15 km". */
   formatValue: (value: number) => string;
-  /** Text under the track ends, e.g. "1 km". */
   formatBound: (value: number) => string;
   min: number;
   max: number;

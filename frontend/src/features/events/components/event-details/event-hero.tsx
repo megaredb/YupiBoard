@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 interface EventHeroProps {
   photoUrl: string | null;
   isPromoted: boolean;
-  /** Desktop-only overlay actions (share, favorite). */
   actions: ReactNode;
 }
 

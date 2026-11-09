@@ -9,7 +9,6 @@ interface ListQuery {
   refetch: () => unknown;
 }
 
-/** Collapses a query's flags into the one state a list renders (TS-6). */
 export function toListState<T>(query: ListQuery, items: T[] | undefined): ListState<T> {
   if (query.isError) return { status: "error", retry: () => void query.refetch() };
   if (query.isPending || !items) return { status: "pending" };

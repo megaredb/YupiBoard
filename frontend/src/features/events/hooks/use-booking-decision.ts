@@ -18,7 +18,6 @@ interface Decision {
 
 interface BookingDecision {
   decide: (bookingId: string, isApproved: boolean) => void;
-  /** The booking whose decision is being sent, if any. */
   pendingBookingId: string | null;
 }
 

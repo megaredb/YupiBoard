@@ -9,7 +9,6 @@ import { formatMemberSince, formatRating } from "@/features/users";
 interface ProfileSummaryCardProps {
   user: UserPublicRead;
   name: string;
-  /** Plain avatar, or the avatar picker while editing. */
   avatar: ReactNode;
   showCity?: boolean;
 }

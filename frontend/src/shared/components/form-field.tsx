@@ -3,7 +3,6 @@ import { InlineError } from "@/shared/components/inline-error";
 import { cn } from "@/shared/lib/cn";
 import { Label } from "@/shared/ui/label";
 
-/** Attributes the wrapped control spreads onto itself. */
 export interface FieldControlProps {
   id: string;
   "aria-invalid"?: boolean;
@@ -16,7 +15,6 @@ interface FormFieldProps {
   optionalText?: string;
   hint?: string;
   error?: string;
-  /** Right-aligned note under the control, e.g. `"42/2000"`. */
   counter?: string;
   isLabelHidden?: boolean;
   className?: string;
@@ -54,7 +52,6 @@ function FieldLabel({
   );
 }
 
-/** Label, control, hint and error wired together through `id` / `aria-describedby` (FORM-5). */
 export function FormField({
   hint,
   error,

@@ -11,7 +11,6 @@ interface ProfileDetailsProps {
   onChangePassword: () => void;
 }
 
-/** View mode of "My profile" (ORG-5). */
 export function ProfileDetails({ user, onEdit, onChangePassword }: ProfileDetailsProps) {
   const { t } = useTranslation();
   const dash = t("common.notProvided");

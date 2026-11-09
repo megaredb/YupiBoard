@@ -5,7 +5,6 @@ const TAB_CLASS =
   "flex h-full flex-1 items-center justify-center rounded-lg text-sm font-medium text-muted-foreground";
 const ACTIVE_TAB = { className: "bg-background text-foreground shadow-xs" };
 
-/** Phone-only switch between `/login` and `/register`, keeping the post-sign-in redirect. */
 export function MobileAuthTabs({ redirect }: { redirect: string | undefined }) {
   const { t } = useTranslation();
 

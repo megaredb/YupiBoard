@@ -25,7 +25,6 @@ interface UseUpdateProfileResult {
   errorKey: TranslationKey | null;
 }
 
-/** Image uploads + `PATCH /users/me`; the current user query is refreshed afterwards. */
 export function useUpdateProfile(onSuccess: (user: UserRead) => void): UseUpdateProfileResult {
   const queryClient = useQueryClient();
   const mutation = useMutation({

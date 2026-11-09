@@ -39,7 +39,6 @@ async function downscale(file: File, maxDimension: number): Promise<File> {
   return blob ? new File([blob], file.name, { type: file.type }) : file;
 }
 
-/** The single upload pipeline: checks type and size, then downscales to the kind's limit. */
 export async function prepareImage(file: File, kind: ImageKind): Promise<PrepareImageResult> {
   const limits = IMAGE_LIMITS[kind];
   if (!isImageMimeType(file.type)) return { status: "invalid-type" };

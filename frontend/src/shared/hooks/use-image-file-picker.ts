@@ -4,11 +4,9 @@ import { prepareImage } from "@/shared/lib/image/prepare-image";
 
 interface ImageFilePicker {
   handleFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  /** The last picked file was the wrong type or too large. */
   hasError: boolean;
 }
 
-/** `onChange` of an image `<input type="file">`: validates and resizes through the shared pipeline. */
 export function useImageFilePicker(kind: ImageKind, onPick: (file: File) => void): ImageFilePicker {
   const [hasError, setHasError] = useState(false);
 

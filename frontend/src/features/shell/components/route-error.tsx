@@ -7,7 +7,6 @@ import { Button } from "@/shared/ui/button";
 import { buttonVariants } from "@/shared/ui/button-variants";
 import { StatusMessage } from "@/shared/ui/status-message";
 
-/** Router `defaultErrorComponent`: every route gets a retryable error state (ERR-1). */
 export function RouteError({ error, reset }: ErrorComponentProps) {
   const { t } = useTranslation();
   const router = useRouter();

@@ -39,7 +39,6 @@ function toDefaultValues(user: UserRead): ProfileFormValues {
   };
 }
 
-/** Edit mode of "My profile" (ORG-5). */
 export function ProfileEditForm(props: ProfileEditFormProps) {
   const { user, isPending } = props;
   const { t } = useTranslation();

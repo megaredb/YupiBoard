@@ -28,12 +28,22 @@
   "myEvents": {
     "title": "Мої події",
     "emptyTitle": "Ви ще не створили жодної події",
-    "emptyDescription": "Створіть першу подію з настільних ігор і керуйте нею тут."
+    "emptyDescription": "Створіть першу подію з настільних ігор і керуйте нею тут.",
+    "statusLabel": "Статус",
+    "allStatuses": "Усі статуси",
+    "noMatchTitle": "Немає подій із цим статусом",
+    "noMatchDescription": "Оберіть інший статус, щоб побачити решту своїх подій."
   },
   "myBookings": {
     "title": "Мої бронювання",
     "emptyTitle": "У вас ще немає бронювань",
-    "emptyDescription": "Подайте заявку на подію в каталозі, щоб побачити її тут."
+    "emptyDescription": "Подайте заявку на подію в каталозі, щоб побачити її тут.",
+    "found_one": "{{count}} бронювання",
+    "found_few": "{{count}} бронювання",
+    "found_many": "{{count}} бронювань",
+    "found_other": "{{count}} бронювання",
+    "sortNewest": "Спочатку нові",
+    "sortOldest": "Спочатку старі"
   },
   "favorites": {
     "title": "Обране",
@@ -78,7 +88,8 @@
     "ratingOption_one": "Від {{count}} зірки",
     "ratingOption_few": "Від {{count}} зірок",
     "ratingOption_many": "Від {{count}} зірок",
-    "ratingOption_other": "Від {{count}} зірки"
+    "ratingOption_other": "Від {{count}} зірки",
+    "anyDate": "Будь-яка дата"
   },
   "details": {
     "pageTitle": "Подія",
@@ -201,7 +212,9 @@
     "dateAsc": "Дата ↑",
     "dateDesc": "Дата ↓",
     "costAsc": "Вартість ↑",
-    "costDesc": "Вартість ↓"
+    "costDesc": "Вартість ↓",
+    "nameAsc": "Назва А–Я",
+    "nameDesc": "Назва Я–А"
   },
   "bookingStatus": {
     "pending": "Очікує",
@@ -235,5 +248,13 @@
     "accepted": "Заявку прийнято",
     "waitlisted": "Стіл заповнений, тому гравця додано до листа очікування",
     "declined": "Заявку відхилено"
+  },
+  "eventStatus": {
+    "onModeration": "На модерації",
+    "rejected": "Відхилено",
+    "published": "Опубліковано",
+    "ongoing": "Триває",
+    "completed": "Завершено",
+    "cancelled": "Скасовано"
   }
 }

@@ -12,7 +12,6 @@ interface CatalogFiltersState {
   goToPage: (page: number) => void;
 }
 
-/** Filters, search, sort and page live in the URL so they survive reload and sharing (ST-2). */
 export function useCatalogFilters(): CatalogFiltersState {
   const { page, city, ...search } = route.useSearch();
   const preferredCity = usePreferredCity();

@@ -10,7 +10,6 @@ import { MobileTabBar } from "@/features/shell/components/mobile-tab-bar";
 import { useDocumentTitle } from "@/features/shell/hooks/use-document-title";
 import { useRouteStaticData } from "@/features/shell/hooks/use-route-static-data";
 
-/** Root route component: app chrome around every page, chosen by the route's `layout` flag. */
 export function AppLayout() {
   const { t } = useTranslation();
   const user = useCurrentUser();

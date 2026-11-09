@@ -15,7 +15,6 @@ interface AvatarPickerProps {
   value: File | null;
   onChange: (file: File) => void;
   isDisabled: boolean;
-  /** `standalone`: large, centred, with an upload button. `inline`: compact, inside a profile card. */
   variant: "standalone" | "inline";
 }
 

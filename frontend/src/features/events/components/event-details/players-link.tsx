@@ -7,7 +7,6 @@ import { PARTICIPANTS_SECTION_ID } from "@/features/events/lib/participants-sect
 
 interface PlayersLinkProps {
   eventId: string;
-  /** Short label for the phone booking bar. */
   isCompact?: boolean;
   className?: string;
 }

@@ -13,7 +13,6 @@ interface ProfileCityFieldProps {
   isPending: boolean;
 }
 
-/** The user's home city, used as the default search area; inside both profile forms. */
 export function ProfileCityField({ savedCity, isPending }: ProfileCityFieldProps) {
   const { t } = useTranslation();
   const fieldError = useFieldError();

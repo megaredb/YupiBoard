@@ -9,7 +9,6 @@ interface BookingButtonProps {
   className?: string;
 }
 
-/** "Apply", or the reason the player cannot apply (ORG-6). */
 export function BookingButton({ action, className }: BookingButtonProps) {
   const { t } = useTranslation();
 
