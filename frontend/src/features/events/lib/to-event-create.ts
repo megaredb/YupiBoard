@@ -1,10 +1,12 @@
-import type { EventCreate } from "@/shared/api/generated/model";
-import { getCity } from "@/features/events/lib/cities";
+import type { CityRead, EventCreate } from "@/shared/api/generated/model";
 import type { CreateEventFormValues } from "@/features/events/schemas/create-event.schema";
 
-export function toEventCreate(values: CreateEventFormValues, photoUrl: string | null): EventCreate {
-  // No geocoding yet: the event is placed at the chosen city's centre.
-  const city = getCity(values.city);
+export function toEventCreate(
+  values: CreateEventFormValues,
+  city: CityRead,
+  photoUrl: string | null,
+): EventCreate {
+  // The backend has no geocoding for addresses: the event is placed at its city's centre.
   return {
     title: values.title,
     game_title: values.gameTitle,

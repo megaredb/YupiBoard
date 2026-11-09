@@ -9,7 +9,6 @@
   "changePhoto": "Change photo",
   "photoHint": "JPEG/PNG under 2 MB",
   "bioHint": "Tell others about your board game preferences…",
-  "deviceOnlyNote": "Saved on this device only",
   "emailLinkedNote": "Your email cannot be changed",
   "locationHint": "Distance to events is calculated from the city centre",
   "locationEditHint": "Set an exact address or a city; for a city, distance is calculated from its centre",

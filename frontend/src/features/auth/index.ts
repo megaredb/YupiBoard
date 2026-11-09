@@ -11,7 +11,6 @@ export { SignedInOutlet } from "@/features/auth/components/signed-in-outlet";
 export { useCurrentUser } from "@/features/auth/hooks/use-current-user";
 export { useSignedInUser } from "@/features/auth/hooks/use-signed-in-user";
 export { useLogout } from "@/features/auth/hooks/use-logout";
-export { onSessionEnded } from "@/features/auth/lib/session-events";
 export { sessionTokenStore } from "@/features/auth/lib/session-storage";
 export { authRedirectSearchSchema } from "@/features/auth/schemas/auth-redirect-search.schema";
 export type { NewPasswordFormValues } from "@/features/auth/schemas/new-password.schema";

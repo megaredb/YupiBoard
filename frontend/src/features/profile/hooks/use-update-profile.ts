@@ -8,10 +8,10 @@ import { getApiErrorKey } from "@/shared/i18n/get-api-error-key";
 import type { TranslationKey } from "@/shared/i18n/translation-key";
 import { currentUserQueryOptions } from "@/features/auth";
 import { toUserUpdate } from "@/features/profile/lib/to-user-update";
-import type { CompleteProfileFormValues } from "@/features/profile/schemas/profile.schema";
+import type { ProfileUpdateValues } from "@/features/profile/schemas/profile.schema";
 
 interface ProfileUpdate {
-  values: CompleteProfileFormValues;
+  values: ProfileUpdateValues;
   /** Already validated and resized by the avatar picker. */
   avatar: File | null;
 }

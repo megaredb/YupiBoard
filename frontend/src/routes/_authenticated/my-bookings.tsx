@@ -1,15 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { interimAllEventsQueryOptions, pageSearchSchema } from "@/features/events";
+import { myParticipatingEventsQueryOptions, pageSearchSchema } from "@/features/events";
 import { MyBookingsPage } from "@/features/events/pages/my-bookings-page";
-import { ensureSavedEvents } from "@/features/saved-events";
 
 export const Route = createFileRoute("/_authenticated/my-bookings")({
   validateSearch: pageSearchSchema,
-  loader: ({ context }) =>
-    Promise.all([
-      context.queryClient.query({ ...interimAllEventsQueryOptions(), staleTime: "static" }),
-      ensureSavedEvents(context.queryClient),
-    ]),
+  loaderDeps: ({ search }) => ({ page: search.page }),
+  loader: ({ context, deps }) =>
+    context.queryClient.query({
+      ...myParticipatingEventsQueryOptions(deps.page),
+      staleTime: "static",
+    }),
   staticData: { titleKey: "events.myBookings.title" },
   component: MyBookingsPage,
 });

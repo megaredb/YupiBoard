@@ -12,15 +12,13 @@ import { ProfileEditForm } from "@/features/profile/components/profile-edit-form
 import { ProfileSummaryCard } from "@/features/profile/components/profile-summary-card";
 import { useChangePassword } from "@/features/profile/hooks/use-change-password";
 import { useProfileEditMode } from "@/features/profile/hooks/use-profile-edit-mode";
-import { useSaveProfile } from "@/features/profile/hooks/use-save-profile";
-import { useProfileBio } from "@/features/profile/lib/profile-bio-store";
+import { useUpdateProfile } from "@/features/profile/hooks/use-update-profile";
 import type { ProfileFormValues } from "@/features/profile/schemas/profile.schema";
 import { getDisplayName } from "@/features/users";
 
 export function ProfilePage() {
   const { t } = useTranslation();
   const user = useSignedInUser();
-  const bio = useProfileBio();
   const editMode = useProfileEditMode();
   const [isPasswordOpen, setPasswordOpen] = useState(false);
 
@@ -28,7 +26,7 @@ export function ProfilePage() {
     editMode.stopEditing();
     showToast(t("profile.updatedMessage"));
   };
-  const { saveProfile, isPending, errorKey } = useSaveProfile(user.id, handleSaved);
+  const { updateProfile, isPending, errorKey } = useUpdateProfile(handleSaved);
   const handleClosePassword = () => setPasswordOpen(false);
   const password = useChangePassword(handleClosePassword);
   const handleOpenPassword = () => {
@@ -36,11 +34,11 @@ export function ProfilePage() {
     setPasswordOpen(true);
   };
   const handleSubmit = (values: ProfileFormValues, onError: (error: unknown) => void) =>
-    saveProfile({ values, avatar: editMode.pickedAvatar, onError });
+    updateProfile({ values, avatar: editMode.pickedAvatar }, { onError });
 
   return (
     <div className="space-y-6 pb-12">
-      <ProfileBanner />
+      <ProfileBanner imageUrl={user.banner_url} />
       <div className="mx-auto -mt-20 max-w-3xl space-y-6 px-4 sm:px-6">
         <ProfileSummaryCard
           user={user}
@@ -60,7 +58,6 @@ export function ProfilePage() {
         {editMode.isEditing ? (
           <ProfileEditForm
             user={user}
-            bio={bio}
             isPending={isPending}
             onSubmit={handleSubmit}
             onCancel={editMode.stopEditing}
@@ -69,7 +66,6 @@ export function ProfilePage() {
         ) : (
           <ProfileDetails
             user={user}
-            bio={bio}
             onEdit={editMode.startEditing}
             onChangePassword={handleOpenPassword}
           />

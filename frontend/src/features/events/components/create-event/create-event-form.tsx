@@ -9,7 +9,7 @@ import { CoverSection } from "@/features/events/components/create-event/cover-se
 import { GeneralSection } from "@/features/events/components/create-event/general-section";
 import { PlayersSection } from "@/features/events/components/create-event/players-section";
 import { ScheduleSection } from "@/features/events/components/create-event/schedule-section";
-import { DEFAULT_CITY_ID } from "@/features/events/lib/cities";
+import { DEFAULT_CITY_NAME } from "@/features/events/schemas/catalog-search.schema";
 import {
   CREATE_EVENT_LIMITS,
   createEventSchema,
@@ -30,7 +30,7 @@ const DEFAULT_VALUES: CreateEventFormInput = {
   description: "",
   date: "",
   time: "",
-  city: DEFAULT_CITY_ID,
+  city: DEFAULT_CITY_NAME,
   address: "",
   maxPlayers: CREATE_EVENT_LIMITS.playersMin,
   price: 0,

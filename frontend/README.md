@@ -136,7 +136,7 @@ whenever the backend API changes. The output is read-only and never edited by ha
 src/
 ├── app/        bootstrap, providers, router, query client, env
 ├── routes/     thin TanStack Router files (_authenticated, _public layouts)
-├── features/   auth · events · profile · saved-events · shell · users
+├── features/   auth · events · profile · shell · users
 └── shared/     api · platform · ui · layout · components · hooks · lib · i18n · config · styles
 tooling/        formatter, knip and dependency-cruiser configs, check and build scripts
 android/        Capacitor Android project

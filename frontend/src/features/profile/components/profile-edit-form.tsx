@@ -21,20 +21,19 @@ import {
 
 interface ProfileEditFormProps {
   user: UserRead;
-  bio: string;
   isPending: boolean;
   onSubmit: (values: ProfileFormValues, onError: (error: unknown) => void) => void;
   onCancel: () => void;
   onChangePassword: () => void;
 }
 
-const SERVER_FIELDS = ["first_name", "last_name", "city", "contact_info"] as const;
+const SERVER_FIELDS = ["first_name", "last_name", "bio", "city", "contact_info"] as const;
 
-function toDefaultValues(user: UserRead, bio: string): ProfileFormValues {
+function toDefaultValues(user: UserRead): ProfileFormValues {
   return {
     first_name: user.first_name ?? "",
     last_name: user.last_name ?? "",
-    bio,
+    bio: user.bio ?? "",
     contact_info: user.contact_info ?? "",
     city: user.city ?? "",
   };
@@ -45,7 +44,7 @@ export function ProfileEditForm(props: ProfileEditFormProps) {
   const { user, isPending } = props;
   const { t } = useTranslation();
   const fieldError = useFieldError();
-  const form = useAppForm(profileSchema, { defaultValues: toDefaultValues(user, props.bio) });
+  const form = useAppForm(profileSchema, { defaultValues: toDefaultValues(user) });
   const { errors } = form.formState;
   const bioLength = useWatch({ control: form.control, name: "bio" }).length;
   const handleLocated = (location: string) =>
@@ -65,7 +64,7 @@ export function ProfileEditForm(props: ProfileEditFormProps) {
           <PersonNameFields isPending={isPending} className="space-y-5" />
           <FormField
             label={t("profile.fields.bio")}
-            optionalText={t("profile.deviceOnlyNote")}
+            optionalText={t("common.optional")}
             hint={t("profile.bioHint")}
             error={fieldError(errors.bio?.message)}
             counter={`${bioLength}/${BIO_MAX_LENGTH}`}

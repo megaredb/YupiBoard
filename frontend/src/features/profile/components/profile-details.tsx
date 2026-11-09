@@ -7,13 +7,12 @@ import { DetailsRow } from "@/features/profile/components/details-row";
 
 interface ProfileDetailsProps {
   user: UserRead;
-  bio: string;
   onEdit: () => void;
   onChangePassword: () => void;
 }
 
 /** View mode of "My profile" (ORG-5). */
-export function ProfileDetails({ user, bio, onEdit, onChangePassword }: ProfileDetailsProps) {
+export function ProfileDetails({ user, onEdit, onChangePassword }: ProfileDetailsProps) {
   const { t } = useTranslation();
   const dash = t("common.notProvided");
 
@@ -29,8 +28,8 @@ export function ProfileDetails({ user, bio, onEdit, onChangePassword }: ProfileD
       <dl className="mt-2 divide-y divide-border text-sm">
         <DetailsRow label={t("profile.fields.firstName")}>{user.first_name || dash}</DetailsRow>
         <DetailsRow label={t("profile.fields.lastName")}>{user.last_name || dash}</DetailsRow>
-        <DetailsRow label={t("profile.fields.bio")} note={t("profile.deviceOnlyNote")}>
-          {bio || dash}
+        <DetailsRow label={t("profile.fields.bio")} note={t("common.optional")}>
+          {user.bio || dash}
         </DetailsRow>
         <DetailsRow label={t("profile.fields.contactInfo")} note={t("common.optional")}>
           {user.contact_info || dash}

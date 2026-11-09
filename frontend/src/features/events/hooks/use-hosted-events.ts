@@ -1,7 +1,11 @@
-import type { PagedEvents } from "@/features/events/hooks/use-event-catalog";
-import { useInterimEventList } from "@/features/events/hooks/use-interim-event-list";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { hostedEventsQueryOptions } from "@/features/events/api/event-queries";
+import { toPagedEvents, type PagedEvents } from "@/features/events/lib/to-paged-events";
 
-// INTERIM: needs `GET /events?organizer_id=` (including the organizer's unpublished events).
 export function useHostedEvents(organizerId: string, page: number): PagedEvents {
-  return useInterimEventList((event) => event.organizer.id === organizerId, page);
+  const query = useQuery({
+    ...hostedEventsQueryOptions(organizerId, page),
+    placeholderData: keepPreviousData,
+  });
+  return toPagedEvents(query);
 }

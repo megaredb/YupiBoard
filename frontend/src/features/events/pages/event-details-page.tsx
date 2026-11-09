@@ -13,9 +13,9 @@ import { MobileTopBar } from "@/features/events/components/mobile-top-bar";
 import { useBookingAction } from "@/features/events/hooks/use-booking-action";
 import { useEventDetails } from "@/features/events/hooks/use-event-details";
 import { useEventOrganizer } from "@/features/events/hooks/use-event-organizer";
+import { useFavoriteToggle } from "@/features/events/hooks/use-favorite-toggle";
 import { useGoBack } from "@/features/events/hooks/use-go-back";
 import { useShareEvent } from "@/features/events/hooks/use-share-event";
-import { useFavoriteToggle } from "@/features/saved-events";
 
 const route = getRouteApi("/events/$eventId");
 
@@ -25,7 +25,7 @@ export function EventDetailsPage() {
   const event = useEventDetails(eventId);
   const booking = useBookingAction(event);
   const organizer = useEventOrganizer(event);
-  const { isFavorite, toggleFavorite } = useFavoriteToggle(event.id);
+  const { isFavorite, toggleFavorite } = useFavoriteToggle(event);
   const shareEvent = useShareEvent(event);
   const goBack = useGoBack();
 

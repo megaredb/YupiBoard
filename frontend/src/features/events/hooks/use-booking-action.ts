@@ -1,11 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useCreateBookingRequestApiV1EventsEventIdBookingsPost } from "@/shared/api/generated/endpoints/bookings/bookings";
-import { getGetEventApiV1EventsEventIdGetQueryKey } from "@/shared/api/generated/endpoints/events/events";
+import {
+  getGetEventApiV1EventsEventIdGetQueryKey,
+  getListMyParticipatingEventsApiV1EventsMyParticipatingGetQueryKey,
+} from "@/shared/api/generated/endpoints/events/events";
 import type { EventRead } from "@/shared/api/generated/model";
 import { useCurrentUser } from "@/features/auth";
 import { getBookingState, type BookingState } from "@/features/events/lib/get-booking-state";
-import { setEventSaved, useSavedEventIds } from "@/features/saved-events";
 
 export interface BookingAction {
   state: BookingState;
@@ -19,16 +21,18 @@ export function useBookingAction(event: EventRead): BookingAction {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const user = useCurrentUser();
-  const appliedIds = useSavedEventIds("bookings");
 
   const booking = useCreateBookingRequestApiV1EventsEventIdBookingsPost({
     mutation: {
-      onSuccess: () => {
-        void setEventSaved("bookings", event.id, true);
-        return queryClient.invalidateQueries({
-          queryKey: getGetEventApiV1EventsEventIdGetQueryKey(event.id),
-        });
-      },
+      onSuccess: () =>
+        Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: getGetEventApiV1EventsEventIdGetQueryKey(event.id),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: getListMyParticipatingEventsApiV1EventsMyParticipatingGetQueryKey(),
+          }),
+        ]),
     },
   });
 
@@ -42,7 +46,6 @@ export function useBookingAction(event: EventRead): BookingAction {
       event,
       userId: user?.id ?? null,
       requestStatus: booking.data?.status ?? null,
-      hasApplied: appliedIds.includes(event.id),
     }),
     isPending: booking.isPending,
     hasFailed: booking.isError,

@@ -23,7 +23,7 @@ export function PublicProfilePage() {
 
   return (
     <div className="space-y-8 pb-12">
-      <ProfileBanner />
+      <ProfileBanner imageUrl={user.banner_url} />
       <div className="mx-auto -mt-20 max-w-5xl space-y-8 px-4 sm:px-6">
         <ProfileSummaryCard
           user={user}
@@ -33,6 +33,12 @@ export function PublicProfilePage() {
             <UserAvatar name={name} avatarUrl={user.avatar_url} className="size-16 sm:size-20" />
           }
         />
+        {user.bio && (
+          <section className="space-y-2">
+            <h2 className="text-lg font-semibold">{t("profile.fields.bio")}</h2>
+            <p className="text-sm whitespace-pre-line text-muted-foreground">{user.bio}</p>
+          </section>
+        )}
         <section className="space-y-6">
           <div className="space-y-1">
             <h2 className="text-lg font-semibold">{t("profile.public.hostedEvents")}</h2>

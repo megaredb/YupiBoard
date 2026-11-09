@@ -30,6 +30,7 @@ export function EventLinkCard({ event, showOrganizer }: EventLinkCardProps) {
       <EventCard
         className="transition-shadow group-hover:shadow-md"
         title={event.title}
+        imageUrl={event.photo_url ?? null}
         meta={{ date: formatCardDate(event.start_datetime), location }}
         price={{ isFree: price.isFree, label: price.isFree ? t("events.free") : price.formatted }}
         promotedLabel={event.is_promoted ? t("events.promoted") : null}
@@ -45,6 +46,7 @@ export function EventLinkCard({ event, showOrganizer }: EventLinkCardProps) {
           showOrganizer
             ? {
                 name: event.organizer.name,
+                avatarUrl: event.organizer.avatar_url ?? null,
                 rating: formatRating(event.organizer.rating_as_organizer),
               }
             : null

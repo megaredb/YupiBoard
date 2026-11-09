@@ -7,16 +7,16 @@ import { MobileCatalogToolbar } from "@/features/events/components/event-catalog
 import { MobileFiltersSheet } from "@/features/events/components/event-catalog/mobile-filters-sheet";
 import { EventList } from "@/features/events/components/event-list";
 import { EventPagination } from "@/features/events/components/event-pagination";
+import { useCatalogCity } from "@/features/events/hooks/use-catalog-city";
 import { useCatalogFilters } from "@/features/events/hooks/use-catalog-filters";
 import { useEventCatalog } from "@/features/events/hooks/use-event-catalog";
-import { getCity } from "@/features/events/lib/cities";
 
 export function EventCatalogPage() {
   const { t } = useTranslation();
   const { filters, page, applyFilters, goToPage } = useCatalogFilters();
   const { list, total, totalPages, isRefreshing } = useEventCatalog(filters, page);
   const [isSheetOpen, setSheetOpen] = useState(false);
-  const cityName = t(getCity(filters.city).labelKey);
+  const cityName = useCatalogCity(filters.city)?.name ?? filters.city;
   const foundLabel = total === null ? null : t("events.catalog.found", { count: total });
   const handleOpenSheet = () => setSheetOpen(true);
 

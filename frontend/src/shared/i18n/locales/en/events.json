@@ -1,12 +1,6 @@
 {
   "free": "Free",
   "promoted": "Promoted",
-  "cities": {
-    "kyiv": "Kyiv, Ukraine",
-    "lviv": "Lviv, Ukraine",
-    "kharkiv": "Kharkiv, Ukraine",
-    "dnipro": "Dnipro, Ukraine"
-  },
   "card": {
     "distance": "{{km}} km away",
     "participants": "{{current}} of {{max}} participants"

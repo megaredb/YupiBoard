@@ -4,7 +4,7 @@ import { PageContainer } from "@/shared/layout/page-container";
 import { PageHeader } from "@/shared/layout/page-header";
 import { EventList } from "@/features/events/components/event-list";
 import { EventPagination } from "@/features/events/components/event-pagination";
-import type { PagedEvents } from "@/features/events/hooks/use-event-catalog";
+import type { PagedEvents } from "@/features/events/lib/to-paged-events";
 
 interface EventCollectionProps {
   title: string;
@@ -37,7 +37,12 @@ export function EventCollection({
             {t("events.collection.found", { count: events.total ?? 0 })}
           </p>
         )}
-        <EventList state={events.list} empty={empty} showOrganizer={showOrganizer} />
+        <EventList
+          state={events.list}
+          isRefreshing={events.isRefreshing}
+          empty={empty}
+          showOrganizer={showOrganizer}
+        />
         <EventPagination
           page={page}
           total={events.total}

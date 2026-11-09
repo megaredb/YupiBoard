@@ -11,22 +11,11 @@ import { exitApp, onBackButton } from "@/shared/platform/back-button";
 import { onDeepLink } from "@/shared/platform/deep-links";
 import { initKeyboardInsets } from "@/shared/platform/keyboard";
 import { initTheme } from "@/shared/platform/theme";
-import {
-  endSession,
-  getCachedCurrentUser,
-  onSessionEnded,
-  sessionTokenStore,
-} from "@/features/auth";
-import { resetProfileBio } from "@/features/profile";
-import { resetSavedEvents } from "@/features/saved-events";
+import { endSession, getCachedCurrentUser, sessionTokenStore } from "@/features/auth";
 
 type AppRouter = ReturnType<typeof createAppRouter>;
 
 function wireSession(router: AppRouter, queryClient: QueryClient): void {
-  onSessionEnded(() => {
-    resetSavedEvents();
-    resetProfileBio();
-  });
   onSessionExpired(() => {
     const redirect = router.state.location.href;
     // A guest hitting a protected endpoint had no session to expire; just ask them to sign in.

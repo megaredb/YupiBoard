@@ -6,11 +6,13 @@ import { UserAvatar } from "@/features/users";
 
 interface EventCardOrganizer {
   name: string;
+  avatarUrl: string | null;
   rating: string | null;
 }
 
 interface EventCardProps {
   title: string;
+  imageUrl: string | null;
   meta: { date: string; location: string };
   price: { label: string; isFree: boolean };
   promotedLabel: string | null;
@@ -31,9 +33,9 @@ const participantsVariants = cva(
   },
 );
 
-// `EventListItem` has no `photo_url` yet, so list cards always show the placeholder artwork.
 export function EventCard({
   title,
+  imageUrl,
   meta,
   price,
   promotedLabel,
@@ -44,6 +46,16 @@ export function EventCard({
   return (
     <Card className={cn("h-full gap-0 rounded-xl py-0 shadow-sm", className)}>
       <div className="relative aspect-16/10 w-full shrink-0 overflow-hidden bg-linear-to-br from-image-placeholder to-primary/70">
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt=""
+            width={640}
+            height={400}
+            loading="lazy"
+            className="absolute inset-0 size-full object-cover"
+          />
+        )}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-linear-to-t from-overlay/50 to-transparent"
@@ -93,7 +105,11 @@ export function EventCard({
 function CardOrganizer({ organizer }: { organizer: EventCardOrganizer }) {
   return (
     <div className="absolute right-20 bottom-3 left-3 z-10 flex min-w-0 items-center gap-2">
-      <UserAvatar name={organizer.name} className="size-8 border-0 text-xs" />
+      <UserAvatar
+        name={organizer.name}
+        avatarUrl={organizer.avatarUrl}
+        className="size-8 border-0 text-xs"
+      />
       <div className="min-w-0 text-primary-foreground">
         <p className="truncate text-xs leading-tight">{organizer.name}</p>
         {organizer.rating && (
