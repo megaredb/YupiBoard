@@ -8,11 +8,16 @@ Every contributor, human or AI, follows [RULES.md](./RULES.md).
 Requirements: Node.js 24+ and pnpm 12. pnpm is the only package manager; the lockfile lives at
 the repository root because the frontend is part of the pnpm workspace.
 
+Follow the [root Quick Start](../README.md#-quick-start) first: it creates the root `.env` (which
+already holds the frontend variables below) and starts Docker. Then, from this folder:
+
 ```bash
 pnpm install
-cp .env.example ../.env   # or add the variables below to the existing root .env
+pnpm --dir .. generate:api   # the generated API client is not committed
 pnpm dev
 ```
+
+`.env.example` here lists only the frontend variables; copy them into the root `.env`, never over it.
 
 Open the app at <https://yupiboard.localhost>. Traefik forwards it to the Vite server on port
 5173; start it with `pnpm docker:up` from the repository root. Do not use

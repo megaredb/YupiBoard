@@ -101,7 +101,7 @@ function fail(message) {
 
 function runGradle(task, javaHome) {
   const gradlew = path.join(ANDROID_DIR, IS_WINDOWS ? "gradlew.bat" : "gradlew");
-  const result = spawnSync(`"${gradlew}"`, [task], {
+  const result = spawnSync(`"${gradlew}" ${task}`, {
     cwd: ANDROID_DIR,
     stdio: "inherit",
     shell: true,

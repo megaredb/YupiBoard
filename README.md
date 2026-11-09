@@ -14,7 +14,8 @@ Production-ready monorepo for the **YupiBoard** project, featuring a three-tier 
   - Webmail UI (Mailpit): `https://mail.yupiboard.localhost`
   - Database Web GUI (pgweb): `https://db.yupiboard.localhost`
   - Traefik Dashboard: `https://traefik.yupiboard.localhost/dashboard/`
-- **Docker Compose**: Services for PostgreSQL 18, Traefik v3, Mailpit, and pgweb.
+- **Docker Compose**: Services for PostgreSQL 18, Redis, Traefik v3, Mailpit, and pgweb.
+- **Redis + Taskiq**: message broker for background and scheduled backend tasks.
 - **PostgreSQL 18**: Relational DBMS with connection pooling via `asyncpg`.
 - **Mailpit**: Local SMTP server (`1025`) with a fast web client for testing emails (`8025`).
 - **pgweb**: Lightweight in-browser PostgreSQL web client (written in Go, consumes ~20 MB RAM).
@@ -63,14 +64,14 @@ Production-ready monorepo for the **YupiBoard** project, featuring a three-tier 
 
 ### 1. Initial Setup and SSL Certificates
 
-Ensure you have `mkcert`, `docker`, `uv`, and `pnpm` installed:
+Ensure you have `mkcert`, `docker` (Docker Desktop running), `uv`, Node.js 24+, and `pnpm` installed:
 
 ```bash
 # Generate local SSL certificates and install dependencies
 pnpm run setup
 ```
 
-Copy the environment variables template (if not already created):
+Copy the environment variables template (if not already created). Both the backend and Vite read this one root `.env`:
 
 ```bash
 cp .env.example .env
@@ -82,7 +83,7 @@ cp .env.example .env
 pnpm docker:up
 ```
 
-This starts the PostgreSQL, Traefik, Mailpit, and pgweb containers.
+This starts the PostgreSQL, Redis, Traefik, Mailpit, and pgweb containers.
 
 ### 3. Run Database Migrations
 
@@ -90,7 +91,15 @@ This starts the PostgreSQL, Traefik, Mailpit, and pgweb containers.
 pnpm migrate
 ```
 
-### 4. Start Development Mode
+### 4. Generate the API Client
+
+The OpenAPI schema and the generated frontend client are not committed. Generate them after cloning and whenever the backend API changes:
+
+```bash
+pnpm generate:api
+```
+
+### 5. Start Development Mode
 
 In separate terminals:
 
@@ -100,7 +109,13 @@ pnpm be dev
 
 # Vite frontend (port 5173)
 pnpm fe dev
+
+# Background tasks (notifications); needs Redis from step 2
+pnpm be worker
+pnpm be scheduler
 ```
+
+On Windows, if `pnpm be dev` fails with `UnicodeEncodeError` (the FastAPI CLI prints emoji), set `PYTHONIOENCODING=utf-8` in your shell or use Windows Terminal.
 
 The application is now accessible via secure local endpoints:
 

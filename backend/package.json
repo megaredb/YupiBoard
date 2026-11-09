@@ -3,17 +3,13 @@
   "private": true,
   "scripts": {
     "sync": "uv sync",
-    
     "dev": "uv run fastapi dev app/main.py --host 0.0.0.0 --port 8080",
     "worker": "uv run taskiq worker app.core.taskiq:broker --fs-discover --tasks-pattern \"app/modules/**/tasks.py\"",
     "scheduler": "uv run taskiq scheduler app.core.taskiq:scheduler --fs-discover --tasks-pattern \"app/modules/**/tasks.py\"",
-
     "migrate": "uv run alembic upgrade head",
     "openapi": "uv run python -m app.scripts.export_openapi -o ../frontend/openapi/openapi.json",
-
     "lint": "uv run ruff check . && uv run ty check app",
     "format": "uv run ruff format .",
-
     "test": "uv run pytest"
   }
 }
