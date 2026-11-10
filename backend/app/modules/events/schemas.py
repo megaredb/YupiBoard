@@ -6,6 +6,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from app.modules.bookings.models import BookingStatus
 from app.modules.events.models import EventStatus
 
 Latitude = Annotated[float, Field(ge=-90, le=90)]
@@ -118,6 +119,7 @@ class EventListItem(BaseModel):
     distance_km: float | None = None
     is_promoted: bool
     is_favorite: bool = False
+    user_booking_status: BookingStatus | None = None
     status: EventStatus
     organizer: EventOrganizerSummary
 
@@ -228,6 +230,7 @@ class EventRead(BaseModel):
     is_verified: bool
     is_promoted: bool
     is_favorite: bool = False
+    user_booking_status: BookingStatus | None = None
     organizer: EventOrganizerSummary
     created_at: datetime
     updated_at: datetime

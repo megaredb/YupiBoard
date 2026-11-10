@@ -17,6 +17,15 @@ class CountryRepository(BaseRepository[Country]):
         result = await self.session.execute(stmt)
         return result.scalars().all()
 
+    async def list_with_cities(self) -> Sequence[Country]:
+        stmt = (
+            select(Country)
+            .options(joinedload(Country.cities))
+            .order_by(Country.name.asc())
+        )
+        result = await self.session.execute(stmt)
+        return result.unique().scalars().all()
+
     async def get_by_code(self, code: str) -> Country | None:
         stmt = select(Country).where(Country.code == code.upper().strip())
         result = await self.session.execute(stmt)

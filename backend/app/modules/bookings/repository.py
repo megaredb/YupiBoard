@@ -21,7 +21,9 @@ class BookingRepository(BaseRepository[Booking]):
         self, event_id: uuid.UUID, user_id: uuid.UUID
     ) -> Booking | None:
         result = await self.session.execute(
-            select(Booking).where(
+            select(Booking)
+            .options(joinedload(Booking.user), joinedload(Booking.event))
+            .where(
                 Booking.event_id == event_id,
                 Booking.user_id == user_id,
                 Booking.status.in_(ACTIVE_BOOKING_STATUSES),
@@ -56,10 +58,13 @@ class BookingRepository(BaseRepository[Booking]):
         user_id: uuid.UUID,
         page: int,
         limit: int,
+        status: BookingStatus | None = None,
         sort_by: Literal["date", "name"] = "date",
         sort_order: Literal["asc", "desc"] = "desc",
     ) -> tuple[list[Booking], int, int]:
         filters = [Booking.user_id == user_id]
+        if status is not None:
+            filters.append(Booking.status == status)
         total = int(
             await self.session.scalar(
                 select(func.count()).select_from(Booking).where(*filters)
@@ -74,7 +79,7 @@ class BookingRepository(BaseRepository[Booking]):
         result = await self.session.execute(
             select(Booking)
             .join(Event, Event.id == Booking.event_id)
-            .options(joinedload(Booking.event))
+            .options(joinedload(Booking.event), joinedload(Booking.user))
             .where(*filters)
             .order_by(*ordering)
             .offset((page - 1) * limit)
@@ -87,10 +92,13 @@ class BookingRepository(BaseRepository[Booking]):
         event_id: uuid.UUID,
         page: int,
         limit: int,
+        status: BookingStatus | None = None,
         sort_by: Literal["date", "name"] = "date",
         sort_order: Literal["asc", "desc"] = "desc",
     ) -> tuple[list[Booking], int, int]:
         filters = [Booking.event_id == event_id]
+        if status is not None:
+            filters.append(Booking.status == status)
         total = int(
             await self.session.scalar(
                 select(func.count()).select_from(Booking).where(*filters)
@@ -109,7 +117,7 @@ class BookingRepository(BaseRepository[Booking]):
         result = await self.session.execute(
             select(Booking)
             .join(User, User.id == Booking.user_id)
-            .options(joinedload(Booking.user))
+            .options(joinedload(Booking.user), joinedload(Booking.event))
             .where(*filters)
             .order_by(*ordering)
             .offset((page - 1) * limit)

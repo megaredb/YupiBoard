@@ -58,5 +58,5 @@ class Booking(Base, UUIDMixin, TimestampMixin):
         nullable=False,
     )
 
-    event: Mapped[Event] = relationship("Event")
-    user: Mapped[User] = relationship("User")
+    event: Mapped[Event] = relationship("Event", lazy="selectin")
+    user: Mapped[User] = relationship("User", lazy="selectin")

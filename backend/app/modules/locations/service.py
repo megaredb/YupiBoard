@@ -1,5 +1,9 @@
 from app.modules.locations.repository import CityRepository, CountryRepository
-from app.modules.locations.schemas import CityRead, CountryRead
+from app.modules.locations.schemas import (
+    CityRead,
+    CountryRead,
+    CountryWithCitiesRead,
+)
 
 
 class LocationService:
@@ -14,6 +18,28 @@ class LocationService:
     async def list_countries(self) -> list[CountryRead]:
         countries = await self.country_repo.list_all()
         return [CountryRead.model_validate(c) for c in countries]
+
+    async def list_countries_with_cities(self) -> list[CountryWithCitiesRead]:
+        countries = await self.country_repo.list_with_cities()
+        return [
+            CountryWithCitiesRead(
+                id=c.id,
+                code=c.code,
+                name=c.name,
+                cities=[
+                    CityRead(
+                        id=city.id,
+                        name=city.name,
+                        country_code=c.code,
+                        lat=city.lat,
+                        lon=city.lon,
+                    )
+                    for city in c.cities
+                    if city.is_active
+                ],
+            )
+            for c in countries
+        ]
 
     async def search_cities(
         self,

@@ -392,3 +392,64 @@ async def test_list_confirmed_participants_access_control() -> None:
         match="Participants list is only visible to confirmed players",
     ):
         await service.list_confirmed_participants(event.id, stranger)
+
+
+@pytest.mark.asyncio
+async def test_list_for_user_passes_status_filter() -> None:
+    booking_repo = AsyncMock()
+    event_repo = AsyncMock()
+    service = BookingService(booking_repo, event_repo)
+
+    user_id = uuid.uuid7()
+    booking_repo.list_for_user.return_value = ([], 0)
+
+    await service.list_for_user(
+        user_id=user_id,
+        page=1,
+        limit=20,
+        status=BookingStatus.CONFIRMED,
+        sort_by="date",
+        sort_order="desc",
+    )
+
+    booking_repo.list_for_user.assert_awaited_once_with(
+        user_id,
+        1,
+        20,
+        status=BookingStatus.CONFIRMED,
+        sort_by="date",
+        sort_order="desc",
+    )
+
+
+@pytest.mark.asyncio
+async def test_list_for_event_passes_status_filter() -> None:
+    booking_repo = AsyncMock()
+    event_repo = AsyncMock()
+    service = BookingService(booking_repo, event_repo)
+
+    organizer_id = uuid.uuid7()
+    host = User(id=organizer_id, email="host@example.com", status=UserStatus.ACTIVE)
+    event = Event(
+        id=uuid.uuid7(),
+        organizer_id=organizer_id,
+        status=EventStatus.PUBLISHED,
+        is_verified=True,
+        is_deleted=False,
+    )
+    event_repo.get_by_id.return_value = event
+    booking_repo.list_for_event.return_value = ([], 0)
+
+    await service.list_for_event(
+        event_id=event.id,
+        user=host,
+        page=1,
+        limit=20,
+        status=BookingStatus.PENDING,
+        sort_by="name",
+        sort_order="asc",
+    )
+
+    booking_repo.list_for_event.assert_awaited_once_with(
+        event.id, 1, 20, status=BookingStatus.PENDING, sort_by="name", sort_order="asc"
+    )

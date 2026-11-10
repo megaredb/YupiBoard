@@ -203,6 +203,7 @@ async def test_get_public_event_permissions() -> None:
     )
     event_repo.get_by_id_with_organizer.return_value = unmoderated_event
     event_repo.is_event_favorite.return_value = False
+    event_repo.get_user_booking_status.return_value = None
 
     # Anonymous user cannot view unmoderated event
     with pytest.raises(NotFoundException):
@@ -265,6 +266,7 @@ async def test_update_event_permissions_and_rules() -> None:
     )
     event_repo.get_by_id_with_organizer.return_value = event
     event_repo.is_event_favorite.return_value = False
+    event_repo.get_user_booking_status.return_value = None
 
     # Stranger cannot update
     with pytest.raises(ForbiddenException, match="Only the event organizer can edit"):
@@ -317,3 +319,24 @@ async def test_update_event_permissions_and_rules() -> None:
     )
     assert res.title == "Updated title"
     assert res.status == EventStatus.PUBLISHED
+
+
+@pytest.mark.asyncio
+async def test_create_event_sets_published_and_verified() -> None:
+    import uuid
+    from unittest.mock import AsyncMock
+
+    from app.modules.events.service import EventService
+    from app.modules.users.models import User
+
+    event_repo = AsyncMock()
+    service = EventService(event_repo)
+    organizer = User(id=uuid.uuid7(), email="org@example.com")
+    payload = EventCreate.model_validate(valid_event_data())
+
+    await service.create(organizer, payload)
+
+    event_repo.create.assert_awaited_once()
+    call_kwargs = event_repo.create.call_args.kwargs
+    assert call_kwargs["status"] == EventStatus.PUBLISHED
+    assert call_kwargs["is_verified"] is True

@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Query, status
 
 from app.modules.auth.dependencies import get_current_user, get_current_verified_user
 from app.modules.bookings.dependencies import get_booking_service
+from app.modules.bookings.models import BookingStatus
 from app.modules.bookings.schemas import (
     BookingCreateResponse,
     BookingPage,
@@ -41,13 +42,21 @@ async def create_booking_request(
 async def list_my_bookings(
     current_user: Annotated[User, Depends(get_current_user)],
     service: Annotated[BookingService, Depends(get_booking_service)],
+    status: Annotated[
+        BookingStatus | None, Query(description="Filter bookings by status")
+    ] = None,
     page: Annotated[int, Query(ge=1)] = 1,
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
     sort_by: Annotated[Literal["date", "name"], Query()] = "date",
     sort_order: Annotated[Literal["asc", "desc"], Query()] = "desc",
 ) -> BookingPage:
     items, total, total_pages = await service.list_for_user(
-        current_user.id, page, limit, sort_by, sort_order
+        current_user.id,
+        page,
+        limit,
+        status=status,
+        sort_by=sort_by,
+        sort_order=sort_order,
     )
     return BookingPage(items=items, total=total, page=page, total_pages=total_pages)
 
@@ -57,13 +66,22 @@ async def list_event_bookings(
     event_id: uuid.UUID,
     current_user: Annotated[User, Depends(get_current_verified_user)],
     service: Annotated[BookingService, Depends(get_booking_service)],
+    status: Annotated[
+        BookingStatus | None, Query(description="Filter bookings by status")
+    ] = None,
     page: Annotated[int, Query(ge=1)] = 1,
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
     sort_by: Annotated[Literal["date", "name"], Query()] = "date",
     sort_order: Annotated[Literal["asc", "desc"], Query()] = "desc",
 ) -> BookingPage:
     items, total, total_pages = await service.list_for_event(
-        event_id, current_user, page, limit, sort_by, sort_order
+        event_id,
+        current_user,
+        page,
+        limit,
+        status=status,
+        sort_by=sort_by,
+        sort_order=sort_order,
     )
     return BookingPage(items=items, total=total, page=page, total_pages=total_pages)
 

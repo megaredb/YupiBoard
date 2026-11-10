@@ -7,6 +7,7 @@ from app.core.exceptions import (
     ForbiddenException,
     NotFoundException,
 )
+from app.modules.bookings.models import BookingStatus
 from app.modules.events.models import Event, EventStatus
 from app.modules.events.repository import EventRepository
 from app.modules.events.schemas import (
@@ -33,9 +34,9 @@ class EventService:
         return await self.event_repo.create(
             **values,
             organizer_id=organizer.id,
-            status=EventStatus.ON_MODERATION,
+            status=EventStatus.PUBLISHED,
             rejection_reason=None,
-            is_verified=False,
+            is_verified=True,
             current_confirmed=0,
             is_deleted=False,
         )
@@ -49,8 +50,13 @@ class EventService:
             filters, current_user_id=current_user_id
         )
         items = [
-            self._to_list_item(event, distance_km, is_favorite)
-            for event, distance_km, is_favorite in rows
+            self._to_list_item(
+                event,
+                distance_km,
+                is_favorite=is_favorite,
+                user_booking_status=user_booking_status,
+            )
+            for event, distance_km, is_favorite, user_booking_status in rows
         ]
         return EventPage(
             items=items,
@@ -71,11 +77,19 @@ class EventService:
         ):
             raise NotFoundException("Event not found")
         is_favorite = False
+        user_booking_status = None
         if current_user is not None:
             is_favorite = await self.event_repo.is_event_favorite(
                 event.id, current_user.id
             )
-        return self._to_read(event, is_favorite=is_favorite)
+            user_booking_status = await self.event_repo.get_user_booking_status(
+                event.id, current_user.id
+            )
+        return self._to_read(
+            event,
+            is_favorite=is_favorite,
+            user_booking_status=user_booking_status,
+        )
 
     async def update_event(
         self,
@@ -123,7 +137,14 @@ class EventService:
         reloaded = await self.event_repo.get_by_id_with_organizer(updated_event.id)
         target_event = reloaded or updated_event
         is_favorite = await self.event_repo.is_event_favorite(target_event.id, user.id)
-        return self._to_read(target_event, is_favorite=is_favorite)
+        user_booking_status = await self.event_repo.get_user_booking_status(
+            target_event.id, user.id
+        )
+        return self._to_read(
+            target_event,
+            is_favorite=is_favorite,
+            user_booking_status=user_booking_status,
+        )
 
     async def get_organizer_events(
         self,
@@ -147,7 +168,7 @@ class EventService:
         )
         return EventPage(
             items=[
-                self._to_list_item(event, None, is_favorite)
+                self._to_list_item(event, None, is_favorite=is_favorite)
                 for event, is_favorite in rows
             ],
             total=total,
@@ -177,8 +198,13 @@ class EventService:
         )
         return EventPage(
             items=[
-                self._to_list_item(event, None, is_favorite)
-                for event, is_favorite in rows
+                self._to_list_item(
+                    event,
+                    None,
+                    is_favorite=is_favorite,
+                    user_booking_status=user_booking_status,
+                )
+                for event, is_favorite, user_booking_status in rows
             ],
             total=total,
             page=page,
@@ -209,6 +235,7 @@ class EventService:
         event: Event,
         distance_km: float | None = None,
         is_favorite: bool = False,
+        user_booking_status: BookingStatus | None = None,
     ) -> EventListItem:
         now = datetime.now(UTC)
         is_promoted = bool(
@@ -237,11 +264,17 @@ class EventService:
             distance_km=distance_km,
             is_promoted=is_promoted,
             is_favorite=is_favorite,
+            user_booking_status=user_booking_status,
             status=event.status,
             organizer=organizer_summary,
         )
 
-    def _to_read(self, event: Event, is_favorite: bool = False) -> EventRead:
+    def _to_read(
+        self,
+        event: Event,
+        is_favorite: bool = False,
+        user_booking_status: BookingStatus | None = None,
+    ) -> EventRead:
         now = datetime.now(UTC)
         is_promoted = bool(
             event.promoted_to_datetime and event.promoted_to_datetime > now
@@ -276,6 +309,7 @@ class EventService:
             is_verified=event.is_verified,
             is_promoted=is_promoted,
             is_favorite=is_favorite,
+            user_booking_status=user_booking_status,
             organizer=organizer_summary,
             created_at=event.created_at,
             updated_at=event.updated_at,
