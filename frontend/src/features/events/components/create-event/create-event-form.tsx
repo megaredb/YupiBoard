@@ -61,8 +61,7 @@ export function CreateEventForm({
         {errorKey && <FormAlert message={t(errorKey)} />}
 
         <div className="space-y-3 border-t pt-5">
-          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-muted-foreground">{t("common.requiredFields")}</p>
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
             <div className="flex flex-col-reverse gap-3 sm:flex-row">
               <Button
                 type="button"

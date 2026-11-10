@@ -10,7 +10,7 @@ const ICONS: ToasterProps["icons"] = {
 };
 
 const CLASS_NAMES = {
-  toast: "gap-3 font-sans shadow-lg",
+  toast: "gap-3 pr-9 font-sans shadow-lg",
   title: "text-sm leading-snug font-semibold",
   description: "text-sm leading-snug",
   icon: "mt-0.5 self-start",

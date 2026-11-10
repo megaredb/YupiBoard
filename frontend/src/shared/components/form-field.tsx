@@ -37,7 +37,7 @@ function FieldLabel({
     <Label htmlFor={id} className={cn("text-sm text-foreground", isLabelHidden && "sr-only")}>
       <span>{label}</span>
       {isRequired && (
-        <span aria-hidden className="text-primary">
+        <span aria-hidden className="text-destructive">
           {"*"}
         </span>
       )}

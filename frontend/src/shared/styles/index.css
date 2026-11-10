@@ -21,4 +21,14 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-text-fill-color: var(--foreground) !important;
+    transition: background-color 99999s ease-in-out 0s;
+    box-shadow: 0 0 0 1000px var(--card) inset !important;
+    caret-color: var(--foreground);
+  }
 }

@@ -1,5 +1,5 @@
 import { MapPin } from "lucide-react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { CityRead } from "@/shared/api/generated/model";
 import { FormField } from "@/shared/components/form-field";
@@ -18,9 +18,11 @@ export function ProfileCityField({ savedCity, isPending }: ProfileCityFieldProps
   const fieldError = useFieldError();
   const {
     register,
+    control,
     setValue,
     formState: { errors },
   } = useFormContext<CompleteProfileFormValues>();
+  const currentCity = useWatch({ control, name: "city" });
   const handleNearestCity = (city: CityRead) =>
     setValue("city", city.name, { shouldDirty: true, shouldValidate: true });
 
@@ -36,6 +38,7 @@ export function ProfileCityField({ savedCity, isPending }: ProfileCityFieldProps
           <CitySelect
             {...fieldControl}
             {...register("city")}
+            value={currentCity ?? ""}
             startIcon={<MapPin />}
             emptyLabel={t("profile.cityNotSet")}
             legacyValue={savedCity}

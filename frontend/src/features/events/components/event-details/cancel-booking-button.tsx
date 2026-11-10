@@ -21,7 +21,7 @@ export function CancelBookingButton({ action, className }: CancelBookingButtonPr
       <Button
         variant="secondary"
         size="xl"
-        className={cn("shadow-sm", className)}
+        className={cn("text-sm shadow-sm", className)}
         isLoading={action.isPending}
         onClick={handleOpen}
       >

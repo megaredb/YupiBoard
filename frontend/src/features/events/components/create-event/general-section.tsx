@@ -22,6 +22,7 @@ export function GeneralSection() {
     <FormSection
       title={t("events.create.general.title")}
       description={t("events.create.general.description")}
+      headerNote={t("common.requiredFields")}
     >
       <FormField
         label={t("events.create.fields.title")}

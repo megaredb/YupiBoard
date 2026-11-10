@@ -138,8 +138,8 @@
   "create": {
     "title": "Create new event",
     "successTitle": "Event submitted for review",
-    "successDescription": "Your event has been submitted to moderators and will be published once approved.",
-    "moderationBanner": "New events are reviewed by a moderator before appearing in the catalog.",
+    "successDescription": "Your event has been submitted to administrators and will be published once approved.",
+    "moderationBanner": "New events are reviewed by an administrator before appearing in the catalog.",
     "submit": "Submit for moderation",
     "reviewNote": "Usually reviewed within 24 hours",
     "failed": "Couldn't create the event. Please try again.",

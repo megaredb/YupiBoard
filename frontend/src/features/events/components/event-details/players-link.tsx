@@ -30,7 +30,7 @@ export function PlayersLink({ eventId, isCompact = false, className }: PlayersLi
       search={(previous) => previous}
       hash={PARTICIPANTS_SECTION_ID}
       onClick={handleClick}
-      className={cn(buttonVariants({ size: "xl" }), "shadow-sm", className)}
+      className={cn(buttonVariants({ size: "xl" }), "text-sm shadow-sm", className)}
     >
       <Users aria-hidden />
       {isCompact ? t("events.booking.players") : t("events.booking.goToPlayers")}

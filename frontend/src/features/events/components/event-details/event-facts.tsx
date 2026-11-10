@@ -12,13 +12,13 @@ import { EventMapLink } from "@/features/events/components/event-details/event-m
 
 function Fact({ icon, title, detail }: { icon: ReactNode; title: string; detail: ReactNode }) {
   return (
-    <div className="flex items-start gap-3.5">
-      <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary [&_svg]:size-5">
+    <div className="flex items-center gap-3">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary [&_svg]:size-4">
         {icon}
       </span>
-      <div className="min-w-0 space-y-0.5">
-        <p className="text-sm font-semibold text-foreground sm:text-base">{title}</p>
-        <p className="text-xs text-muted-foreground sm:text-sm">{detail}</p>
+      <div className="space-y-0.5">
+        <p className="text-xs font-semibold text-foreground sm:text-sm">{title}</p>
+        <p className="text-xs text-muted-foreground">{detail}</p>
       </div>
     </div>
   );
@@ -29,7 +29,7 @@ export function EventFacts({ event }: { event: EventRead }) {
 
   return (
     <div className="space-y-5">
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="flex flex-wrap items-center gap-x-10 gap-y-4">
         <Fact
           icon={<Calendar aria-hidden />}
           title={formatLongDate(event.start_datetime)}

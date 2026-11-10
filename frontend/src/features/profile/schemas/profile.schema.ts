@@ -14,11 +14,7 @@ const profileBaseSchema = z.object({
 });
 
 /** Field names match `UserUpdate`, so server field errors map back one to one (FORM-6). */
-export const completeProfileSchema = profileBaseSchema.extend({
-  acceptedTerms: z.boolean().refine((value) => value, {
-    message: "validation.termsRequired" satisfies TranslationKey,
-  }),
-});
+export const completeProfileSchema = profileBaseSchema;
 
 export type CompleteProfileFormValues = z.infer<typeof completeProfileSchema>;
 

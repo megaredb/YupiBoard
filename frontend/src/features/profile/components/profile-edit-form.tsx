@@ -55,7 +55,12 @@ export function ProfileEditForm(props: ProfileEditFormProps) {
       <Card.Content>
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-foreground">{t("profile.editProfile")}</h2>
-          <span className="text-xs text-muted-foreground">{t("common.requiredFields")}</span>
+          <span className="text-xs text-muted-foreground">
+            <span aria-hidden className="text-destructive">
+              {"*"}
+            </span>{" "}
+            {t("common.requiredFields").replace(/^\*\s*/, "")}
+          </span>
         </div>
         <FormProvider {...form}>
           <form noValidate className="mt-2 space-y-5" onSubmit={submit}>

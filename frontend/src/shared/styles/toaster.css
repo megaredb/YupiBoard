@@ -26,6 +26,21 @@
   color: var(--muted-foreground);
 }
 
+[data-sonner-toaster] [data-sonner-toast] [data-close-button] {
+  top: 50% !important;
+  right: 0.75rem !important;
+  left: auto !important;
+  transform: translateY(-50%) !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--muted-foreground) !important;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-close-button]:hover {
+  background: var(--muted) !important;
+  color: var(--foreground) !important;
+}
+
 /*
  * Timer bar along the bottom edge, draining until auto-dismiss. It is a background stripe because
  * sonner uses the toast's ::before/::after itself. `--toast-duration` comes from `showToast`.
