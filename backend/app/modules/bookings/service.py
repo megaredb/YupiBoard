@@ -69,11 +69,12 @@ class BookingService:
         user_id: uuid.UUID,
         page: int,
         limit: int,
+        status: BookingStatus | None = None,
         sort_by: Literal["date", "name"] = "date",
         sort_order: Literal["asc", "desc"] = "desc",
     ):
         return await self.booking_repo.list_for_user(
-            user_id, page, limit, sort_by, sort_order
+            user_id, page, limit, status=status, sort_by=sort_by, sort_order=sort_order
         )
 
     async def list_for_event(
@@ -82,6 +83,7 @@ class BookingService:
         user: User,
         page: int,
         limit: int,
+        status: BookingStatus | None = None,
         sort_by: Literal["date", "name"] = "date",
         sort_order: Literal["asc", "desc"] = "desc",
     ):
@@ -91,7 +93,7 @@ class BookingService:
         if event.organizer_id != user.id and not user.is_superuser:
             raise ForbiddenException("Only the event organizer can view event bookings")
         return await self.booking_repo.list_for_event(
-            event_id, page, limit, sort_by, sort_order
+            event_id, page, limit, status=status, sort_by=sort_by, sort_order=sort_order
         )
 
     async def decide(

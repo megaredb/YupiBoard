@@ -7,6 +7,7 @@ from sqlalchemy import (
     Boolean,
     ColumnElement,
     Numeric,
+    String,
     case,
     cast,
     func,
@@ -41,7 +42,8 @@ class EventRepository(BaseRepository[Event]):
         self,
         filters: EventFilterParams,
         current_user_id: uuid.UUID | None = None,
-    ) -> tuple[Sequence[tuple[Event, float | None, bool]], int, int]:
+    ) -> tuple[Sequence[tuple[Event, float | None, bool, Any]], int, int]:
+        from app.modules.bookings.models import ACTIVE_BOOKING_STATUSES, Booking
         from app.modules.favorites.models import Favorite
 
         distance_meters: ColumnElement[Any] | None = None
@@ -73,12 +75,16 @@ class EventRepository(BaseRepository[Event]):
             if current_user_id is not None
             else cast(False, Boolean)
         )
+        user_booking_col = (
+            Booking.status if current_user_id is not None else cast(null(), String)
+        )
 
         query = (
             select(
                 Event,
                 distance_column.label("distance_km"),
                 is_favorite_col.label("is_favorite"),
+                user_booking_col.label("user_booking_status"),
             )
             .join(Event.organizer)
             .options(contains_eager(Event.organizer))
@@ -87,6 +93,11 @@ class EventRepository(BaseRepository[Event]):
             query = query.outerjoin(
                 Favorite,
                 (Favorite.event_id == Event.id) & (Favorite.user_id == current_user_id),
+            ).outerjoin(
+                Booking,
+                (Booking.event_id == Event.id)
+                & (Booking.user_id == current_user_id)
+                & (Booking.status.in_(ACTIVE_BOOKING_STATUSES)),
             )
 
         query = (
@@ -101,6 +112,7 @@ class EventRepository(BaseRepository[Event]):
                 row[0],
                 float(row[1]) if row[1] is not None else None,
                 bool(row[2]),
+                row[3] if row[3] is not None else None,
             )
             for row in result.all()
         ]
@@ -218,6 +230,20 @@ class EventRepository(BaseRepository[Event]):
         )
         return bool(result and result > 0)
 
+    async def get_user_booking_status(
+        self, event_id: uuid.UUID, user_id: uuid.UUID
+    ) -> Any | None:
+        from app.modules.bookings.models import ACTIVE_BOOKING_STATUSES, Booking
+
+        result = await self.session.scalar(
+            select(Booking.status).where(
+                Booking.event_id == event_id,
+                Booking.user_id == user_id,
+                Booking.status.in_(ACTIVE_BOOKING_STATUSES),
+            )
+        )
+        return result
+
     async def find_by_organizer(
         self,
         organizer_id: uuid.UUID,
@@ -273,7 +299,7 @@ class EventRepository(BaseRepository[Event]):
         limit: int = 20,
         sort_by: Literal["date", "name"] = "date",
         sort_order: Literal["asc", "desc"] = "desc",
-    ) -> tuple[Sequence[tuple[Event, bool]], int, int]:
+    ) -> tuple[Sequence[tuple[Event, bool, Any]], int, int]:
         from app.modules.bookings.models import Booking
         from app.modules.favorites.models import Favorite
 
@@ -298,7 +324,11 @@ class EventRepository(BaseRepository[Event]):
             else cast(False, Boolean)
         )
         query = (
-            select(Event, is_favorite_col.label("is_favorite"))
+            select(
+                Event,
+                is_favorite_col.label("is_favorite"),
+                Booking.status.label("user_booking_status"),
+            )
             .join(Booking, Booking.event_id == Event.id)
             .options(joinedload(Event.organizer))
             .where(*filters)
@@ -312,7 +342,7 @@ class EventRepository(BaseRepository[Event]):
             query.distinct().order_by(*ordering).offset((page - 1) * limit).limit(limit)
         )
         result = await self.session.execute(query)
-        rows = [(row[0], bool(row[1])) for row in result.all()]
+        rows = [(row[0], bool(row[1]), row[2]) for row in result.all()]
         return rows, total, ceil(total / limit) if total else 1
 
     async def get_owned_event(

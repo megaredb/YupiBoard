@@ -34,3 +34,12 @@ async def test_locations_countries_and_cities_endpoints(
     pl_cities = res_pl.json()
     assert all(c["country_code"] == "PL" for c in pl_cities)
     assert any(c["name"] == "Warsaw" for c in pl_cities)
+
+    # Test grouped countries and cities
+    res_grouped = await async_client.get("/api/v1/locations/grouped")
+    assert res_grouped.status_code == 200
+    grouped = res_grouped.json()
+    assert len(grouped) >= 3
+    ua_group = next(g for g in grouped if g["code"] == "UA")
+    assert len(ua_group["cities"]) >= 3
+    assert any(c["name"] == "Kyiv" for c in ua_group["cities"])

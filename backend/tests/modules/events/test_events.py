@@ -203,6 +203,7 @@ async def test_get_public_event_permissions() -> None:
     )
     event_repo.get_by_id_with_organizer.return_value = unmoderated_event
     event_repo.is_event_favorite.return_value = False
+    event_repo.get_user_booking_status.return_value = None
 
     # Anonymous user cannot view unmoderated event
     with pytest.raises(NotFoundException):
