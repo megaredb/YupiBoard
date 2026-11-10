@@ -1,6 +1,7 @@
-import { FormProvider } from "react-hook-form";
+import { Controller, FormProvider } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { UserRead } from "@/shared/api/generated/model";
+import { CheckboxField } from "@/shared/components/checkbox-field";
 import { TextField } from "@/shared/components/text-field";
 import { useAppForm } from "@/shared/hooks/use-app-form";
 import { useFieldError } from "@/shared/i18n/use-field-error";
@@ -31,6 +32,7 @@ export function CompleteProfileForm({ user, isPending, onSubmit }: CompleteProfi
       last_name: user.last_name ?? "",
       city: user.city ?? "",
       contact_info: user.contact_info ?? "",
+      acceptedTerms: false,
     },
   });
   const { errors } = form.formState;
@@ -51,6 +53,19 @@ export function CompleteProfileForm({ user, isPending, onSubmit }: CompleteProfi
           error={fieldError(errors.contact_info?.message)}
           disabled={isPending}
           {...form.register("contact_info")}
+        />
+        <Controller
+          control={form.control}
+          name="acceptedTerms"
+          render={({ field }) => (
+            <CheckboxField
+              label={t("auth.register.termsConfirm")}
+              isChecked={field.value}
+              onCheckedChange={field.onChange}
+              error={fieldError(errors.acceptedTerms?.message)}
+              isDisabled={isPending}
+            />
+          )}
         />
         <Button type="submit" size="xl" className="mt-2 w-full text-sm" isLoading={isPending}>
           {t("profile.complete.submit")}

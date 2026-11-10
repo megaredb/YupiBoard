@@ -12,7 +12,10 @@ export function BookingActions({ action }: { action: BookingAction }) {
           <CancelBookingButton action={action} className="w-full" />
         </>
       ) : (
-        <BookingButton action={action} className="w-full" />
+        <>
+          {action.state === "rejected" && <BookingStatusNote state={action.state} />}
+          <BookingButton action={action} className="w-full" />
+        </>
       )}
     </div>
   );

@@ -7,8 +7,13 @@ import { useEventParticipants } from "@/features/events/hooks/use-event-particip
 export function ParticipantList({ eventId }: { eventId: string }) {
   const { t } = useTranslation();
   const participants = useEventParticipants(eventId);
+  const confirmedAside = (
+    <span className="text-xs font-semibold text-foreground">
+      {t("events.bookingStatus.confirmed")}
+    </span>
+  );
   const renderParticipant = (participant: BookingParticipantSummary) => (
-    <ParticipantRow key={participant.id} participant={participant} />
+    <ParticipantRow key={participant.id} participant={participant} aside={confirmedAside} />
   );
 
   return (

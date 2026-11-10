@@ -5,6 +5,7 @@ import { Button } from "@/shared/ui/button";
 
 interface BookingDecisionButtonsProps {
   playerName: string;
+  showAccept?: boolean;
   isPending: boolean;
   isDisabled: boolean;
   onDecide: (isApproved: boolean) => void;
@@ -13,6 +14,7 @@ interface BookingDecisionButtonsProps {
 /** "Accept" right away; "Decline" asks first, since a declined request cannot be reopened. */
 export function BookingDecisionButtons({
   playerName,
+  showAccept = true,
   isPending,
   isDisabled,
   onDecide,
@@ -26,12 +28,19 @@ export function BookingDecisionButtons({
 
   return (
     <>
-      <Button size="lg" isLoading={isPending} disabled={isDisabled} onClick={handleAccept}>
-        {t("events.participants.accept")}
-      </Button>
+      {showAccept ? (
+        <Button size="lg" isLoading={isPending} disabled={isDisabled} onClick={handleAccept}>
+          {t("events.participants.accept")}
+        </Button>
+      ) : (
+        <span className="text-xs font-semibold text-foreground">
+          {t("events.bookingStatus.confirmed")}
+        </span>
+      )}
       <Button
         variant="secondary"
         size="lg"
+        isLoading={!showAccept && isPending}
         disabled={isDisabled || isPending}
         onClick={handleAskDecline}
       >

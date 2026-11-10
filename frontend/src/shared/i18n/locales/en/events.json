@@ -10,13 +10,13 @@
     "summary": "Showing {{from}}–{{to}} of {{total}} events"
   },
   "catalog": {
-    "title": "Find a board game table near you",
+    "title": "Find your next game night",
     "mobileTitle": "Nearby events",
-    "subtitle": "Discover board game sessions happening around {{city}}",
+    "subtitle": "Good games. New friends. A seat at the table, right here in {{city}}.",
     "found_one": "{{count}} event found",
     "found_other": "{{count}} events found",
-    "emptyTitle": "No events match these filters",
-    "emptyDescription": "Try clearing some filters or changing your search."
+    "emptyTitle": "No results found...",
+    "emptyDescription": "Try clearing filters or correcting your search query."
   },
   "collection": {
     "found_one": "{{count}} event",
@@ -72,9 +72,7 @@
     "costMax": "Maximum cost",
     "freeOnly": "Free only",
     "withFreeSeats": "Only with free seats",
-    "seats": "Free seats",
-    "seatsValue_one": "At least {{count}} seat",
-    "seatsValue_other": "At least {{count}} seats",
+    "seats": "Number of free seats:",
     "rating": "Minimum organizer rating",
     "ratingOption_one": "{{count}} star & up",
     "ratingOption_other": "{{count}} stars & up",
@@ -122,7 +120,8 @@
     "payAtVenue": "Pay at the venue after approval",
     "hostTitle": "Cost of the seat at the table",
     "goToPlayers": "Go to the list of players",
-    "rejected": "Request declined",
+    "rejected": "Declined",
+    "reapply": "Try to apply again",
     "cancel": "Cancel booking",
     "cancelFailed": "Couldn't cancel your booking. Please try again.",
     "cancelDialog": {
@@ -214,8 +213,8 @@
   },
   "participants": {
     "title": "Participants ({{taken}}/{{total}} joined)",
-    "hostHint": "Booking requests for your event. Accept or decline pending ones.",
-    "playerHint": "Players confirmed for this table.",
+    "confirmedTitle": "Confirmed Players ({{count}})",
+    "pendingTitle": "Pending Requests ({{count}}) - Organizer Only",
     "unnamed": "YupiBoard player",
     "playerRating": "Player rating: {{rating}}",
     "noRating": "No player rating yet",
@@ -233,6 +232,18 @@
     "accepted": "Request accepted",
     "waitlisted": "The table is full, so the player was added to the waitlist",
     "declined": "Request declined"
+  },
+  "cancelEvent": {
+    "button": "Cancel event",
+    "cancelled": "Event cancelled",
+    "failed": "Couldn't cancel the event. Please try again.",
+    "dialog": {
+      "title": "Cancel This Event?",
+      "description_one": "This action cannot be undone. {{count}} confirmed player will receive an immediate cancellation notice.",
+      "description_other": "This action cannot be undone. All {{count}} confirmed players will receive an immediate cancellation notice.",
+      "keep": "Keep Event",
+      "confirm": "Cancel Event"
+    }
   },
   "eventStatus": {
     "onModeration": "On moderation",

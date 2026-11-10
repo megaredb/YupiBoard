@@ -340,3 +340,40 @@ async def test_create_event_sets_published_and_verified() -> None:
     call_kwargs = event_repo.create.call_args.kwargs
     assert call_kwargs["status"] == EventStatus.PUBLISHED
     assert call_kwargs["is_verified"] is True
+
+
+@pytest.mark.asyncio
+async def test_cancel_event_notifies_active_participants() -> None:
+    import uuid
+    from unittest.mock import AsyncMock
+
+    from app.modules.events.service import EventService
+    from app.modules.users.models import User
+
+    event_repo = AsyncMock()
+    notification_service = AsyncMock()
+    service = EventService(event_repo, notification_service=notification_service)
+
+    organizer_id = uuid.uuid7()
+    organizer = User(id=organizer_id, email="org@example.com")
+    player_id = uuid.uuid7()
+
+    event = Event(
+        id=uuid.uuid7(),
+        organizer_id=organizer_id,
+        title="Dune: Imperium Night",
+        status=EventStatus.PUBLISHED,
+        is_verified=True,
+        is_deleted=False,
+        start_datetime=datetime.now(UTC) + timedelta(days=1),
+        current_confirmed=1,
+        max_players=4,
+    )
+    event_repo.get_by_id.return_value = event
+    event_repo.get_active_booking_user_ids.return_value = [player_id]
+    event_repo.cancel_event.return_value = event
+
+    await service.cancel(event.id, organizer)
+
+    event_repo.cancel_event.assert_awaited_once_with(event)
+    notification_service.notify_many.assert_awaited_once()

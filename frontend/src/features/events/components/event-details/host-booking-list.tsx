@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import type { BookingRead } from "@/shared/api/generated/model";
+import type { BookingRead, BookingStatus } from "@/shared/api/generated/model";
 import { buildPaginationPages } from "@/shared/lib/pagination/build-pagination-pages";
 import { getPageRange } from "@/shared/lib/pagination/get-page-range";
 import { Pagination } from "@/shared/ui/pagination";
@@ -13,26 +13,33 @@ import { useEventBookings } from "@/features/events/hooks/use-event-bookings";
 import { EVENT_BOOKINGS_PAGE_SIZE } from "@/features/events/schemas/event-details-search.schema";
 import { getFullName } from "@/features/users";
 
-export function HostBookingList({ eventId }: { eventId: string }) {
+interface HostBookingListProps {
+  eventId: string;
+  status: BookingStatus;
+  emptyText: string;
+}
+
+export function HostBookingList({ eventId, status, emptyText }: HostBookingListProps) {
   const { t } = useTranslation();
   const { page, goToPage } = useBookingsPage();
-  const bookings = useEventBookings(eventId, page);
+  const bookings = useEventBookings(eventId, status === "Pending" ? page : 1, status);
   const decision = useBookingDecision(eventId);
 
   const renderBooking = (booking: BookingRead) => {
     const participant = booking.user ?? { id: booking.user_id };
     const playerName = getFullName(participant) ?? t("events.participants.unnamed");
-    const aside =
-      booking.status === "Pending" ? (
-        <BookingDecisionButtons
-          playerName={playerName}
-          isPending={decision.pendingBookingId === booking.id}
-          isDisabled={decision.pendingBookingId !== null}
-          onDecide={(isApproved) => decision.decide(booking.id, isApproved)}
-        />
-      ) : (
-        <BookingStatusBadge status={booking.status} />
-      );
+    const canDecide = booking.status === "Pending" || booking.status === "Confirmed";
+    const aside = canDecide ? (
+      <BookingDecisionButtons
+        playerName={playerName}
+        showAccept={booking.status === "Pending"}
+        isPending={decision.pendingBookingId === booking.id}
+        isDisabled={decision.pendingBookingId !== null}
+        onDecide={(isApproved) => decision.decide(booking.id, isApproved)}
+      />
+    ) : (
+      <BookingStatusBadge status={booking.status} />
+    );
     return <ParticipantRow key={booking.id} participant={participant} aside={aside} />;
   };
 
@@ -40,10 +47,10 @@ export function HostBookingList({ eventId }: { eventId: string }) {
     <div className="space-y-4">
       <ParticipantListState
         state={bookings.list}
-        emptyText={t("events.participants.noRequests")}
+        emptyText={emptyText}
         renderItem={renderBooking}
       />
-      {bookings.total !== null && bookings.totalPages > 1 && (
+      {status === "Pending" && bookings.total !== null && bookings.totalPages > 1 && (
         <Pagination
           pages={buildPaginationPages(page, bookings.totalPages)}
           currentPage={page}

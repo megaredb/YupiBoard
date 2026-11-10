@@ -1,3 +1,4 @@
+import type { MouseEvent } from "react";
 import { Link } from "@tanstack/react-router";
 import { Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -14,13 +15,21 @@ interface PlayersLinkProps {
 export function PlayersLink({ eventId, isCompact = false, className }: PlayersLinkProps) {
   const { t } = useTranslation();
 
+  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    const section = document.getElementById(PARTICIPANTS_SECTION_ID);
+    if (section) {
+      event.preventDefault();
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
     <Link
       to="/events/$eventId"
       params={{ eventId }}
       search={(previous) => previous}
       hash={PARTICIPANTS_SECTION_ID}
-      hashScrollIntoView={{ behavior: "smooth", block: "start" }}
+      onClick={handleClick}
       className={cn(buttonVariants({ size: "xl" }), "shadow-sm", className)}
     >
       <Users aria-hidden />

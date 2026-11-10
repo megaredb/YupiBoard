@@ -453,3 +453,63 @@ async def test_list_for_event_passes_status_filter() -> None:
     booking_repo.list_for_event.assert_awaited_once_with(
         event.id, 1, 20, status=BookingStatus.PENDING, sort_by="name", sort_order="asc"
     )
+
+
+@pytest.mark.asyncio
+async def test_decide_decline_confirmed_booking_removes_participant_and_notifies() -> (
+    None
+):
+    booking_repo = AsyncMock()
+    event_repo = AsyncMock()
+    notification_service = AsyncMock()
+    service = BookingService(
+        booking_repo, event_repo, notification_service=notification_service
+    )
+
+    organizer_id = uuid.uuid7()
+    organizer = User(
+        id=organizer_id,
+        email="host@example.com",
+        first_name="Oleksii",
+        last_name="Kovalenko",
+        status=UserStatus.ACTIVE,
+    )
+    event = Event(
+        id=uuid.uuid7(),
+        organizer_id=organizer_id,
+        title="Dune: Imperium Tournament Night",
+        status=EventStatus.PUBLISHED,
+        is_verified=True,
+        start_datetime=datetime.now(UTC) + timedelta(days=1),
+        current_confirmed=3,
+        max_players=6,
+    )
+    event_repo.lock_event.return_value = event
+
+    booking = Booking(
+        id=uuid.uuid7(),
+        event_id=event.id,
+        user_id=uuid.uuid7(),
+        status=BookingStatus.CONFIRMED,
+    )
+    booking_repo.get_by_id_for_event.return_value = booking
+    booking_repo.update.return_value = Booking(
+        id=booking.id,
+        event_id=event.id,
+        user_id=booking.user_id,
+        status=BookingStatus.REMOVED_BY_ORGANIZER,
+    )
+
+    result = await service.decide(
+        event_id=event.id,
+        booking_id=booking.id,
+        organizer=organizer,
+        approve=False,
+    )
+
+    assert result.status == BookingStatus.REMOVED_BY_ORGANIZER
+    event_repo.update.assert_awaited_once_with(event, current_confirmed=2)
+    booking_repo.update.assert_awaited_once_with(
+        booking, status=BookingStatus.REMOVED_BY_ORGANIZER
+    )
+    notification_service.notify.assert_awaited_once()

@@ -19,12 +19,20 @@ from app.modules.events.schemas import (
     EventRead,
     EventUpdate,
 )
+from app.modules.notifications.enums import NotificationType
+from app.modules.notifications.schemas import NotificationCreate
+from app.modules.notifications.service import NotificationService
 from app.modules.users.models import User
 
 
 class EventService:
-    def __init__(self, event_repo: EventRepository) -> None:
+    def __init__(
+        self,
+        event_repo: EventRepository,
+        notification_service: NotificationService | None = None,
+    ) -> None:
         self.event_repo = event_repo
+        self.notification_service = notification_service
 
     async def create(self, organizer: User, data: EventCreate) -> Event:
         values = data.model_dump()
@@ -71,7 +79,7 @@ class EventService:
         event = await self.event_repo.get_by_id_with_organizer(event_id)
         if event is None or event.is_deleted:
             raise NotFoundException("Event not found")
-        if event.status != EventStatus.PUBLISHED and (
+        if event.status in (EventStatus.ON_MODERATION, EventStatus.REJECTED) and (
             current_user is None
             or (current_user.id != event.organizer_id and not current_user.is_superuser)
         ):
@@ -136,6 +144,22 @@ class EventService:
         updated_event = await self.event_repo.update(event, **updates)
         reloaded = await self.event_repo.get_by_id_with_organizer(updated_event.id)
         target_event = reloaded or updated_event
+        if self.notification_service is not None:
+            recipient_ids = await self.event_repo.get_active_booking_user_ids(
+                target_event.id
+            )
+            await self.notification_service.notify_many(
+                [
+                    NotificationCreate(
+                        user_id=recipient_id,
+                        notification_type=NotificationType.EVENT_UPDATED,
+                        title="Venue Details Updated",
+                        message=f"Event details updated for {target_event.title}.",
+                        metadata_payload={"event_id": str(target_event.id)},
+                    )
+                    for recipient_id in recipient_ids
+                ]
+            )
         is_favorite = await self.event_repo.is_event_favorite(target_event.id, user.id)
         user_booking_status = await self.event_repo.get_user_booking_status(
             target_event.id, user.id
@@ -221,7 +245,24 @@ class EventService:
             raise BadRequestException(
                 "Event cancellation is closed after the start time"
             )
-        return await self.event_repo.cancel_event(event)
+        recipient_ids: list[uuid.UUID] = []
+        if self.notification_service is not None:
+            recipient_ids = await self.event_repo.get_active_booking_user_ids(event.id)
+        cancelled_event = await self.event_repo.cancel_event(event)
+        if self.notification_service is not None and recipient_ids:
+            await self.notification_service.notify_many(
+                [
+                    NotificationCreate(
+                        user_id=recipient_id,
+                        notification_type=NotificationType.EVENT_CANCELLED,
+                        title="Event Cancelled",
+                        message=f"The event {event.title} has been cancelled by the organizer.",
+                        metadata_payload={"event_id": str(event.id)},
+                    )
+                    for recipient_id in recipient_ids
+                ]
+            )
+        return cancelled_event
 
     def _format_organizer_name(self, organizer: User) -> str:
         if organizer.first_name and organizer.last_name:

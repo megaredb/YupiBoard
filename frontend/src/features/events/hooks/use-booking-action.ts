@@ -11,8 +11,8 @@ import type { EventRead } from "@/shared/api/generated/model";
 import { getApiErrorKey } from "@/shared/i18n/get-api-error-key";
 import { showToast } from "@/shared/lib/toast/toast-store";
 import { useCurrentUser } from "@/features/auth";
-import { useMyEventBooking } from "@/features/events/hooks/use-my-event-booking";
 import {
+  canApplyBooking,
   canCancelBooking,
   getBookingState,
   type BookingState,
@@ -20,6 +20,7 @@ import {
 
 export interface BookingAction {
   state: BookingState;
+  canApply: boolean;
   canCancel: boolean;
   isPending: boolean;
   apply: () => void;
@@ -31,7 +32,6 @@ export function useBookingAction(event: EventRead): BookingAction {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const user = useCurrentUser();
-  const myBooking = useMyEventBooking(event.id, Boolean(user));
 
   const refreshBookingData = () =>
     Promise.all(
@@ -43,11 +43,12 @@ export function useBookingAction(event: EventRead): BookingAction {
 
   const create = useCreateBookingRequestApiV1EventsEventIdBookingsPost({
     mutation: {
-      onSuccess: () => {
+      onSuccess: async () => {
         showToast(t("events.booking.applied"), {
           description: t("events.booking.appliedDescription"),
         });
-        return refreshBookingData();
+        await refreshBookingData();
+        create.reset();
       },
       onError: (error) =>
         showToast(t(getApiErrorKey(error, "events.booking.failed")), { tone: "error" }),
@@ -55,10 +56,10 @@ export function useBookingAction(event: EventRead): BookingAction {
   });
   const cancel = useCancelMyBookingApiV1EventsEventIdBookingsMeDelete({
     mutation: {
-      onSuccess: () => {
+      onSuccess: async () => {
         create.reset();
         showToast(t("events.booking.cancelled"));
-        return refreshBookingData();
+        await refreshBookingData();
       },
       onError: (error) =>
         showToast(t(getApiErrorKey(error, "events.booking.cancelFailed")), { tone: "error" }),
@@ -75,14 +76,14 @@ export function useBookingAction(event: EventRead): BookingAction {
     cancel.mutate({ eventId: event.id });
   };
 
-  // The lookup is refreshed after every change; until then the request's own answer stands in.
-  const bookingStatus = myBooking.booking?.status ?? create.data?.status ?? null;
+  const bookingStatus = create.data?.status ?? event.user_booking_status ?? null;
   const state = getBookingState({ event, userId: user?.id ?? null, bookingStatus });
 
   return {
     state,
+    canApply: canApplyBooking(state, event),
     canCancel: canCancelBooking(state),
-    isPending: create.isPending || cancel.isPending || myBooking.isLoading,
+    isPending: create.isPending || cancel.isPending,
     apply,
     cancel: handleCancel,
   };

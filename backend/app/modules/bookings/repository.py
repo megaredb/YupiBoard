@@ -62,9 +62,21 @@ class BookingRepository(BaseRepository[Booking]):
         sort_by: Literal["date", "name"] = "date",
         sort_order: Literal["asc", "desc"] = "desc",
     ) -> tuple[list[Booking], int, int]:
-        filters = [Booking.user_id == user_id]
+        latest_per_event = (
+            select(Booking.id)
+            .distinct(Booking.event_id)
+            .where(Booking.user_id == user_id)
+            .order_by(Booking.event_id, Booking.created_at.desc(), Booking.id.desc())
+            .subquery()
+        )
+        filters = [
+            Booking.user_id == user_id,
+            Booking.id.in_(select(latest_per_event.c.id)),
+        ]
         if status is not None:
             filters.append(Booking.status == status)
+        else:
+            filters.append(Booking.status != BookingStatus.CANCELLED_BY_PLAYER)
         total = int(
             await self.session.scalar(
                 select(func.count()).select_from(Booking).where(*filters)

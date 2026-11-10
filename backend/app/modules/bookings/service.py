@@ -13,8 +13,19 @@ from app.modules.bookings.models import Booking, BookingStatus
 from app.modules.bookings.repository import BookingRepository
 from app.modules.events.models import EventStatus
 from app.modules.events.repository import EventRepository
+from app.modules.notifications.enums import NotificationType
+from app.modules.notifications.schemas import NotificationCreate
+from app.modules.notifications.service import NotificationService
 from app.modules.users.enums import UserStatus
 from app.modules.users.models import User
+
+
+def _display_name(user: User) -> str:
+    if user.first_name and user.last_name:
+        return f"{user.first_name} {user.last_name}"
+    if user.first_name:
+        return user.first_name
+    return user.email.split("@")[0]
 
 
 class BookingService:
@@ -22,9 +33,11 @@ class BookingService:
         self,
         booking_repo: BookingRepository,
         event_repo: EventRepository,
+        notification_service: NotificationService | None = None,
     ) -> None:
         self.booking_repo = booking_repo
         self.event_repo = event_repo
+        self.notification_service = notification_service
 
     async def apply_for_seat(self, event_id: uuid.UUID, player: User) -> Booking:
         if player.status == UserStatus.BANNED:
@@ -58,11 +71,26 @@ class BookingService:
             raise ConflictException("Table capacity is exhausted")
 
         # In Sprint 1, creates booking with status Pending for organizer review
-        return await self.booking_repo.create_booking(
+        booking = await self.booking_repo.create_booking(
             event_id=event.id,
             user_id=player.id,
             status=BookingStatus.PENDING,
         )
+        if self.notification_service is not None:
+            player_name = _display_name(player)
+            await self.notification_service.notify(
+                NotificationCreate(
+                    user_id=event.organizer_id,
+                    notification_type=NotificationType.BOOKING_REQUESTED,
+                    title="New Booking Request",
+                    message=f"{player_name} requested a seat at {event.title}.",
+                    metadata_payload={
+                        "event_id": str(event.id),
+                        "booking_id": str(booking.id),
+                    },
+                )
+            )
+        return booking
 
     async def list_for_user(
         self,
@@ -113,20 +141,93 @@ class BookingService:
         booking = await self.booking_repo.get_by_id_for_event(booking_id, event_id)
         if booking is None:
             raise NotFoundException("Booking not found")
-        if booking.status != BookingStatus.PENDING:
-            raise BadRequestException("Only pending bookings can be decided")
         if not approve:
-            return await self.booking_repo.update(
+            if booking.status == BookingStatus.CONFIRMED:
+                await self.event_repo.update(
+                    event, current_confirmed=max(0, event.current_confirmed - 1)
+                )
+                updated = await self.booking_repo.update(
+                    booking, status=BookingStatus.REMOVED_BY_ORGANIZER
+                )
+                if self.notification_service is not None:
+                    await self.notification_service.notify(
+                        NotificationCreate(
+                            user_id=booking.user_id,
+                            notification_type=NotificationType.BOOKING_REMOVED_BY_ORGANIZER,
+                            title="Removed from Event",
+                            message=f"The organizer has removed your confirmed seat for {event.title}.",
+                            metadata_payload={
+                                "event_id": str(event.id),
+                                "booking_id": str(booking.id),
+                            },
+                        )
+                    )
+                return updated
+            if booking.status != BookingStatus.PENDING:
+                raise BadRequestException(
+                    "Only pending or confirmed bookings can be declined"
+                )
+            updated = await self.booking_repo.update(
                 booking, status=BookingStatus.REJECTED
             )
+            if self.notification_service is not None:
+                await self.notification_service.notify(
+                    NotificationCreate(
+                        user_id=booking.user_id,
+                        notification_type=NotificationType.BOOKING_REJECTED,
+                        title="Application Declined",
+                        message=f"Your booking request for {event.title} was declined by the organizer.",
+                        metadata_payload={
+                            "event_id": str(event.id),
+                            "booking_id": str(booking.id),
+                        },
+                    )
+                )
+            return updated
+        if booking.status != BookingStatus.PENDING:
+            raise BadRequestException("Only pending bookings can be decided")
         if event.current_confirmed >= event.max_players:
-            return await self.booking_repo.update(
+            updated = await self.booking_repo.update(
                 booking, status=BookingStatus.WAITLIST
             )
+            if self.notification_service is not None:
+                await self.notification_service.notify(
+                    NotificationCreate(
+                        user_id=booking.user_id,
+                        notification_type=NotificationType.WAITLIST_PROMOTED,
+                        title="Added to Waitlist",
+                        message=f"The table for {event.title} is currently full. You have been added to the waitlist.",
+                        metadata_payload={
+                            "event_id": str(event.id),
+                            "booking_id": str(booking.id),
+                        },
+                    )
+                )
+            return updated
         await self.event_repo.update(
             event, current_confirmed=event.current_confirmed + 1
         )
-        return await self.booking_repo.update(booking, status=BookingStatus.CONFIRMED)
+        updated = await self.booking_repo.update(
+            booking, status=BookingStatus.CONFIRMED
+        )
+        if self.notification_service is not None:
+            host_name = _display_name(organizer)
+            await self.notification_service.notify(
+                NotificationCreate(
+                    user_id=booking.user_id,
+                    notification_type=NotificationType.BOOKING_APPROVED,
+                    title="Application Approved",
+                    message=(
+                        f"Great news! Host {host_name} has approved your "
+                        "booking request. Your seat is confirmed."
+                    ),
+                    metadata_payload={
+                        "event_id": str(event.id),
+                        "booking_id": str(booking.id),
+                    },
+                )
+            )
+        return updated
 
     async def cancel_for_player(
         self, event_id: uuid.UUID, player_id: uuid.UUID
@@ -146,9 +247,23 @@ class BookingService:
             await self.event_repo.update(
                 event, current_confirmed=max(0, event.current_confirmed - 1)
             )
-        return await self.booking_repo.update(
+        updated = await self.booking_repo.update(
             booking, status=BookingStatus.CANCELLED_BY_PLAYER
         )
+        if self.notification_service is not None:
+            await self.notification_service.notify(
+                NotificationCreate(
+                    user_id=event.organizer_id,
+                    notification_type=NotificationType.BOOKING_CANCELLED_BY_PLAYER,
+                    title="Booking Cancelled",
+                    message=f"A player cancelled their booking for {event.title}.",
+                    metadata_payload={
+                        "event_id": str(event.id),
+                        "booking_id": str(booking.id),
+                    },
+                )
+            )
+        return updated
 
     async def list_confirmed_participants(
         self, event_id: uuid.UUID, viewer: User

@@ -1,0 +1,62 @@
+{
+  "open": "Open notifications",
+  "title": "Notifications",
+  "viewAll": "View All",
+  "showLess": "Show Less",
+  "emptyTitle": "No notifications yet",
+  "emptyDescription": "We'll notify you when something important arrives.",
+  "entryFee": "Entry fee: {{amount}} UAH (Pay at venue after arrival)",
+  "entryFree": "Entry fee: Free",
+  "viewEvent": "View Event Details",
+  "types": {
+    "BOOKING_REQUESTED": {
+      "title": "New Booking Request",
+      "message": "{{player}} requested a seat at {{event}}."
+    },
+    "BOOKING_APPROVED": {
+      "title": "Application Approved",
+      "message": "Great news! Host {{host}} has approved your booking request. Your seat is confirmed."
+    },
+    "BOOKING_REJECTED": {
+      "title": "Application Declined",
+      "message": "Your booking request for {{event}} was declined by the organizer."
+    },
+    "BOOKING_CANCELLED_BY_PLAYER": {
+      "title": "Booking Cancelled",
+      "message": "A player cancelled their booking for {{event}}."
+    },
+    "BOOKING_REMOVED_BY_ORGANIZER": {
+      "title": "Removed from Event",
+      "message": "The organizer has removed your confirmed seat for {{event}}."
+    },
+    "WAITLIST_PROMOTED": {
+      "title": "Added to Waitlist",
+      "message": "The table for {{event}} is currently full. You have been added to the waitlist."
+    },
+    "EVENT_CANCELLED": {
+      "title": "Event Cancelled",
+      "message": "The event {{event}} has been cancelled by the organizer."
+    },
+    "EVENT_APPROVED": {
+      "title": "Event Approved"
+    },
+    "EVENT_REJECTED": {
+      "title": "Event Declined"
+    },
+    "EVENT_UPDATED": {
+      "title": "Venue Details Updated"
+    },
+    "REMINDER_24H": {
+      "title": "Upcoming Event Tomorrow"
+    },
+    "REMINDER_2H": {
+      "title": "Event Starting Soon"
+    },
+    "NEW_EVENT_FROM_FOLLOWED": {
+      "title": "New Event Created"
+    },
+    "REVIEW_REMINDER": {
+      "title": "Rate Your Game Night"
+    }
+  }
+}

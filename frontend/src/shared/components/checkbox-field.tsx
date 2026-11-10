@@ -20,11 +20,12 @@ export function CheckboxField({
     <FormField
       label={label}
       error={error}
-      className="flex flex-row-reverse flex-wrap items-center justify-end gap-2.5 space-y-0 [&>p]:w-full"
+      className="grid grid-cols-[auto_1fr] items-start space-y-0 gap-x-2.5 gap-y-1.5 [&>label]:col-start-2 [&>label]:leading-snug [&>p]:col-span-2"
     >
       {(fieldControl) => (
         <Checkbox
           {...fieldControl}
+          className="col-start-1 row-start-1 mt-0.5"
           checked={isChecked}
           onCheckedChange={onCheckedChange}
           disabled={isDisabled}

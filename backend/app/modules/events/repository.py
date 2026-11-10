@@ -364,6 +364,17 @@ class EventRepository(BaseRepository[Event]):
         )
         return result.scalar_one_or_none()
 
+    async def get_active_booking_user_ids(self, event_id: uuid.UUID) -> list[uuid.UUID]:
+        from app.modules.bookings.models import ACTIVE_BOOKING_STATUSES, Booking
+
+        result = await self.session.scalars(
+            select(func.distinct(Booking.user_id)).where(
+                Booking.event_id == event_id,
+                Booking.status.in_(ACTIVE_BOOKING_STATUSES),
+            )
+        )
+        return list(result.all())
+
     async def cancel_event(self, event: Event) -> Event:
         from sqlalchemy import update
 
@@ -374,7 +385,7 @@ class EventRepository(BaseRepository[Event]):
         )
 
         event.status = EventStatus.CANCELLED
-        event.is_deleted = True
+        event.current_confirmed = 0
         self.session.add(event)
         await self.session.execute(
             update(Booking)
