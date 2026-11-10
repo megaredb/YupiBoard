@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { getListEventBookingsApiV1EventsEventIdBookingsGetQueryOptions } from "@/shared/api/generated/endpoints/bookings/bookings";
-import type { BookingRead } from "@/shared/api/generated/model";
+import type { BookingRead, BookingStatus } from "@/shared/api/generated/model";
 import { toListState, type ListState } from "@/shared/lib/list-state";
 import { EVENT_BOOKINGS_PAGE_SIZE } from "@/features/events/schemas/event-details-search.schema";
 
@@ -10,11 +10,16 @@ interface EventBookings {
   totalPages: number;
 }
 
-export function useEventBookings(eventId: string, page: number): EventBookings {
+export function useEventBookings(
+  eventId: string,
+  page: number,
+  status?: BookingStatus,
+): EventBookings {
   const query = useQuery({
     ...getListEventBookingsApiV1EventsEventIdBookingsGetQueryOptions(eventId, {
       page,
       limit: EVENT_BOOKINGS_PAGE_SIZE,
+      status,
       sort_by: "date",
       sort_order: "asc",
     }),

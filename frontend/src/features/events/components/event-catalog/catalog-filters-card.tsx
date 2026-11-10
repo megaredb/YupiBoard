@@ -27,7 +27,7 @@ export function CatalogFiltersCard({ value, onApply }: CatalogFiltersCardProps) 
       <Card.Content className="space-y-5">
         <CatalogFilterFields value={value} onChange={onApply} />
         <div className="border-t pt-4">
-          <Button variant="outline" size="lg" className="w-full" onClick={handleClear}>
+          <Button variant="default" size="lg" className="w-full" onClick={handleClear}>
             {t("events.filters.clear")}
           </Button>
         </div>

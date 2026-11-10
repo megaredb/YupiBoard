@@ -6,17 +6,23 @@ import { personNameSchema } from "@/shared/lib/validators/person-name";
 
 export const BIO_MAX_LENGTH = 500;
 
-/** Field names match `UserUpdate`, so server field errors map back one to one (FORM-6). */
-export const completeProfileSchema = z.object({
+const profileBaseSchema = z.object({
   first_name: personNameSchema,
   last_name: personNameSchema,
   city: citySchema,
   contact_info: contactInfoSchema,
 });
 
+/** Field names match `UserUpdate`, so server field errors map back one to one (FORM-6). */
+export const completeProfileSchema = profileBaseSchema.extend({
+  acceptedTerms: z.boolean().refine((value) => value, {
+    message: "validation.termsRequired" satisfies TranslationKey,
+  }),
+});
+
 export type CompleteProfileFormValues = z.infer<typeof completeProfileSchema>;
 
-export const profileSchema = completeProfileSchema.extend({
+export const profileSchema = profileBaseSchema.extend({
   bio: z
     .string()
     .trim()
@@ -25,5 +31,5 @@ export const profileSchema = completeProfileSchema.extend({
 
 export type ProfileFormValues = z.infer<typeof profileSchema>;
 
-export type ProfileUpdateValues = CompleteProfileFormValues &
+export type ProfileUpdateValues = z.infer<typeof profileBaseSchema> &
   Partial<Pick<ProfileFormValues, "bio">>;

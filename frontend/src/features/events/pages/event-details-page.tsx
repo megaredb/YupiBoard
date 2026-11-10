@@ -4,6 +4,7 @@ import { Breadcrumbs } from "@/shared/components/breadcrumbs";
 import { PageContainer } from "@/shared/layout/page-container";
 import { BookingActions } from "@/features/events/components/event-details/booking-actions";
 import { BookingPanel } from "@/features/events/components/event-details/booking-panel";
+import { CancelEventButton } from "@/features/events/components/event-details/cancel-event-button";
 import { EventAbout } from "@/features/events/components/event-details/event-about";
 import { EventActionButtons } from "@/features/events/components/event-details/event-action-buttons";
 import { EventParticipantsSection } from "@/features/events/components/event-details/event-participants-section";
@@ -14,6 +15,7 @@ import { OrganizerCard } from "@/features/events/components/event-details/organi
 import { PlayersLink } from "@/features/events/components/event-details/players-link";
 import { MobileTopBar } from "@/features/events/components/mobile-top-bar";
 import { useBookingAction } from "@/features/events/hooks/use-booking-action";
+import { useCancelEvent } from "@/features/events/hooks/use-cancel-event";
 import { useEventDetails } from "@/features/events/hooks/use-event-details";
 import { useEventOrganizer } from "@/features/events/hooks/use-event-organizer";
 import { useFavoriteToggle } from "@/features/events/hooks/use-favorite-toggle";
@@ -28,6 +30,7 @@ export function EventDetailsPage() {
   const { eventId } = route.useParams();
   const event = useEventDetails(eventId);
   const booking = useBookingAction(event);
+  const cancelEvent = useCancelEvent(event);
   const organizer = useEventOrganizer(event);
   const { isFavorite, toggleFavorite } = useFavoriteToggle(event);
   const shareEvent = useShareEvent(event);
@@ -68,7 +71,16 @@ export function EventDetailsPage() {
           <aside className="hidden desktop:sticky desktop:top-20 desktop:block">
             <BookingPanel event={event} isHost={isHost}>
               {isHost ? (
-                <PlayersLink eventId={event.id} className="w-full" />
+                <div className="space-y-3">
+                  <PlayersLink eventId={event.id} className="w-full" />
+                  {cancelEvent.canCancel && (
+                    <CancelEventButton
+                      action={cancelEvent}
+                      confirmedCount={event.current_confirmed}
+                      className="w-full"
+                    />
+                  )}
+                </div>
               ) : (
                 <BookingActions action={booking} />
               )}
@@ -76,7 +88,7 @@ export function EventDetailsPage() {
           </aside>
         </div>
       </PageContainer>
-      <MobileBookingBar event={event} action={booking} />
+      <MobileBookingBar event={event} action={booking} cancelEvent={cancelEvent} />
     </>
   );
 }

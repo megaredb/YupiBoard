@@ -20,6 +20,7 @@ class BookingParticipantSummary(BaseModel):
     last_name: str | None = None
     avatar_url: str | None = None
     rating_as_player: Decimal | None = None
+    created_at: datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

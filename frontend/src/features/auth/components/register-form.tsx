@@ -1,5 +1,5 @@
 import { Lock, Mail } from "lucide-react";
-import { Controller } from "react-hook-form";
+import { Controller, type Control, type FieldErrors } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { CheckboxField } from "@/shared/components/checkbox-field";
 import { TextField } from "@/shared/components/text-field";
@@ -24,9 +24,54 @@ const DEFAULT_VALUES: RegisterFormInput = {
   password: "",
   confirmPassword: "",
   isAdult: false,
+  acceptedTerms: false,
 };
 
 const SERVER_FIELDS = ["email", "password"] as const;
+
+function RegisterConsentCheckboxes({
+  control,
+  errors,
+  isPending,
+}: {
+  control: Control<RegisterFormInput, unknown, RegisterFormValues>;
+  errors: FieldErrors<RegisterFormInput>;
+  isPending: boolean;
+}) {
+  const { t } = useTranslation();
+  const fieldError = useFieldError();
+
+  return (
+    <>
+      <Controller
+        control={control}
+        name="isAdult"
+        render={({ field }) => (
+          <CheckboxField
+            label={t("auth.register.ageConfirm")}
+            isChecked={field.value}
+            onCheckedChange={field.onChange}
+            error={fieldError(errors.isAdult?.message)}
+            isDisabled={isPending}
+          />
+        )}
+      />
+      <Controller
+        control={control}
+        name="acceptedTerms"
+        render={({ field }) => (
+          <CheckboxField
+            label={t("auth.register.termsConfirm")}
+            isChecked={field.value}
+            onCheckedChange={field.onChange}
+            error={fieldError(errors.acceptedTerms?.message)}
+            isDisabled={isPending}
+          />
+        )}
+      />
+    </>
+  );
+}
 
 export function RegisterForm({ isPending, onSubmit }: RegisterFormProps) {
   const { t } = useTranslation();
@@ -74,19 +119,7 @@ export function RegisterForm({ isPending, onSubmit }: RegisterFormProps) {
         disabled={isPending}
         {...register("confirmPassword")}
       />
-      <Controller
-        control={control}
-        name="isAdult"
-        render={({ field }) => (
-          <CheckboxField
-            label={t("auth.register.ageConfirm")}
-            isChecked={field.value}
-            onCheckedChange={field.onChange}
-            error={fieldError(errors.isAdult?.message)}
-            isDisabled={isPending}
-          />
-        )}
-      />
+      <RegisterConsentCheckboxes control={control} errors={errors} isPending={isPending} />
       <Button type="submit" size="xl" className="w-full text-sm" isLoading={isPending}>
         {t("auth.register.submit")}
       </Button>

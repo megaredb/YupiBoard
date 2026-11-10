@@ -3,6 +3,7 @@ import { cva } from "class-variance-authority";
 import { cn } from "@/shared/lib/cn";
 
 interface StatusMessageProps {
+  icon?: ReactNode;
   title: string;
   description?: string;
   action?: ReactNode;
@@ -24,6 +25,7 @@ const messageVariants = cva(
 );
 
 export function StatusMessage({
+  icon,
   title,
   description,
   action,
@@ -32,6 +34,7 @@ export function StatusMessage({
 }: StatusMessageProps) {
   return (
     <div className={cn(messageVariants({ size }), className)}>
+      {icon && <div className="mb-3 text-muted-foreground/60">{icon}</div>}
       <p className={size === "compact" ? "text-sm font-medium" : "text-base font-medium"}>
         {title}
       </p>

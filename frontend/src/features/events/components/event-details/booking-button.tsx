@@ -11,16 +11,20 @@ interface BookingButtonProps {
 
 export function BookingButton({ action, className }: BookingButtonProps) {
   const { t } = useTranslation();
+  const labelKey =
+    action.state === "rejected" && action.canApply
+      ? "events.booking.reapply"
+      : BOOKING_STATE_LABEL_KEYS[action.state];
 
   return (
     <Button
       size="xl"
       className={cn("shadow-sm", className)}
-      disabled={action.state !== "open"}
+      disabled={!action.canApply}
       isLoading={action.isPending}
       onClick={action.apply}
     >
-      {t(BOOKING_STATE_LABEL_KEYS[action.state])}
+      {t(labelKey)}
     </Button>
   );
 }

@@ -7,6 +7,7 @@
   "confirmRequired": "Please confirm your password",
   "mismatch": "Passwords don't match. Please try again.",
   "ageRequired": "You must be 18 years or older to register",
+  "termsRequired": "You must accept the Terms of Service and Data Handling Policy",
   "nameTooShort": "Please enter at least 2 characters",
   "nameTooLong": "Please enter at most 50 characters",
   "nameAlphabetic": "Use letters, spaces, apostrophes and hyphens only",

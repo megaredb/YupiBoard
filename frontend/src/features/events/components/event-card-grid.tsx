@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Dices } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/lib/cn";
 import type { ListState } from "@/shared/lib/list-state";
@@ -61,7 +62,13 @@ export function EventCardGrid<T>({
   }
 
   if (state.items.length === 0) {
-    return <StatusMessage title={empty.title} description={empty.description} />;
+    return (
+      <StatusMessage
+        icon={<Dices aria-hidden className="size-12 stroke-[1.5]" />}
+        title={empty.title}
+        description={empty.description}
+      />
+    );
   }
 
   return (

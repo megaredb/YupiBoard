@@ -50,22 +50,6 @@ export function DateFilter({ value, onChange }: DateFilterProps) {
 
   return (
     <FilterSection title={t("events.filters.date")} action={clearAction}>
-      <ToggleGroup
-        aria-label={t("events.filters.datePresets")}
-        value={activePreset ? [activePreset] : []}
-        onValueChange={handlePresetChange}
-        className="grid grid-cols-3 gap-1.5"
-      >
-        {DATE_PRESETS.map((preset) => (
-          <ToggleGroup.Item
-            key={preset}
-            value={preset}
-            className="h-auto min-h-8 px-1.5 py-1 text-center leading-tight whitespace-normal"
-          >
-            {t(PRESET_LABEL_KEYS[preset])}
-          </ToggleGroup.Item>
-        ))}
-      </ToggleGroup>
       <DateRangeField
         fromLabel={t("events.filters.dateFrom")}
         toLabel={t("events.filters.dateTo")}
@@ -73,6 +57,22 @@ export function DateFilter({ value, onChange }: DateFilterProps) {
         min={getTodayIsoDate()}
         onChange={handleRangeChange}
       />
+      <ToggleGroup
+        aria-label={t("events.filters.datePresets")}
+        value={activePreset ? [activePreset] : []}
+        onValueChange={handlePresetChange}
+        className="flex flex-wrap justify-center gap-1.5"
+      >
+        {DATE_PRESETS.map((preset) => (
+          <ToggleGroup.Item
+            key={preset}
+            value={preset}
+            className="h-auto min-h-8 px-2.5 py-1 text-center leading-tight whitespace-normal"
+          >
+            {t(PRESET_LABEL_KEYS[preset])}
+          </ToggleGroup.Item>
+        ))}
+      </ToggleGroup>
     </FilterSection>
   );
 }

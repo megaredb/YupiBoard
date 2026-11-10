@@ -16,6 +16,9 @@ export const registerSchema = z
     isAdult: z.boolean().refine((value) => value, {
       message: "validation.ageRequired" satisfies TranslationKey,
     }),
+    acceptedTerms: z.boolean().refine((value) => value, {
+      message: "validation.termsRequired" satisfies TranslationKey,
+    }),
   })
   .refine(passwordsMatch, PASSWORD_MISMATCH_ISSUE);
 
