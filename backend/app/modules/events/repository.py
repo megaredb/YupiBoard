@@ -43,7 +43,7 @@ class EventRepository(BaseRepository[Event]):
         filters: EventFilterParams,
         current_user_id: uuid.UUID | None = None,
     ) -> tuple[Sequence[tuple[Event, float | None, bool, Any]], int, int]:
-        from app.modules.bookings.models import ACTIVE_BOOKING_STATUSES, Booking
+        from app.modules.bookings.models import Booking
         from app.modules.favorites.models import Favorite
 
         distance_meters: ColumnElement[Any] | None = None
@@ -76,7 +76,17 @@ class EventRepository(BaseRepository[Event]):
             else cast(False, Boolean)
         )
         user_booking_col = (
-            Booking.status if current_user_id is not None else cast(null(), String)
+            select(Booking.status)
+            .where(
+                Booking.event_id == Event.id,
+                Booking.user_id == current_user_id,
+            )
+            .order_by(Booking.created_at.desc(), Booking.id.desc())
+            .limit(1)
+            .correlate(Event)
+            .scalar_subquery()
+            if current_user_id is not None
+            else cast(null(), String)
         )
 
         query = (
@@ -93,11 +103,6 @@ class EventRepository(BaseRepository[Event]):
             query = query.outerjoin(
                 Favorite,
                 (Favorite.event_id == Event.id) & (Favorite.user_id == current_user_id),
-            ).outerjoin(
-                Booking,
-                (Booking.event_id == Event.id)
-                & (Booking.user_id == current_user_id)
-                & (Booking.status.in_(ACTIVE_BOOKING_STATUSES)),
             )
 
         query = (
@@ -233,14 +238,16 @@ class EventRepository(BaseRepository[Event]):
     async def get_user_booking_status(
         self, event_id: uuid.UUID, user_id: uuid.UUID
     ) -> Any | None:
-        from app.modules.bookings.models import ACTIVE_BOOKING_STATUSES, Booking
+        from app.modules.bookings.models import Booking
 
         result = await self.session.scalar(
-            select(Booking.status).where(
+            select(Booking.status)
+            .where(
                 Booking.event_id == event_id,
                 Booking.user_id == user_id,
-                Booking.status.in_(ACTIVE_BOOKING_STATUSES),
             )
+            .order_by(Booking.created_at.desc(), Booking.id.desc())
+            .limit(1)
         )
         return result
 

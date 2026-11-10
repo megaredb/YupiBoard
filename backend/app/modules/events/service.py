@@ -36,7 +36,7 @@ class EventService:
             organizer_id=organizer.id,
             status=EventStatus.PUBLISHED,
             rejection_reason=None,
-            is_verified=False,
+            is_verified=True,
             current_confirmed=0,
             is_deleted=False,
         )
@@ -137,7 +137,14 @@ class EventService:
         reloaded = await self.event_repo.get_by_id_with_organizer(updated_event.id)
         target_event = reloaded or updated_event
         is_favorite = await self.event_repo.is_event_favorite(target_event.id, user.id)
-        return self._to_read(target_event, is_favorite=is_favorite)
+        user_booking_status = await self.event_repo.get_user_booking_status(
+            target_event.id, user.id
+        )
+        return self._to_read(
+            target_event,
+            is_favorite=is_favorite,
+            user_booking_status=user_booking_status,
+        )
 
     async def get_organizer_events(
         self,

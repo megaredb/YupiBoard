@@ -413,7 +413,12 @@ async def test_list_for_user_passes_status_filter() -> None:
     )
 
     booking_repo.list_for_user.assert_awaited_once_with(
-        user_id, 1, 20, status=BookingStatus.CONFIRMED, sort_by="date", sort_order="desc"
+        user_id,
+        1,
+        20,
+        status=BookingStatus.CONFIRMED,
+        sort_by="date",
+        sort_order="desc",
     )
 
 
@@ -448,4 +453,3 @@ async def test_list_for_event_passes_status_filter() -> None:
     booking_repo.list_for_event.assert_awaited_once_with(
         event.id, 1, 20, status=BookingStatus.PENDING, sort_by="name", sort_order="asc"
     )
-
