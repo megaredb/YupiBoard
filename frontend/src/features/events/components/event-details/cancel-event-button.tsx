@@ -28,7 +28,7 @@ export function CancelEventButton({
       <Button
         variant="secondary"
         size={isCompact ? "lg" : "xl"}
-        className={cn("shadow-sm", className)}
+        className={cn("text-sm shadow-sm", className)}
         isLoading={action.isPending}
         onClick={handleOpen}
       >

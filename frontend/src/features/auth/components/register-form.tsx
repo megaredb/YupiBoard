@@ -51,6 +51,7 @@ function RegisterConsentCheckboxes({
             label={t("auth.register.ageConfirm")}
             isChecked={field.value}
             onCheckedChange={field.onChange}
+            isRequired
             error={fieldError(errors.isAdult?.message)}
             isDisabled={isPending}
           />
@@ -64,6 +65,7 @@ function RegisterConsentCheckboxes({
             label={t("auth.register.termsConfirm")}
             isChecked={field.value}
             onCheckedChange={field.onChange}
+            isRequired
             error={fieldError(errors.acceptedTerms?.message)}
             isDisabled={isPending}
           />
@@ -95,6 +97,7 @@ export function RegisterForm({ isPending, onSubmit }: RegisterFormProps) {
         autoComplete="email"
         placeholder={t("auth.fields.emailPlaceholder")}
         startIcon={<Mail />}
+        isRequired
         error={fieldError(errors.email?.message)}
         disabled={isPending}
         {...register("email")}
@@ -106,6 +109,7 @@ export function RegisterForm({ isPending, onSubmit }: RegisterFormProps) {
         maxLength={PASSWORD_LIMITS.max}
         startIcon={<Lock />}
         hint={t("auth.fields.passwordHint")}
+        isRequired
         error={fieldError(errors.password?.message)}
         disabled={isPending}
         {...register("password")}
@@ -115,6 +119,7 @@ export function RegisterForm({ isPending, onSubmit }: RegisterFormProps) {
         type="password"
         autoComplete="new-password"
         startIcon={<Lock />}
+        isRequired
         error={fieldError(errors.confirmPassword?.message)}
         disabled={isPending}
         {...register("confirmPassword")}

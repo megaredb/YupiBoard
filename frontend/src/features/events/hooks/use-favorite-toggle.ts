@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { isApiError } from "@/shared/api/errors";
+import { getListMyBookingsApiV1BookingsMeGetQueryKey } from "@/shared/api/generated/endpoints/bookings/bookings";
 import {
   getGetEventApiV1EventsEventIdGetQueryKey,
   getListEventsApiV1EventsGetQueryKey,
@@ -20,6 +22,20 @@ interface FavoriteToggle {
   toggleFavorite: () => void;
 }
 
+async function setEventFavorite(eventId: string, shouldBeFavorite: boolean): Promise<void> {
+  try {
+    if (shouldBeFavorite) {
+      await addFavoriteApiV1EventsEventIdFavoritePost(eventId);
+    } else {
+      await removeFavoriteApiV1EventsEventIdFavoriteDelete(eventId);
+    }
+  } catch (error) {
+    const ignoredStatus = shouldBeFavorite ? 409 : 404;
+    if (isApiError(error) && error.status === ignoredStatus) return;
+    throw error;
+  }
+}
+
 export function useFavoriteToggle(event: Pick<EventRead, "id" | "is_favorite">): FavoriteToggle {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -28,10 +44,7 @@ export function useFavoriteToggle(event: Pick<EventRead, "id" | "is_favorite">):
   const currentHref = useLocation({ select: (location) => location.href });
 
   const mutation = useMutation({
-    mutationFn: (isFavorite: boolean) =>
-      isFavorite
-        ? addFavoriteApiV1EventsEventIdFavoritePost(event.id)
-        : removeFavoriteApiV1EventsEventIdFavoriteDelete(event.id),
+    mutationFn: (shouldBeFavorite: boolean) => setEventFavorite(event.id, shouldBeFavorite),
     onSuccess: (_, isAdded) =>
       showToast(isAdded ? t("events.favorites.added") : t("events.favorites.removed")),
     onError: () => showToast(t("events.favorites.toggleFailed"), { tone: "error" }),
@@ -43,6 +56,7 @@ export function useFavoriteToggle(event: Pick<EventRead, "id" | "is_favorite">):
           getListFavoritesApiV1UsersMeFavoritesGetQueryKey(),
           getListEventsApiV1EventsGetQueryKey(),
           getListMyCreatedEventsApiV1EventsMyCreatedGetQueryKey(),
+          getListMyBookingsApiV1BookingsMeGetQueryKey(),
         ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
       ),
   });

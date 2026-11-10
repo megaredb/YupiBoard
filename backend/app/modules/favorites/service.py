@@ -41,7 +41,10 @@ class FavoriteService:
         )
         converter = EventService(self.event_repo)
         return {
-            "items": [converter._to_list_item(event, None) for event in events],
+            "items": [
+                converter._to_list_item(event, None, is_favorite=True)
+                for event in events
+            ],
             "total": total,
             "page": page,
             "total_pages": total_pages,

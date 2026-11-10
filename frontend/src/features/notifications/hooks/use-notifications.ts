@@ -8,11 +8,17 @@ import {
   useMarkAllNotificationsReadApiV1NotificationsReadAllPost,
   useMarkNotificationReadApiV1NotificationsNotificationIdReadPost,
 } from "@/shared/api/generated/endpoints/notifications/notifications";
-import type { EventRead, NotificationRead } from "@/shared/api/generated/model";
+import type {
+  EventRead,
+  NotificationPage,
+  NotificationRead,
+  UnreadCountResponse,
+} from "@/shared/api/generated/model";
 import { toListState, type ListState } from "@/shared/lib/list-state";
 
 const PREVIEW_LIMIT = 5;
 const EXPANDED_LIMIT = 50;
+const LIST_PARAMS = { page: 1, limit: EXPANDED_LIMIT } as const;
 
 export function useUnreadNotificationsCount(): number {
   const query = useGetUnreadCountApiV1NotificationsUnreadCountGet();
@@ -26,13 +32,12 @@ export function useNotificationsList(
   list: ListState<NotificationRead>;
   total: number;
 } {
-  const limit = isExpanded ? EXPANDED_LIMIT : PREVIEW_LIMIT;
-  const query = useListNotificationsApiV1NotificationsGet(
-    { page: 1, limit },
-    { query: { enabled: isOpen } },
-  );
+  const query = useListNotificationsApiV1NotificationsGet(LIST_PARAMS, {
+    query: { enabled: isOpen },
+  });
+  const visibleItems = isExpanded ? query.data?.items : query.data?.items.slice(0, PREVIEW_LIMIT);
   return {
-    list: toListState(query, query.data?.items),
+    list: toListState(query, visibleItems),
     total: query.data?.total ?? 0,
   };
 }
@@ -42,21 +47,52 @@ export function useNotificationActions(): {
   markAllAsRead: () => void;
 } {
   const queryClient = useQueryClient();
+  const listKey = getListNotificationsApiV1NotificationsGetQueryKey(LIST_PARAMS);
+  const unreadKey = getGetUnreadCountApiV1NotificationsUnreadCountGetQueryKey();
+
   const invalidate = () =>
     Promise.all([
       queryClient.invalidateQueries({
         queryKey: getListNotificationsApiV1NotificationsGetQueryKey(),
       }),
-      queryClient.invalidateQueries({
-        queryKey: getGetUnreadCountApiV1NotificationsUnreadCountGetQueryKey(),
-      }),
+      queryClient.invalidateQueries({ queryKey: unreadKey }),
     ]);
 
   const markOne = useMarkNotificationReadApiV1NotificationsNotificationIdReadPost({
-    mutation: { onSuccess: invalidate },
+    mutation: {
+      onMutate: ({ notificationId }) => {
+        queryClient.setQueryData<NotificationPage>(listKey, (old) =>
+          old
+            ? {
+                ...old,
+                items: old.items.map((item) =>
+                  item.id === notificationId ? { ...item, is_read: true } : item,
+                ),
+              }
+            : old,
+        );
+        queryClient.setQueryData<UnreadCountResponse>(unreadKey, (old) =>
+          old ? { unread: Math.max(0, old.unread - 1) } : old,
+        );
+      },
+      onSettled: invalidate,
+    },
   });
   const markAll = useMarkAllNotificationsReadApiV1NotificationsReadAllPost({
-    mutation: { onSuccess: invalidate },
+    mutation: {
+      onMutate: () => {
+        queryClient.setQueryData<NotificationPage>(listKey, (old) =>
+          old
+            ? {
+                ...old,
+                items: old.items.map((item) => ({ ...item, is_read: true })),
+              }
+            : old,
+        );
+        queryClient.setQueryData<UnreadCountResponse>(unreadKey, { unread: 0 });
+      },
+      onSettled: invalidate,
+    },
   });
 
   return {

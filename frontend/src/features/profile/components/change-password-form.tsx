@@ -38,6 +38,7 @@ export function ChangePasswordForm({ isPending, onSubmit, actions }: ChangePassw
         autoComplete="current-password"
         maxLength={PASSWORD_LIMITS.max}
         hint={t("profile.passwordDialog.currentPasswordHint")}
+        isRequired
         error={fieldError(errors.currentPassword?.message)}
         disabled={isPending}
         {...register("currentPassword")}
@@ -48,6 +49,7 @@ export function ChangePasswordForm({ isPending, onSubmit, actions }: ChangePassw
         autoComplete="new-password"
         maxLength={PASSWORD_LIMITS.max}
         hint={t("auth.fields.passwordHint")}
+        isRequired
         error={fieldError(errors.password?.message)}
         disabled={isPending}
         {...register("password")}
@@ -57,6 +59,7 @@ export function ChangePasswordForm({ isPending, onSubmit, actions }: ChangePassw
         type="password"
         autoComplete="new-password"
         maxLength={PASSWORD_LIMITS.max}
+        isRequired
         error={fieldError(errors.confirmPassword?.message)}
         disabled={isPending}
         {...register("confirmPassword")}

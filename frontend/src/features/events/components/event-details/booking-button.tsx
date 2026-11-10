@@ -19,7 +19,7 @@ export function BookingButton({ action, className }: BookingButtonProps) {
   return (
     <Button
       size="xl"
-      className={cn("shadow-sm", className)}
+      className={cn("text-sm shadow-sm", className)}
       disabled={!action.canApply}
       isLoading={action.isPending}
       onClick={action.apply}

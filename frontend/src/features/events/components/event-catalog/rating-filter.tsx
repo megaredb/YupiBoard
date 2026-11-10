@@ -35,10 +35,13 @@ export function RatingFilter({ value, onChange }: RatingFilterProps) {
             key={rating}
             value={String(rating)}
             aria-label={t("events.filters.ratingOption", { count: rating })}
-            className="flex-1 px-1"
+            className="group flex-1 bg-card px-1 aria-pressed:border-primary/30 aria-pressed:bg-primary/10 aria-pressed:text-primary"
           >
             <span aria-hidden>{formatDecimal(rating)}</span>
-            <Star aria-hidden className="fill-rating text-rating" />
+            <Star
+              aria-hidden
+              className="text-rating transition-colors group-aria-pressed:text-primary"
+            />
           </ToggleGroup.Item>
         ))}
       </ToggleGroup>
