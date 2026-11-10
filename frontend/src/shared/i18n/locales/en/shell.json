@@ -27,5 +27,13 @@
   "notFound": {
     "title": "Page not found",
     "description": "This page may have been removed or the link is incorrect."
+  },
+  "language": {
+    "label": "Language",
+    "switchTo": "Switch language to {{language}}",
+    "en": "English",
+    "uk": "Українська",
+    "enShort": "EN",
+    "ukShort": "UA"
   }
 }

@@ -1,11 +1,11 @@
-import { useId, useRef, useState, type ChangeEvent } from "react";
+import { useId, useRef } from "react";
 import { cva } from "class-variance-authority";
-import { Camera, CircleAlert } from "lucide-react";
+import { Camera } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { InlineError } from "@/shared/components/inline-error";
+import { useImageFilePicker } from "@/shared/hooks/use-image-file-picker";
 import { useObjectUrl } from "@/shared/hooks/use-object-url";
-import type { TranslationKey } from "@/shared/i18n/translation-key";
 import { IMAGE_MIME_TYPES } from "@/shared/lib/image/image-constraints";
-import { prepareImage } from "@/shared/lib/image/prepare-image";
 import { Button } from "@/shared/ui/button";
 import { UserAvatar } from "@/features/users";
 
@@ -15,7 +15,6 @@ interface AvatarPickerProps {
   value: File | null;
   onChange: (file: File) => void;
   isDisabled: boolean;
-  /** `standalone`: large, centred, with an upload button. `inline`: compact, inside a profile card. */
   variant: "standalone" | "inline";
 }
 
@@ -27,16 +26,6 @@ const avatarVariants = cva("", {
   variants: { variant: { standalone: "size-24 sm:size-28", inline: "size-16 sm:size-20" } },
 });
 
-function PhotoError({ message }: { message: string }) {
-  return (
-    <p role="alert" className="flex items-center gap-1.5 text-xs text-destructive">
-      <CircleAlert aria-hidden className="size-3.5 shrink-0" />
-      <span>{message}</span>
-    </p>
-  );
-}
-
-/** Picks, validates and downsizes a new photo through the shared image pipeline. */
 export function AvatarPicker({
   name,
   currentUrl,
@@ -49,18 +38,7 @@ export function AvatarPicker({
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const previewUrl = useObjectUrl(value);
-  const [errorKey, setErrorKey] = useState<TranslationKey | null>(null);
-
-  const pickFile = async (file: File) => {
-    const result = await prepareImage(file, "avatar");
-    setErrorKey(result.status === "ok" ? null : "validation.photoFormatSize");
-    if (result.status === "ok") onChange(result.file);
-  };
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (file) void pickFile(file);
-  };
+  const { handleFileChange, hasError } = useImageFilePicker("avatar", onChange);
   const handleBrowse = () => inputRef.current?.click();
 
   return (
@@ -101,7 +79,7 @@ export function AvatarPicker({
         </Button>
       )}
       <p className="text-xs text-muted-foreground">{t("profile.photoHint")}</p>
-      {errorKey && <PhotoError message={t(errorKey)} />}
+      {hasError && <InlineError message={t("validation.photoFormatSize")} />}
     </div>
   );
 }

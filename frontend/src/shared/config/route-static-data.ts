@@ -10,7 +10,6 @@ declare module "@tanstack/react-router" {
   interface StaticDataRouteOption {
     /** The one layout flag (RT-3); the deepest match that sets it wins. */
     layout?: AppLayout;
-    /** `document.title` of the page (A11Y-4). */
     titleKey?: TranslationKey;
   }
 }

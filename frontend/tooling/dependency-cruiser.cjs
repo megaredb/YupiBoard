@@ -47,7 +47,7 @@ module.exports = {
         path: [
           "^src/shared/(api|i18n|platform|config)/",
           "^src/shared/lib/toast/",
-          "node_modules/(@tanstack/react-router|@tanstack/react-query|react-i18next|i18next|zustand)/",
+          "node_modules/(@tanstack/react-router|@tanstack/react-query|react-i18next|i18next)/",
         ],
       },
     },

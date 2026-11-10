@@ -16,7 +16,6 @@ interface NewPasswordFormProps {
   actions: ReactNode;
 }
 
-/** New password + confirmation; shared by password reset and "change password". */
 export function NewPasswordForm({ isPending, onSubmit, actions }: NewPasswordFormProps) {
   const { t } = useTranslation();
   const fieldError = useFieldError();

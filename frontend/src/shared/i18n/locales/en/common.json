@@ -19,5 +19,11 @@
     "label": "Pagination",
     "previous": "Previous",
     "next": "Next"
+  },
+  "notifications": "Notifications",
+  "location": {
+    "useMyLocation": "Use my location",
+    "locating": "Locating…",
+    "unavailable": "Couldn't get your location"
   }
 }

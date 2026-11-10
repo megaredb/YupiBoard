@@ -24,9 +24,9 @@ export function CompleteProfilePage() {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col items-center justify-center px-4 py-8">
       <BrandLogo size="md" className="mb-6 max-sm:hidden" />
-      <Card className="w-full rounded-2xl p-2 shadow-sm sm:p-6">
+      <Card size="lg" className="w-full">
         <Card.Header className="justify-items-center space-y-2 text-center">
-          <Card.Title className="text-2xl font-bold tracking-tight sm:text-3xl">
+          <Card.Title size="2xl" className="sm:text-3xl">
             {t("profile.complete.title")}
           </Card.Title>
           <Card.Description className="mx-auto max-w-sm">

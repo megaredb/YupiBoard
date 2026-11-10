@@ -6,7 +6,6 @@ interface HeaderProps {
   className?: string;
 }
 
-/** Sticky top bar of the app shell; its content is composed by the caller. */
 export function Header({ children, className }: HeaderProps) {
   return (
     <header

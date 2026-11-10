@@ -5,30 +5,24 @@ import { BrandLogo } from "@/shared/layout/brand-logo";
 import { buttonVariants } from "@/shared/ui/button-variants";
 import { ResetPasswordCard } from "@/features/auth/components/reset-password-card";
 import { useResetPassword } from "@/features/auth/hooks/use-reset-password";
+import { getResetFailureKey } from "@/features/auth/lib/reset-token-state";
 
 const route = getRouteApi("/reset-password");
 
 export function ResetPasswordPage() {
   const { t } = useTranslation();
   const { token } = route.useSearch();
-  const { resetPassword, isPending, isDone, errorKey } = useResetPassword(token ?? "");
+  const tokenState = route.useLoaderData();
+  const { resetPassword, isPending, isDone, isTokenRejected, errorKey } = useResetPassword(
+    token ?? "",
+  );
+  const failureKey = getResetFailureKey(tokenState, isTokenRejected);
   const loginLinkClass = buttonVariants({ size: "xl", className: "w-full" });
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center gap-6 p-4">
       <BrandLogo size="md" />
-      {!token && (
-        <StatusCard
-          tone="error"
-          title={t("auth.resetPassword.errorTitle")}
-          description={t("auth.resetPassword.missingToken")}
-        >
-          <Link to="/login" className={loginLinkClass}>
-            {t("auth.resetPassword.backToLogin")}
-          </Link>
-        </StatusCard>
-      )}
-      {token && isDone && (
+      {isDone && (
         <StatusCard
           tone="success"
           title={t("auth.resetPassword.successTitle")}
@@ -39,7 +33,18 @@ export function ResetPasswordPage() {
           </Link>
         </StatusCard>
       )}
-      {token && !isDone && (
+      {!isDone && failureKey && (
+        <StatusCard
+          tone="error"
+          title={t("auth.resetPassword.errorTitle")}
+          description={t(failureKey)}
+        >
+          <Link to="/login" className={loginLinkClass}>
+            {t("auth.resetPassword.backToLogin")}
+          </Link>
+        </StatusCard>
+      )}
+      {!isDone && !failureKey && (
         <ResetPasswordCard isPending={isPending} errorKey={errorKey} onSubmit={resetPassword} />
       )}
     </div>

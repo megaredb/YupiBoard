@@ -8,6 +8,7 @@ export type ImageMimeType = (typeof IMAGE_MIME_TYPES)[number];
 export const IMAGE_LIMITS = {
   avatar: { maxBytes: 2 * MEGABYTE, maxDimension: 512 },
   cover: { maxBytes: 5 * MEGABYTE, maxDimension: 1600 },
+  banner: { maxBytes: 5 * MEGABYTE, maxDimension: 1600 },
 } as const;
 
 export type ImageKind = keyof typeof IMAGE_LIMITS;

@@ -45,7 +45,6 @@ export function subscribeTheme(listener: () => void): () => void {
   return () => listeners.delete(listener);
 }
 
-/** Called once from `bootstrap()`: applies the theme and follows system changes. */
 export function initTheme(): () => void {
   applyTheme();
   const media = window.matchMedia(DARK_QUERY);

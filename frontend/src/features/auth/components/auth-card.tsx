@@ -24,11 +24,11 @@ export function AuthCard({
 }: AuthCardProps) {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-4 py-6">
-      <Card className="rounded-2xl p-2 shadow-sm sm:p-4">
+      <Card size="lg">
         <Card.Header className="justify-items-center space-y-3 text-center">
           <BrandLogo size="md" />
           <div className="space-y-1.5">
-            <Card.Title className="text-2xl font-bold tracking-tight">
+            <Card.Title size="2xl">
               <span className="max-sm:hidden">{title}</span>
               <span className="sm:hidden">{mobileTitle}</span>
             </Card.Title>
@@ -41,7 +41,7 @@ export function AuthCard({
         </Card.Header>
         <Card.Content className="space-y-5">{children}</Card.Content>
         {footer && (
-          <Card.Footer className="justify-center border-0 bg-transparent pt-2 pb-4 text-xs text-muted-foreground">
+          <Card.Footer variant="plain" className="justify-center text-xs text-muted-foreground">
             {footer}
           </Card.Footer>
         )}

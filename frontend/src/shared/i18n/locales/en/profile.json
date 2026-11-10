@@ -9,13 +9,8 @@
   "changePhoto": "Change photo",
   "photoHint": "JPEG/PNG under 2 MB",
   "bioHint": "Tell others about your board game preferences…",
-  "deviceOnlyNote": "Saved on this device only",
   "emailLinkedNote": "Your email cannot be changed",
-  "locationHint": "Distance to events is calculated from the city centre",
-  "locationEditHint": "Set an exact address or a city; for a city, distance is calculated from its centre",
-  "useGps": "Use GPS",
-  "gpsLocating": "Locating…",
-  "locationUnavailable": "Couldn't get your location",
+  "locationHint": "Events are searched around this city by default",
   "passwordMasked": "••••••••",
   "changePassword": "Change password",
   "saveChanges": "Save changes",
@@ -34,9 +29,13 @@
   },
   "passwordDialog": {
     "title": "Change password",
-    "description": "Enter your new password below (at least 8 characters).",
+    "description": "Enter your current password, then choose a new one.",
     "submit": "Update password",
-    "success": "Password updated"
+    "success": "Password updated",
+    "currentPassword": "Current password",
+    "currentPasswordHint": "Leave empty if you signed up with Google and have not set a password yet.",
+    "wrongCurrentPassword": "The current password is incorrect.",
+    "failed": "Could not change your password. Please try again."
   },
   "complete": {
     "title": "Complete your profile",
@@ -53,5 +52,8 @@
     "unnamedUser": "YupiBoard player"
   },
   "shortcutsLabel": "Shortcuts",
-  "uploadPhoto": "Upload photo"
+  "uploadPhoto": "Upload photo",
+  "changeBanner": "Change cover",
+  "bannerHint": "JPEG/PNG under 5 MB · wide images work best",
+  "cityNotSet": "Not set"
 }

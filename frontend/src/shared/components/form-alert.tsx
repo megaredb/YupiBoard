@@ -1,28 +1,38 @@
 import { cva } from "class-variance-authority";
-import { CheckCircle2, CircleAlert } from "lucide-react";
+import { CheckCircle2, CircleAlert, Info, TriangleAlert } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
+
+type AlertTone = "error" | "success" | "info" | "warning";
 
 interface FormAlertProps {
   message: string;
-  tone?: "error" | "success";
+  tone?: AlertTone;
   className?: string;
 }
 
 const alertVariants = cva(
-  "flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium",
+  "flex items-start gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium [&>svg]:mt-0.5",
   {
     variants: {
       tone: {
         error: "border-destructive/30 bg-destructive/10 text-destructive",
         success: "border-success/30 bg-success/10 text-success",
+        info: "border-primary/20 bg-primary/10 text-primary",
+        warning: "border-secondary/60 bg-secondary/20 text-foreground",
       },
     },
   },
 );
 
-/** Form-level message (server error, saved). Field errors belong to `FormField`. */
+const TONE_ICONS = {
+  error: CircleAlert,
+  success: CheckCircle2,
+  info: Info,
+  warning: TriangleAlert,
+} as const;
+
 export function FormAlert({ message, tone = "error", className }: FormAlertProps) {
-  const Icon = tone === "error" ? CircleAlert : CheckCircle2;
+  const Icon = TONE_ICONS[tone];
   return (
     <div
       role={tone === "error" ? "alert" : "status"}

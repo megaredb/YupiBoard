@@ -24,3 +24,6 @@ export const profileSchema = completeProfileSchema.extend({
 });
 
 export type ProfileFormValues = z.infer<typeof profileSchema>;
+
+export type ProfileUpdateValues = CompleteProfileFormValues &
+  Partial<Pick<ProfileFormValues, "bio">>;

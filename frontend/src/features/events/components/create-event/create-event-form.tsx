@@ -9,37 +9,47 @@ import { CoverSection } from "@/features/events/components/create-event/cover-se
 import { GeneralSection } from "@/features/events/components/create-event/general-section";
 import { PlayersSection } from "@/features/events/components/create-event/players-section";
 import { ScheduleSection } from "@/features/events/components/create-event/schedule-section";
-import { DEFAULT_CITY_ID } from "@/features/events/lib/cities";
 import {
   CREATE_EVENT_LIMITS,
   createEventSchema,
   type CreateEventFormInput,
   type CreateEventFormValues,
 } from "@/features/events/schemas/create-event.schema";
+import { usePreferredCity } from "@/features/locations";
 
 interface CreateEventFormProps {
   isPending: boolean;
+  isDisabled: boolean;
   errorKey: TranslationKey | null;
   onSubmit: (values: CreateEventFormValues) => void;
   onCancel: () => void;
 }
 
-const DEFAULT_VALUES: CreateEventFormInput = {
+const DEFAULT_VALUES: Omit<CreateEventFormInput, "city"> = {
   title: "",
   gameTitle: "",
   description: "",
   date: "",
   time: "",
-  city: DEFAULT_CITY_ID,
+  venueName: "",
   address: "",
   maxPlayers: CREATE_EVENT_LIMITS.playersMin,
   price: 0,
   coverImage: null,
 };
 
-export function CreateEventForm({ isPending, errorKey, onSubmit, onCancel }: CreateEventFormProps) {
+export function CreateEventForm({
+  isPending,
+  isDisabled,
+  errorKey,
+  onSubmit,
+  onCancel,
+}: CreateEventFormProps) {
   const { t } = useTranslation();
-  const form = useAppForm(createEventSchema, { defaultValues: DEFAULT_VALUES });
+  const preferredCity = usePreferredCity();
+  const form = useAppForm(createEventSchema, {
+    defaultValues: { ...DEFAULT_VALUES, city: preferredCity?.name ?? "" },
+  });
 
   return (
     <FormProvider {...form}>
@@ -53,17 +63,23 @@ export function CreateEventForm({ isPending, errorKey, onSubmit, onCancel }: Cre
         <div className="space-y-3 border-t pt-5">
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-muted-foreground">{t("common.requiredFields")}</p>
-            <div className="flex gap-3">
+            <div className="flex flex-col-reverse gap-3 sm:flex-row">
               <Button
                 type="button"
                 variant="outline"
                 size="xl"
-                className="flex-1 sm:flex-none"
+                className="w-full sm:w-auto"
                 onClick={onCancel}
               >
                 {t("common.cancel")}
               </Button>
-              <Button type="submit" size="xl" className="flex-1 sm:flex-none" isLoading={isPending}>
+              <Button
+                type="submit"
+                size="xl"
+                className="w-full sm:w-auto"
+                isLoading={isPending}
+                disabled={isDisabled}
+              >
                 {t("events.create.submit")}
               </Button>
             </div>

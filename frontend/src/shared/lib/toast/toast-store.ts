@@ -1,34 +1,32 @@
-import { create } from "zustand";
+import type { CSSProperties } from "react";
+import { toast } from "sonner";
 
-export type ToastTone = "success" | "info";
+type ToastTone = "success" | "error" | "info";
 
-export interface Toast {
-  id: number;
-  message: string;
-  tone: ToastTone;
+interface ToastOptions {
+  tone?: ToastTone;
+  description?: string;
 }
 
-interface ToastState {
-  toasts: Toast[];
-  nextId: number;
+/** Errors stay longer so they are not missed. */
+const DURATION_MS: Record<ToastTone, number> = { success: 5000, info: 5000, error: 8000 };
+
+const SHOW = { success: toast.success, info: toast.info, error: toast.error } as const;
+
+/** The timer bar in `styles/toaster.css` drains over the same time sonner waits to dismiss. */
+function timerStyle(durationMs: number): CSSProperties {
+  // React's style type has no custom properties; this one is read by `toaster.css`.
+  return { "--toast-duration": `${durationMs}ms` } as CSSProperties;
 }
 
-const useToastStore = create<ToastState>(() => ({ toasts: [], nextId: 1 }));
-
-/** The one mechanism for transient notices (logged out, saved, …). Text must already be translated. */
-export function showToast(message: string, tone: ToastTone = "success"): void {
-  useToastStore.setState((state) => ({
-    toasts: [...state.toasts, { id: state.nextId, message, tone }],
-    nextId: state.nextId + 1,
-  }));
-}
-
-export function dismissToast(id: number): void {
-  useToastStore.setState((state) => ({
-    toasts: state.toasts.filter((toast) => toast.id !== id),
-  }));
-}
-
-export function useToasts(): Toast[] {
-  return useToastStore((state) => state.toasts);
+/**
+ * The one mechanism for transient feedback (saved, cancelled, failed…), rendered by the `Toaster`
+ * in the app shell. Text must already be translated.
+ */
+export function showToast(
+  message: string,
+  { tone = "success", description }: ToastOptions = {},
+): void {
+  const duration = DURATION_MS[tone];
+  SHOW[tone](message, { description, duration, style: timerStyle(duration) });
 }

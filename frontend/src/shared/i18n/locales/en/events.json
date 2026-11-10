@@ -1,15 +1,10 @@
 {
   "free": "Free",
   "promoted": "Promoted",
-  "cities": {
-    "kyiv": "Kyiv, Ukraine",
-    "lviv": "Lviv, Ukraine",
-    "kharkiv": "Kharkiv, Ukraine",
-    "dnipro": "Dnipro, Ukraine"
-  },
   "card": {
-    "distance": "{{km}} km away",
-    "participants": "{{current}} of {{max}} participants"
+    "participants": "{{current}} of {{max}} participants",
+    "placeWithDistance": "{{place}} · {{km}} km away",
+    "favorite": "Favorite: {{title}}"
   },
   "pagination": {
     "summary": "Showing {{from}}–{{to}} of {{total}} events"
@@ -21,7 +16,7 @@
     "found_one": "{{count}} event found",
     "found_other": "{{count}} events found",
     "emptyTitle": "No events match these filters",
-    "emptyDescription": "Try increasing the distance or picking another city."
+    "emptyDescription": "Try clearing some filters or changing your search."
   },
   "collection": {
     "found_one": "{{count}} event",
@@ -30,17 +25,28 @@
   "myEvents": {
     "title": "My events",
     "emptyTitle": "You have not created any events yet",
-    "emptyDescription": "Create your first board game event and manage it here."
+    "emptyDescription": "Create your first board game event and manage it here.",
+    "statusLabel": "Status",
+    "allStatuses": "All statuses",
+    "noMatchTitle": "No events with this status",
+    "noMatchDescription": "Pick another status to see the rest of your events."
   },
   "myBookings": {
     "title": "My bookings",
     "emptyTitle": "You have no bookings yet",
-    "emptyDescription": "Apply to an event in the catalog to see your bookings here."
+    "emptyDescription": "Apply to an event in the catalog to see your bookings here.",
+    "found_one": "{{count}} booking",
+    "found_other": "{{count}} bookings",
+    "sortNewest": "Newest bookings",
+    "sortOldest": "Oldest bookings"
   },
   "favorites": {
     "title": "Favorites",
     "emptyTitle": "You have no favorite events yet",
-    "emptyDescription": "Save events with the heart button to find them quickly here."
+    "emptyDescription": "Save events with the heart button to find them quickly here.",
+    "added": "Added to favorites",
+    "removed": "Removed from favorites",
+    "toggleFailed": "Couldn't update your favorites. Please try again."
   },
   "filters": {
     "title": "Filters",
@@ -53,7 +59,26 @@
     "clearAll": "Clear all",
     "show": "Show results",
     "showResults_one": "Show {{count}} result",
-    "showResults_other": "Show {{count}} results"
+    "showResults_other": "Show {{count}} results",
+    "date": "Date",
+    "dateFrom": "From",
+    "dateTo": "To",
+    "datePresets": "Quick dates",
+    "today": "Today",
+    "weekend": "This weekend",
+    "month": "This month",
+    "cost": "Entry cost",
+    "costMin": "Minimum cost",
+    "costMax": "Maximum cost",
+    "freeOnly": "Free only",
+    "withFreeSeats": "Only with free seats",
+    "seats": "Free seats",
+    "seatsValue_one": "At least {{count}} seat",
+    "seatsValue_other": "At least {{count}} seats",
+    "rating": "Minimum organizer rating",
+    "ratingOption_one": "{{count}} star & up",
+    "ratingOption_other": "{{count}} stars & up",
+    "anyDate": "Any date"
   },
   "details": {
     "pageTitle": "Event",
@@ -86,15 +111,30 @@
     "seatsTotal_one": "{{count}} seat total",
     "seatsTotal_other": "{{count}} seats total",
     "apply": "Apply",
-    "pending": "Application pending",
-    "approved": "You're going",
+    "pending": "Waiting for organizer's approval",
+    "approved": "Approved",
     "waitlist": "You're on the waitlist",
     "hosting": "You're hosting this event",
     "full": "No seats left",
     "closed": "Bookings closed",
     "failed": "Couldn't send your application. Please try again.",
     "reviewNote": "The organizer will review your request after submission.",
-    "payAtVenue": "Pay at the venue after approval"
+    "payAtVenue": "Pay at the venue after approval",
+    "hostTitle": "Cost of the seat at the table",
+    "goToPlayers": "Go to the list of players",
+    "rejected": "Request declined",
+    "cancel": "Cancel booking",
+    "cancelFailed": "Couldn't cancel your booking. Please try again.",
+    "cancelDialog": {
+      "title": "Cancel your application?",
+      "description": "Are you sure you want to cancel your seat? It will immediately become available for other players.",
+      "keep": "Keep my seat",
+      "confirm": "Yes, cancel request"
+    },
+    "applied": "Request sent",
+    "appliedDescription": "The organizer will review it soon.",
+    "cancelled": "Booking cancelled",
+    "players": "Players"
   },
   "create": {
     "title": "Create new event",
@@ -130,14 +170,76 @@
       "time": "Start time",
       "city": "City",
       "address": "Address or venue",
-      "addressPlaceholder": "Street, building, or venue name",
-      "addressHint": "Type the full street address or the venue name",
+      "addressPlaceholder": "Street and building number",
+      "addressHint": "Players use it to find the venue on a map",
       "seats": "Max players",
       "seatsHint": "Including you, {{min}}–{{max}} players",
       "seatsDecrease": "Fewer seats",
       "seatsIncrease": "More seats",
       "price": "Price per player (UAH)",
-      "priceHint": "Set 0 for a free session"
-    }
+      "priceHint": "Set 0 for a free session",
+      "venueName": "Venue name",
+      "venueNamePlaceholder": "e.g., The Guild board game café"
+    },
+    "verifyEmailRequired": "Confirm your email to create events. Open the link we sent to {{email}}.",
+    "verifyEmailFirst": "Confirm your email before creating events.",
+    "toMyEvents": "Go to my events"
+  },
+  "search": {
+    "label": "Search events",
+    "placeholder": "Search events, games…",
+    "submit": "Search"
+  },
+  "sort": {
+    "label": "Sort by",
+    "distanceAsc": "Distance ↑",
+    "distanceDesc": "Distance ↓",
+    "dateAsc": "Date ↑",
+    "dateDesc": "Date ↓",
+    "costAsc": "Cost ↑",
+    "costDesc": "Cost ↓",
+    "nameAsc": "Name A–Z",
+    "nameDesc": "Name Z–A"
+  },
+  "bookingStatus": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "waitlist": "Waitlist",
+    "rejected": "Declined",
+    "cancelledByPlayer": "Cancelled by player",
+    "cancelledBySystem": "Cancelled",
+    "removedByOrganizer": "Removed",
+    "attended": "Attended",
+    "noShow": "No-show"
+  },
+  "participants": {
+    "title": "Participants ({{taken}}/{{total}} joined)",
+    "hostHint": "Booking requests for your event. Accept or decline pending ones.",
+    "playerHint": "Players confirmed for this table.",
+    "unnamed": "YupiBoard player",
+    "playerRating": "Player rating: {{rating}}",
+    "noRating": "No player rating yet",
+    "accept": "Accept",
+    "decline": "Decline",
+    "declineDialog": {
+      "title": "Decline this request?",
+      "description": "{{name}} will be told their request was declined. This can't be undone.",
+      "confirm": "Yes, decline"
+    },
+    "decisionFailed": "Couldn't save your decision. Please try again.",
+    "noRequests": "No booking requests yet.",
+    "noPlayers": "No confirmed players yet.",
+    "pagination": "Showing {{from}}–{{to}} of {{total}} requests",
+    "accepted": "Request accepted",
+    "waitlisted": "The table is full, so the player was added to the waitlist",
+    "declined": "Request declined"
+  },
+  "eventStatus": {
+    "onModeration": "On moderation",
+    "rejected": "Rejected",
+    "published": "Published",
+    "ongoing": "Happening now",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
   }
 }

@@ -9,7 +9,6 @@ import { sessionTokenStore } from "@/features/auth/lib/session-storage";
 async function revokeRefreshToken(): Promise<void> {
   const refreshToken = sessionTokenStore.getRefreshToken();
   try {
-    // Revokes the refresh token server-side and clears the HttpOnly cookie.
     await logoutApiV1AuthLogoutPost(refreshToken ? { refresh_token: refreshToken } : {});
   } catch {
     // Server unreachable: the local session still ends.

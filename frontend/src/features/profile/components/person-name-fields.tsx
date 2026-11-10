@@ -10,7 +10,6 @@ interface PersonNameFieldsProps {
   className?: string;
 }
 
-/** First and last name; used inside both profile forms (via `FormProvider`). */
 export function PersonNameFields({ isPending, className }: PersonNameFieldsProps) {
   const { t } = useTranslation();
   const fieldError = useFieldError();

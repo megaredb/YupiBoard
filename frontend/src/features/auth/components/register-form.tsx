@@ -1,13 +1,13 @@
 import { Lock, Mail } from "lucide-react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { FormField } from "@/shared/components/form-field";
+import { CheckboxField } from "@/shared/components/checkbox-field";
 import { TextField } from "@/shared/components/text-field";
 import { useAppForm } from "@/shared/hooks/use-app-form";
 import { useFieldError } from "@/shared/i18n/use-field-error";
+import { applyServerFieldErrors } from "@/shared/lib/form/apply-server-field-errors";
 import { PASSWORD_LIMITS } from "@/shared/lib/validators/password";
 import { Button } from "@/shared/ui/button";
-import { Checkbox } from "@/shared/ui/checkbox";
 import {
   registerSchema,
   type RegisterFormInput,
@@ -16,7 +16,7 @@ import {
 
 interface RegisterFormProps {
   isPending: boolean;
-  onSubmit: (values: RegisterFormValues) => void;
+  onSubmit: (values: RegisterFormValues, onError: (error: unknown) => void) => void;
 }
 
 const DEFAULT_VALUES: RegisterFormInput = {
@@ -26,6 +26,8 @@ const DEFAULT_VALUES: RegisterFormInput = {
   isAdult: false,
 };
 
+const SERVER_FIELDS = ["email", "password"] as const;
+
 export function RegisterForm({ isPending, onSubmit }: RegisterFormProps) {
   const { t } = useTranslation();
   const fieldError = useFieldError();
@@ -33,11 +35,15 @@ export function RegisterForm({ isPending, onSubmit }: RegisterFormProps) {
     register,
     control,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useAppForm(registerSchema, { defaultValues: DEFAULT_VALUES });
+  const submit = handleSubmit((values) =>
+    onSubmit(values, (error) => applyServerFieldErrors(error, SERVER_FIELDS, setError)),
+  );
 
   return (
-    <form noValidate className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+    <form noValidate className="space-y-4" onSubmit={submit}>
       <TextField
         label={t("auth.fields.email")}
         type="email"
@@ -72,20 +78,13 @@ export function RegisterForm({ isPending, onSubmit }: RegisterFormProps) {
         control={control}
         name="isAdult"
         render={({ field }) => (
-          <FormField
+          <CheckboxField
             label={t("auth.register.ageConfirm")}
+            isChecked={field.value}
+            onCheckedChange={field.onChange}
             error={fieldError(errors.isAdult?.message)}
-            className="flex flex-row-reverse flex-wrap items-center justify-end gap-2.5 space-y-0 [&>p]:w-full"
-          >
-            {(fieldControl) => (
-              <Checkbox
-                {...fieldControl}
-                checked={field.value}
-                onCheckedChange={field.onChange}
-                disabled={isPending}
-              />
-            )}
-          </FormField>
+            isDisabled={isPending}
+          />
         )}
       />
       <Button type="submit" size="xl" className="w-full text-sm" isLoading={isPending}>

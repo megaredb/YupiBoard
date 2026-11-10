@@ -40,6 +40,11 @@ export function isApiError(error: unknown): error is ApiError {
   return error instanceof ApiError;
 }
 
+/** The server rejected specific fields; forms show these next to the fields, not as a banner. */
+export function hasFieldErrors(error: unknown): boolean {
+  return isApiError(error) && Boolean(error.fieldErrors);
+}
+
 function parseFieldErrors(detail: unknown): Record<string, string> | undefined {
   const parsed = validationDetailSchema.safeParse(detail);
   if (!parsed.success || parsed.data.length === 0) return undefined;

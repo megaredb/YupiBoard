@@ -40,12 +40,12 @@ export function EventFacts({ event }: { event: EventRead }) {
         />
         <Fact
           icon={<MapPin aria-hidden />}
-          title={event.game_title}
+          title={event.location_name || event.city}
           detail={<EventMapLink event={event} />}
         />
       </div>
 
-      <div className="space-y-2.5 rounded-2xl border border-border/60 bg-muted/40 p-4 lg:hidden">
+      <div className="space-y-2.5 rounded-2xl border border-border/60 bg-muted/40 p-4 desktop:hidden">
         <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <Users aria-hidden className="size-4" />
           <span>

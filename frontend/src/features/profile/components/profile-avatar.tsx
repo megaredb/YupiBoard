@@ -10,7 +10,6 @@ interface ProfileAvatarProps {
   isDisabled: boolean;
 }
 
-/** Plain avatar in view mode, the picker (with preview) in edit mode. */
 export function ProfileAvatar({
   user,
   isEditing,

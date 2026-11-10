@@ -1,63 +1,57 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { BrandLogo } from "@/shared/layout/brand-logo";
-import { Button } from "@/shared/ui/button";
-import { buttonVariants } from "@/shared/ui/button-variants";
-import { StatusMessage } from "@/shared/ui/status-message";
+import { Breadcrumbs } from "@/shared/components/breadcrumbs";
+import { FormAlert } from "@/shared/components/form-alert";
+import { PageContainer } from "@/shared/layout/page-container";
+import { PageHeader } from "@/shared/layout/page-header";
+import { useSignedInUser } from "@/features/auth";
 import { CreateEventForm } from "@/features/events/components/create-event/create-event-form";
+import { EventCreatedMessage } from "@/features/events/components/create-event/event-created-message";
 import { MobileTopBar } from "@/features/events/components/mobile-top-bar";
 import { useCreateEvent } from "@/features/events/hooks/use-create-event";
 import { useGoBack } from "@/features/events/hooks/use-go-back";
 
-/** `/events/new`: a focused flow without the app header and footer. */
 export function CreateEventPage() {
   const { t } = useTranslation();
   const goBack = useGoBack();
+  const user = useSignedInUser();
   const { createEvent, isPending, isCreated, errorKey } = useCreateEvent();
 
   return (
     <>
       <MobileTopBar onBack={goBack} title={t("events.create.title")} />
-      <div className="mx-auto w-full max-w-2xl px-4 pb-12 lg:pt-safe">
-        <div className="max-lg:hidden">
-          <Link to="/events" className="mt-6 inline-flex items-center rounded-lg">
-            <BrandLogo size="sm" />
-          </Link>
-          <div className="mt-5 flex items-center gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-lg"
-              aria-label={t("common.back")}
-              onClick={goBack}
-            >
-              <ArrowLeft aria-hidden />
-            </Button>
-            <h1 className="text-2xl font-bold tracking-tight">{t("events.create.title")}</h1>
-          </div>
+      <PageContainer size="narrow" className="pb-12 max-desktop:pt-4">
+        <div className="max-desktop:hidden">
+          <Breadcrumbs
+            className="mb-4"
+            label={t("common.breadcrumbs")}
+            items={[
+              { label: t("shell.nav.events"), to: "/events" },
+              { label: t("events.create.title") },
+            ]}
+          />
+          <PageHeader title={t("events.create.title")} />
         </div>
 
         {isCreated ? (
-          <StatusMessage
-            className="mt-6"
-            title={t("events.create.successTitle")}
-            description={t("events.create.successDescription")}
-            action={
-              <Link to="/events" className={buttonVariants({ size: "xl" })}>
-                {t("events.details.backToEvents")}
-              </Link>
-            }
-          />
+          <EventCreatedMessage />
         ) : (
           <>
-            <p className="mt-4 flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2.5 text-sm text-primary">
-              <Info aria-hidden className="size-4 shrink-0" />
-              {t("events.create.moderationBanner")}
-            </p>
+            <FormAlert
+              tone="info"
+              className="desktop:mt-5"
+              message={t("events.create.moderationBanner")}
+            />
+            {!user.is_verified && (
+              <FormAlert
+                tone="warning"
+                className="mt-3"
+                message={t("events.create.verifyEmailRequired", { email: user.email })}
+              />
+            )}
             <div className="mt-5">
               <CreateEventForm
                 isPending={isPending}
+                isDisabled={!user.is_verified}
                 errorKey={errorKey}
                 onSubmit={createEvent}
                 onCancel={goBack}
@@ -65,7 +59,7 @@ export function CreateEventPage() {
             </div>
           </>
         )}
-      </div>
+      </PageContainer>
     </>
   );
 }

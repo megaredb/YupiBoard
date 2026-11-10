@@ -4,10 +4,8 @@ import { BottomSheet } from "@/shared/ui/bottom-sheet";
 import { Button } from "@/shared/ui/button";
 import { CatalogFilterFields } from "@/features/events/components/event-catalog/catalog-filter-fields";
 import { useCatalogResultCount } from "@/features/events/hooks/use-catalog-result-count";
-import {
-  DEFAULT_CATALOG_FILTERS,
-  type CatalogFilters,
-} from "@/features/events/schemas/catalog-search.schema";
+import { clearCatalogFilters } from "@/features/events/lib/clear-catalog-filters";
+import type { CatalogFilters } from "@/features/events/schemas/catalog-search.schema";
 
 interface MobileFiltersSheetProps {
   isOpen: boolean;
@@ -52,7 +50,7 @@ function FiltersDraft({
   const { t } = useTranslation();
   const [draft, setDraft] = useState(initial);
   const resultCount = useCatalogResultCount(draft);
-  const handleClear = () => setDraft(DEFAULT_CATALOG_FILTERS);
+  const handleClear = () => setDraft(clearCatalogFilters(draft));
   const handleApply = () => onApply(draft);
 
   return (

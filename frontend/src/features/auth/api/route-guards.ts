@@ -5,7 +5,6 @@ import { isProfileComplete } from "@/features/auth/lib/is-profile-complete";
 import { toSafeRedirect } from "@/features/auth/lib/safe-redirect";
 import type { AuthRedirectSearch } from "@/features/auth/schemas/auth-redirect-search.schema";
 
-/** `beforeLoad` of the `_authenticated` layout: the only auth guard (RT-2). */
 export async function requireUser({
   context,
   location,
@@ -17,7 +16,6 @@ export async function requireUser({
   if (!user) throw redirect({ to: "/login", search: { redirect: location.href } });
 }
 
-/** `beforeLoad` of the `_public` layout: signed-in users skip `/login` and `/register`. */
 export async function redirectSignedInUser({
   context,
   search,

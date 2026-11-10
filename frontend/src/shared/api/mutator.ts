@@ -2,7 +2,6 @@ import axios, { type AxiosRequestConfig } from "axios";
 import { apiClient } from "@/shared/api/client";
 import { toApiError, type ApiError } from "@/shared/api/errors";
 
-/** Orval mutator: every request goes through `apiClient` and every failure becomes `ApiError`. */
 export async function customInstance<T>(
   config: AxiosRequestConfig,
   options?: AxiosRequestConfig,

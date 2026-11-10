@@ -2,18 +2,21 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   updateCurrentUserProfileApiV1UsersMePatch,
   uploadAvatarApiV1UsersMeAvatarPost,
+  uploadBannerApiV1UsersMeBannerPost,
 } from "@/shared/api/generated/endpoints/users/users";
 import type { UserRead } from "@/shared/api/generated/model";
 import { getApiErrorKey } from "@/shared/i18n/get-api-error-key";
 import type { TranslationKey } from "@/shared/i18n/translation-key";
 import { currentUserQueryOptions } from "@/features/auth";
 import { toUserUpdate } from "@/features/profile/lib/to-user-update";
-import type { CompleteProfileFormValues } from "@/features/profile/schemas/profile.schema";
+import type { ProfileUpdateValues } from "@/features/profile/schemas/profile.schema";
 
 interface ProfileUpdate {
-  values: CompleteProfileFormValues;
+  values: ProfileUpdateValues;
   /** Already validated and resized by the avatar picker. */
   avatar: File | null;
+  /** Already validated and resized by the banner picker; only "My profile" offers it. */
+  banner?: File | null;
 }
 
 interface UseUpdateProfileResult {
@@ -22,12 +25,14 @@ interface UseUpdateProfileResult {
   errorKey: TranslationKey | null;
 }
 
-/** Avatar upload + `PATCH /users/me`; the current user query is refreshed afterwards. */
 export function useUpdateProfile(onSuccess: (user: UserRead) => void): UseUpdateProfileResult {
   const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: async ({ values, avatar }: ProfileUpdate) => {
-      if (avatar) await uploadAvatarApiV1UsersMeAvatarPost({ file: avatar });
+    mutationFn: async ({ values, avatar, banner }: ProfileUpdate) => {
+      await Promise.all([
+        avatar && uploadAvatarApiV1UsersMeAvatarPost({ file: avatar }),
+        banner && uploadBannerApiV1UsersMeBannerPost({ file: banner }),
+      ]);
       return updateCurrentUserProfileApiV1UsersMePatch(toUserUpdate(values));
     },
     onSuccess: async (user) => {

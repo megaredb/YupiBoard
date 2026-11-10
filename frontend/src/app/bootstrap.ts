@@ -10,27 +10,18 @@ import { showToast } from "@/shared/lib/toast/toast-store";
 import { exitApp, onBackButton } from "@/shared/platform/back-button";
 import { onDeepLink } from "@/shared/platform/deep-links";
 import { initKeyboardInsets } from "@/shared/platform/keyboard";
+import { initPlatformAttribute } from "@/shared/platform/platform-attribute";
 import { initTheme } from "@/shared/platform/theme";
-import {
-  endSession,
-  getCachedCurrentUser,
-  onSessionEnded,
-  sessionTokenStore,
-} from "@/features/auth";
-import { resetProfileBio } from "@/features/profile";
-import { resetSavedEvents } from "@/features/saved-events";
+import { endSession, getCachedCurrentUser, sessionTokenStore } from "@/features/auth";
 
 type AppRouter = ReturnType<typeof createAppRouter>;
 
 function wireSession(router: AppRouter, queryClient: QueryClient): void {
-  onSessionEnded(() => {
-    resetSavedEvents();
-    resetProfileBio();
-  });
   onSessionExpired(() => {
     const redirect = router.state.location.href;
     // A guest hitting a protected endpoint had no session to expire; just ask them to sign in.
-    if (getCachedCurrentUser(queryClient)) showToast(i18next.t("auth.session.expired"), "info");
+    if (getCachedCurrentUser(queryClient))
+      showToast(i18next.t("auth.session.expired"), { tone: "info" });
     // Drop the user before navigating: while it is still cached, the guest-only `/login` guard
     // would send the user straight back to the page that just failed.
     void endSession(queryClient).then(() =>
@@ -47,12 +38,12 @@ function wireNativeNavigation(router: AppRouter): void {
   onDeepLink((href) => void router.navigate({ href }));
 }
 
-/** Everything that must happen once before the first render (ST-4). */
 export async function bootstrap(): Promise<{ router: AppRouter; queryClient: QueryClient }> {
   const env = readEnv();
   setRuntimeConfig(env);
   configureApiClient({ baseURL: env.apiBaseUrl, tokenStore: sessionTokenStore });
   await initI18n();
+  initPlatformAttribute();
   initTheme();
   initKeyboardInsets();
 

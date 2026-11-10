@@ -15,7 +15,7 @@ export function MobileTopBar({ onBack, title, actions }: MobileTopBarProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="sticky top-0 z-30 border-b border-border/50 bg-background/95 pt-safe backdrop-blur-md lg:hidden">
+    <div className="sticky top-0 z-30 border-b border-border/50 bg-background/95 pt-safe backdrop-blur-md desktop:hidden">
       <div className="flex h-14 w-full items-center gap-2 px-4">
         <Button
           type="button"

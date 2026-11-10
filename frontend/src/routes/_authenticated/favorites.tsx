@@ -1,15 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { interimAllEventsQueryOptions, pageSearchSchema } from "@/features/events";
+import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
+import { loadQuery } from "@/shared/api/load-query";
+import {
+  favoriteEventsQueryOptions,
+  PAGE_SEARCH_DEFAULTS,
+  pageSearchSchema,
+} from "@/features/events";
 import { FavoritesPage } from "@/features/events/pages/favorites-page";
-import { ensureSavedEvents } from "@/features/saved-events";
 
 export const Route = createFileRoute("/_authenticated/favorites")({
   validateSearch: pageSearchSchema,
-  loader: ({ context }) =>
-    Promise.all([
-      context.queryClient.query({ ...interimAllEventsQueryOptions(), staleTime: "static" }),
-      ensureSavedEvents(context.queryClient),
-    ]),
+  search: { middlewares: [stripSearchParams(PAGE_SEARCH_DEFAULTS)] },
+  loaderDeps: ({ search }) => ({ page: search.page }),
+  loader: ({ context, deps }) =>
+    loadQuery(context.queryClient, favoriteEventsQueryOptions(deps.page)),
   staticData: { titleKey: "events.favorites.title" },
   component: FavoritesPage,
 });

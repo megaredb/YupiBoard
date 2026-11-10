@@ -2,9 +2,9 @@ import { useState, type ComponentProps, type ReactNode } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { FormField } from "@/shared/components/form-field";
-import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/button";
-import { Input } from "@/shared/ui/input";
+import type { Input } from "@/shared/ui/input";
+import { InputGroup } from "@/shared/ui/input-group";
 
 interface TextFieldProps extends Omit<ComponentProps<typeof Input>, "id"> {
   label: string;
@@ -26,14 +26,13 @@ function PasswordToggle({ isVisible, onToggle }: { isVisible: boolean; onToggle:
       aria-pressed={isVisible}
       aria-label={t("common.showPassword")}
       onClick={onToggle}
-      className="absolute right-1.5 text-muted-foreground hover:bg-transparent hover:text-foreground"
+      className="text-muted-foreground hover:bg-transparent hover:text-foreground"
     >
       {isVisible ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
     </Button>
   );
 }
 
-/** `FormField` + `Input`, with optional icon, adornment and a show/hide toggle for passwords. */
 export function TextField({
   label,
   error,
@@ -43,7 +42,6 @@ export function TextField({
   startIcon,
   endAdornment,
   type,
-  className,
   ...inputProps
 }: TextFieldProps) {
   const [isPasswordVisible, setPasswordVisible] = useState(false);
@@ -52,7 +50,7 @@ export function TextField({
   const trailing = isPassword ? (
     <PasswordToggle isVisible={isPasswordVisible} onToggle={handleTogglePassword} />
   ) : (
-    endAdornment && <div className="absolute right-2 flex items-center">{endAdornment}</div>
+    endAdornment
   );
 
   return (
@@ -64,23 +62,15 @@ export function TextField({
       optionalText={optionalText}
     >
       {(fieldControl) => (
-        <div className="relative flex items-center">
-          {startIcon && (
-            <span
-              aria-hidden
-              className="pointer-events-none absolute left-3 flex items-center text-muted-foreground [&_svg]:size-4"
-            >
-              {startIcon}
-            </span>
-          )}
-          <Input
+        <InputGroup>
+          {startIcon && <InputGroup.Addon aria-hidden>{startIcon}</InputGroup.Addon>}
+          <InputGroup.Input
             {...fieldControl}
             {...inputProps}
             type={isPassword && isPasswordVisible ? "text" : type}
-            className={cn(startIcon && "pl-9", trailing && "pr-12", className)}
           />
-          {trailing}
-        </div>
+          {trailing && <InputGroup.Addon align="inline-end">{trailing}</InputGroup.Addon>}
+        </InputGroup>
       )}
     </FormField>
   );

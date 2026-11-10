@@ -9,6 +9,7 @@ export const CREATE_EVENT_LIMITS = {
   gameTitleMax: 150,
   descriptionMax: 2000,
   addressMax: 255,
+  venueNameMax: 150,
   playersMin: 2,
   playersMax: 20,
 } as const;
@@ -24,6 +25,7 @@ const MESSAGES = {
   dateFuture: "validation.dateFuture",
   addressRequired: "validation.addressRequired",
   addressMax: "validation.addressMax",
+  venueNameMax: "validation.venueNameMax",
   priceInvalid: "validation.priceInvalid",
 } as const satisfies Record<string, TranslationKey>;
 
@@ -51,6 +53,7 @@ export const createEventSchema = z
     date: z.string().min(1, MESSAGES.dateRequired),
     time: z.string().min(1, MESSAGES.timeRequired),
     city: z.string().min(1),
+    venueName: z.string().trim().max(CREATE_EVENT_LIMITS.venueNameMax, MESSAGES.venueNameMax),
     address: z
       .string()
       .trim()

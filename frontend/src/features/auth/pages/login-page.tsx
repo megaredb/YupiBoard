@@ -60,9 +60,11 @@ export function LoginPage() {
         <PasswordRecoveryDialog
           onClose={handleCloseRecovery}
           isPending={recovery.isPending}
-          isSent={recovery.isSent}
+          sentTo={recovery.sentTo}
           errorKey={recovery.errorKey}
           onSubmit={recovery.requestRecovery}
+          onResend={recovery.resend}
+          onChangeEmail={recovery.reset}
         />
       )}
     </AuthCard>

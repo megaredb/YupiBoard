@@ -12,7 +12,7 @@ export function PageHeader({ title, description, aside, className }: PageHeaderP
   return (
     <div className={cn("flex items-baseline justify-between gap-4", className)}>
       <div className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight lg:text-3xl">{title}</h1>
+        <h1 className="text-2xl font-bold tracking-tight desktop:text-3xl">{title}</h1>
         {description && <p className="text-sm text-muted-foreground">{description}</p>}
       </div>
       {aside}
