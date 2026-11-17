@@ -21,6 +21,9 @@ export function RatingTile({ label, icon, rating }: RatingTileProps) {
         </span>
         {rating && <span className="text-xs text-muted-foreground">{t("profile.outOfFive")}</span>}
       </div>
+      <p className="mt-0.5 text-xs text-muted-foreground">
+        {t("profile.reviewsCount", { count: 0 })}
+      </p>
     </div>
   );
 }

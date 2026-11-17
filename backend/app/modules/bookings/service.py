@@ -9,7 +9,12 @@ from app.core.exceptions import (
     ForbiddenException,
     NotFoundException,
 )
-from app.modules.bookings.models import Booking, BookingStatus
+from app.modules.bookings.models import (
+    ACTIVE_BOOKING_STATUSES,
+    BLOCKED_BOOKING_STATUSES,
+    Booking,
+    BookingStatus,
+)
 from app.modules.bookings.repository import BookingRepository
 from app.modules.events.models import EventStatus
 from app.modules.events.repository import EventRepository
@@ -63,6 +68,10 @@ class BookingService:
             event.id, player.id
         )
         if existing_active is not None:
+            if existing_active.status in BLOCKED_BOOKING_STATUSES:
+                raise ForbiddenException(
+                    "You have been disqualified from this event and cannot apply again"
+                )
             raise ConflictException(
                 "Active booking request already exists for this event"
             )
@@ -130,6 +139,7 @@ class BookingService:
         booking_id: uuid.UUID,
         organizer: User,
         approve: bool,
+        reason: str | None = None,
     ) -> Booking:
         event = await self.event_repo.lock_event(event_id)
         if event is None:
@@ -142,24 +152,39 @@ class BookingService:
         if booking is None:
             raise NotFoundException("Booking not found")
         if not approve:
+            clean_reason = reason.strip() if reason and reason.strip() else None
+            meta = {
+                "event_id": str(event.id),
+                "booking_id": str(booking.id),
+                "event_title": event.title,
+                **({"reason": clean_reason} if clean_reason else {}),
+            }
             if booking.status == BookingStatus.CONFIRMED:
                 await self.event_repo.update(
                     event, current_confirmed=max(0, event.current_confirmed - 1)
                 )
-                updated = await self.booking_repo.update(
-                    booking, status=BookingStatus.REMOVED_BY_ORGANIZER
+                updated = (
+                    await self.booking_repo.update(
+                        booking,
+                        status=BookingStatus.REMOVED_BY_ORGANIZER,
+                        rejection_reason=clean_reason,
+                    )
+                    if clean_reason is not None
+                    else await self.booking_repo.update(
+                        booking, status=BookingStatus.REMOVED_BY_ORGANIZER
+                    )
                 )
                 if self.notification_service is not None:
+                    msg = f"The organizer has removed your confirmed seat for {event.title}."
+                    if clean_reason:
+                        msg = f"{msg} Reason: {clean_reason}"
                     await self.notification_service.notify(
                         NotificationCreate(
                             user_id=booking.user_id,
                             notification_type=NotificationType.BOOKING_REMOVED_BY_ORGANIZER,
                             title="Removed from Event",
-                            message=f"The organizer has removed your confirmed seat for {event.title}.",
-                            metadata_payload={
-                                "event_id": str(event.id),
-                                "booking_id": str(booking.id),
-                            },
+                            message=msg,
+                            metadata_payload=meta,
                         )
                     )
                 return updated
@@ -167,20 +192,28 @@ class BookingService:
                 raise BadRequestException(
                     "Only pending or confirmed bookings can be declined"
                 )
-            updated = await self.booking_repo.update(
-                booking, status=BookingStatus.REJECTED
+            updated = (
+                await self.booking_repo.update(
+                    booking,
+                    status=BookingStatus.REJECTED,
+                    rejection_reason=clean_reason,
+                )
+                if clean_reason is not None
+                else await self.booking_repo.update(
+                    booking, status=BookingStatus.REJECTED
+                )
             )
             if self.notification_service is not None:
+                msg = f"Your booking request for {event.title} was declined by the organizer."
+                if clean_reason:
+                    msg = f"{msg} Reason: {clean_reason}"
                 await self.notification_service.notify(
                     NotificationCreate(
                         user_id=booking.user_id,
                         notification_type=NotificationType.BOOKING_REJECTED,
                         title="Application Declined",
-                        message=f"Your booking request for {event.title} was declined by the organizer.",
-                        metadata_payload={
-                            "event_id": str(event.id),
-                            "booking_id": str(booking.id),
-                        },
+                        message=msg,
+                        metadata_payload=meta,
                     )
                 )
             return updated
@@ -240,7 +273,7 @@ class BookingService:
                 "Registration cancellation is closed after the start time"
             )
         booking = await self.booking_repo.get_active_booking(event_id, player_id)
-        if booking is None:
+        if booking is None or booking.status not in ACTIVE_BOOKING_STATUSES:
             raise NotFoundException("Active booking not found")
         if booking.status == BookingStatus.CONFIRMED:
             # probably bad idea who cares anyway

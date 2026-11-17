@@ -2,6 +2,7 @@ import { Lock, Mail } from "lucide-react";
 import { Controller, type Control, type FieldErrors } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { CheckboxField } from "@/shared/components/checkbox-field";
+import { TermsConsentLabel } from "@/shared/components/terms-consent-label";
 import { TextField } from "@/shared/components/text-field";
 import { useAppForm } from "@/shared/hooks/use-app-form";
 import { useFieldError } from "@/shared/i18n/use-field-error";
@@ -62,7 +63,7 @@ function RegisterConsentCheckboxes({
         name="acceptedTerms"
         render={({ field }) => (
           <CheckboxField
-            label={t("auth.register.termsConfirm")}
+            label={<TermsConsentLabel />}
             isChecked={field.value}
             onCheckedChange={field.onChange}
             isRequired

@@ -141,6 +141,7 @@ class SortOrder(StrEnum):
 class EventFilterParams(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=100)
     organizer_id: uuid.UUID | None = None
+    participant_id: uuid.UUID | None = None
     organizer_name: str | None = Field(
         default=None,
         min_length=1,
@@ -231,6 +232,7 @@ class EventRead(BaseModel):
     is_promoted: bool
     is_favorite: bool = False
     user_booking_status: BookingStatus | None = None
+    user_booking_rejection_reason: str | None = None
     organizer: EventOrganizerSummary
     created_at: datetime
     updated_at: datetime

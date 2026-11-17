@@ -79,7 +79,10 @@ function formatEventMessage(notification: NotificationRead, t: TFunction): strin
   const event =
     readMetaString(notification.metadata_payload, "event_title") ??
     rule.pattern.exec(notification.message)?.[1];
-  return event ? t(rule.key, { event }) : null;
+  if (!event) return null;
+  const baseMessage = t(rule.key, { event });
+  const reason = readMetaString(notification.metadata_payload, "reason");
+  return reason ? `${baseMessage} ${t("notifications.reason", { reason })}` : baseMessage;
 }
 
 function getLocalizedMessage(notification: NotificationRead, t: TFunction): string {

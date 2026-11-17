@@ -1,8 +1,9 @@
+import type { ReactNode } from "react";
 import { FormField } from "@/shared/components/form-field";
 import { Checkbox } from "@/shared/ui/checkbox";
 
 interface CheckboxFieldProps {
-  label: string;
+  label: ReactNode;
   isChecked: boolean;
   onCheckedChange: (isChecked: boolean) => void;
   isRequired?: boolean;

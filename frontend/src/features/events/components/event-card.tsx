@@ -23,17 +23,29 @@ interface EventCardProps {
   className?: string;
 }
 
+const LOW_SEATS_THRESHOLD = 0.3;
+
+type SeatsAvailability = "default" | "low" | "full";
+
 const participantsVariants = cva(
   "absolute right-3 bottom-3 z-10 inline-flex items-center gap-1.5 rounded-lg px-2 py-0.5 text-xs font-medium",
   {
     variants: {
-      isFree: {
-        true: "bg-muted text-primary",
-        false: "bg-secondary text-secondary-foreground",
+      availability: {
+        default: "bg-muted text-primary",
+        low: "bg-secondary text-secondary-foreground",
+        full: "bg-secondary-deep text-secondary-foreground",
       },
     },
   },
 );
+
+function getSeatsAvailability(current: number, max: number): SeatsAvailability {
+  if (max <= 0) return "default";
+  const remaining = Math.max(0, max - current);
+  if (remaining === 0) return "full";
+  return remaining / max < LOW_SEATS_THRESHOLD ? "low" : "default";
+}
 
 export function EventCard({
   title,
@@ -68,7 +80,7 @@ export function EventCard({
           </span>
         )}
         {organizer && <CardOrganizer organizer={organizer} />}
-        {participants && <CardParticipants participants={participants} isFree={price.isFree} />}
+        {participants && <CardParticipants participants={participants} />}
       </div>
 
       <Card.Content className="flex flex-1 flex-col gap-2 px-3 py-3">
@@ -101,13 +113,13 @@ export function EventCard({
 
 function CardParticipants({
   participants,
-  isFree,
 }: {
   participants: NonNullable<EventCardProps["participants"]>;
-  isFree: boolean;
 }) {
+  const availability = getSeatsAvailability(participants.current, participants.max);
+
   return (
-    <span aria-label={participants.label} className={participantsVariants({ isFree })}>
+    <span aria-label={participants.label} className={participantsVariants({ availability })}>
       <span aria-hidden>{`${participants.current} / ${participants.max}`}</span>
       <Users aria-hidden className="size-3.5 fill-current" />
     </span>

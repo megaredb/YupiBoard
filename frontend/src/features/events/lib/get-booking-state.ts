@@ -33,12 +33,8 @@ export function canCancelBooking(state: BookingState): boolean {
   return CANCELLABLE_STATES.has(state);
 }
 
-export function canApplyBooking(
-  state: BookingState,
-  event: Pick<EventRead, "status" | "available_seats">,
-): boolean {
-  if (state === "open") return true;
-  return state === "rejected" && event.status === "Published" && event.available_seats > 0;
+export function canApplyBooking(state: BookingState): boolean {
+  return state === "open";
 }
 
 export function getParticipantsViewer(state: BookingState): "host" | "participant" | null {

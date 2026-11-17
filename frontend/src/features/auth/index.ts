@@ -13,5 +13,6 @@ export { useSignedInUser } from "@/features/auth/hooks/use-signed-in-user";
 export { useLogout } from "@/features/auth/hooks/use-logout";
 export { inspectResetToken } from "@/features/auth/lib/reset-token-state";
 export { sessionTokenStore } from "@/features/auth/lib/session-storage";
+export { hasAcceptedTermsOnRegister } from "@/features/auth/lib/terms-consent";
 export { authRedirectSearchSchema } from "@/features/auth/schemas/auth-redirect-search.schema";
 export { tokenSearchSchema } from "@/features/auth/schemas/token-search.schema";

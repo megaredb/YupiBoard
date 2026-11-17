@@ -8,7 +8,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.core.repositories import BaseRepository
-from app.modules.bookings.models import ACTIVE_BOOKING_STATUSES, Booking, BookingStatus
+from app.modules.bookings.models import (
+    ACTIVE_BOOKING_STATUSES,
+    BLOCKED_BOOKING_STATUSES,
+    Booking,
+    BookingStatus,
+)
 from app.modules.events.models import Event
 from app.modules.users.models import User
 
@@ -26,8 +31,10 @@ class BookingRepository(BaseRepository[Booking]):
             .where(
                 Booking.event_id == event_id,
                 Booking.user_id == user_id,
-                Booking.status.in_(ACTIVE_BOOKING_STATUSES),
+                Booking.status.in_(ACTIVE_BOOKING_STATUSES | BLOCKED_BOOKING_STATUSES),
             )
+            .order_by(Booking.created_at.desc(), Booking.id.desc())
+            .limit(1)
         )
         return result.scalar_one_or_none()
 

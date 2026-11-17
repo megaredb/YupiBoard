@@ -1,12 +1,15 @@
-import { FormProvider } from "react-hook-form";
+import { Controller, FormProvider } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { UserRead } from "@/shared/api/generated/model";
+import { CheckboxField } from "@/shared/components/checkbox-field";
+import { TermsConsentLabel } from "@/shared/components/terms-consent-label";
 import { TextField } from "@/shared/components/text-field";
 import { useAppForm } from "@/shared/hooks/use-app-form";
 import { useFieldError } from "@/shared/i18n/use-field-error";
 import { applyServerFieldErrors } from "@/shared/lib/form/apply-server-field-errors";
 import { CONTACT_INFO_MAX_LENGTH } from "@/shared/lib/validators/contact-info";
 import { Button } from "@/shared/ui/button";
+import { hasAcceptedTermsOnRegister } from "@/features/auth";
 import { PersonNameFields } from "@/features/profile/components/person-name-fields";
 import { ProfileCityField } from "@/features/profile/components/profile-city-field";
 import {
@@ -25,12 +28,14 @@ const SERVER_FIELDS = ["first_name", "last_name", "city", "contact_info"] as con
 export function CompleteProfileForm({ user, isPending, onSubmit }: CompleteProfileFormProps) {
   const { t } = useTranslation();
   const fieldError = useFieldError();
+  const isAlreadyAccepted = hasAcceptedTermsOnRegister() || !user.is_verified;
   const form = useAppForm(completeProfileSchema, {
     defaultValues: {
       first_name: user.first_name ?? "",
       last_name: user.last_name ?? "",
       city: user.city ?? "",
       contact_info: user.contact_info ?? "",
+      acceptedTerms: isAlreadyAccepted,
     },
   });
   const { errors } = form.formState;
@@ -52,6 +57,22 @@ export function CompleteProfileForm({ user, isPending, onSubmit }: CompleteProfi
           disabled={isPending}
           {...form.register("contact_info")}
         />
+        {!isAlreadyAccepted && (
+          <Controller
+            control={form.control}
+            name="acceptedTerms"
+            render={({ field }) => (
+              <CheckboxField
+                label={<TermsConsentLabel />}
+                isChecked={field.value}
+                onCheckedChange={field.onChange}
+                isRequired
+                error={fieldError(errors.acceptedTerms?.message)}
+                isDisabled={isPending}
+              />
+            )}
+          />
+        )}
         <Button type="submit" size="xl" className="mt-2 w-full text-sm" isLoading={isPending}>
           {t("profile.complete.submit")}
         </Button>

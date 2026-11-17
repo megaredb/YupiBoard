@@ -142,6 +142,21 @@ class EventRepository(BaseRepository[Event]):
 
         if filters.organizer_id is not None:
             conditions.append(Event.organizer_id == filters.organizer_id)
+        if filters.participant_id is not None:
+            from app.modules.bookings.models import Booking, BookingStatus
+
+            conditions.append(
+                select(Booking.id)
+                .where(
+                    Booking.event_id == Event.id,
+                    Booking.user_id == filters.participant_id,
+                    Booking.status.in_(
+                        (BookingStatus.CONFIRMED, BookingStatus.ATTENDED)
+                    ),
+                )
+                .correlate(Event)
+                .exists()
+            )
         if filters.organizer_name:
             full_name = func.concat_ws(" ", User.first_name, User.last_name)
             conditions.append(
@@ -242,6 +257,22 @@ class EventRepository(BaseRepository[Event]):
 
         result = await self.session.scalar(
             select(Booking.status)
+            .where(
+                Booking.event_id == event_id,
+                Booking.user_id == user_id,
+            )
+            .order_by(Booking.created_at.desc(), Booking.id.desc())
+            .limit(1)
+        )
+        return result
+
+    async def get_user_booking_rejection_reason(
+        self, event_id: uuid.UUID, user_id: uuid.UUID
+    ) -> str | None:
+        from app.modules.bookings.models import Booking
+
+        result = await self.session.scalar(
+            select(Booking.rejection_reason)
             .where(
                 Booking.event_id == event_id,
                 Booking.user_id == user_id,

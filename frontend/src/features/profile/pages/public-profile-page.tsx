@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { EventList, EventPagination, useHostedEvents } from "@/features/events";
+import { cn } from "@/shared/lib/cn";
+import { EventList, EventPagination, useHostedEvents, useJoinedEvents } from "@/features/events";
 import { ProfileBanner } from "@/features/profile/components/profile-banner";
 import { ProfileSummaryCard } from "@/features/profile/components/profile-summary-card";
 import { usePublicUser } from "@/features/profile/hooks/use-public-user";
@@ -8,18 +10,75 @@ import { getFullName, UserAvatar } from "@/features/users";
 
 const route = getRouteApi("/users/$userId");
 
-// Only `UserPublicRead` fields are shown: it has no e-mail or contact info, and review counts and
-// joined events are not part of the public API yet.
+type PublicEventsTab = "hosted" | "joined";
+
+function PublicEventsTabBar({
+  activeTab,
+  hostedCount,
+  joinedCount,
+  subtitle,
+  onSelectTab,
+}: {
+  activeTab: PublicEventsTab;
+  hostedCount: number;
+  joinedCount: number;
+  subtitle: string;
+  onSelectTab: (tab: PublicEventsTab) => void;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onSelectTab("hosted")}
+          className={cn(
+            "h-9 cursor-pointer rounded-lg border px-4 text-xs font-medium transition-colors",
+            activeTab === "hosted"
+              ? "border-primary bg-primary text-primary-foreground shadow-xs"
+              : "border-border bg-muted/60 text-foreground hover:bg-muted",
+          )}
+        >
+          {t("profile.public.hostedEvents", { count: hostedCount })}
+        </button>
+        <button
+          type="button"
+          onClick={() => onSelectTab("joined")}
+          className={cn(
+            "h-9 cursor-pointer rounded-lg border px-4 text-xs font-medium transition-colors",
+            activeTab === "joined"
+              ? "border-primary bg-primary text-primary-foreground shadow-xs"
+              : "border-border bg-muted/60 text-foreground hover:bg-muted",
+          )}
+        >
+          {t("profile.public.joinedEvents", { count: joinedCount })}
+        </button>
+      </div>
+      <p className="text-xs text-muted-foreground">{subtitle}</p>
+    </div>
+  );
+}
+
 export function PublicProfilePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { userId } = route.useParams();
   const { page } = route.useSearch();
+  const [activeTab, setActiveTab] = useState<PublicEventsTab>("hosted");
   const user = usePublicUser(userId);
   const hosted = useHostedEvents(userId, page);
+  const joined = useJoinedEvents(userId, page);
   const name = getFullName(user) ?? t("profile.public.unnamedUser");
+  const firstName = user.first_name?.trim() || name;
+  const currentEvents = activeTab === "hosted" ? hosted : joined;
+
   const handlePageChange = (next: number) =>
     void navigate({ to: "/users/$userId", params: { userId }, search: { page: next } });
+  const handleTabChange = (nextTab: PublicEventsTab) => {
+    setActiveTab(nextTab);
+    if (page !== 1) handlePageChange(1);
+  };
 
   return (
     <div className="space-y-8 pb-12">
@@ -33,31 +92,36 @@ export function PublicProfilePage() {
             <UserAvatar name={name} avatarUrl={user.avatar_url} className="size-16 sm:size-20" />
           }
         />
-        {user.bio && (
-          <section className="space-y-2">
-            <h2 className="text-lg font-semibold">{t("profile.fields.bio")}</h2>
-            <p className="text-sm whitespace-pre-line text-muted-foreground">{user.bio}</p>
-          </section>
-        )}
         <section className="space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-lg font-semibold">{t("profile.public.hostedEvents")}</h2>
-            <p className="text-xs text-muted-foreground">
-              {t("profile.public.upcomingHostedBy", { name })}
-            </p>
-          </div>
+          <PublicEventsTabBar
+            activeTab={activeTab}
+            hostedCount={hosted.total ?? 0}
+            joinedCount={joined.total ?? 0}
+            subtitle={
+              activeTab === "hosted"
+                ? t("profile.public.upcomingHostedBy", { name: firstName })
+                : t("profile.public.upcomingJoinedBy", { name: firstName })
+            }
+            onSelectTab={handleTabChange}
+          />
           <EventList
-            state={hosted.list}
-            showOrganizer={false}
+            state={currentEvents.list}
+            showOrganizer={activeTab === "joined"}
             empty={{
-              title: t("profile.public.noHostedEvents"),
-              description: t("profile.public.noHostedEventsDescription"),
+              title:
+                activeTab === "hosted"
+                  ? t("profile.public.noHostedEvents")
+                  : t("profile.public.noJoinedEvents"),
+              description:
+                activeTab === "hosted"
+                  ? t("profile.public.noHostedEventsDescription")
+                  : t("profile.public.noJoinedEventsDescription"),
             }}
           />
           <EventPagination
             page={page}
-            total={hosted.total}
-            totalPages={hosted.totalPages}
+            total={currentEvents.total}
+            totalPages={currentEvents.totalPages}
             onPageChange={handlePageChange}
           />
         </section>

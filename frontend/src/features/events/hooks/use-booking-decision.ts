@@ -14,10 +14,11 @@ import { showToast } from "@/shared/lib/toast/toast-store";
 interface Decision {
   bookingId: string;
   isApproved: boolean;
+  reason?: string;
 }
 
 interface BookingDecision {
-  decide: (bookingId: string, isApproved: boolean) => void;
+  decide: (bookingId: string, isApproved: boolean, reason?: string) => void;
   pendingBookingId: string | null;
 }
 
@@ -32,10 +33,12 @@ export function useBookingDecision(eventId: string): BookingDecision {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: ({ bookingId, isApproved }: Decision) =>
+    mutationFn: ({ bookingId, isApproved, reason }: Decision) =>
       isApproved
         ? approveBookingApiV1EventsEventIdBookingsBookingIdApprovePost(eventId, bookingId)
-        : rejectBookingApiV1EventsEventIdBookingsBookingIdRejectPost(eventId, bookingId),
+        : rejectBookingApiV1EventsEventIdBookingsBookingIdRejectPost(eventId, bookingId, {
+            reason: reason ?? null,
+          }),
     onSuccess: (booking) => showToast(t(getDecisionMessageKey(booking))),
     onError: (error) =>
       showToast(t(getApiErrorKey(error, "events.participants.decisionFailed")), { tone: "error" }),
@@ -50,7 +53,7 @@ export function useBookingDecision(eventId: string): BookingDecision {
   });
 
   return {
-    decide: (bookingId, isApproved) => mutation.mutate({ bookingId, isApproved }),
+    decide: (bookingId, isApproved, reason) => mutation.mutate({ bookingId, isApproved, reason }),
     pendingBookingId: mutation.isPending ? mutation.variables.bookingId : null,
   };
 }

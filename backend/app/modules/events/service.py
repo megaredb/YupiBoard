@@ -86,6 +86,7 @@ class EventService:
             raise NotFoundException("Event not found")
         is_favorite = False
         user_booking_status = None
+        user_booking_rejection_reason = None
         if current_user is not None:
             is_favorite = await self.event_repo.is_event_favorite(
                 event.id, current_user.id
@@ -93,10 +94,20 @@ class EventService:
             user_booking_status = await self.event_repo.get_user_booking_status(
                 event.id, current_user.id
             )
+            if user_booking_status in (
+                BookingStatus.REJECTED,
+                BookingStatus.REMOVED_BY_ORGANIZER,
+            ):
+                user_booking_rejection_reason = (
+                    await self.event_repo.get_user_booking_rejection_reason(
+                        event.id, current_user.id
+                    )
+                )
         return self._to_read(
             event,
             is_favorite=is_favorite,
             user_booking_status=user_booking_status,
+            user_booking_rejection_reason=user_booking_rejection_reason,
         )
 
     async def update_event(
@@ -315,6 +326,7 @@ class EventService:
         event: Event,
         is_favorite: bool = False,
         user_booking_status: BookingStatus | None = None,
+        user_booking_rejection_reason: str | None = None,
     ) -> EventRead:
         now = datetime.now(UTC)
         is_promoted = bool(
@@ -351,6 +363,7 @@ class EventService:
             is_promoted=is_promoted,
             is_favorite=is_favorite,
             user_booking_status=user_booking_status,
+            user_booking_rejection_reason=user_booking_rejection_reason,
             organizer=organizer_summary,
             created_at=event.created_at,
             updated_at=event.updated_at,

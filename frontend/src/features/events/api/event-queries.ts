@@ -46,6 +46,14 @@ export function hostedEventsQueryOptions(organizerId: string, page: number) {
   });
 }
 
+export function joinedEventsQueryOptions(participantId: string, page: number) {
+  return getListEventsApiV1EventsGetQueryOptions({
+    participant_id: participantId,
+    page,
+    limit: EVENTS_PAGE_SIZE,
+  });
+}
+
 /** Every event the signed-in user created, unpublished ones included. */
 export function myCreatedEventsQueryOptions({ page, sort, status }: MyEventsSearch) {
   return getListMyCreatedEventsApiV1EventsMyCreatedGetQueryOptions({
