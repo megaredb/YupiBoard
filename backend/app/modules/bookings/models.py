@@ -4,7 +4,7 @@ import uuid
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Enum, ForeignKey, Index
+from sqlalchemy import Enum, ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.models import Base, TimestampMixin, UUIDMixin
@@ -32,6 +32,11 @@ ACTIVE_BOOKING_STATUSES = {
     BookingStatus.WAITLIST,
 }
 
+BLOCKED_BOOKING_STATUSES = {
+    BookingStatus.REJECTED,
+    BookingStatus.REMOVED_BY_ORGANIZER,
+}
+
 
 class Booking(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "bookings"
@@ -57,6 +62,7 @@ class Booking(Base, UUIDMixin, TimestampMixin):
         index=True,
         nullable=False,
     )
+    rejection_reason: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     event: Mapped[Event] = relationship("Event", lazy="selectin")
     user: Mapped[User] = relationship("User", lazy="selectin")

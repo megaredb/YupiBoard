@@ -60,6 +60,7 @@ class UserPublicRead(BaseModel):
     avatar_url: str | None = None
     banner_url: str | None = None
     city: str | None = None
+    contact_info: str | None = None
     bio: str | None = None
     rating_as_player: Decimal | None = None
     rating_as_organizer: Decimal | None = None

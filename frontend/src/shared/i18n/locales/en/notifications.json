@@ -8,6 +8,7 @@
   "entryFee": "Entry fee: {{amount}} UAH (Pay at venue after arrival)",
   "entryFree": "Entry fee: Free",
   "viewEvent": "View Event Details",
+  "reason": "Reason: {{reason}}",
   "types": {
     "BOOKING_REQUESTED": {
       "title": "New Booking Request",

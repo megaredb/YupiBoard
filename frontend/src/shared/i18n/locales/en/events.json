@@ -121,7 +121,6 @@
     "hostTitle": "Cost of the seat at the table",
     "goToPlayers": "Go to the list of players",
     "rejected": "Declined",
-    "reapply": "Try to apply again",
     "cancel": "Cancel booking",
     "cancelFailed": "Couldn't cancel your booking. Please try again.",
     "cancelDialog": {
@@ -221,9 +220,26 @@
     "accept": "Accept",
     "decline": "Decline",
     "declineDialog": {
-      "title": "Decline this request?",
-      "description": "{{name}} will be told their request was declined. This can't be undone.",
+      "title": "Decline or remove participant?",
+      "description": "Select the reason for declining or removing {{name}}. They will be notified and won't be able to apply to this event again.",
+      "reasonsLabel": "Reason (required)",
+      "reasons": {
+        "experience": "Experience level does not match this game",
+        "requirements": "Does not meet event requirements or rules",
+        "conduct": "Violation of community rules or misconduct",
+        "groupFull": "Seat reserved for a regular group member",
+        "other": "Specify another reason"
+      },
+      "otherPlaceholder": "Enter the reason for removal…",
+      "reasonRequired": "Please select at least one reason or enter your own.",
       "confirm": "Yes, decline"
+    },
+    "disqualified": {
+      "title": "Participation Declined",
+      "description": "The organizer has declined or removed your participation in this event. You cannot apply to this event again.",
+      "reasonLabel": "Reason from organizer:",
+      "defaultReason": "Decision of the event organizer",
+      "backToEvents": "Back to events catalog"
     },
     "decisionFailed": "Couldn't save your decision. Please try again.",
     "noRequests": "No booking requests yet.",

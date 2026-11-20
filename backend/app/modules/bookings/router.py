@@ -1,7 +1,7 @@
 import uuid
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Body, Depends, Query, status
 
 from app.modules.auth.dependencies import get_current_user, get_current_verified_user
 from app.modules.bookings.dependencies import get_booking_service
@@ -11,6 +11,7 @@ from app.modules.bookings.schemas import (
     BookingPage,
     BookingParticipantSummary,
     BookingRead,
+    BookingRejectRequest,
 )
 from app.modules.bookings.service import BookingService
 from app.modules.users.models import User
@@ -123,8 +124,15 @@ async def reject_booking(
     booking_id: uuid.UUID,
     current_user: Annotated[User, Depends(get_current_verified_user)],
     service: Annotated[BookingService, Depends(get_booking_service)],
+    payload: Annotated[BookingRejectRequest | None, Body()] = None,
 ) -> BookingRead:
-    booking = await service.decide(event_id, booking_id, current_user, approve=False)
+    booking = await service.decide(
+        event_id,
+        booking_id,
+        current_user,
+        approve=False,
+        reason=payload.reason if payload else None,
+    )
     return BookingRead.model_validate(booking)
 
 

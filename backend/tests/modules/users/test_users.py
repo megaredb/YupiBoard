@@ -59,9 +59,8 @@ async def test_get_public_user_profile_does_not_leak_email(
     assert data["id"] == str(user.id)
     assert data["first_name"] == "Public"
     assert data["last_name"] == "Figure"
-    # Crucial security assertion: email, contact_info, is_superuser must NOT be in public profile
+    # Crucial security assertion: email and is_superuser must NOT be in public profile
     assert "email" not in data
-    assert "contact_info" not in data
     assert "is_superuser" not in data
     assert "status" not in data
 

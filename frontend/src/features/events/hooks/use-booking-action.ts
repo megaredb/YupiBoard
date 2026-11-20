@@ -81,7 +81,7 @@ export function useBookingAction(event: EventRead): BookingAction {
 
   return {
     state,
-    canApply: canApplyBooking(state, event),
+    canApply: canApplyBooking(state),
     canCancel: canCancelBooking(state),
     isPending: create.isPending || cancel.isPending,
     apply,

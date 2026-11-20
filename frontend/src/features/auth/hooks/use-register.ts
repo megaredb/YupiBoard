@@ -3,6 +3,7 @@ import { registerApiV1AuthRegisterPost } from "@/shared/api/generated/endpoints/
 import type { TranslationKey } from "@/shared/i18n/translation-key";
 import { useSignInMutation } from "@/features/auth/hooks/use-sign-in-mutation";
 import { getSignInErrorKey } from "@/features/auth/lib/get-sign-in-error-key";
+import { markTermsAcceptedOnRegister } from "@/features/auth/lib/terms-consent";
 import type { RegisterFormValues } from "@/features/auth/schemas/register.schema";
 
 interface UseRegisterResult {
@@ -12,10 +13,11 @@ interface UseRegisterResult {
 }
 
 export function useRegister(redirectTo: string | undefined): UseRegisterResult {
-  const mutation = useSignInMutation(
-    ({ email, password }: RegisterFormValues) => registerApiV1AuthRegisterPost({ email, password }),
-    redirectTo,
-  );
+  const mutation = useSignInMutation(async ({ email, password }: RegisterFormValues) => {
+    const tokens = await registerApiV1AuthRegisterPost({ email, password });
+    markTermsAcceptedOnRegister();
+    return tokens;
+  }, redirectTo);
   return {
     register: (values, onError) => mutation.mutate(values, { onError }),
     isPending: mutation.isPending,

@@ -2,9 +2,13 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.modules.bookings.models import BookingStatus
+
+
+class BookingRejectRequest(BaseModel):
+    reason: str | None = Field(default=None, max_length=500)
 
 
 class BookingCreateResponse(BaseModel):
@@ -45,6 +49,7 @@ class BookingRead(BaseModel):
     event_id: uuid.UUID
     user_id: uuid.UUID
     status: BookingStatus
+    rejection_reason: str | None = None
     created_at: datetime
     updated_at: datetime
     event: BookingEventSummary | None = None

@@ -26,7 +26,7 @@ export function ParticipantRow({ participant, aside }: ParticipantRowProps) {
             to="/users/$userId"
             params={{ userId: participant.id }}
             search={{ page: 1 }}
-            className="block truncate rounded-sm text-sm font-medium text-foreground hover:underline"
+            className="block truncate text-sm font-medium text-foreground hover:underline"
           >
             {name}
           </Link>

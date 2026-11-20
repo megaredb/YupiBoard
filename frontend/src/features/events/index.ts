@@ -2,6 +2,7 @@ export {
   eventDetailsQueryOptions,
   favoriteEventsQueryOptions,
   hostedEventsQueryOptions,
+  joinedEventsQueryOptions,
   myBookingsQueryOptions,
   myCreatedEventsQueryOptions,
 } from "@/features/events/api/event-queries";
@@ -10,6 +11,7 @@ export { EventDetailsSkeleton } from "@/features/events/components/event-details
 export { EventList } from "@/features/events/components/event-list";
 export { EventPagination } from "@/features/events/components/event-pagination";
 export { useHostedEvents } from "@/features/events/hooks/use-hosted-events";
+export { useJoinedEvents } from "@/features/events/hooks/use-joined-events";
 export {
   CATALOG_SEARCH_DEFAULTS,
   catalogSearchSchema,

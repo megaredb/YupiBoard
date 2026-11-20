@@ -35,7 +35,7 @@ export function HostBookingList({ eventId, status, emptyText }: HostBookingListP
         showAccept={booking.status === "Pending"}
         isPending={decision.pendingBookingId === booking.id}
         isDisabled={decision.pendingBookingId !== null}
-        onDecide={(isApproved) => decision.decide(booking.id, isApproved)}
+        onDecide={(isApproved, reason) => decision.decide(booking.id, isApproved, reason)}
       />
     ) : (
       <BookingStatusBadge status={booking.status} />

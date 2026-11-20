@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ConfirmDialog } from "@/shared/components/confirm-dialog";
 import { Button } from "@/shared/ui/button";
+import { DeclineParticipantDialog } from "@/features/events/components/event-details/decline-participant-dialog";
 
 interface BookingDecisionButtonsProps {
   playerName: string;
   showAccept?: boolean;
   isPending: boolean;
   isDisabled: boolean;
-  onDecide: (isApproved: boolean) => void;
+  onDecide: (isApproved: boolean, reason?: string) => void;
 }
 
-/** "Accept" right away; "Decline" asks first, since a declined request cannot be reopened. */
+/** "Accept" right away; "Decline" asks for a mandatory reason first. */
 export function BookingDecisionButtons({
   playerName,
   showAccept = true,
@@ -22,7 +22,7 @@ export function BookingDecisionButtons({
   const { t } = useTranslation();
   const [isConfirming, setConfirming] = useState(false);
   const handleAccept = () => onDecide(true);
-  const handleDecline = () => onDecide(false);
+  const handleDecline = (reason: string) => onDecide(false, reason);
   const handleAskDecline = () => setConfirming(true);
   const handleCloseDialog = () => setConfirming(false);
 
@@ -47,11 +47,8 @@ export function BookingDecisionButtons({
         {t("events.participants.decline")}
       </Button>
       {isConfirming && (
-        <ConfirmDialog
-          title={t("events.participants.declineDialog.title")}
-          description={t("events.participants.declineDialog.description", { name: playerName })}
-          cancelLabel={t("common.cancel")}
-          confirmLabel={t("events.participants.declineDialog.confirm")}
+        <DeclineParticipantDialog
+          playerName={playerName}
           onConfirm={handleDecline}
           onClose={handleCloseDialog}
         />

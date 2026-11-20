@@ -10,7 +10,7 @@ export interface FieldControlProps {
 }
 
 interface FormFieldProps {
-  label: string;
+  label: ReactNode;
   isRequired?: boolean;
   optionalText?: string;
   hint?: string;
