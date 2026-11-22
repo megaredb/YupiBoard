@@ -191,6 +191,7 @@ async def test_get_public_event_permissions() -> None:
         lat=50.45,
         lon=30.52,
         start_datetime=datetime.now(UTC) + timedelta(days=1),
+        end_datetime=datetime.now(UTC) + timedelta(days=1, hours=4),
         min_players=2,
         max_players=4,
         current_confirmed=0,
@@ -254,6 +255,7 @@ async def test_update_event_permissions_and_rules() -> None:
         lat=50.45,
         lon=30.52,
         start_datetime=datetime.now(UTC) + timedelta(days=2),
+        end_datetime=datetime.now(UTC) + timedelta(days=2, hours=4),
         min_players=2,
         max_players=6,
         current_confirmed=3,
@@ -299,6 +301,7 @@ async def test_update_event_permissions_and_rules() -> None:
         lat=50.45,
         lon=30.52,
         start_datetime=event.start_datetime,
+        end_datetime=event.end_datetime,
         min_players=2,
         max_players=8,
         current_confirmed=3,
@@ -377,3 +380,220 @@ async def test_cancel_event_notifies_active_participants() -> None:
 
     event_repo.cancel_event.assert_awaited_once_with(event)
     notification_service.notify_many.assert_awaited_once()
+
+
+def _event_for_timing(**overrides: object) -> Event:
+    import uuid
+
+    from app.modules.users.models import User
+
+    organizer_id = uuid.uuid7()
+    now = datetime.now(UTC)
+    values: dict[str, object] = {
+        "id": uuid.uuid7(),
+        "organizer_id": organizer_id,
+        "organizer": User(id=organizer_id, email="org@example.com"),
+        "title": "Catan night",
+        "description": "Desc",
+        "game_title": "Catan",
+        "address": "Addr",
+        "city": "Kyiv",
+        "lat": 50.45,
+        "lon": 30.52,
+        "start_datetime": now - timedelta(hours=1),
+        "end_datetime": now + timedelta(hours=3),
+        "min_players": 2,
+        "max_players": 4,
+        "current_confirmed": 2,
+        "entry_cost": Decimal("0.00"),
+        "status": EventStatus.ONGOING,
+        "is_verified": True,
+        "is_deleted": False,
+        "created_at": now,
+        "updated_at": now,
+    }
+    values.update(overrides)
+    return Event(**values)
+
+
+def test_event_routes_include_complete() -> None:
+    paths = app.openapi()["paths"]
+    assert "post" in paths["/api/v1/events/{event_id}/complete"]
+
+
+def test_review_deadline_is_48h_after_end() -> None:
+    event = _event_for_timing()
+    assert event.review_deadline == event.end_datetime + timedelta(hours=48)
+
+
+@pytest.mark.asyncio
+async def test_create_event_defaults_end_to_four_hours_after_start() -> None:
+    import uuid
+    from unittest.mock import AsyncMock
+
+    from app.modules.events.service import EventService
+    from app.modules.users.models import User
+
+    event_repo = AsyncMock()
+    service = EventService(event_repo)
+    payload = EventCreate.model_validate(valid_event_data())
+
+    await service.create(User(id=uuid.uuid7(), email="org@example.com"), payload)
+
+    kwargs = event_repo.create.call_args.kwargs
+    assert kwargs["end_datetime"] == payload.start_datetime + timedelta(hours=4)
+
+
+@pytest.mark.asyncio
+async def test_create_event_keeps_explicit_end() -> None:
+    import uuid
+    from unittest.mock import AsyncMock
+
+    from app.modules.events.service import EventService
+    from app.modules.users.models import User
+
+    event_repo = AsyncMock()
+    service = EventService(event_repo)
+    data = valid_event_data()
+    start_dt = data["start_datetime"]
+    assert isinstance(start_dt, datetime)
+    data["end_datetime"] = start_dt + timedelta(hours=2)
+    payload = EventCreate.model_validate(data)
+
+    await service.create(User(id=uuid.uuid7(), email="org@example.com"), payload)
+
+    kwargs = event_repo.create.call_args.kwargs
+    assert kwargs["end_datetime"] == start_dt + timedelta(hours=2)
+
+
+@pytest.mark.asyncio
+async def test_update_event_shifts_end_when_start_moves() -> None:
+    from unittest.mock import AsyncMock
+
+    from app.modules.events.schemas import EventUpdate
+    from app.modules.events.service import EventService
+
+    now = datetime.now(UTC)
+    event = _event_for_timing(
+        status=EventStatus.PUBLISHED,
+        start_datetime=now + timedelta(days=1),
+        end_datetime=now + timedelta(days=1, hours=3),
+    )
+    event_repo = AsyncMock()
+    event_repo.get_by_id_with_organizer.return_value = event
+    event_repo.update.return_value = event
+    event_repo.is_event_favorite.return_value = False
+    event_repo.get_user_booking_status.return_value = None
+    service = EventService(event_repo)
+
+    new_start = now + timedelta(days=2)
+    await service.update_event(
+        event.id, event.organizer, EventUpdate(start_datetime=new_start)
+    )
+
+    kwargs = event_repo.update.call_args.kwargs
+    assert kwargs["end_datetime"] == new_start + timedelta(hours=3)
+
+
+@pytest.mark.asyncio
+async def test_complete_event_sets_completed_and_end_now() -> None:
+    from unittest.mock import AsyncMock
+
+    from app.modules.events.service import EventService
+
+    event = _event_for_timing()
+    event_repo = AsyncMock()
+    event_repo.lock_event.return_value = event
+    event_repo.get_by_id_with_organizer.return_value = event
+    event_repo.is_event_favorite.return_value = False
+    event_repo.get_user_booking_status.return_value = None
+    service = EventService(event_repo)
+
+    before = datetime.now(UTC)
+    await service.complete(event.id, event.organizer)
+
+    kwargs = event_repo.update.call_args.kwargs
+    assert kwargs["status"] == EventStatus.COMPLETED
+    assert kwargs["end_datetime"] >= before
+
+
+@pytest.mark.asyncio
+async def test_complete_event_rejects_stranger_and_not_started() -> None:
+    import uuid
+    from unittest.mock import AsyncMock
+
+    from app.core.exceptions import BadRequestException, ForbiddenException
+    from app.modules.events.service import EventService
+    from app.modules.users.models import User
+
+    event_repo = AsyncMock()
+    service = EventService(event_repo)
+
+    event = _event_for_timing()
+    event_repo.lock_event.return_value = event
+    stranger = User(id=uuid.uuid7(), email="x@example.com", is_superuser=False)
+    with pytest.raises(ForbiddenException):
+        await service.complete(event.id, stranger)
+
+    future = _event_for_timing(
+        status=EventStatus.PUBLISHED,
+        start_datetime=datetime.now(UTC) + timedelta(hours=1),
+    )
+    event_repo.lock_event.return_value = future
+    with pytest.raises(BadRequestException, match="Only an ongoing event"):
+        await service.complete(future.id, future.organizer)
+
+    done = _event_for_timing(status=EventStatus.COMPLETED)
+    event_repo.lock_event.return_value = done
+    with pytest.raises(BadRequestException, match="Only an ongoing event"):
+        await service.complete(done.id, done.organizer)
+
+
+@pytest.mark.asyncio
+async def test_advance_statuses_sends_review_reminders() -> None:
+    import uuid
+    from unittest.mock import AsyncMock
+
+    from app.modules.events.repository import CompletedEventRow
+    from app.modules.events.service import EventService
+    from app.modules.notifications.enums import NotificationType
+
+    organizer_id = uuid.uuid7()
+    player_id = uuid.uuid7()
+    row = CompletedEventRow(
+        id=uuid.uuid7(),
+        organizer_id=organizer_id,
+        title="Catan night",
+        end_datetime=datetime.now(UTC),
+    )
+    event_repo = AsyncMock()
+    event_repo.start_due_events.return_value = 1
+    event_repo.complete_due_events.return_value = [row]
+    event_repo.get_attended_user_ids.return_value = {row.id: [player_id]}
+    notification_service = AsyncMock()
+    service = EventService(event_repo, notification_service=notification_service)
+
+    started, completed = await service.advance_statuses(datetime.now(UTC))
+
+    assert (started, completed) == (1, 1)
+    sent = notification_service.notify_many.call_args.args[0]
+    assert {n.user_id for n in sent} == {organizer_id, player_id}
+    assert all(n.notification_type == NotificationType.REVIEW_REMINDER for n in sent)
+    roles = {n.user_id: n.metadata_payload["target_role"] for n in sent}
+    assert roles == {organizer_id: "Player", player_id: "Organizer"}
+
+
+@pytest.mark.asyncio
+async def test_advance_statuses_without_completed_sends_nothing() -> None:
+    from unittest.mock import AsyncMock
+
+    from app.modules.events.service import EventService
+
+    event_repo = AsyncMock()
+    event_repo.start_due_events.return_value = 0
+    event_repo.complete_due_events.return_value = []
+    notification_service = AsyncMock()
+    service = EventService(event_repo, notification_service=notification_service)
+
+    assert await service.advance_statuses(datetime.now(UTC)) == (0, 0)
+    notification_service.notify_many.assert_not_awaited()

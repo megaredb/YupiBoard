@@ -16,7 +16,11 @@ from app.modules.bookings.models import (
     BookingStatus,
 )
 from app.modules.bookings.repository import BookingRepository
-from app.modules.events.models import EventStatus
+from app.modules.events.models import (
+    NOT_HELD_EVENT_STATUSES,
+    REVIEW_WINDOW,
+    EventStatus,
+)
 from app.modules.events.repository import EventRepository
 from app.modules.notifications.enums import NotificationType
 from app.modules.notifications.schemas import NotificationCreate
@@ -297,6 +301,67 @@ class BookingService:
                 )
             )
         return updated
+
+    async def mark_attendance(
+        self,
+        event_id: uuid.UUID,
+        booking_id: uuid.UUID,
+        organizer: User,
+        attended: bool,
+    ) -> Booking:
+        event = await self.event_repo.get_by_id(event_id)
+        if event is None or event.is_deleted:
+            raise NotFoundException("Event not found")
+        if event.organizer_id != organizer.id and not organizer.is_superuser:
+            raise ForbiddenException("Only the event organizer can mark attendance")
+        now = datetime.now(UTC)
+        if (
+            event.status in NOT_HELD_EVENT_STATUSES
+            or now < event.start_datetime
+            or now > event.review_deadline
+        ):
+            raise BadRequestException(
+                "Attendance can only be marked after the event starts "
+                "and within 48 hours after it ends"
+            )
+        booking = await self.booking_repo.get_by_id_for_event(booking_id, event_id)
+        if booking is None:
+            raise NotFoundException("Booking not found")
+
+        new_status = BookingStatus.ATTENDED if attended else BookingStatus.NO_SHOW
+        if booking.status == new_status:
+            return booking
+        if booking.status == BookingStatus.ATTENDED:
+            raise ConflictException("Confirmed attendance cannot be revoked")
+        if booking.status not in (BookingStatus.CONFIRMED, BookingStatus.NO_SHOW):
+            raise BadRequestException(
+                "Attendance can only be marked for confirmed participants"
+            )
+
+        updated = await self.booking_repo.update(booking, status=new_status)
+        if attended and self.notification_service is not None:
+            if now >= event.end_datetime:
+                hint = "You can now rate the organizer within 48 hours."
+            else:
+                hint = "You can rate the organizer once the event ends."
+            await self.notification_service.notify(
+                NotificationCreate(
+                    user_id=booking.user_id,
+                    notification_type=NotificationType.ATTENDANCE_MARKED,
+                    title="Attendance Confirmed",
+                    message=f"Your attendance at {event.title} was confirmed. {hint}",
+                    metadata_payload={
+                        "event_id": str(event.id),
+                        "booking_id": str(booking.id),
+                        "review_deadline": event.review_deadline.isoformat(),
+                    },
+                )
+            )
+        return updated
+
+    async def expire_unmarked_attendance(self, now: datetime) -> int:
+        """After the review window closes, unmarked confirmed seats become NO_SHOW."""
+        return await self.booking_repo.mark_unmarked_as_no_show(now - REVIEW_WINDOW)
 
     async def list_confirmed_participants(
         self, event_id: uuid.UUID, viewer: User

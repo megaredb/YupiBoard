@@ -20,6 +20,13 @@ class UserRepository(BaseRepository[User]):
             return None
         return user
 
+    async def lock_by_id(self, user_id: uuid.UUID) -> User | None:
+        """Row lock so concurrent rating recalculations serialize per user."""
+        result = await self.session.execute(
+            select(User).where(User.id == user_id).with_for_update()
+        )
+        return result.scalar_one_or_none()
+
     async def get_by_email(self, email: str) -> User | None:
         query = select(User).where(User.email == email.strip().lower())
         result = await self.session.execute(query)

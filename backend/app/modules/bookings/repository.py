@@ -1,9 +1,10 @@
 import uuid
 from collections.abc import Sequence
+from datetime import datetime
 from math import ceil
 from typing import Literal
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -11,10 +12,11 @@ from app.core.repositories import BaseRepository
 from app.modules.bookings.models import (
     ACTIVE_BOOKING_STATUSES,
     BLOCKED_BOOKING_STATUSES,
+    SEATED_BOOKING_STATUSES,
     Booking,
     BookingStatus,
 )
-from app.modules.events.models import Event
+from app.modules.events.models import Event, EventStatus
 from app.modules.users.models import User
 
 
@@ -144,13 +146,41 @@ class BookingRepository(BaseRepository[Booking]):
         )
         return list(result.scalars().all()), total, ceil(total / limit) if total else 1
 
+    async def get_latest_for_user(
+        self, event_id: uuid.UUID, user_id: uuid.UUID
+    ) -> Booking | None:
+        result = await self.session.execute(
+            select(Booking)
+            .where(Booking.event_id == event_id, Booking.user_id == user_id)
+            .order_by(Booking.created_at.desc(), Booking.id.desc())
+            .limit(1)
+        )
+        return result.scalar_one_or_none()
+
+    async def mark_unmarked_as_no_show(self, ended_before: datetime) -> int:
+        """CONFIRMED -> NO_SHOW for completed events that ended before the cutoff."""
+        closed_events = select(Event.id).where(
+            Event.status == EventStatus.COMPLETED,
+            Event.end_datetime <= ended_before,
+        )
+        result = await self.session.execute(
+            update(Booking)
+            .where(
+                Booking.status == BookingStatus.CONFIRMED,
+                Booking.event_id.in_(closed_events),
+            )
+            .values(status=BookingStatus.NO_SHOW)
+            .execution_options(synchronize_session=False)
+        )
+        return int(getattr(result, "rowcount", 0) or 0)
+
     async def get_confirmed_participants(self, event_id: uuid.UUID) -> Sequence[User]:
         result = await self.session.execute(
             select(User)
             .join(Booking, Booking.user_id == User.id)
             .where(
                 Booking.event_id == event_id,
-                Booking.status == BookingStatus.CONFIRMED,
+                Booking.status.in_(SEATED_BOOKING_STATUSES),
             )
             .order_by(Booking.created_at.asc())
         )
@@ -165,7 +195,7 @@ class BookingRepository(BaseRepository[Booking]):
             .where(
                 Booking.event_id == event_id,
                 Booking.user_id == user_id,
-                Booking.status == BookingStatus.CONFIRMED,
+                Booking.status.in_(SEATED_BOOKING_STATUSES),
             )
         )
         return bool(count and count > 0)

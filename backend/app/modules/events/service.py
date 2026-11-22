@@ -8,8 +8,8 @@ from app.core.exceptions import (
     NotFoundException,
 )
 from app.modules.bookings.models import BookingStatus
-from app.modules.events.models import Event, EventStatus
-from app.modules.events.repository import EventRepository
+from app.modules.events.models import DEFAULT_EVENT_DURATION, Event, EventStatus
+from app.modules.events.repository import CompletedEventRow, EventRepository
 from app.modules.events.schemas import (
     EventCreate,
     EventFilterParams,
@@ -38,6 +38,8 @@ class EventService:
         values = data.model_dump()
         if values.get("photo_url") is not None:
             values["photo_url"] = str(values["photo_url"])
+        if values.get("end_datetime") is None:
+            values["end_datetime"] = data.start_datetime + DEFAULT_EVENT_DURATION
 
         return await self.event_repo.create(
             **values,
@@ -139,9 +141,16 @@ class EventService:
                 "max_players cannot be less than confirmed players"
             )
 
+        if updates.get("end_datetime") is None:
+            updates.pop("end_datetime", None)
+            if "start_datetime" in updates:
+                # Moving the start keeps the original duration.
+                duration = event.end_datetime - event.start_datetime
+                updates["end_datetime"] = updates["start_datetime"] + duration
+
         start_dt = updates.get("start_datetime", event.start_datetime)
         end_dt = updates.get("end_datetime", event.end_datetime)
-        if end_dt and end_dt <= start_dt:
+        if end_dt <= start_dt:
             raise BadRequestException("end_datetime must be later than start_datetime")
 
         updates.pop("status", None)
@@ -275,6 +284,85 @@ class EventService:
             )
         return cancelled_event
 
+    async def complete(self, event_id: uuid.UUID, user: User) -> EventRead:
+        event = await self.event_repo.lock_event(event_id)
+        if event is None:
+            raise NotFoundException("Event not found")
+        if event.organizer_id != user.id and not user.is_superuser:
+            raise ForbiddenException("Only the event organizer can complete this event")
+        now = datetime.now(UTC)
+        if (
+            event.status not in (EventStatus.PUBLISHED, EventStatus.ONGOING)
+            or event.start_datetime > now
+        ):
+            raise BadRequestException("Only an ongoing event can be completed")
+
+        # Ending early moves end_datetime, so the 48h review window starts now.
+        await self.event_repo.update(
+            event, status=EventStatus.COMPLETED, end_datetime=now
+        )
+        reloaded = await self.event_repo.get_by_id_with_organizer(event.id)
+        target_event = reloaded or event
+        user_booking_status = await self.event_repo.get_user_booking_status(
+            target_event.id, user.id
+        )
+        is_favorite = await self.event_repo.is_event_favorite(target_event.id, user.id)
+        return self._to_read(
+            target_event,
+            is_favorite=is_favorite,
+            user_booking_status=user_booking_status,
+        )
+
+    async def advance_statuses(self, now: datetime) -> tuple[int, int]:
+        """Scheduled transition PUBLISHED -> ONGOING -> COMPLETED.
+
+        Returns (started, completed) counts. Organizers and attended players of
+        newly completed events are reminded to leave reviews.
+        """
+        started = await self.event_repo.start_due_events(now)
+        completed = await self.event_repo.complete_due_events(now)
+        if completed and self.notification_service is not None:
+            await self._send_review_reminders(completed)
+        return started, len(completed)
+
+    async def _send_review_reminders(self, events: list[CompletedEventRow]) -> None:
+        if self.notification_service is None:
+            return
+        attended = await self.event_repo.get_attended_user_ids(
+            [event.id for event in events]
+        )
+        reminders: list[NotificationCreate] = []
+        for event in events:
+            meta = {
+                "event_id": str(event.id),
+                "review_deadline": event.review_deadline.isoformat(),
+            }
+            reminders.append(
+                NotificationCreate(
+                    user_id=event.organizer_id,
+                    notification_type=NotificationType.REVIEW_REMINDER,
+                    title="Event Finished",
+                    message=(
+                        f"{event.title} has finished. Mark attendance and rate "
+                        "your players within 48 hours."
+                    ),
+                    metadata_payload={**meta, "target_role": "Player"},
+                )
+            )
+            reminders.extend(
+                NotificationCreate(
+                    user_id=player_id,
+                    notification_type=NotificationType.REVIEW_REMINDER,
+                    title="Rate the Organizer",
+                    message=(
+                        f"How was {event.title}? Rate the organizer within 48 hours."
+                    ),
+                    metadata_payload={**meta, "target_role": "Organizer"},
+                )
+                for player_id in attended.get(event.id, [])
+            )
+        await self.notification_service.notify_many(reminders)
+
     def _format_organizer_name(self, organizer: User) -> str:
         if organizer.first_name and organizer.last_name:
             return f"{organizer.first_name} {organizer.last_name[0]}."
@@ -308,6 +396,7 @@ class EventService:
             city=event.city,
             address=event.address,
             start_datetime=event.start_datetime,
+            end_datetime=event.end_datetime,
             entry_cost=event.entry_cost,
             max_players=event.max_players,
             current_confirmed=event.current_confirmed,
@@ -352,6 +441,7 @@ class EventService:
             lon=event.lon,
             start_datetime=event.start_datetime,
             end_datetime=event.end_datetime,
+            review_deadline=event.review_deadline,
             min_players=event.min_players,
             max_players=event.max_players,
             current_confirmed=event.current_confirmed,

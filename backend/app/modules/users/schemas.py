@@ -64,6 +64,8 @@ class UserPublicRead(BaseModel):
     bio: str | None = None
     rating_as_player: Decimal | None = None
     rating_as_organizer: Decimal | None = None
+    rating_as_player_count: int = 0
+    rating_as_organizer_count: int = 0
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
@@ -80,6 +82,8 @@ class UserRead(UserBase):
     bio: str | None = None
     rating_as_player: Decimal | None = None
     rating_as_organizer: Decimal | None = None
+    rating_as_player_count: int = 0
+    rating_as_organizer_count: int = 0
     status: UserStatus = UserStatus.ACTIVE
     is_verified: bool
     is_superuser: bool

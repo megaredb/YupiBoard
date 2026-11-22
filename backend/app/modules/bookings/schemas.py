@@ -11,6 +11,10 @@ class BookingRejectRequest(BaseModel):
     reason: str | None = Field(default=None, max_length=500)
 
 
+class AttendanceRequest(BaseModel):
+    attended: bool
+
+
 class BookingCreateResponse(BaseModel):
     booking_id: uuid.UUID
     event_id: uuid.UUID

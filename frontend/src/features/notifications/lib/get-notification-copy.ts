@@ -16,6 +16,7 @@ const TITLE_KEYS: Record<NotificationType, `notifications.types.${NotificationTy
   REMINDER_2H: "notifications.types.REMINDER_2H.title",
   NEW_EVENT_FROM_FOLLOWED: "notifications.types.NEW_EVENT_FROM_FOLLOWED.title",
   REVIEW_REMINDER: "notifications.types.REVIEW_REMINDER.title",
+  ATTENDANCE_MARKED: "notifications.types.ATTENDANCE_MARKED.title",
 };
 
 const REQUESTED_RE = /^(.+) requested a seat at (.+)\.$/;

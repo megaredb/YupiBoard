@@ -39,6 +39,7 @@ async def create_published_event(
         lat=50.45,
         lon=30.52,
         start_datetime=datetime.now(UTC) + timedelta(days=1),
+        end_datetime=datetime.now(UTC) + timedelta(days=1, hours=4),
         max_players=max_players,
         current_confirmed=current_confirmed,
         entry_cost=Decimal("0.00"),

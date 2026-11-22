@@ -151,6 +151,19 @@ async def update_event(
     return await event_service.update_event(event_id, current_user, data)
 
 
+@router.post(
+    "/{event_id}/complete",
+    response_model=EventRead,
+    summary="Organizer ends an ongoing event; the 48h review window starts now",
+)
+async def complete_event(
+    event_id: uuid.UUID,
+    current_user: Annotated[User, Depends(get_current_verified_user)],
+    event_service: Annotated[EventService, Depends(get_event_service)],
+) -> EventRead:
+    return await event_service.complete(event_id, current_user)
+
+
 @router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def cancel_event(
     event_id: uuid.UUID,

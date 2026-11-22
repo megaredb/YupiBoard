@@ -111,6 +111,7 @@ class EventListItem(BaseModel):
     city: str
     address: str
     start_datetime: datetime
+    end_datetime: datetime
     entry_cost: Decimal
     max_players: int
     current_confirmed: int
@@ -220,7 +221,8 @@ class EventRead(BaseModel):
     lat: Latitude
     lon: Longitude
     start_datetime: datetime
-    end_datetime: datetime | None
+    end_datetime: datetime
+    review_deadline: datetime
     min_players: int
     max_players: int
     current_confirmed: int
