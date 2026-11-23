@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { RejectionReasonDialog } from "@/shared/components/rejection-reason-dialog";
 import { Button } from "@/shared/ui/button";
-import { DeclineParticipantDialog } from "@/features/events/components/event-details/decline-participant-dialog";
 
 interface BookingDecisionButtonsProps {
   playerName: string;
@@ -47,8 +47,9 @@ export function BookingDecisionButtons({
         {t("events.participants.decline")}
       </Button>
       {isConfirming && (
-        <DeclineParticipantDialog
-          playerName={playerName}
+        <RejectionReasonDialog
+          mode="participant"
+          targetName={playerName}
           onConfirm={handleDecline}
           onClose={handleCloseDialog}
         />
