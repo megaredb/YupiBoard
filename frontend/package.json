@@ -26,7 +26,8 @@
     "cap:sync": "pnpm build && cap sync android && node tooling/android-dev-ca.mjs",
     "cap:android": "cap open android",
     "cap:build": "pnpm cap:sync && node tooling/build-android.mjs",
-    "cap:run": "pnpm cap:sync && node tooling/build-android.mjs --run"
+    "cap:run": "pnpm cap:sync && node tooling/build-android.mjs --run",
+    "cap:stop": "node tooling/stop-android.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

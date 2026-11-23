@@ -1,5 +1,19 @@
 apply plugin: 'com.android.application'
 
+// Host of the App Links (shared event and profile links, e-mail links) that open in the app.
+// It follows VITE_PUBLIC_WEB_URL in the repository root .env, the origin shared links are built
+// from, so switching between local testing and the real site is a change in one place.
+// A Gradle property wins for one-off builds: gradlew assembleRelease -PappLinkHost=example.com
+def appLinkHost = {
+    if (project.hasProperty('appLinkHost')) return project.property('appLinkHost')
+    def env = rootProject.file('../../.env')
+    def line = env.exists() ? env.readLines().find { it.trim().startsWith('VITE_PUBLIC_WEB_URL=') } : null
+    if (line == null) {
+        throw new GradleException('Set VITE_PUBLIC_WEB_URL in the repository root .env (see frontend/.env.example).')
+    }
+    return new URI(line.substring(line.indexOf('=') + 1).trim()).host
+}()
+
 android {
     namespace = "com.yupiboard.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -9,8 +23,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
-        // Host of the e-mail links (verify e-mail, reset password) that open in the app.
-        manifestPlaceholders = [appLinkHost: "yupiboard.localhost"]
+        manifestPlaceholders = [appLinkHost: appLinkHost]
     }
     androidResources {
         // Unlike aapt's default, keeps files starting with "_" that web bundles rely on.

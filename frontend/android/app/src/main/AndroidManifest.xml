@@ -22,13 +22,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- App Links for the e-mail flows; verification needs /.well-known/assetlinks.json on the host. -->
+            <!-- App Links: e-mail flows plus shared event and profile pages. The host comes from
+                 VITE_PUBLIC_WEB_URL (see app/build.gradle); verification needs
+                 /.well-known/assetlinks.json on that host. -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="${appLinkHost}" android:path="/verify-email" />
-                <data android:scheme="https" android:host="${appLinkHost}" android:path="/reset-password" />
+                <data android:scheme="https" android:host="${appLinkHost}" />
+                <data android:path="/verify-email" />
+                <data android:path="/reset-password" />
+                <data android:path="/events" />
+                <data android:pathPrefix="/events/" />
+                <data android:pathPrefix="/users/" />
             </intent-filter>
 
         </activity>
@@ -47,7 +53,9 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- @capacitor/geolocation: "Use GPS" in the profile only needs city-level accuracy. -->
+    <!-- @capacitor/geolocation: "Use GPS" only needs the city, but approximate location comes from
+         network lookups and fails without internet; precise location lets the phone use GPS. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-feature android:name="android.hardware.location" android:required="false" />
 </manifest>

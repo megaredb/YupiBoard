@@ -63,6 +63,7 @@ Run them from `frontend/`, or from the repository root with the `fe` prefix: `pn
 | `pnpm cap:android`    | Open the Android project in Android Studio                          |
 | `pnpm cap:build`      | `cap:sync`, then build a debug APK with Gradle                      |
 | `pnpm cap:run`        | `cap:sync`, then install and start the app on connected devices     |
+| `pnpm cap:stop`       | Stop the app, port forwarding, adb and Gradle so the phone unplugs  |
 
 `pnpm check` runs `typecheck`, `lint`, `format:check`, `knip`, `depcruise`, `i18n:check` and
 `check:platform`. There are no tests in this project (RULES.md §16).
@@ -107,6 +108,9 @@ folder), so an older Java on `PATH` does not matter. Without Android Studio, set
 3. Run `pnpm cap:run`. It builds, installs and starts the app on every connected device, and
    forwards the device's port 8443 to Traefik's 443 on this computer (Android does not allow
    forwarding ports below 1024). Run it again after reconnecting the phone.
+4. Run `pnpm cap:stop` before unplugging. It stops the app, removes the port forwarding and shuts
+   down the adb server and Gradle daemons; the adb server is what keeps Windows reporting the phone
+   as in use. Close Android Studio first if it is open, or it starts adb again.
 
 Debug builds trust your local mkcert certificate: `pnpm cap:sync` copies its root CA into
 `android/app/src/debug/res/raw/` (git-ignored), and only the debug network security config
@@ -116,9 +120,14 @@ Known gap: media URLs (avatars, event covers) come from the backend as absolute
 `https://api.yupiboard.localhost/media/…` links without the port, so images do not load on a
 device until the backend builds them from the request's host.
 
-`/verify-email` and `/reset-password` e-mail links open in the app through Android App Links.
-Their host is `appLinkHost` in `android/app/build.gradle`; Android only verifies the links when
-that host serves `/.well-known/assetlinks.json` for the app's signing key.
+Links to `/events`, `/events/…`, `/users/…`, `/verify-email` and `/reset-password` open in the app
+through Android App Links. Their host is the host of `VITE_PUBLIC_WEB_URL` in the root `.env` (the
+same origin shared links use), read by `android/app/build.gradle` at build time; to switch from
+`yupiboard.localhost` to the real site.
+Android only verifies the links (opens them without
+asking) when that host serves `/.well-known/assetlinks.json` for the app's signing key. For a
+host that cannot be verified, such as `yupiboard.localhost`, enable it on the phone under App
+info → Open by default → Add link, or open one directly.
 
 Native code (`android/`) and `capacitor.config.ts` are part of the repository; build outputs are
 ignored. Platform-specific code lives only in `src/shared/platform/`.

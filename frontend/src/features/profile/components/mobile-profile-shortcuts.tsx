@@ -1,6 +1,15 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { Check, ChevronRight, Globe, Heart, Languages, LogOut, Moon, Plus } from "lucide-react";
+import {
+  Check,
+  ChevronRight,
+  Globe,
+  Heart,
+  Languages,
+  LogOut,
+  Moon,
+  UserRound,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useResolvedTheme } from "@/shared/hooks/use-theme";
 import { changeLanguage, getNextLanguage, useActiveLanguage } from "@/shared/i18n/language";
@@ -17,8 +26,16 @@ function RowLabel({ children }: { children: ReactNode }) {
   return <span className="flex-1">{children}</span>;
 }
 
+interface MobileProfileShortcutsProps {
+  userId: string;
+  onOpenAccountDetails: () => void;
+}
+
 /** Phone-only: what the desktop header and user menu offer, reached from the Profile tab. */
-export function MobileProfileShortcuts({ userId }: { userId: string }) {
+export function MobileProfileShortcuts({
+  userId,
+  onOpenAccountDetails,
+}: MobileProfileShortcutsProps) {
   const { t } = useTranslation();
   const isDark = useResolvedTheme() === "dark";
   const { logout } = useLogout();
@@ -33,12 +50,12 @@ export function MobileProfileShortcuts({ userId }: { userId: string }) {
 
   return (
     <Card className="gap-0 divide-y divide-border py-0 desktop:hidden">
+      <button type="button" onClick={onOpenAccountDetails} className={ROW_CLASS}>
+        <UserRound aria-hidden />
+        <RowLabel>{t("profile.accountDetails")}</RowLabel>
+        {chevron}
+      </button>
       <nav aria-label={t("profile.shortcutsLabel")} className="divide-y divide-border">
-        <Link to="/events/new" className={ROW_CLASS}>
-          <Plus aria-hidden />
-          <RowLabel>{t("shell.createEvent")}</RowLabel>
-          {chevron}
-        </Link>
         <Link to="/favorites" className={ROW_CLASS}>
           <Heart aria-hidden />
           <RowLabel>{t("shell.nav.favorites")}</RowLabel>

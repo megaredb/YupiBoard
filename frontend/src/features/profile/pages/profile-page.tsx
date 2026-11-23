@@ -4,11 +4,10 @@ import { showToast } from "@/shared/lib/toast/toast-store";
 import { useSignedInUser } from "@/features/auth";
 import { BannerPicker } from "@/features/profile/components/banner-picker";
 import { ChangePasswordDialog } from "@/features/profile/components/change-password-dialog";
-import { MobileProfileShortcuts } from "@/features/profile/components/mobile-profile-shortcuts";
 import { ProfileAvatar } from "@/features/profile/components/profile-avatar";
 import { ProfileBanner } from "@/features/profile/components/profile-banner";
-import { ProfileDetails } from "@/features/profile/components/profile-details";
 import { ProfileEditForm } from "@/features/profile/components/profile-edit-form";
+import { ProfileOverview } from "@/features/profile/components/profile-overview";
 import { ProfileSummaryCard } from "@/features/profile/components/profile-summary-card";
 import { usePasswordDialog } from "@/features/profile/hooks/use-password-dialog";
 import { useProfileEditMode } from "@/features/profile/hooks/use-profile-edit-mode";
@@ -59,7 +58,6 @@ export function ProfilePage() {
             />
           }
         />
-        {!editMode.isEditing && <MobileProfileShortcuts userId={user.id} />}
         {errorKey && <FormAlert message={t(errorKey)} />}
         {editMode.isEditing ? (
           <ProfileEditForm
@@ -70,7 +68,7 @@ export function ProfilePage() {
             onChangePassword={password.open}
           />
         ) : (
-          <ProfileDetails
+          <ProfileOverview
             user={user}
             onEdit={editMode.startEditing}
             onChangePassword={password.open}

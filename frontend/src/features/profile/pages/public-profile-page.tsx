@@ -29,12 +29,12 @@ function PublicEventsTabBar({
 
   return (
     <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
         <button
           type="button"
           onClick={() => onSelectTab("hosted")}
           className={cn(
-            "h-9 cursor-pointer rounded-lg border px-4 text-xs font-medium transition-colors",
+            "h-11 cursor-pointer rounded-lg border px-4 text-xs font-medium transition-colors sm:h-9",
             activeTab === "hosted"
               ? "border-primary bg-primary text-primary-foreground shadow-xs"
               : "border-border bg-muted/60 text-foreground hover:bg-muted",
@@ -46,7 +46,7 @@ function PublicEventsTabBar({
           type="button"
           onClick={() => onSelectTab("joined")}
           className={cn(
-            "h-9 cursor-pointer rounded-lg border px-4 text-xs font-medium transition-colors",
+            "h-11 cursor-pointer rounded-lg border px-4 text-xs font-medium transition-colors sm:h-9",
             activeTab === "joined"
               ? "border-primary bg-primary text-primary-foreground shadow-xs"
               : "border-border bg-muted/60 text-foreground hover:bg-muted",
