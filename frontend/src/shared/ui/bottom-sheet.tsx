@@ -27,7 +27,7 @@ export function BottomSheet({
         <Backdrop />
         <DialogPrimitive.Popup
           className={cn(
-            "fixed inset-x-0 bottom-(--keyboard-inset) z-50 flex max-h-[85dvh] flex-col rounded-t-3xl bg-background pb-safe transition-transform outline-none data-ending-style:translate-y-full data-starting-style:translate-y-full",
+            "fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col rounded-t-3xl bg-background pb-safe transition-transform outline-none data-ending-style:translate-y-full data-starting-style:translate-y-full",
             className,
           )}
         >

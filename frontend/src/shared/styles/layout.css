@@ -12,10 +12,8 @@
 }
 
 :root {
-  --safe-top: env(safe-area-inset-top);
-  --safe-bottom: env(safe-area-inset-bottom);
-  /* Set by shared/platform/keyboard.ts while the Android keyboard is open. */
-  --keyboard-inset: 0px;
+  --safe-top: var(--safe-area-inset-top, env(safe-area-inset-top));
+  --safe-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom));
   --tab-bar-height: 4rem;
   /* Desktop page columns and the event card grid. */
   --filters-width: 17.5rem;
@@ -49,6 +47,11 @@
 
 @utility pb-bottom-bar {
   padding-bottom: var(--bottom-bar-inset);
+}
+
+/* Floating notices sit above the fixed bottom bar, or above the home indicator without one. */
+@utility bottom-above-bars {
+  bottom: max(calc(var(--safe-bottom) + 0.75rem), calc(var(--bottom-bar-inset) + 0.75rem));
 }
 
 /* Desktop two-column pages: filters left of the content, or an aside right of it. */

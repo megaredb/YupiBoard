@@ -22,10 +22,21 @@ function readWebPosition(): Promise<Coordinates> {
   });
 }
 
+/** Only the nearest city is needed, so a recent fix is as good as a new one. */
+const NATIVE_MAX_AGE_MS = 5 * 60_000;
+/** A first GPS fix takes longer than a network lookup. */
+const NATIVE_TIMEOUT_MS = 20_000;
+
+/**
+ * High accuracy lets Android use GPS: approximate location is a network lookup and never answers
+ * on a phone without internet. On a connected phone the fused provider still answers from Wi-Fi.
+ */
 async function readNativePosition(): Promise<Coordinates> {
-  const permission = await Geolocation.requestPermissions({ permissions: ["coarseLocation"] });
-  if (permission.coarseLocation === "denied") throw new Error("Location permission denied");
-  const position = await Geolocation.getCurrentPosition({ timeout: TIMEOUT_MS });
+  const position = await Geolocation.getCurrentPosition({
+    enableHighAccuracy: true,
+    maximumAge: NATIVE_MAX_AGE_MS,
+    timeout: NATIVE_TIMEOUT_MS,
+  });
   return { lat: position.coords.latitude, lon: position.coords.longitude };
 }
 

@@ -9,7 +9,7 @@ import { initI18n } from "@/shared/i18n/init-i18n";
 import { showToast } from "@/shared/lib/toast/toast-store";
 import { exitApp, onBackButton } from "@/shared/platform/back-button";
 import { onDeepLink } from "@/shared/platform/deep-links";
-import { initKeyboardInsets } from "@/shared/platform/keyboard";
+import { initKeyboardState } from "@/shared/platform/keyboard";
 import { initPlatformAttribute } from "@/shared/platform/platform-attribute";
 import { initTheme } from "@/shared/platform/theme";
 import { endSession, getCachedCurrentUser, sessionTokenStore } from "@/features/auth";
@@ -45,7 +45,7 @@ export async function bootstrap(): Promise<{ router: AppRouter; queryClient: Que
   await initI18n();
   initPlatformAttribute();
   initTheme();
-  initKeyboardInsets();
+  initKeyboardState();
 
   const queryClient = createQueryClient();
   const router = createAppRouter(queryClient);

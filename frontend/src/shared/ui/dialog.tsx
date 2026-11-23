@@ -16,7 +16,7 @@ function DialogContent({ className, children, closeLabel, ...props }: DialogCont
   return (
     <DialogPrimitive.Portal>
       <Backdrop />
-      <DialogPrimitive.Viewport className="fixed inset-0 z-50 flex items-center justify-center p-4 pb-[max(1rem,var(--keyboard-inset))]">
+      <DialogPrimitive.Viewport className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <DialogPrimitive.Popup
           data-slot="dialog-content"
           className={cn(
