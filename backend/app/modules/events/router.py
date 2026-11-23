@@ -2,7 +2,9 @@ import uuid
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, File, Query, UploadFile, status
+from fastapi.responses import StreamingResponse
 
+from app.core.realtime import event_channel, realtime_broker
 from app.core.storage import MediaService, get_media_service
 from app.modules.auth.dependencies import (
     get_current_user,
@@ -52,11 +54,16 @@ async def create_event(
     event_service: Annotated[EventService, Depends(get_event_service)],
 ) -> EventCreateResponse:
     event = await event_service.create(current_user, data)
+    message = (
+        "Event rejected by automatic moderation."
+        if event.status == EventStatus.REJECTED
+        else "Event submitted for administrative review."
+    )
     return EventCreateResponse(
         event_id=event.id,
         status=event.status,
         is_verified=event.is_verified,
-        message="Event submitted for administrative review.",
+        message=message,
     )
 
 
@@ -121,6 +128,28 @@ async def list_my_participating_events(
         limit=limit,
         sort_by=sort_by,
         sort_order=sort_order,
+    )
+
+
+@router.get(
+    "/{event_id}/stream",
+    summary="Server-Sent Events stream for real-time status and capacity updates of an opened event",
+)
+async def stream_event_updates(
+    event_id: uuid.UUID,
+    event_service: Annotated[EventService, Depends(get_event_service)],
+    current_user: Annotated[User | None, Depends(get_optional_current_user)] = None,
+) -> StreamingResponse:
+    # Ensure caller is allowed to see this event before subscribing
+    await event_service.get_public_event(event_id, current_user=current_user)
+    return StreamingResponse(
+        realtime_broker.subscribe(event_channel(event_id)),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
     )
 
 

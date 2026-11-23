@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, EmailStr, Field
 
 from app.modules.users.schemas import UserRead
@@ -41,3 +43,15 @@ class PasswordResetRequest(BaseModel):
 class PasswordResetConfirmRequest(BaseModel):
     token: str
     new_password: str = Field(min_length=8, max_length=128)
+
+
+class EmailChangeConfirmRequest(BaseModel):
+    token: str
+
+
+TokenValidationReason = Literal["valid", "expired", "used", "invalid"]
+
+
+class ActionTokenValidationResponse(BaseModel):
+    valid: bool
+    reason: TokenValidationReason

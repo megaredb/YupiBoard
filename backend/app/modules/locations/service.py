@@ -1,8 +1,12 @@
+from app.core.exceptions import NotFoundException
+from app.modules.locations.geocoding import GeocodingService
 from app.modules.locations.repository import CityRepository, CountryRepository
 from app.modules.locations.schemas import (
     CityRead,
     CountryRead,
     CountryWithCitiesRead,
+    GeocodeResult,
+    ReverseGeocodeResult,
 )
 
 
@@ -11,9 +15,11 @@ class LocationService:
         self,
         city_repo: CityRepository,
         country_repo: CountryRepository,
+        geocoding_service: GeocodingService | None = None,
     ) -> None:
         self.city_repo = city_repo
         self.country_repo = country_repo
+        self.geocoding_service = geocoding_service or GeocodingService()
 
     async def list_countries(self) -> list[CountryRead]:
         countries = await self.country_repo.list_all()
@@ -60,3 +66,14 @@ class LocationService:
             )
             for city in cities
         ]
+
+    async def geocode(
+        self, query: str, *, city: str | None = None, limit: int = 5
+    ) -> list[GeocodeResult]:
+        return await self.geocoding_service.geocode(query, city=city, limit=limit)
+
+    async def reverse_geocode(self, lat: float, lon: float) -> ReverseGeocodeResult:
+        result = await self.geocoding_service.reverse_geocode(lat, lon)
+        if result is None:
+            raise NotFoundException("Address could not be resolved for coordinates")
+        return result

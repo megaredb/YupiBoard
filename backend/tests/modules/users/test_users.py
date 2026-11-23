@@ -96,7 +96,10 @@ async def test_update_current_user_profile(
     assert body["last_name"] == "NewLast"
     assert body["city"] == "Kyiv"
     assert body["contact_info"] == "@yupi"
-    assert body["banner_url"] == "/media/banners/banner1.webp"
+    assert (
+        body["banner_url"]
+        == "https://api.yupiboard.localhost/media/banners/banner1.webp"
+    )
 
     # Explicit null on city clears it, contact_info stays untouched
     r_clear = await async_client.patch(

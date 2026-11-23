@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.core.database import SessionDep
+from app.modules.locations.geocoding import GeocodingService
 from app.modules.locations.repository import CityRepository, CountryRepository
 from app.modules.locations.service import LocationService
 
@@ -15,8 +16,17 @@ def get_city_repository(session: SessionDep) -> CityRepository:
     return CityRepository(session)
 
 
+def get_geocoding_service() -> GeocodingService:
+    return GeocodingService()
+
+
 def get_location_service(
     city_repo: Annotated[CityRepository, Depends(get_city_repository)],
     country_repo: Annotated[CountryRepository, Depends(get_country_repository)],
+    geocoding_service: Annotated[GeocodingService, Depends(get_geocoding_service)],
 ) -> LocationService:
-    return LocationService(city_repo=city_repo, country_repo=country_repo)
+    return LocationService(
+        city_repo=city_repo,
+        country_repo=country_repo,
+        geocoding_service=geocoding_service,
+    )

@@ -117,6 +117,7 @@ def test_event_routes_are_registered() -> None:
     assert event_get_params == {
         "title",
         "organizer_id",
+        "participant_id",
         "organizer_name",
         "organizer_rating_min",
         "organizer_rating_max",
@@ -325,7 +326,7 @@ async def test_update_event_permissions_and_rules() -> None:
 
 
 @pytest.mark.asyncio
-async def test_create_event_sets_published_and_verified() -> None:
+async def test_create_event_sends_to_moderation_by_default() -> None:
     import uuid
     from unittest.mock import AsyncMock
 
@@ -341,8 +342,8 @@ async def test_create_event_sets_published_and_verified() -> None:
 
     event_repo.create.assert_awaited_once()
     call_kwargs = event_repo.create.call_args.kwargs
-    assert call_kwargs["status"] == EventStatus.PUBLISHED
-    assert call_kwargs["is_verified"] is True
+    assert call_kwargs["status"] == EventStatus.ON_MODERATION
+    assert call_kwargs["is_verified"] is False
 
 
 @pytest.mark.asyncio

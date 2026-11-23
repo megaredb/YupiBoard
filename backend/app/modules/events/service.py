@@ -1,12 +1,15 @@
+import logging
 import uuid
 from datetime import UTC, datetime
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from app.core.exceptions import (
     BadRequestException,
     ForbiddenException,
     NotFoundException,
 )
+from app.core.media_url import normalize_stored_media_url
+from app.core.realtime import RealtimeBroker, realtime_broker
 from app.modules.bookings.models import BookingStatus
 from app.modules.events.models import DEFAULT_EVENT_DURATION, Event, EventStatus
 from app.modules.events.repository import CompletedEventRow, EventRepository
@@ -19,10 +22,19 @@ from app.modules.events.schemas import (
     EventRead,
     EventUpdate,
 )
+from app.modules.moderation.auto_check import run_event_auto_moderation
+from app.modules.moderation.models import AuditActionType
 from app.modules.notifications.enums import NotificationType
 from app.modules.notifications.schemas import NotificationCreate
 from app.modules.notifications.service import NotificationService
 from app.modules.users.models import User
+
+if TYPE_CHECKING:
+    from app.modules.locations.geocoding import GeocodingService
+    from app.modules.locations.repository import CityRepository
+    from app.modules.moderation.repository import AuditLogRepository
+
+logger = logging.getLogger("yupiboard.events")
 
 
 class EventService:
@@ -30,26 +42,155 @@ class EventService:
         self,
         event_repo: EventRepository,
         notification_service: NotificationService | None = None,
+        *,
+        geocoding_service: GeocodingService | None = None,
+        city_repo: CityRepository | None = None,
+        audit_repo: AuditLogRepository | None = None,
+        realtime: RealtimeBroker | None = None,
     ) -> None:
         self.event_repo = event_repo
         self.notification_service = notification_service
+        self.geocoding_service = geocoding_service
+        self.city_repo = city_repo
+        self.audit_repo = audit_repo
+        self.realtime = realtime if realtime is not None else realtime_broker
+
+    async def _resolve_coordinates(
+        self,
+        *,
+        address: str,
+        city: str,
+        lat: float | None,
+        lon: float | None,
+    ) -> tuple[float, float, bool]:
+        """Return (lat, lon, needs_async_geocode)."""
+        if lat is not None and lon is not None:
+            return lat, lon, False
+
+        if self.geocoding_service is not None:
+            results = await self.geocoding_service.geocode(address, city=city, limit=1)
+            if results:
+                return results[0].lat, results[0].lon, False
+
+        if self.city_repo is not None:
+            cities = await self.city_repo.search(query=city, limit=5)
+            exact = next(
+                (c for c in cities if c.name.lower() == city.strip().lower()),
+                cities[0] if cities else None,
+            )
+            if exact is not None:
+                return exact.lat, exact.lon, True
+
+        raise BadRequestException(
+            "Could not determine coordinates for the given address; "
+            "please provide lat and lon"
+        )
+
+    async def _run_auto_moderation(
+        self,
+        *,
+        organizer_id: uuid.UUID,
+        title: str,
+        description: str,
+        game_title: str,
+        start_datetime: datetime,
+        city: str,
+        address: str,
+        exclude_event_id: uuid.UUID | None = None,
+    ) -> tuple[bool, str | None]:
+        try:
+            has_duplicate = (
+                await self.event_repo.has_duplicate_event(
+                    organizer_id=organizer_id,
+                    start_datetime=start_datetime,
+                    city=city,
+                    address=address,
+                    exclude_event_id=exclude_event_id,
+                )
+            ) is True
+            return run_event_auto_moderation(
+                title=title,
+                description=description,
+                game_title=game_title,
+                has_duplicate=has_duplicate,
+            )
+        except Exception as exc:  # noqa: BLE001
+            # Per SRS 3.2.6.5: automatic check failure sends event to manual queue.
+            logger.warning("Automatic moderation check failed, falling back: %s", exc)
+            return True, None
 
     async def create(self, organizer: User, data: EventCreate) -> Event:
         values = data.model_dump()
         if values.get("photo_url") is not None:
-            values["photo_url"] = str(values["photo_url"])
+            values["photo_url"] = normalize_stored_media_url(str(values["photo_url"]))
         if values.get("end_datetime") is None:
             values["end_datetime"] = data.start_datetime + DEFAULT_EVENT_DURATION
 
-        return await self.event_repo.create(
+        lat, lon, needs_async_geocode = await self._resolve_coordinates(
+            address=data.address,
+            city=data.city,
+            lat=data.lat,
+            lon=data.lon,
+        )
+        values["lat"] = lat
+        values["lon"] = lon
+
+        passed, auto_reason = await self._run_auto_moderation(
+            organizer_id=organizer.id,
+            title=data.title,
+            description=data.description,
+            game_title=data.game_title,
+            start_datetime=data.start_datetime,
+            city=data.city,
+            address=data.address,
+        )
+
+        event = await self.event_repo.create(
             **values,
             organizer_id=organizer.id,
-            status=EventStatus.PUBLISHED,
-            rejection_reason=None,
-            is_verified=True,
+            status=(EventStatus.ON_MODERATION if passed else EventStatus.REJECTED),
+            rejection_reason=None if passed else auto_reason,
+            is_verified=False,
             current_confirmed=0,
             is_deleted=False,
         )
+
+        if not passed:
+            if self.audit_repo is not None:
+                await self.audit_repo.create_log(
+                    admin_id=None,
+                    action_type=AuditActionType.EVENT_AUTO_REJECTED,
+                    target_entity="Event",
+                    target_id=event.id,
+                    justification_reason=auto_reason,
+                )
+            if self.notification_service is not None:
+                await self.notification_service.notify(
+                    NotificationCreate(
+                        user_id=organizer.id,
+                        notification_type=NotificationType.EVENT_REJECTED,
+                        title="Event Rejected",
+                        message=f"Your event {event.title} was rejected: {auto_reason}",
+                        metadata_payload={
+                            "event_id": str(event.id),
+                            "reason": auto_reason,
+                        },
+                    )
+                )
+
+        if needs_async_geocode:
+            try:
+                from app.modules.events.tasks import geocode_event_coordinates
+
+                await geocode_event_coordinates.kiq(str(event.id))
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(
+                    "Failed to enqueue background geocoding for event %s: %s",
+                    event.id,
+                    exc,
+                )
+
+        return event
 
     async def get_catalog(
         self,
@@ -81,9 +222,12 @@ class EventService:
         event = await self.event_repo.get_by_id_with_organizer(event_id)
         if event is None or event.is_deleted:
             raise NotFoundException("Event not found")
-        if event.status in (EventStatus.ON_MODERATION, EventStatus.REJECTED) and (
-            current_user is None
-            or (current_user.id != event.organizer_id and not current_user.is_superuser)
+        is_privileged = current_user is not None and (
+            current_user.id == event.organizer_id or current_user.is_superuser
+        )
+        if (
+            event.status in (EventStatus.ON_MODERATION, EventStatus.REJECTED)
+            and not is_privileged
         ):
             raise NotFoundException("Event not found")
         is_favorite = False
@@ -110,6 +254,7 @@ class EventService:
             is_favorite=is_favorite,
             user_booking_status=user_booking_status,
             user_booking_rejection_reason=user_booking_rejection_reason,
+            include_rejection_reason=is_privileged,
         )
 
     async def update_event(
@@ -159,12 +304,52 @@ class EventService:
         updates.pop("current_confirmed", None)
 
         if updates.get("photo_url") is not None:
-            updates["photo_url"] = str(updates["photo_url"])
+            updates["photo_url"] = normalize_stored_media_url(str(updates["photo_url"]))
 
-        updated_event = await self.event_repo.update(event, **updates)
+        if (
+            ("address" in updates or "city" in updates)
+            and "lat" not in updates
+            and "lon" not in updates
+            and self.geocoding_service is not None
+        ):
+            new_address = updates.get("address", event.address)
+            new_city = updates.get("city", event.city)
+            results = await self.geocoding_service.geocode(
+                new_address, city=new_city, limit=1
+            )
+            if results:
+                updates["lat"] = results[0].lat
+                updates["lon"] = results[0].lon
+
+        if event.status == EventStatus.REJECTED:
+            passed, auto_reason = await self._run_auto_moderation(
+                organizer_id=event.organizer_id,
+                title=updates.get("title", event.title),
+                description=updates.get("description", event.description),
+                game_title=updates.get("game_title", event.game_title),
+                start_datetime=start_dt,
+                city=updates.get("city", event.city),
+                address=updates.get("address", event.address),
+                exclude_event_id=event.id,
+            )
+            if passed:
+                updates["status"] = EventStatus.ON_MODERATION
+                updates["is_verified"] = False
+                updates["rejection_reason"] = None
+            else:
+                updates["status"] = EventStatus.REJECTED
+                updates["is_verified"] = False
+                updates["rejection_reason"] = auto_reason
+
+        updated_event = await self.event_repo.update(
+            event, exclude_none=False, **updates
+        )
         reloaded = await self.event_repo.get_by_id_with_organizer(updated_event.id)
         target_event = reloaded or updated_event
-        if self.notification_service is not None:
+        if (
+            self.notification_service is not None
+            and target_event.status == EventStatus.PUBLISHED
+        ):
             recipient_ids = await self.event_repo.get_active_booking_user_ids(
                 target_event.id
             )
@@ -180,6 +365,7 @@ class EventService:
                     for recipient_id in recipient_ids
                 ]
             )
+        await self._publish_event_state(target_event)
         is_favorite = await self.event_repo.is_event_favorite(target_event.id, user.id)
         user_booking_status = await self.event_repo.get_user_booking_status(
             target_event.id, user.id
@@ -188,6 +374,7 @@ class EventService:
             target_event,
             is_favorite=is_favorite,
             user_booking_status=user_booking_status,
+            include_rejection_reason=True,
         )
 
     async def get_organizer_events(
@@ -282,6 +469,7 @@ class EventService:
                     for recipient_id in recipient_ids
                 ]
             )
+        await self._publish_event_state(cancelled_event)
         return cancelled_event
 
     async def complete(self, event_id: uuid.UUID, user: User) -> EventRead:
@@ -303,6 +491,7 @@ class EventService:
         )
         reloaded = await self.event_repo.get_by_id_with_organizer(event.id)
         target_event = reloaded or event
+        await self._publish_event_state(target_event)
         user_booking_status = await self.event_repo.get_user_booking_status(
             target_event.id, user.id
         )
@@ -311,6 +500,7 @@ class EventService:
             target_event,
             is_favorite=is_favorite,
             user_booking_status=user_booking_status,
+            include_rejection_reason=True,
         )
 
     async def advance_statuses(self, now: datetime) -> tuple[int, int]:
@@ -319,11 +509,31 @@ class EventService:
         Returns (started, completed) counts. Organizers and attended players of
         newly completed events are reminded to leave reviews.
         """
-        started = await self.event_repo.start_due_events(now)
+        started_result = await self.event_repo.start_due_events(now)
+        if isinstance(started_result, int):
+            started_ids: list[uuid.UUID] = []
+            started_count = started_result
+        else:
+            started_ids = list(started_result)
+            started_count = len(started_ids)
+
         completed = await self.event_repo.complete_due_events(now)
         if completed and self.notification_service is not None:
             await self._send_review_reminders(completed)
-        return started, len(completed)
+
+        for event_id in started_ids:
+            await self.realtime.publish_event_update(
+                event_id,
+                "event.updated",
+                {"event_id": str(event_id), "status": EventStatus.ONGOING.value},
+            )
+        for row in completed:
+            await self.realtime.publish_event_update(
+                row.id,
+                "event.updated",
+                {"event_id": str(row.id), "status": EventStatus.COMPLETED.value},
+            )
+        return started_count, len(completed)
 
     async def _send_review_reminders(self, events: list[CompletedEventRow]) -> None:
         if self.notification_service is None:
@@ -363,7 +573,30 @@ class EventService:
             )
         await self.notification_service.notify_many(reminders)
 
+    async def _publish_event_state(self, event: Event) -> None:
+        await self.realtime.publish_event_update(
+            event.id,
+            "event.updated",
+            {
+                "event_id": str(event.id),
+                "status": event.status.value,
+                "current_confirmed": event.current_confirmed,
+                "available_seats": max(0, event.max_players - event.current_confirmed),
+                "is_verified": event.is_verified,
+            },
+        )
+
+    def serialize_event(
+        self,
+        event: Event,
+        *,
+        include_rejection_reason: bool = True,
+    ) -> EventRead:
+        return self._to_read(event, include_rejection_reason=include_rejection_reason)
+
     def _format_organizer_name(self, organizer: User) -> str:
+        if organizer.is_deleted:
+            return "Deleted User"
         if organizer.first_name and organizer.last_name:
             return f"{organizer.first_name} {organizer.last_name[0]}."
         if organizer.first_name:
@@ -416,6 +649,8 @@ class EventService:
         is_favorite: bool = False,
         user_booking_status: BookingStatus | None = None,
         user_booking_rejection_reason: str | None = None,
+        *,
+        include_rejection_reason: bool = False,
     ) -> EventRead:
         now = datetime.now(UTC)
         is_promoted = bool(
@@ -449,6 +684,9 @@ class EventService:
             entry_cost=event.entry_cost,
             photo_url=event.photo_url,
             status=event.status,
+            rejection_reason=(
+                event.rejection_reason if include_rejection_reason else None
+            ),
             is_verified=event.is_verified,
             is_promoted=is_promoted,
             is_favorite=is_favorite,

@@ -170,6 +170,23 @@ class BookingRepository(BaseRepository[Booking]):
         )
         return result.scalar_one_or_none()
 
+    async def list_active_upcoming_for_user(
+        self, user_id: uuid.UUID
+    ) -> Sequence[Booking]:
+        result = await self.session.execute(
+            select(Booking)
+            .join(Event, Event.id == Booking.event_id)
+            .where(
+                Booking.user_id == user_id,
+                Booking.status.in_(ACTIVE_BOOKING_STATUSES),
+                Event.is_deleted.is_(False),
+                Event.status.in_((EventStatus.PUBLISHED, EventStatus.ON_MODERATION)),
+                Event.start_datetime > func.now(),
+            )
+            .order_by(Booking.created_at.asc())
+        )
+        return result.scalars().all()
+
     async def mark_unmarked_as_no_show(self, ended_before: datetime) -> int:
         """CONFIRMED -> NO_SHOW for completed events that ended before the cutoff."""
         closed_events = select(Event.id).where(

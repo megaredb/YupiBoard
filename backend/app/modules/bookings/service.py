@@ -9,6 +9,7 @@ from app.core.exceptions import (
     ForbiddenException,
     NotFoundException,
 )
+from app.core.realtime import RealtimeBroker, realtime_broker
 from app.modules.bookings.models import (
     ACTIVE_BOOKING_STATUSES,
     BLOCKED_BOOKING_STATUSES,
@@ -44,10 +45,25 @@ class BookingService:
         booking_repo: BookingRepository,
         event_repo: EventRepository,
         notification_service: NotificationService | None = None,
+        realtime: RealtimeBroker | None = None,
     ) -> None:
         self.booking_repo = booking_repo
         self.event_repo = event_repo
         self.notification_service = notification_service
+        self.realtime = realtime if realtime is not None else realtime_broker
+
+    async def _publish_event_update(self, event: Event) -> None:
+        await self.realtime.publish_event_update(
+            event.id,
+            "event.updated",
+            {
+                "event_id": str(event.id),
+                "status": event.status.value,
+                "current_confirmed": event.current_confirmed,
+                "available_seats": max(0, event.max_players - event.current_confirmed),
+                "is_verified": event.is_verified,
+            },
+        )
 
     async def apply_for_seat(self, event_id: uuid.UUID, player: User) -> Booking:
         if player.status == UserStatus.BANNED:
@@ -115,6 +131,7 @@ class BookingService:
         )
         if self.notification_service is not None:
             await self._notify_booking_requested(event, booking, player)
+        await self._publish_event_update(event)
         return booking
 
     async def _notify_booking_requested(
@@ -239,6 +256,7 @@ class BookingService:
                         )
                     )
                 await self._promote_from_waitlist(event)
+                await self._publish_event_update(event)
                 return updated
             if booking.status not in (BookingStatus.PENDING, BookingStatus.WAITLIST):
                 raise BadRequestException(
@@ -295,6 +313,7 @@ class BookingService:
         updated = await self.booking_repo.update(
             booking, status=BookingStatus.CONFIRMED
         )
+        await self._publish_event_update(event)
         if self.notification_service is not None:
             host_name = _display_name(organizer)
             await self.notification_service.notify(
@@ -350,6 +369,7 @@ class BookingService:
             )
         if was_confirmed:
             await self._promote_from_waitlist(event)
+        await self._publish_event_update(event)
         return updated
 
     async def mark_attendance(
@@ -407,6 +427,7 @@ class BookingService:
                     },
                 )
             )
+        await self._publish_event_update(event)
         return updated
 
     async def expire_unmarked_attendance(self, now: datetime) -> int:

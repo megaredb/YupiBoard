@@ -65,6 +65,18 @@ class ActionTokenRepository(BaseRepository[ActionToken]):
         await self.session.execute(query)
         await self.session.flush()
 
+    async def invalidate_all_types_for_user(self, user_id: uuid.UUID) -> None:
+        query = (
+            update(ActionToken)
+            .where(
+                ActionToken.user_id == user_id,
+                ActionToken.is_used.is_(False),
+            )
+            .values(is_used=True)
+        )
+        await self.session.execute(query)
+        await self.session.flush()
+
     async def mark_used(self, token: ActionToken) -> None:
         token.is_used = True
         self.session.add(token)

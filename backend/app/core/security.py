@@ -77,12 +77,14 @@ def create_action_token(
     subject: str,
     action: str,
     expires_delta: timedelta | None = None,
+    additional_claims: dict[str, Any] | None = None,
 ) -> str:
     delta = expires_delta or timedelta(hours=settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS)
     return create_token(
         subject=subject,
         token_type=action,
         expires_delta=delta,
+        additional_claims=additional_claims,
     )
 
 
