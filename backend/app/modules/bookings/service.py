@@ -19,6 +19,7 @@ from app.modules.bookings.repository import BookingRepository
 from app.modules.events.models import (
     NOT_HELD_EVENT_STATUSES,
     REVIEW_WINDOW,
+    Event,
     EventStatus,
 )
 from app.modules.events.repository import EventRepository
@@ -72,6 +73,11 @@ class BookingService:
             event.id, player.id
         )
         if existing_active is not None:
+            if existing_active.status == BookingStatus.REJECTED:
+                raise ForbiddenException(
+                    "Your application for this event was rejected "
+                    "and you cannot apply again"
+                )
             if existing_active.status in BLOCKED_BOOKING_STATUSES:
                 raise ForbiddenException(
                     "You have been disqualified from this event and cannot apply again"
@@ -81,29 +87,70 @@ class BookingService:
             )
 
         if event.current_confirmed >= event.max_players:
-            raise ConflictException("Table capacity is exhausted")
+            booking = await self.booking_repo.create_booking(
+                event_id=event.id,
+                user_id=player.id,
+                status=BookingStatus.WAITLIST,
+            )
+            if self.notification_service is not None:
+                await self.notification_service.notify(
+                    NotificationCreate(
+                        user_id=player.id,
+                        notification_type=NotificationType.WAITLIST_PROMOTED,
+                        title="Added to Waitlist",
+                        message=f"The table for {event.title} is currently full. You have been added to the waitlist.",
+                        metadata_payload={
+                            "event_id": str(event.id),
+                            "booking_id": str(booking.id),
+                        },
+                    )
+                )
+            return booking
 
-        # In Sprint 1, creates booking with status Pending for organizer review
+        # Booking starts as Pending for organizer review
         booking = await self.booking_repo.create_booking(
             event_id=event.id,
             user_id=player.id,
             status=BookingStatus.PENDING,
         )
         if self.notification_service is not None:
-            player_name = _display_name(player)
-            await self.notification_service.notify(
-                NotificationCreate(
-                    user_id=event.organizer_id,
-                    notification_type=NotificationType.BOOKING_REQUESTED,
-                    title="New Booking Request",
-                    message=f"{player_name} requested a seat at {event.title}.",
-                    metadata_payload={
-                        "event_id": str(event.id),
-                        "booking_id": str(booking.id),
-                    },
-                )
-            )
+            await self._notify_booking_requested(event, booking, player)
         return booking
+
+    async def _notify_booking_requested(
+        self,
+        event: Event,
+        booking: Booking,
+        player: User,
+        *,
+        from_waitlist: bool = False,
+    ) -> None:
+        if self.notification_service is None:
+            return
+        await self.notification_service.notify(
+            NotificationCreate(
+                user_id=event.organizer_id,
+                notification_type=NotificationType.BOOKING_REQUESTED,
+                title="New Booking Request",
+                message=f"{_display_name(player)} requested a seat at {event.title}.",
+                metadata_payload={
+                    "event_id": str(event.id),
+                    "booking_id": str(booking.id),
+                    **({"from_waitlist": True} if from_waitlist else {}),
+                },
+            )
+        )
+
+    async def _promote_from_waitlist(self, event: Event) -> None:
+        """A seat was freed: the oldest waitlisted player goes back to Pending
+        so the organizer can confirm them."""
+        waiting = await self.booking_repo.get_first_waitlisted(event.id)
+        if waiting is None:
+            return
+        promoted = await self.booking_repo.update(waiting, status=BookingStatus.PENDING)
+        await self._notify_booking_requested(
+            event, promoted, promoted.user, from_waitlist=True
+        )
 
     async def list_for_user(
         self,
@@ -191,10 +238,11 @@ class BookingService:
                             metadata_payload=meta,
                         )
                     )
+                await self._promote_from_waitlist(event)
                 return updated
-            if booking.status != BookingStatus.PENDING:
+            if booking.status not in (BookingStatus.PENDING, BookingStatus.WAITLIST):
                 raise BadRequestException(
-                    "Only pending or confirmed bookings can be declined"
+                    "Only pending, waitlisted or confirmed bookings can be declined"
                 )
             updated = (
                 await self.booking_repo.update(
@@ -279,8 +327,8 @@ class BookingService:
         booking = await self.booking_repo.get_active_booking(event_id, player_id)
         if booking is None or booking.status not in ACTIVE_BOOKING_STATUSES:
             raise NotFoundException("Active booking not found")
-        if booking.status == BookingStatus.CONFIRMED:
-            # probably bad idea who cares anyway
+        was_confirmed = booking.status == BookingStatus.CONFIRMED
+        if was_confirmed:
             await self.event_repo.update(
                 event, current_confirmed=max(0, event.current_confirmed - 1)
             )
@@ -300,6 +348,8 @@ class BookingService:
                     },
                 )
             )
+        if was_confirmed:
+            await self._promote_from_waitlist(event)
         return updated
 
     async def mark_attendance(

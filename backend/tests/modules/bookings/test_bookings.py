@@ -14,6 +14,7 @@ from app.main import app
 from app.modules.bookings.models import Booking, BookingStatus
 from app.modules.bookings.service import BookingService
 from app.modules.events.models import Event, EventStatus
+from app.modules.notifications.enums import NotificationType
 from app.modules.users.enums import UserStatus
 from app.modules.users.models import User
 
@@ -177,13 +178,62 @@ async def test_apply_for_seat_rejects_duplicate_active_booking() -> None:
 
 
 @pytest.mark.asyncio
-async def test_apply_for_seat_rejects_full_table() -> None:
+async def test_apply_for_seat_joins_waitlist_when_table_is_full() -> None:
     booking_repo = AsyncMock()
     event_repo = AsyncMock()
-    service = BookingService(booking_repo, event_repo)
+    notification_service = AsyncMock()
+    service = BookingService(
+        booking_repo, event_repo, notification_service=notification_service
+    )
 
     player = User(id=uuid.uuid7(), email="player@example.com", status=UserStatus.ACTIVE)
 
+    event = Event(
+        id=uuid.uuid7(),
+        organizer_id=uuid.uuid7(),
+        title="Catan night",
+        status=EventStatus.PUBLISHED,
+        is_verified=True,
+        start_datetime=datetime.now(UTC) + timedelta(days=1),
+        current_confirmed=5,
+        max_players=5,
+    )
+    event_repo.lock_event.return_value = event
+    booking_repo.get_active_booking.return_value = None
+    booking_repo.create_booking.return_value = Booking(
+        id=uuid.uuid7(),
+        event_id=event.id,
+        user_id=player.id,
+        status=BookingStatus.WAITLIST,
+    )
+
+    result = await service.apply_for_seat(event.id, player)
+
+    assert result.status == BookingStatus.WAITLIST
+    booking_repo.create_booking.assert_awaited_once_with(
+        event_id=event.id, user_id=player.id, status=BookingStatus.WAITLIST
+    )
+    notification_service.notify.assert_awaited_once()
+    sent = notification_service.notify.await_args.args[0]
+    assert sent.user_id == player.id
+    assert sent.notification_type == NotificationType.WAITLIST_PROMOTED
+
+
+@pytest.mark.parametrize(
+    ("status", "match"),
+    [
+        (BookingStatus.REJECTED, "rejected"),
+        (BookingStatus.REMOVED_BY_ORGANIZER, "disqualified"),
+    ],
+)
+@pytest.mark.asyncio
+async def test_apply_for_seat_forbidden_after_rejection_or_removal(
+    status: BookingStatus, match: str
+) -> None:
+    booking_repo = AsyncMock()
+    event_repo = AsyncMock()
+    service = BookingService(booking_repo, event_repo)
+    player = User(id=uuid.uuid7(), email="player@example.com", status=UserStatus.ACTIVE)
     event = Event(
         id=uuid.uuid7(),
         organizer_id=uuid.uuid7(),
@@ -194,10 +244,154 @@ async def test_apply_for_seat_rejects_full_table() -> None:
         max_players=5,
     )
     event_repo.lock_event.return_value = event
-    booking_repo.get_active_booking.return_value = None
+    booking_repo.get_active_booking.return_value = Booking(
+        id=uuid.uuid7(), event_id=event.id, user_id=player.id, status=status
+    )
 
-    with pytest.raises(ConflictException, match="Table capacity is exhausted"):
+    with pytest.raises(ForbiddenException, match=match):
         await service.apply_for_seat(event.id, player)
+    booking_repo.create_booking.assert_not_awaited()
+
+
+def _waitlist_setup(
+    *, waiting: bool
+) -> tuple[BookingService, AsyncMock, AsyncMock, AsyncMock, Event, Booking | None]:
+    booking_repo = AsyncMock()
+    event_repo = AsyncMock()
+    notification_service = AsyncMock()
+    service = BookingService(
+        booking_repo, event_repo, notification_service=notification_service
+    )
+    event = Event(
+        id=uuid.uuid7(),
+        organizer_id=uuid.uuid7(),
+        title="Catan night",
+        status=EventStatus.PUBLISHED,
+        is_verified=True,
+        start_datetime=datetime.now(UTC) + timedelta(days=1),
+        current_confirmed=5,
+        max_players=5,
+    )
+    event_repo.lock_event.return_value = event
+    waiting_booking = None
+    if waiting:
+        waiting_booking = Booking(
+            id=uuid.uuid7(),
+            event_id=event.id,
+            user_id=uuid.uuid7(),
+            status=BookingStatus.WAITLIST,
+        )
+        waiting_booking.user = User(
+            id=waiting_booking.user_id, email="wait@example.com", first_name="Wanda"
+        )
+    booking_repo.get_first_waitlisted.return_value = waiting_booking
+
+    def _apply_update(obj: Booking, **kwargs: object) -> Booking:
+        for key, value in kwargs.items():
+            setattr(obj, key, value)
+        return obj
+
+    booking_repo.update.side_effect = _apply_update
+    return (
+        service,
+        booking_repo,
+        event_repo,
+        notification_service,
+        event,
+        waiting_booking,
+    )
+
+
+@pytest.mark.asyncio
+async def test_player_cancelling_confirmed_seat_promotes_waitlist() -> None:
+    service, booking_repo, _, notifications, event, waiting = _waitlist_setup(
+        waiting=True
+    )
+    player_id = uuid.uuid7()
+    confirmed = Booking(
+        id=uuid.uuid7(),
+        event_id=event.id,
+        user_id=player_id,
+        status=BookingStatus.CONFIRMED,
+    )
+    booking_repo.get_active_booking.return_value = confirmed
+
+    await service.cancel_for_player(event.id, player_id)
+
+    assert waiting is not None
+    assert waiting.status == BookingStatus.PENDING
+    last = notifications.notify.await_args_list[-1].args[0]
+    assert last.user_id == event.organizer_id
+    assert last.notification_type == NotificationType.BOOKING_REQUESTED
+    assert last.metadata_payload["from_waitlist"] is True
+    assert last.metadata_payload["booking_id"] == str(waiting.id)
+
+
+@pytest.mark.asyncio
+async def test_organizer_removing_confirmed_seat_promotes_waitlist() -> None:
+    service, booking_repo, _, notifications, event, waiting = _waitlist_setup(
+        waiting=True
+    )
+    organizer = User(id=event.organizer_id, email="host@example.com")
+    confirmed = Booking(
+        id=uuid.uuid7(),
+        event_id=event.id,
+        user_id=uuid.uuid7(),
+        status=BookingStatus.CONFIRMED,
+    )
+    booking_repo.get_by_id_for_event.return_value = confirmed
+
+    await service.decide(event.id, confirmed.id, organizer, approve=False)
+
+    assert waiting is not None
+    assert waiting.status == BookingStatus.PENDING
+    assert notifications.notify.await_count == 2
+
+
+@pytest.mark.asyncio
+async def test_freed_seat_without_waitlist_promotes_nobody() -> None:
+    service, booking_repo, _, notifications, event, _ = _waitlist_setup(waiting=False)
+    player_id = uuid.uuid7()
+    booking_repo.get_active_booking.return_value = Booking(
+        id=uuid.uuid7(),
+        event_id=event.id,
+        user_id=player_id,
+        status=BookingStatus.CONFIRMED,
+    )
+
+    await service.cancel_for_player(event.id, player_id)
+
+    # only the "player cancelled" notification, nothing for a promotion
+    assert notifications.notify.await_count == 1
+
+
+@pytest.mark.parametrize("status", [BookingStatus.PENDING, BookingStatus.WAITLIST])
+@pytest.mark.asyncio
+async def test_cancelling_non_confirmed_booking_does_not_promote(
+    status: BookingStatus,
+) -> None:
+    service, booking_repo, event_repo, _, event, _ = _waitlist_setup(waiting=True)
+    player_id = uuid.uuid7()
+    booking_repo.get_active_booking.return_value = Booking(
+        id=uuid.uuid7(), event_id=event.id, user_id=player_id, status=status
+    )
+
+    await service.cancel_for_player(event.id, player_id)
+
+    booking_repo.get_first_waitlisted.assert_not_awaited()
+    event_repo.update.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_organizer_can_reject_waitlisted_booking() -> None:
+    service, booking_repo, _, _, event, waiting = _waitlist_setup(waiting=True)
+    organizer = User(id=event.organizer_id, email="host@example.com")
+    booking_repo.get_by_id_for_event.return_value = waiting
+
+    result = await service.decide(event.id, waiting.id, organizer, approve=False)
+
+    assert result.status == BookingStatus.REJECTED
+    booking_repo.get_first_waitlisted.assert_not_awaited()
 
 
 @pytest.mark.asyncio
@@ -494,6 +688,7 @@ async def test_decide_decline_confirmed_booking_removes_participant_and_notifies
         status=BookingStatus.CONFIRMED,
     )
     booking_repo.get_by_id_for_event.return_value = booking
+    booking_repo.get_first_waitlisted.return_value = None
     booking_repo.update.return_value = Booking(
         id=booking.id,
         event_id=event.id,

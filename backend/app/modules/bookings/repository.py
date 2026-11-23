@@ -40,6 +40,19 @@ class BookingRepository(BaseRepository[Booking]):
         )
         return result.scalar_one_or_none()
 
+    async def get_first_waitlisted(self, event_id: uuid.UUID) -> Booking | None:
+        result = await self.session.execute(
+            select(Booking)
+            .options(joinedload(Booking.user), joinedload(Booking.event))
+            .where(
+                Booking.event_id == event_id,
+                Booking.status == BookingStatus.WAITLIST,
+            )
+            .order_by(Booking.created_at, Booking.id)
+            .limit(1)
+        )
+        return result.scalar_one_or_none()
+
     async def create_booking(
         self,
         event_id: uuid.UUID,

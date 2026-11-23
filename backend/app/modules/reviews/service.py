@@ -19,6 +19,7 @@ from app.modules.users.repository import UserRepository
 
 RATING_PRECISION = Decimal("0.01")
 
+
 def _ensure_window_open(event: Event, now: datetime) -> None:
     if event.status in NOT_HELD_EVENT_STATUSES:
         raise BadRequestException("This event did not take place")
@@ -101,7 +102,6 @@ class ReviewService:
         if event is None or event.is_deleted:
             raise NotFoundException("Event not found")
         return event
-
 
     async def _has_attended(self, event_id: uuid.UUID, user_id: uuid.UUID) -> bool:
         booking = await self.booking_repo.get_latest_for_user(event_id, user_id)
