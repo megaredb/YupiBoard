@@ -231,7 +231,6 @@
         "other": "Specify another reason"
       },
       "otherPlaceholder": "Enter the reason for removal…",
-      "reasonRequired": "Please select at least one reason or enter your own.",
       "confirm": "Yes, decline"
     },
     "disqualified": {
