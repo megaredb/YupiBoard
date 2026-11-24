@@ -231,7 +231,6 @@
         "other": "Specify another reason"
       },
       "otherPlaceholder": "Enter the reason for removal…",
-      "reasonRequired": "Please select at least one reason or enter your own.",
       "confirm": "Yes, decline"
     },
     "disqualified": {
@@ -248,23 +247,6 @@
     "accepted": "Request accepted",
     "waitlisted": "The table is full, so the player was added to the waitlist",
     "declined": "Request declined"
-  },
-  "rejectEventDialog": {
-    "title": "Reject \"{{name}}\"?",
-    "description": "Select a reason for rejecting \"{{name}}\". The organizer will receive a notification with the reason and will need to update the event before resubmitting.",
-    "reasonsLabel": "Reason (required)",
-    "reasons": {
-      "inappropriate": "Inappropriate content",
-      "spam": "Fake or spam",
-      "duplicate": "Duplicate event",
-      "inaccurate": "Inaccurate details",
-      "missing": "Missing details",
-      "guidelines": "Guidelines violation",
-      "other": "Other"
-    },
-    "otherPlaceholder": "Please specify a reason for rejection…",
-    "reasonRequired": "Please select at least one reason or enter your own.",
-    "confirm": "Reject event"
   },
   "cancelEvent": {
     "button": "Cancel event",

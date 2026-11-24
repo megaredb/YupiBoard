@@ -1,8 +1,6 @@
 import { TriangleAlert } from "lucide-react";
-import { cn } from "@/shared/lib/cn";
+import { AlertDialogActions } from "@/shared/components/alert-dialog-actions";
 import { AlertDialog } from "@/shared/ui/alert-dialog";
-import { Button } from "@/shared/ui/button";
-import { buttonVariants } from "@/shared/ui/button-variants";
 
 interface ConfirmDialogProps {
   title: string;
@@ -12,9 +10,6 @@ interface ConfirmDialogProps {
   onConfirm: () => void;
   onClose: () => void;
 }
-
-// Long labels ("Yes, cancel request") wrap inside the button instead of overflowing it.
-const ACTION_CLASS = "h-auto min-h-12 px-3 py-2 text-sm leading-tight whitespace-normal";
 
 export function ConfirmDialog({
   title,
@@ -44,21 +39,11 @@ export function ConfirmDialog({
             <AlertDialog.Description>{description}</AlertDialog.Description>
           </div>
         </div>
-        <AlertDialog.Footer>
-          <AlertDialog.Close
-            className={buttonVariants({ variant: "outline", size: "xl", className: ACTION_CLASS })}
-          >
-            {cancelLabel}
-          </AlertDialog.Close>
-          <Button
-            variant="secondary"
-            size="xl"
-            className={cn(ACTION_CLASS, "shadow-sm")}
-            onClick={handleConfirm}
-          >
-            {confirmLabel}
-          </Button>
-        </AlertDialog.Footer>
+        <AlertDialogActions
+          cancelLabel={cancelLabel}
+          confirmLabel={confirmLabel}
+          onConfirm={handleConfirm}
+        />
       </AlertDialog.Content>
     </AlertDialog>
   );
