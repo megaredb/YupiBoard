@@ -1,9 +1,11 @@
 import { useTranslation } from "react-i18next";
 import type { EventRead } from "@/shared/api/generated/model";
 import { Card } from "@/shared/ui/card";
+import { HostAttendanceGroups } from "@/features/events/components/event-details/host-attendance-groups";
 import { HostBookingList } from "@/features/events/components/event-details/host-booking-list";
 import { ParticipantList } from "@/features/events/components/event-details/participant-list";
 import { useEventBookings } from "@/features/events/hooks/use-event-bookings";
+import { getAttendancePhase } from "@/features/events/lib/get-attendance-phase";
 import { PARTICIPANTS_SECTION_ID } from "@/features/events/lib/participants-section-id";
 
 interface EventParticipantsSectionProps {
@@ -36,6 +38,7 @@ function HostPendingCard({ eventId }: { eventId: string }) {
 export function EventParticipantsSection({ event, viewer }: EventParticipantsSectionProps) {
   const { t } = useTranslation();
   const isHost = viewer === "host";
+  const attendancePhase = getAttendancePhase(event);
 
   return (
     <div id={PARTICIPANTS_SECTION_ID} className="scroll-mt-20 space-y-6">
@@ -52,15 +55,17 @@ export function EventParticipantsSection({ event, viewer }: EventParticipantsSec
           </Card.Description>
         </Card.Header>
         <Card.Content>
-          {isHost ? (
+          {isHost && attendancePhase !== "upcoming" && (
+            <HostAttendanceGroups eventId={event.id} canMark={attendancePhase === "open"} />
+          )}
+          {isHost && attendancePhase === "upcoming" && (
             <HostBookingList
               eventId={event.id}
               status="Confirmed"
               emptyText={t("events.participants.noPlayers")}
             />
-          ) : (
-            <ParticipantList eventId={event.id} />
           )}
+          {!isHost && <ParticipantList eventId={event.id} />}
         </Card.Content>
       </Card>
       {isHost && <HostPendingCard eventId={event.id} />}

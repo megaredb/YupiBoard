@@ -1,7 +1,15 @@
 import type { BookingStatus, EventRead } from "@/shared/api/generated/model";
 
 export type BookingState =
-  "open" | "hosting" | "closed" | "approved" | "waitlist" | "pending" | "rejected" | "full";
+  | "open"
+  | "hosting"
+  | "closed"
+  | "approved"
+  | "attended"
+  | "waitlist"
+  | "pending"
+  | "rejected"
+  | "full";
 
 interface BookingStateInput {
   event: Pick<EventRead, "organizer_id" | "status" | "available_seats">;
@@ -13,6 +21,7 @@ interface BookingStateInput {
 const BOOKING_STATES: Partial<Record<BookingStatus, BookingState>> = {
   Pending: "pending",
   Confirmed: "approved",
+  Attended: "attended",
   Waitlist: "waitlist",
   Rejected: "rejected",
   RemovedByOrganizer: "rejected",
@@ -39,6 +48,6 @@ export function canApplyBooking(state: BookingState): boolean {
 
 export function getParticipantsViewer(state: BookingState): "host" | "participant" | null {
   if (state === "hosting") return "host";
-  if (state === "approved") return "participant";
+  if (state === "approved" || state === "attended") return "participant";
   return null;
 }

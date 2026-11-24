@@ -11,6 +11,7 @@ import { DisqualificationModal } from "@/features/events/components/event-detail
 import { EventAbout } from "@/features/events/components/event-details/event-about";
 import { EventActionButtons } from "@/features/events/components/event-details/event-action-buttons";
 import { EventParticipantsSection } from "@/features/events/components/event-details/event-participants-section";
+import { EventRejectionNotice } from "@/features/events/components/event-details/event-rejection-notice";
 import { EventSummary } from "@/features/events/components/event-details/event-summary";
 import { MobileBookingBar } from "@/features/events/components/event-details/mobile-booking-bar";
 import { MobileOrganizerRow } from "@/features/events/components/event-details/mobile-organizer-row";
@@ -26,20 +27,33 @@ import { useFavoriteToggle } from "@/features/events/hooks/use-favorite-toggle";
 import { useGoBack } from "@/features/events/hooks/use-go-back";
 import { useShareEvent } from "@/features/events/hooks/use-share-event";
 import { getParticipantsViewer } from "@/features/events/lib/get-booking-state";
+import { ModerationPanel, useIsModerating } from "@/features/moderation";
+import { RateOrganizerCard } from "@/features/reviews";
 
 const route = getRouteApi("/events/$eventId");
 
 function EventDetailsAside({
   event,
   isHost,
+  isModerating,
   booking,
   cancelEvent,
 }: {
   event: EventRead;
   isHost: boolean;
+  isModerating: boolean;
   booking: BookingAction;
   cancelEvent: CancelEventAction;
 }) {
+  if (isModerating) {
+    // Unlike the booking panel, the decision has to be reachable on a phone as well.
+    return (
+      <aside className="max-desktop:px-4 desktop:sticky desktop:top-20">
+        <ModerationPanel event={event} />
+      </aside>
+    );
+  }
+
   return (
     <aside className="hidden desktop:sticky desktop:top-20 desktop:block">
       <BookingPanel event={event} isHost={isHost}>
@@ -62,8 +76,22 @@ function EventDetailsAside({
   );
 }
 
-export function EventDetailsPage() {
+function EventBreadcrumbs({ title, isModerating }: { title: string; isModerating: boolean }) {
   const { t } = useTranslation();
+  const parent = isModerating
+    ? { label: t("shell.nav.moderation"), to: "/moderation" as const }
+    : { label: t("shell.nav.events"), to: "/events" as const };
+
+  return (
+    <Breadcrumbs
+      className="mb-6 hidden desktop:block"
+      label={t("common.breadcrumbs")}
+      items={[parent, { label: title }]}
+    />
+  );
+}
+
+export function EventDetailsPage() {
   const { eventId } = route.useParams();
   const event = useEventDetails(eventId);
   useEventStream(eventId);
@@ -75,6 +103,7 @@ export function EventDetailsPage() {
   const goBack = useGoBack();
   const isHost = booking.state === "hosting";
   const isDisqualified = booking.state === "rejected";
+  const isModerating = useIsModerating(event);
   const participantsViewer = getParticipantsViewer(booking.state);
 
   const renderActions = (placement: "overlay" | "bar") => (
@@ -95,19 +124,17 @@ export function EventDetailsPage() {
           isDisqualified && "pointer-events-none blur-md select-none",
         )}
       >
-        <Breadcrumbs
-          className="mb-6 hidden desktop:block"
-          label={t("common.breadcrumbs")}
-          items={[{ label: t("shell.nav.events"), to: "/events" }, { label: event.title }]}
-        />
+        <EventBreadcrumbs title={event.title} isModerating={isModerating} />
         <div className="desktop:grid desktop:grid-with-aside desktop:items-start desktop:gap-8">
           <div className="space-y-6">
             <EventSummary event={event} heroActions={renderActions("overlay")} />
             <div className="space-y-6 max-desktop:px-4">
+              {isHost && <EventRejectionNotice event={event} />}
               <EventAbout description={event.description} />
               {participantsViewer && (
                 <EventParticipantsSection event={event} viewer={participantsViewer} />
               )}
+              {booking.state === "attended" && <RateOrganizerCard eventId={event.id} />}
               {!isHost && <OrganizerCard organizer={organizer} />}
               {!isHost && <MobileOrganizerRow organizer={organizer} />}
             </div>
@@ -115,12 +142,13 @@ export function EventDetailsPage() {
           <EventDetailsAside
             event={event}
             isHost={isHost}
+            isModerating={isModerating}
             booking={booking}
             cancelEvent={cancelEvent}
           />
         </div>
       </PageContainer>
-      {!isDisqualified && (
+      {!isDisqualified && !isModerating && (
         <MobileBookingBar event={event} action={booking} cancelEvent={cancelEvent} />
       )}
       {isDisqualified && <DisqualificationModal reason={event.user_booking_rejection_reason} />}

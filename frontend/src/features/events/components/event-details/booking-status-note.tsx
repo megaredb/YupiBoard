@@ -24,7 +24,7 @@ const noteVariants = cva(
 );
 
 function getNoteTone(state: BookingState): "approved" | "rejected" | "pending" {
-  if (state === "approved") return "approved";
+  if (state === "approved" || state === "attended") return "approved";
   if (state === "rejected") return "rejected";
   return "pending";
 }

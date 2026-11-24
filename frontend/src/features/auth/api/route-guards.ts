@@ -16,6 +16,19 @@ export async function requireUser({
   if (!user) throw redirect({ to: "/login", search: { redirect: location.href } });
 }
 
+/** Moderation is admin-only: guests go to sign-in, everybody else without the flag to the catalog. */
+export async function requireSuperuser({
+  context,
+  location,
+}: {
+  context: RouterContext;
+  location: { href: string };
+}): Promise<void> {
+  const user = await ensureCurrentUser(context.queryClient);
+  if (!user) throw redirect({ to: "/login", search: { redirect: location.href } });
+  if (!user.is_superuser) throw redirect({ to: "/events" });
+}
+
 export async function redirectSignedInUser({
   context,
   search,

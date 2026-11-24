@@ -12,11 +12,13 @@
     "myEvents": "Мої події",
     "myBookings": "Мої бронювання",
     "favorites": "Обране",
-    "profile": "Профіль"
+    "profile": "Профіль",
+    "moderation": "Модерація"
   },
   "userMenu": {
     "open": "Відкрити меню користувача",
     "myProfile": "Мій профіль",
+    "moderation": "Модерація",
     "publicProfile": "Публічний профіль",
     "logout": "Вийти"
   },

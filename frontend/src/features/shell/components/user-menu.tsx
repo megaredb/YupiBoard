@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Globe, LogOut, User as UserIcon } from "lucide-react";
+import { Globe, LogOut, ShieldCheck, User as UserIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { UserRead } from "@/shared/api/generated/model";
 import { DropdownMenu } from "@/shared/ui/dropdown-menu";
@@ -35,6 +35,12 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
           <Globe aria-hidden />
           {t("shell.userMenu.publicProfile")}
         </DropdownMenu.Item>
+        {user.is_superuser && (
+          <DropdownMenu.Item render={<Link to="/moderation" search={{ page: 1 }} />}>
+            <ShieldCheck aria-hidden />
+            {t("shell.userMenu.moderation")}
+          </DropdownMenu.Item>
+        )}
         <DropdownMenu.Separator />
         <DropdownMenu.Item variant="destructive" onClick={onLogout}>
           <LogOut aria-hidden />

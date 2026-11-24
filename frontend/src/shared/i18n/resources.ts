@@ -1,3 +1,4 @@
+import enAdmin from "@/shared/i18n/locales/en/admin.json";
 import enAuth from "@/shared/i18n/locales/en/auth.json";
 import enCommon from "@/shared/i18n/locales/en/common.json";
 import enErrors from "@/shared/i18n/locales/en/errors.json";
@@ -5,8 +6,10 @@ import enEvents from "@/shared/i18n/locales/en/events.json";
 import enModeration from "@/shared/i18n/locales/en/moderation.json";
 import enNotifications from "@/shared/i18n/locales/en/notifications.json";
 import enProfile from "@/shared/i18n/locales/en/profile.json";
+import enReviews from "@/shared/i18n/locales/en/reviews.json";
 import enShell from "@/shared/i18n/locales/en/shell.json";
 import enValidation from "@/shared/i18n/locales/en/validation.json";
+import ukAdmin from "@/shared/i18n/locales/uk/admin.json";
 import ukAuth from "@/shared/i18n/locales/uk/auth.json";
 import ukCommon from "@/shared/i18n/locales/uk/common.json";
 import ukErrors from "@/shared/i18n/locales/uk/errors.json";
@@ -14,10 +17,12 @@ import ukEvents from "@/shared/i18n/locales/uk/events.json";
 import ukModeration from "@/shared/i18n/locales/uk/moderation.json";
 import ukNotifications from "@/shared/i18n/locales/uk/notifications.json";
 import ukProfile from "@/shared/i18n/locales/uk/profile.json";
+import ukReviews from "@/shared/i18n/locales/uk/reviews.json";
 import ukShell from "@/shared/i18n/locales/uk/shell.json";
 import ukValidation from "@/shared/i18n/locales/uk/validation.json";
 
 const en = {
+  admin: enAdmin,
   auth: enAuth,
   common: enCommon,
   errors: enErrors,
@@ -25,6 +30,7 @@ const en = {
   moderation: enModeration,
   notifications: enNotifications,
   profile: enProfile,
+  reviews: enReviews,
   shell: enShell,
   validation: enValidation,
 };
@@ -32,6 +38,7 @@ const en = {
 export type TranslationResources = typeof en;
 
 const uk = {
+  admin: ukAdmin,
   auth: ukAuth,
   common: ukCommon,
   errors: ukErrors,
@@ -39,6 +46,7 @@ const uk = {
   moderation: ukModeration,
   notifications: ukNotifications,
   profile: ukProfile,
+  reviews: ukReviews,
   shell: ukShell,
   validation: ukValidation,
 };

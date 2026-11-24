@@ -11,8 +11,6 @@ interface RejectEventDialogProps {
   onClose: () => void;
 }
 
-// Not rendered yet: the API has `EventStatus.Rejected` but no endpoint for a moderator to reject
-// an event with a reason. Wire this dialog to that mutation once the backend provides it.
 export function RejectEventDialog({ eventTitle, onConfirm, onClose }: RejectEventDialogProps) {
   const { t } = useTranslation();
   const options = EVENT_REJECTION_REASON_KEYS.map((key) => ({ id: key, label: t(key) }));

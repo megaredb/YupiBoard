@@ -5,7 +5,7 @@ import { cn } from "@/shared/lib/cn";
 interface BreadcrumbItem {
   label: string;
   /** Omit for the current (last) crumb. */
-  to?: "/events";
+  to?: "/events" | "/moderation";
 }
 
 interface BreadcrumbsProps {
