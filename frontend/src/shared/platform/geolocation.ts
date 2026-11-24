@@ -6,7 +6,16 @@ export interface Coordinates {
   lon: number;
 }
 
-const TIMEOUT_MS = 8000;
+/**
+ * Only the nearest city is needed, so a recent fix is as good as a new one. It also keeps repeated
+ * lookups working on the web: with `maximumAge: 0` the browser waits for a fresh fix, and its
+ * network provider only produces one when the Wi-Fi/IP data changes, so every call after the
+ * first runs into the timeout.
+ */
+const MAX_POSITION_AGE_MS = 5 * 60_000;
+const WEB_TIMEOUT_MS = 8000;
+/** A first GPS fix takes longer than a network lookup. */
+const NATIVE_TIMEOUT_MS = 20_000;
 
 function readWebPosition(): Promise<Coordinates> {
   return new Promise((resolve, reject) => {
@@ -17,15 +26,10 @@ function readWebPosition(): Promise<Coordinates> {
     navigator.geolocation.getCurrentPosition(
       (position) => resolve({ lat: position.coords.latitude, lon: position.coords.longitude }),
       reject,
-      { timeout: TIMEOUT_MS },
+      { maximumAge: MAX_POSITION_AGE_MS, timeout: WEB_TIMEOUT_MS },
     );
   });
 }
-
-/** Only the nearest city is needed, so a recent fix is as good as a new one. */
-const NATIVE_MAX_AGE_MS = 5 * 60_000;
-/** A first GPS fix takes longer than a network lookup. */
-const NATIVE_TIMEOUT_MS = 20_000;
 
 /**
  * High accuracy lets Android use GPS: approximate location is a network lookup and never answers
@@ -34,7 +38,7 @@ const NATIVE_TIMEOUT_MS = 20_000;
 async function readNativePosition(): Promise<Coordinates> {
   const position = await Geolocation.getCurrentPosition({
     enableHighAccuracy: true,
-    maximumAge: NATIVE_MAX_AGE_MS,
+    maximumAge: MAX_POSITION_AGE_MS,
     timeout: NATIVE_TIMEOUT_MS,
   });
   return { lat: position.coords.latitude, lon: position.coords.longitude };

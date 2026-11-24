@@ -1,158 +1,115 @@
-import { getAccessToken, getApiBaseUrl, restoreSessionFromRefreshToken } from "@/shared/api/client";
-
-interface SseMessage {
-  event: string;
-  data: string;
-}
+import type { AxiosRequestConfig } from "axios";
+import { toApiError } from "@/shared/api/errors";
+import { drainSseBuffer, type SseMessage } from "@/shared/api/sse-parser";
 
 interface ConnectSseOptions {
-  path: string;
-  requireAuth: boolean;
-  onEvent: (message: SseMessage) => void;
+  /** Opens the stream through a generated endpoint called with `SSE_REQUEST_OPTIONS`. */
+  open: (signal: AbortSignal) => Promise<unknown>;
   signal: AbortSignal;
+  onMessage: (message: SseMessage) => void;
+  /** Runs when a dropped stream is back, so the caller can refetch what it missed meanwhile. */
+  onReconnect: () => void;
 }
+
+/**
+ * Streams through the shared axios instance, so auth, token refresh and `ApiError` apply.
+ * The default request timeout would cut a long-lived stream; staleness is watched instead.
+ */
+export const SSE_REQUEST_OPTIONS: AxiosRequestConfig = {
+  adapter: "fetch",
+  responseType: "stream",
+  timeout: 0,
+  headers: { Accept: "text/event-stream" },
+};
 
 const INITIAL_RETRY_MS = 1000;
 const MAX_RETRY_MS = 30_000;
-const BLOCK_SEPARATOR_RE = /\r?\n\r?\n/;
+// The server sends a heartbeat comment every 20 s. Longer silence means the connection died
+// without closing, which happens when Android suspends the WebView or the network changes.
+const STALE_STREAM_MS = 45_000;
 
 function sleep(ms: number, signal: AbortSignal): Promise<void> {
   return new Promise((resolve) => {
-    if (signal.aborted) {
-      resolve();
-      return;
-    }
-    const timer = setTimeout(() => {
-      signal.removeEventListener("abort", onAbort);
-      resolve();
-    }, ms);
-    const onAbort = () => {
+    const finish = () => {
       clearTimeout(timer);
+      signal.removeEventListener("abort", finish);
       resolve();
     };
-    signal.addEventListener("abort", onAbort, { once: true });
+    const timer = setTimeout(finish, ms);
+    signal.addEventListener("abort", finish, { once: true });
   });
 }
 
-function parseSseLine(line: string): [string, string] | null {
-  if (!line || line.startsWith(":")) return null;
-  const colonIdx = line.indexOf(":");
-  if (colonIdx === -1) return [line, ""];
-  const field = line.slice(0, colonIdx);
-  const rawValue = line.slice(colonIdx + 1);
-  return [field, rawValue.startsWith(" ") ? rawValue.slice(1) : rawValue];
-}
+/** One attempt's abort signal: aborted by the caller, by `close()`, or after a silent stretch. */
+function createConnection(parent: AbortSignal) {
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  let timer = setTimeout(abort, STALE_STREAM_MS);
+  parent.addEventListener("abort", abort, { once: true });
 
-function parseSseChunk(rawBlock: string): SseMessage | null {
-  let eventName = "message";
-  const dataLines: string[] = [];
-
-  for (const line of rawBlock.split(/\r?\n/)) {
-    const parsed = parseSseLine(line);
-    if (!parsed) continue;
-    const [field, value] = parsed;
-    if (field === "event" && value) eventName = value;
-    else if (field === "data") dataLines.push(value);
-  }
-
-  return dataLines.length === 0 ? null : { event: eventName, data: dataLines.join("\n") };
-}
-
-function drainSseBuffer(buffer: string, onEvent: (message: SseMessage) => void): string {
-  let remaining = buffer;
-  let match = BLOCK_SEPARATOR_RE.exec(remaining);
-
-  while (match !== null) {
-    const block = remaining.slice(0, match.index);
-    remaining = remaining.slice(match.index + match[0].length);
-    const parsed = parseSseChunk(block);
-    if (parsed) onEvent(parsed);
-    match = BLOCK_SEPARATOR_RE.exec(remaining);
-  }
-
-  return remaining;
-}
-
-function buildStreamUrl(path: string): string {
-  const base = getApiBaseUrl().replace(/\/+$/, "");
-  const cleanPath = path.startsWith("/") ? path : `/${path}`;
-  return `${base}${cleanPath}`;
-}
-
-async function fetchSseResponse(
-  path: string,
-  requireAuth: boolean,
-  signal: AbortSignal,
-): Promise<Response | null> {
-  const buildHeaders = () => {
-    const headers: Record<string, string> = { Accept: "text/event-stream" };
-    const token = getAccessToken();
-    if (token) headers.Authorization = `Bearer ${token}`;
-    return headers;
+  return {
+    signal: controller.signal,
+    touch: () => {
+      clearTimeout(timer);
+      timer = setTimeout(abort, STALE_STREAM_MS);
+    },
+    close: () => {
+      clearTimeout(timer);
+      parent.removeEventListener("abort", abort);
+      abort();
+    },
   };
-
-  const url = buildStreamUrl(path);
-  let response = await fetch(url, {
-    method: "GET",
-    headers: buildHeaders(),
-    credentials: "include",
-    signal,
-  });
-
-  if (response.status === 401 && requireAuth) {
-    const refreshed = await restoreSessionFromRefreshToken();
-    if (!refreshed) return null;
-    response = await fetch(url, {
-      method: "GET",
-      headers: buildHeaders(),
-      credentials: "include",
-      signal,
-    });
-  }
-
-  if (!response.ok || !response.body) {
-    throw new Error(`SSE stream failed with status ${response.status}`);
-  }
-  return response;
 }
 
-async function readSseStream(
-  body: ReadableStream<Uint8Array>,
-  onEvent: (message: SseMessage) => void,
-  signal: AbortSignal,
+// 4xx other than timeout/rate limit will not heal by retrying: the event is gone or hidden, or the
+// session ended (the client has already tried a refresh and reported an expired session).
+function isPermanentFailure(error: unknown): boolean {
+  const { status } = toApiError(error);
+  return status !== null && status >= 400 && status < 500 && status !== 408 && status !== 429;
+}
+
+async function readStream(
+  body: unknown,
+  onMessage: (message: SseMessage) => void,
+  onActivity: () => void,
 ): Promise<void> {
+  if (!(body instanceof ReadableStream)) throw new TypeError("Response is not a stream");
   const reader = body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
 
-  while (!signal.aborted) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer = drainSseBuffer(buffer + decoder.decode(value, { stream: true }), onEvent);
+  for (;;) {
+    const chunk: ReadableStreamReadResult<Uint8Array> = await reader.read();
+    if (chunk.done) return;
+    onActivity();
+    buffer = drainSseBuffer(buffer + decoder.decode(chunk.value, { stream: true }), onMessage);
   }
 }
 
+/** Keeps a Server-Sent Events stream open until `signal` aborts, reconnecting with backoff. */
 export async function connectSseStream({
-  path,
-  requireAuth,
-  onEvent,
+  open,
   signal,
+  onMessage,
+  onReconnect,
 }: ConnectSseOptions): Promise<void> {
-  let attempt = 0;
+  let failures = 0;
+  let hasConnected = false;
 
   while (!signal.aborted) {
+    const connection = createConnection(signal);
     try {
-      const response = await fetchSseResponse(path, requireAuth, signal);
-      if (!response?.body) return;
-      attempt = 0;
-      await readSseStream(response.body, onEvent, signal);
-    } catch {
-      if (signal.aborted) return;
+      const body = await open(connection.signal);
+      if (hasConnected) onReconnect();
+      hasConnected = true;
+      failures = 0;
+      await readStream(body, onMessage, connection.touch);
+    } catch (error) {
+      if (signal.aborted || isPermanentFailure(error)) return;
+      failures += 1;
+    } finally {
+      connection.close();
     }
-
-    if (signal.aborted) return;
-    const delay = Math.min(INITIAL_RETRY_MS * 2 ** attempt, MAX_RETRY_MS);
-    attempt += 1;
-    await sleep(delay, signal);
+    await sleep(Math.min(INITIAL_RETRY_MS * 2 ** failures, MAX_RETRY_MS), signal);
   }
 }

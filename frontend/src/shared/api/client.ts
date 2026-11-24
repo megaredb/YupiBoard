@@ -35,14 +35,6 @@ let interceptorIds: { request: number; response: number } | null = null;
 let refreshInFlight: Promise<void> | null = null;
 const sessionExpiredListeners = new Set<SessionExpiredListener>();
 
-export function getApiBaseUrl(): string {
-  return apiClient.defaults.baseURL ?? "";
-}
-
-export function getAccessToken(): string | null {
-  return tokenStore?.getAccessToken() ?? null;
-}
-
 /** Fires when the server explicitly rejects the refresh token (401/403), never on network errors. */
 export function onSessionExpired(listener: SessionExpiredListener): () => void {
   sessionExpiredListeners.add(listener);
