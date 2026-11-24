@@ -18,6 +18,7 @@ class NotificationType(StrEnum):
     EVENT_CANCELLED = "EVENT_CANCELLED"
     NEW_EVENT_FROM_FOLLOWED = "NEW_EVENT_FROM_FOLLOWED"
     REVIEW_REMINDER = "REVIEW_REMINDER"
+    ATTENDANCE_MARKED = "ATTENDANCE_MARKED"
 
 
 class NotificationCategory(StrEnum):
@@ -41,6 +42,7 @@ NOTIFICATION_CATEGORY: dict[NotificationType, NotificationCategory] = {
     NotificationType.EVENT_CANCELLED: NotificationCategory.EVENT_UPDATES,
     NotificationType.NEW_EVENT_FROM_FOLLOWED: NotificationCategory.EVENT_UPDATES,
     NotificationType.REVIEW_REMINDER: NotificationCategory.EVENT_UPDATES,
+    NotificationType.ATTENDANCE_MARKED: NotificationCategory.EVENT_UPDATES,
 }
 
 

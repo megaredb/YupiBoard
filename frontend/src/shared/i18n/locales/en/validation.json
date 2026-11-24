@@ -30,5 +30,8 @@
   "coverType": "Cover image must be a JPEG or PNG file",
   "coverSize": "Cover image must be smaller than 5 MB",
   "bannerFormatSize": "Please upload a JPEG/PNG image under 5 MB",
-  "venueNameMax": "Venue name is too long (max 150 characters)"
+  "venueNameMax": "Venue name is too long (max 150 characters)",
+  "reasonRequired": "Please select at least one reason or enter your own.",
+  "otherReasonRequired": "Please describe the reason.",
+  "reasonTooLong": "Reason is too long (max 300 characters)"
 }

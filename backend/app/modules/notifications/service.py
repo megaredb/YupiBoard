@@ -2,6 +2,7 @@ import uuid
 from collections.abc import Sequence
 
 from app.core.exceptions import NotFoundException
+from app.core.realtime import RealtimeBroker, realtime_broker
 from app.modules.notifications.enums import (
     NOTIFICATION_CATEGORY,
     NotificationCategory,
@@ -14,22 +15,30 @@ from app.modules.notifications.schemas import (
     NotificationCountsRead,
     NotificationCreate,
     NotificationFilterParams,
+    NotificationRead,
 )
 
 
 class NotificationService:
-    def __init__(self, notification_repo: NotificationRepository) -> None:
+    def __init__(
+        self,
+        notification_repo: NotificationRepository,
+        realtime: RealtimeBroker | None = None,
+    ) -> None:
         self.notification_repo = notification_repo
+        self.realtime = realtime if realtime is not None else realtime_broker
 
     async def notify(self, data: NotificationCreate) -> Notification:
         """Called by other modules' services."""
-        return await self.notification_repo.create_notification(
+        notification = await self.notification_repo.create_notification(
             user_id=data.user_id,
             notification_type=data.notification_type,
             title=data.title,
             message=data.message,
             metadata_payload=data.metadata_payload,
         )
+        await self._publish_created(notification)
+        return notification
 
     async def notify_many(
         self, items: Sequence[NotificationCreate]
@@ -37,7 +46,7 @@ class NotificationService:
         """Store several notifications in one flush (e.g. fan-out to attendees)."""
         if not items:
             return []
-        return await self.notification_repo.create_many(
+        notifications = await self.notification_repo.create_many(
             [
                 {
                     "user_id": item.user_id,
@@ -48,6 +57,22 @@ class NotificationService:
                 }
                 for item in items
             ]
+        )
+        for notification in notifications:
+            await self._publish_created(notification)
+        return notifications
+
+    async def _publish_created(self, notification: Notification) -> None:
+        if getattr(notification, "id", None) is None:
+            return
+        try:
+            payload = NotificationRead.model_validate(notification).model_dump(
+                mode="json"
+            )
+        except Exception:  # noqa: BLE001
+            return
+        await self.realtime.publish_user_event(
+            notification.user_id, "notification.created", payload
         )
 
     async def list_for_user(

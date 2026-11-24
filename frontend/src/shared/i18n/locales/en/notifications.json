@@ -58,6 +58,9 @@
     },
     "REVIEW_REMINDER": {
       "title": "Rate Your Game Night"
+    },
+    "ATTENDANCE_MARKED": {
+      "title": "Attendance Confirmed"
     }
   }
 }

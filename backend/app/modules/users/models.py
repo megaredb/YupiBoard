@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
+    Integer,
     Numeric,
     String,
     Text,
@@ -67,6 +68,12 @@ class User(Base, UUIDMixin, TimestampMixin):
     )
     rating_as_organizer: Mapped[Decimal | None] = mapped_column(
         Numeric(3, 2), nullable=True
+    )
+    rating_as_player_count: Mapped[int] = mapped_column(
+        Integer, server_default="0", nullable=False
+    )
+    rating_as_organizer_count: Mapped[int] = mapped_column(
+        Integer, server_default="0", nullable=False
     )
 
     refresh_tokens: Mapped[list[RefreshToken]] = relationship(

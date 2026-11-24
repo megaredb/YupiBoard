@@ -10,6 +10,8 @@ from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
 from app.core.database import async_engine
 from app.core.exceptions import AppException
+from app.core.media_url import extract_request_origin, request_origin_var
+from app.core.realtime import realtime_broker
 from app.modules.router import api_router
 
 
@@ -17,7 +19,8 @@ from app.modules.router import api_router
 async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
     # Startup actions
     yield
-    # Shutdown actions: cleanly dispose database engine connections
+    # Shutdown actions: cleanly dispose database engine and realtime broker connections
+    await realtime_broker.close()
     await async_engine.dispose()
 
 
@@ -38,6 +41,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def bind_request_origin(request: Request, call_next):  # type: ignore[no-untyped-def]
+    token = request_origin_var.set(extract_request_origin(request))
+    try:
+        return await call_next(request)
+    finally:
+        request_origin_var.reset(token)
 
 
 @app.exception_handler(AppException)

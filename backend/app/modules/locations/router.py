@@ -7,6 +7,8 @@ from app.modules.locations.schemas import (
     CityRead,
     CountryRead,
     CountryWithCitiesRead,
+    GeocodeResult,
+    ReverseGeocodeResult,
 )
 from app.modules.locations.service import LocationService
 
@@ -53,3 +55,30 @@ async def search_cities(
         limit=limit,
         accept_language=accept_language,
     )
+
+
+@router.get(
+    "/geocode",
+    response_model=list[GeocodeResult],
+    summary="Forward geocode a street address or venue name into coordinates",
+)
+async def geocode_address(
+    service: Annotated[LocationService, Depends(get_location_service)],
+    query: Annotated[str, Query(min_length=2, max_length=255)],
+    city: Annotated[str | None, Query(min_length=1, max_length=100)] = None,
+    limit: Annotated[int, Query(ge=1, le=10)] = 5,
+) -> list[GeocodeResult]:
+    return await service.geocode(query=query, city=city, limit=limit)
+
+
+@router.get(
+    "/reverse",
+    response_model=ReverseGeocodeResult,
+    summary="Reverse geocode coordinates into a street address",
+)
+async def reverse_geocode(
+    service: Annotated[LocationService, Depends(get_location_service)],
+    lat: Annotated[float, Query(ge=-90, le=90)],
+    lon: Annotated[float, Query(ge=-180, le=180)],
+) -> ReverseGeocodeResult:
+    return await service.reverse_geocode(lat=lat, lon=lon)
