@@ -8,12 +8,19 @@ import { ModerationSortSelect } from "@/features/moderation/components/moderatio
 import { ModerationTabs } from "@/features/moderation/components/moderation-tabs";
 import { useModerationQueue } from "@/features/moderation/hooks/use-moderation-queue";
 import { useModerationSearch } from "@/features/moderation/hooks/use-moderation-search";
-import { MODERATION_QUERY_MAX_LENGTH } from "@/features/moderation/schemas/moderation-search.schema";
+import {
+  MODERATION_QUERY_MAX_LENGTH,
+  type ModerationSort,
+  type ModerationTab,
+} from "@/features/moderation/schemas/moderation-search.schema";
 
 export function ModerationQueuePage() {
   const { t } = useTranslation();
   const { search, applySearch, goToPage } = useModerationSearch();
   const queue = useModerationQueue(search);
+  const handleTabChange = (tab: ModerationTab) => applySearch({ tab });
+  const handleSearch = (q: string) => applySearch({ q: q || undefined });
+  const handleSortChange = (sort: ModerationSort) => applySearch({ sort });
 
   return (
     <PageContainer size="wide">
@@ -26,7 +33,7 @@ export function ModerationQueuePage() {
           <ModerationTabs
             value={search.tab}
             pendingCount={queue.pendingCount}
-            onChange={(tab) => applySearch({ tab })}
+            onChange={handleTabChange}
           />
           <SearchField
             key={search.q ?? ""}
@@ -35,10 +42,10 @@ export function ModerationQueuePage() {
             submitLabel={t("admin.moderation.search.submit")}
             maxLength={MODERATION_QUERY_MAX_LENGTH}
             defaultValue={search.q ?? ""}
-            onSearch={(q) => applySearch({ q: q || undefined })}
+            onSearch={handleSearch}
             className="desktop:mx-auto desktop:max-w-sm"
           />
-          <ModerationSortSelect value={search.sort} onChange={(sort) => applySearch({ sort })} />
+          <ModerationSortSelect value={search.sort} onChange={handleSortChange} />
         </div>
         {queue.total !== null && (
           <p className="text-sm font-semibold">

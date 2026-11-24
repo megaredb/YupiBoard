@@ -9,8 +9,8 @@ interface MyEventReviews {
 }
 
 /** What the signed-in user may rate on this event, and what they have already rated. */
-export function useMyEventReviews(eventId: string, enabled: boolean): MyEventReviews {
-  const { data } = useQuery({ ...myEventReviewsQueryOptions(eventId), enabled });
+export function useMyEventReviews(eventId: string): MyEventReviews {
+  const { data } = useQuery(myEventReviewsQueryOptions(eventId));
   const reviews = data?.reviews ?? [];
 
   return {

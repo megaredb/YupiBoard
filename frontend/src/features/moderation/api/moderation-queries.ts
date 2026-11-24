@@ -12,8 +12,8 @@ const STATUS_BY_TAB = {
 const MODERATION_FETCH_LIMIT = 100;
 
 /**
- * One tab's events, oldest first. The backend has no search or sort for this list, so the page
- * loads the whole tab (up to the backend maximum) and narrows it down on the client.
+ * One tab's events, oldest first, up to the backend maximum. Search, sort and paging happen in
+ * the interim `searchModerationEvents` until the endpoint supports them.
  */
 export function moderationQueueQueryOptions(tab: ModerationTab) {
   return getListModerationEventsApiV1ModerationEventsGetQueryOptions({

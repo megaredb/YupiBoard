@@ -16,7 +16,7 @@ interface RatePlayerButtonProps {
 export function RatePlayerButton({ eventId, playerId, playerName }: RatePlayerButtonProps) {
   const { t } = useTranslation();
   const [isOpen, setOpen] = useState(false);
-  const reviews = useMyEventReviews(eventId, true);
+  const reviews = useMyEventReviews(eventId);
   const review = useSubmitReview(eventId);
 
   if (!reviews.canReview) return null;

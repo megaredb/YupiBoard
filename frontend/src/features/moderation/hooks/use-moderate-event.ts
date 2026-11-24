@@ -9,13 +9,11 @@ import {
 import { getApiErrorKey } from "@/shared/i18n/get-api-error-key";
 import { showToast } from "@/shared/lib/toast/toast-store";
 
-interface Decision {
-  isApproved: boolean;
-  reason?: string;
-}
+/** The backend requires a reason for every rejection. */
+type Decision = { isApproved: true } | { isApproved: false; reason: string };
 
 interface ModerateEvent {
-  decide: (isApproved: boolean, reason?: string) => void;
+  decide: (decision: Decision) => void;
   isPending: boolean;
 }
 
@@ -23,10 +21,10 @@ export function useModerateEvent(eventId: string): ModerateEvent {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: ({ isApproved, reason }: Decision) =>
-      isApproved
+    mutationFn: (decision: Decision) =>
+      decision.isApproved
         ? approveEventApiV1ModerationEventsEventIdApprovePost(eventId)
-        : rejectEventApiV1ModerationEventsEventIdRejectPost(eventId, { reason: reason ?? "" }),
+        : rejectEventApiV1ModerationEventsEventIdRejectPost(eventId, { reason: decision.reason }),
     onSuccess: (_event, { isApproved }) =>
       showToast(t(isApproved ? "admin.moderation.approved" : "admin.moderation.rejected")),
     onError: (error) =>
@@ -41,7 +39,7 @@ export function useModerateEvent(eventId: string): ModerateEvent {
   });
 
   return {
-    decide: (isApproved, reason) => mutation.mutate({ isApproved, reason }),
+    decide: (decision) => mutation.mutate(decision),
     isPending: mutation.isPending,
   };
 }

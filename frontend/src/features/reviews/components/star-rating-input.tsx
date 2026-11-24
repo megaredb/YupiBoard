@@ -2,8 +2,7 @@ import { useId } from "react";
 import { Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/shared/lib/cn";
-
-const SCORES = [1, 2, 3, 4, 5] as const;
+import { REVIEW_SCORES } from "@/features/reviews/schemas/review.schema";
 
 interface StarRatingInputProps {
   label: string;
@@ -19,7 +18,7 @@ export function StarRatingInput({ label, value, onChange }: StarRatingInputProps
   return (
     <fieldset className="flex items-center justify-center gap-1">
       <legend className="sr-only">{label}</legend>
-      {SCORES.map((score) => (
+      {REVIEW_SCORES.map((score) => (
         <label
           key={score}
           className="touch-hitbox cursor-pointer rounded-lg p-1 has-focus-visible:ring-2 has-focus-visible:ring-ring/50"

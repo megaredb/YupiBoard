@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { EventRead } from "@/shared/api/generated/model";
-import { RejectionReasonDialog } from "@/shared/components/rejection-reason-dialog";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
 import { AutoCheckCard } from "@/features/moderation/components/auto-check-card";
+import { RejectEventDialog } from "@/features/moderation/components/reject-event-dialog";
 import { useModerateEvent } from "@/features/moderation/hooks/use-moderate-event";
 
 interface ModerationPanelProps {
@@ -17,10 +17,10 @@ export function ModerationPanel({ event }: ModerationPanelProps) {
   const [isRejecting, setRejecting] = useState(false);
   const moderation = useModerateEvent(event.id);
 
-  const handleApprove = () => moderation.decide(true);
+  const handleApprove = () => moderation.decide({ isApproved: true });
   const handleReject = (reason: string) => {
     setRejecting(false);
-    moderation.decide(false, reason);
+    moderation.decide({ isApproved: false, reason });
   };
   const handleAskReject = () => setRejecting(true);
   const handleCloseDialog = () => setRejecting(false);
@@ -55,9 +55,8 @@ export function ModerationPanel({ event }: ModerationPanelProps) {
         </Card.Content>
       </Card>
       {isRejecting && (
-        <RejectionReasonDialog
-          mode="event"
-          targetName={event.title}
+        <RejectEventDialog
+          eventTitle={event.title}
           onConfirm={handleReject}
           onClose={handleCloseDialog}
         />

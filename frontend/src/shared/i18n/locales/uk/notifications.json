@@ -58,6 +58,9 @@
     },
     "REVIEW_REMINDER": {
       "title": "Оцініть ігровий вечір"
+    },
+    "ATTENDANCE_MARKED": {
+      "title": "Відвідування відмічено"
     }
   }
 }

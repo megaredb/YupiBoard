@@ -13,7 +13,7 @@ interface Attendance {
   attended: boolean;
 }
 
-interface MarkAttendance {
+export interface MarkAttendance {
   mark: (bookingId: string, attended: boolean) => void;
   pendingBookingId: string | null;
 }

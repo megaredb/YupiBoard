@@ -4,7 +4,10 @@ import { AttendanceButtons } from "@/features/events/components/event-details/at
 import { ParticipantListState } from "@/features/events/components/event-details/participant-list-state";
 import { ParticipantRow } from "@/features/events/components/event-details/participant-row";
 import { useEventBookings } from "@/features/events/hooks/use-event-bookings";
-import { useMarkAttendance } from "@/features/events/hooks/use-mark-attendance";
+import {
+  useMarkAttendance,
+  type MarkAttendance,
+} from "@/features/events/hooks/use-mark-attendance";
 import { RatePlayerButton } from "@/features/reviews";
 import { getFullName } from "@/features/users";
 
@@ -17,16 +20,24 @@ interface HostAttendanceGroupsProps {
 }
 
 interface AttendanceGroupProps extends HostAttendanceGroupsProps {
+  /** Shared by all groups, so one save in progress locks every row. */
+  attendance: MarkAttendance;
   status: Extract<BookingStatus, "Confirmed" | "Attended" | "NoShow">;
   titleKey:
     "events.attendance.awaiting" | "events.attendance.attended" | "events.attendance.noShow";
   emptyText: string;
 }
 
-function AttendanceGroup({ eventId, canMark, status, titleKey, emptyText }: AttendanceGroupProps) {
+function AttendanceGroup({
+  eventId,
+  canMark,
+  attendance,
+  status,
+  titleKey,
+  emptyText,
+}: AttendanceGroupProps) {
   const { t } = useTranslation();
   const bookings = useEventBookings(eventId, 1, status, ATTENDANCE_PAGE_SIZE);
-  const attendance = useMarkAttendance(eventId);
 
   // Only the "awaiting" group is always visible; the others appear once somebody lands in them.
   if (status !== "Confirmed" && bookings.total === 0) return null;
@@ -75,12 +86,14 @@ function AttendanceGroup({ eventId, canMark, status, titleKey, emptyText }: Atte
 /** Host view of confirmed players once the event has started: who's still to be marked, who came, who didn't. */
 export function HostAttendanceGroups({ eventId, canMark }: HostAttendanceGroupsProps) {
   const { t } = useTranslation();
+  const attendance = useMarkAttendance(eventId);
 
   return (
     <div className="space-y-6">
       <AttendanceGroup
         eventId={eventId}
         canMark={canMark}
+        attendance={attendance}
         status="Confirmed"
         titleKey="events.attendance.awaiting"
         emptyText={t("events.attendance.allMarked")}
@@ -88,6 +101,7 @@ export function HostAttendanceGroups({ eventId, canMark }: HostAttendanceGroupsP
       <AttendanceGroup
         eventId={eventId}
         canMark={canMark}
+        attendance={attendance}
         status="Attended"
         titleKey="events.attendance.attended"
         emptyText={t("events.participants.noPlayers")}
@@ -95,6 +109,7 @@ export function HostAttendanceGroups({ eventId, canMark }: HostAttendanceGroupsP
       <AttendanceGroup
         eventId={eventId}
         canMark={canMark}
+        attendance={attendance}
         status="NoShow"
         titleKey="events.attendance.noShow"
         emptyText={t("events.participants.noPlayers")}

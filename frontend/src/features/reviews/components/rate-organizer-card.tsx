@@ -16,7 +16,7 @@ interface RateOrganizerCardProps {
 export function RateOrganizerCard({ eventId }: RateOrganizerCardProps) {
   const { t } = useTranslation();
   const [isOpen, setOpen] = useState(false);
-  const reviews = useMyEventReviews(eventId, true);
+  const reviews = useMyEventReviews(eventId);
   const review = useSubmitReview(eventId);
 
   if (!reviews.canReview) return null;

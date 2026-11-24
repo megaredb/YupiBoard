@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { InlineError } from "@/shared/components/inline-error";
+import { useAppForm } from "@/shared/hooks/use-app-form";
+import { useFieldError } from "@/shared/i18n/use-field-error";
 import { Button } from "@/shared/ui/button";
 import { Dialog } from "@/shared/ui/dialog";
 import { StarRatingInput } from "@/features/reviews/components/star-rating-input";
+import { reviewSchema, type ReviewFormValues } from "@/features/reviews/schemas/review.schema";
 
 interface ReviewDialogProps {
   title: string;
@@ -21,39 +24,54 @@ export function ReviewDialog({
   onClose,
 }: ReviewDialogProps) {
   const { t } = useTranslation();
-  const [score, setScore] = useState(initialScore ?? 0);
-  const [hasError, setHasError] = useState(false);
+  const fieldError = useFieldError();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useAppForm(reviewSchema, { defaultValues: { score: initialScore ?? 0 } });
 
-  const handleChange = (next: number) => {
-    setScore(next);
-    setHasError(false);
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) onClose();
   };
-  const handleSubmit = () => {
-    if (score < 1) setHasError(true);
-    else onSubmit(score);
-  };
+  const handleSaveRating = ({ score }: ReviewFormValues) => onSubmit(score);
+  const scoreError = fieldError(errors.score?.message);
 
   return (
-    <Dialog open onOpenChange={(isOpen) => !isOpen && onClose()}>
+    <Dialog open onOpenChange={handleOpenChange}>
       <Dialog.Content closeLabel={t("common.close")}>
         <Dialog.Header>
           <Dialog.Title>{title}</Dialog.Title>
           <Dialog.Description>{t("reviews.dialog.description")}</Dialog.Description>
         </Dialog.Header>
-        <StarRatingInput
-          label={t("reviews.dialog.ratingLabel")}
-          value={score}
-          onChange={handleChange}
-        />
-        {hasError && <InlineError message={t("reviews.dialog.scoreRequired")} />}
-        <Dialog.Footer>
-          <Button variant="secondary" size="lg" disabled={isSubmitting} onClick={onClose}>
-            {t("common.cancel")}
-          </Button>
-          <Button size="lg" isLoading={isSubmitting} onClick={handleSubmit}>
-            {t("reviews.dialog.submit")}
-          </Button>
-        </Dialog.Footer>
+        <form noValidate className="space-y-4" onSubmit={handleSubmit(handleSaveRating)}>
+          <Controller
+            control={control}
+            name="score"
+            render={({ field }) => (
+              <StarRatingInput
+                label={t("reviews.dialog.ratingLabel")}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+          {scoreError && <InlineError message={scoreError} />}
+          <Dialog.Footer>
+            <Button
+              type="button"
+              variant="secondary"
+              size="lg"
+              disabled={isSubmitting}
+              onClick={onClose}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button type="submit" size="lg" isLoading={isSubmitting}>
+              {t("reviews.dialog.submit")}
+            </Button>
+          </Dialog.Footer>
+        </form>
       </Dialog.Content>
     </Dialog>
   );

@@ -6,7 +6,7 @@ import {
   moderationPendingCountQueryOptions,
   moderationQueueQueryOptions,
 } from "@/features/moderation/api/moderation-queries";
-import { filterAndSortEvents } from "@/features/moderation/lib/filter-and-sort-events";
+import { searchModerationEvents } from "@/features/moderation/lib/search-moderation-events";
 import type { ModerationSearch } from "@/features/moderation/schemas/moderation-search.schema";
 
 interface ModerationQueue {
@@ -26,18 +26,19 @@ export function useModerationQueue({ tab, q, sort, page }: ModerationSearch): Mo
     placeholderData: keepPreviousData,
   });
   const pending = useQuery(moderationPendingCountQueryOptions());
-
-  const matching = query.data ? filterAndSortEvents(query.data.items, q, sort) : undefined;
-  const total = matching?.length ?? null;
-  const totalPages = Math.max(1, Math.ceil((total ?? 0) / EVENTS_PAGE_SIZE));
-  const currentPage = Math.min(page, totalPages);
-  const start = (currentPage - 1) * EVENTS_PAGE_SIZE;
+  // Before the tab loads this is an empty page; `toListState` reports it as pending.
+  const result = searchModerationEvents(query.data?.items ?? [], {
+    q,
+    sort,
+    page,
+    limit: EVENTS_PAGE_SIZE,
+  });
 
   return {
-    list: toListState(query, matching?.slice(start, start + EVENTS_PAGE_SIZE)),
-    total,
-    totalPages,
-    page: currentPage,
+    list: toListState(query, result.items),
+    total: query.data ? result.total : null,
+    totalPages: result.total_pages,
+    page: result.page,
     pendingCount: pending.data?.total ?? null,
     isRefreshing: query.isPlaceholderData,
   };

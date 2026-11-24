@@ -60,6 +60,13 @@
       "approve": "Publish",
       "reject": "Reject",
       "note": "The organizer will be notified of your decision."
+    },
+    "rejectDialog": {
+      "title": "Reject this event?",
+      "description": "Tell the organizer why “{{title}}” can't be published.",
+      "reasonLabel": "Reason",
+      "placeholder": "What should the organizer fix?",
+      "confirm": "Reject event"
     }
   }
 }
