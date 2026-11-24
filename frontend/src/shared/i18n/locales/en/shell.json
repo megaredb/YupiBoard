@@ -12,11 +12,13 @@
     "myEvents": "My events",
     "myBookings": "My bookings",
     "favorites": "Favorites",
-    "profile": "Profile"
+    "profile": "Profile",
+    "moderation": "Moderation"
   },
   "userMenu": {
     "open": "Open user menu",
     "myProfile": "My profile",
+    "moderation": "Moderation",
     "publicProfile": "Public profile",
     "logout": "Log out"
   },

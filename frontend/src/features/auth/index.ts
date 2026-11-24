@@ -4,7 +4,11 @@ export {
   prefetchCurrentUser,
 } from "@/features/auth/api/current-user-query";
 export { renewSessionAfterPasswordChange } from "@/features/auth/api/renew-session-after-password-change";
-export { redirectSignedInUser, requireUser } from "@/features/auth/api/route-guards";
+export {
+  redirectSignedInUser,
+  requireSuperuser,
+  requireUser,
+} from "@/features/auth/api/route-guards";
 export { endSession } from "@/features/auth/api/session-lifecycle";
 export { verifyEmailToken } from "@/features/auth/api/verify-email";
 export { SignedInOutlet } from "@/features/auth/components/signed-in-outlet";

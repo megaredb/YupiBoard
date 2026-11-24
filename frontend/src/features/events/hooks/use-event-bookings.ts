@@ -14,11 +14,12 @@ export function useEventBookings(
   eventId: string,
   page: number,
   status?: BookingStatus,
+  limit: number = EVENT_BOOKINGS_PAGE_SIZE,
 ): EventBookings {
   const query = useQuery({
     ...getListEventBookingsApiV1EventsEventIdBookingsGetQueryOptions(eventId, {
       page,
-      limit: EVENT_BOOKINGS_PAGE_SIZE,
+      limit,
       status,
       sort_by: "date",
       sort_order: "asc",

@@ -111,6 +111,7 @@
     "apply": "Apply",
     "pending": "Waiting for organizer's approval",
     "approved": "Approved",
+    "attended": "You attended",
     "waitlist": "You're on the waitlist",
     "hosting": "You're hosting this event",
     "full": "No seats left",
@@ -260,6 +261,21 @@
       "keep": "Keep Event",
       "confirm": "Cancel Event"
     }
+  },
+  "rejectionNotice": {
+    "title": "This event was rejected by moderation",
+    "reason": "Reason: {{reason}}",
+    "noReason": "No reason was given."
+  },
+  "attendance": {
+    "awaiting": "Waiting for a mark ({{count}})",
+    "attended": "Attended ({{count}})",
+    "noShow": "No-show ({{count}})",
+    "present": "Was there",
+    "absent": "Didn't come",
+    "allMarked": "Everyone has been marked.",
+    "saved": "Attendance saved",
+    "saveFailed": "Couldn't save attendance. Please try again."
   },
   "eventStatus": {
     "onModeration": "On moderation",
