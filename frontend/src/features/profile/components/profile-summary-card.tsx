@@ -86,11 +86,13 @@ export function ProfileSummaryCard({
               label={t("profile.playerRating")}
               icon={<Star aria-hidden className="size-4 fill-rating text-rating" />}
               rating={formatRating(user.rating_as_player)}
+              reviewCount={user.rating_as_player_count}
             />
             <RatingTile
               label={t("profile.organizerRating")}
               icon={<Shield aria-hidden className="size-4 text-primary" />}
               rating={formatRating(user.rating_as_organizer)}
+              reviewCount={user.rating_as_organizer_count}
             />
           </div>
         </div>

@@ -11,10 +11,9 @@ import asyncio
 import logging
 import shutil
 import sys
-from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import Decimal
 from pathlib import Path
 
 from sqlalchemy import delete, or_, select
@@ -251,7 +250,6 @@ SEED_REVIEWS = [
 SEED_FAVORITES = [("p1", "catan"), ("p1", "wingspan"), ("p1", "gloomhaven")]
 
 SEATED_STATUSES = {B.CONFIRMED, B.ATTENDED, B.NO_SHOW}
-RATING_PRECISION = Decimal("0.01")
 
 
 async def remove_seed_data(session: AsyncSession) -> int:
@@ -388,33 +386,20 @@ async def _create_events(
     return events
 
 
-async def _create_reviews(
+def _create_reviews(
     session: AsyncSession, users: dict[str, User], events: dict[str, Event]
 ) -> None:
-    scores: dict[tuple[str, ReviewTargetRole], list[int]] = defaultdict(list)
-    for event_key, reviewer, reviewee, role, score in SEED_REVIEWS:
-        session.add(
-            Review(
-                event_id=events[event_key].id,
-                reviewer_id=users[reviewer].id,
-                reviewee_id=users[reviewee].id,
-                target_role=role,
-                score=score,
-            )
+    # Ratings and their counts are derived from these rows by the Review model on flush.
+    session.add_all(
+        Review(
+            event_id=events[event_key].id,
+            reviewer_id=users[reviewer].id,
+            reviewee_id=users[reviewee].id,
+            target_role=role,
+            score=score,
         )
-        scores[(reviewee, role)].append(score)
-
-    for (user_key, role), values in scores.items():
-        average = (Decimal(sum(values)) / len(values)).quantize(
-            RATING_PRECISION, rounding=ROUND_HALF_UP
-        )
-        user = users[user_key]
-        if role == ReviewTargetRole.ORGANIZER:
-            user.rating_as_organizer = average
-            user.rating_as_organizer_count = len(values)
-        else:
-            user.rating_as_player = average
-            user.rating_as_player_count = len(values)
+        for event_key, reviewer, reviewee, role, score in SEED_REVIEWS
+    )
 
 
 def _notifications(
@@ -458,7 +443,7 @@ async def seed_database(session: AsyncSession) -> dict[str, int]:
     now = datetime.now(UTC)
     users = await _create_users(session)
     events = await _create_events(session, users, now)
-    await _create_reviews(session, users, events)
+    _create_reviews(session, users, events)
     for user_key, event_key in SEED_FAVORITES:
         session.add(Favorite(user_id=users[user_key].id, event_id=events[event_key].id))
     session.add_all(_notifications(users, events))

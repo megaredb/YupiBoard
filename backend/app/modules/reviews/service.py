@@ -1,7 +1,6 @@
 import uuid
 from collections.abc import Sequence
 from datetime import UTC, datetime
-from decimal import ROUND_HALF_UP, Decimal
 
 from app.core.exceptions import (
     BadRequestException,
@@ -16,8 +15,6 @@ from app.modules.reviews.models import Review, ReviewTargetRole
 from app.modules.reviews.repository import ReviewRepository
 from app.modules.users.models import User
 from app.modules.users.repository import UserRepository
-
-RATING_PRECISION = Decimal("0.01")
 
 
 def _ensure_window_open(event: Event, now: datetime) -> None:
@@ -115,6 +112,7 @@ class ReviewService:
         target_role: ReviewTargetRole,
         score: int,
     ) -> Review:
+        # Serializes concurrent reviews of one user, whose rating the Review model recomputes.
         reviewee = await self.user_repo.lock_by_id(reviewee_id)
         if reviewee is None:
             raise NotFoundException("User not found")
@@ -130,25 +128,6 @@ class ReviewService:
             )
         else:
             review = await self.review_repo.update(review, score=score)
-
-        average, count = await self.review_repo.aggregate_for(reviewee_id, target_role)
-        rating = (
-            average.quantize(RATING_PRECISION, rounding=ROUND_HALF_UP)
-            if average is not None
-            else None
-        )
-        if target_role == ReviewTargetRole.ORGANIZER:
-            await self.user_repo.update(
-                reviewee,
-                exclude_none=False,
-                rating_as_organizer=rating,
-                rating_as_organizer_count=count,
-            )
-        else:
-            await self.user_repo.update(
-                reviewee,
-                exclude_none=False,
-                rating_as_player=rating,
-                rating_as_player_count=count,
-            )
+        # The rating columns were updated in SQL; reload them for later reads in this session.
+        await self.user_repo.session.refresh(reviewee)
         return review

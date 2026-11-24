@@ -54,7 +54,6 @@ def _service(
     user_repo.lock_by_id.return_value = reviewee
     review_repo.get_for_pair.return_value = None
     review_repo.create.side_effect = lambda **kw: Review(id=uuid.uuid7(), **kw)
-    review_repo.aggregate_for.return_value = (Decimal("4.6666"), 3)
     service = ReviewService(review_repo, event_repo, booking_repo, user_repo)
     return service, review_repo, user_repo
 
@@ -73,25 +72,18 @@ def test_review_score_must_be_one_to_five(score: int) -> None:
 
 
 @pytest.mark.asyncio
-async def test_attended_player_rates_organizer_and_rating_is_recalculated() -> None:
+async def test_attended_player_rates_organizer() -> None:
     organizer = User(id=uuid.uuid7(), email="org@example.com")
     player = User(id=uuid.uuid7(), email="p@example.com")
     event = _event(organizer.id)
-    service, review_repo, user_repo = _service(event, BookingStatus.ATTENDED, organizer)
+    service, _, user_repo = _service(event, BookingStatus.ATTENDED, organizer)
 
     review = await service.rate_organizer(event.id, player, 5)
 
     assert review.reviewee_id == organizer.id
     assert review.target_role == ReviewTargetRole.ORGANIZER
-    review_repo.aggregate_for.assert_awaited_once_with(
-        organizer.id, ReviewTargetRole.ORGANIZER
-    )
-    user_repo.update.assert_awaited_once_with(
-        organizer,
-        exclude_none=False,
-        rating_as_organizer=Decimal("4.67"),
-        rating_as_organizer_count=3,
-    )
+    assert review.score == 5
+    user_repo.lock_by_id.assert_awaited_once_with(organizer.id)
 
 
 @pytest.mark.asyncio
@@ -188,12 +180,7 @@ async def test_organizer_rates_attended_player() -> None:
 
     assert review.reviewee_id == player.id
     assert review.target_role == ReviewTargetRole.PLAYER
-    user_repo.update.assert_awaited_once_with(
-        player,
-        exclude_none=False,
-        rating_as_player=Decimal("4.67"),
-        rating_as_player_count=3,
-    )
+    user_repo.lock_by_id.assert_awaited_once_with(player.id)
 
 
 @pytest.mark.asyncio
@@ -240,7 +227,7 @@ async def test_get_my_reviews_reports_window_and_permission() -> None:
 
 
 @pytest.mark.asyncio
-async def test_aggregate_for_counts_only_requested_role(
+async def test_review_rows_keep_reviewee_ratings_in_step(
     db_session: AsyncSession,
 ) -> None:
     users = UserRepository(db_session)
@@ -251,7 +238,7 @@ async def test_aggregate_for_counts_only_requested_role(
         await users.create(
             email=f"p_{uuid.uuid7().hex}@example.com", hashed_password="x"
         )
-        for _ in range(2)
+        for _ in range(3)
     ]
     now = datetime.now(UTC)
     event = await EventRepository(db_session).create(
@@ -271,7 +258,7 @@ async def test_aggregate_for_counts_only_requested_role(
         is_verified=True,
     )
     reviews = ReviewRepository(db_session)
-    for player, score in zip(players, (5, 4), strict=True):
+    created = [
         await reviews.create(
             event_id=event.id,
             reviewer_id=player.id,
@@ -279,6 +266,8 @@ async def test_aggregate_for_counts_only_requested_role(
             target_role=ReviewTargetRole.ORGANIZER,
             score=score,
         )
+        for player, score in zip(players, (5, 5, 4), strict=True)
+    ]
     await reviews.create(
         event_id=event.id,
         reviewer_id=organizer.id,
@@ -287,12 +276,19 @@ async def test_aggregate_for_counts_only_requested_role(
         score=1,
     )
 
-    average, count = await reviews.aggregate_for(
-        organizer.id, ReviewTargetRole.ORGANIZER
-    )
-    assert count == 2
-    assert average == Decimal("4.5")
-    assert await reviews.aggregate_for(players[1].id, ReviewTargetRole.PLAYER) == (
-        None,
-        0,
-    )
+    await db_session.refresh(organizer)
+    assert organizer.rating_as_organizer == Decimal("4.67")
+    assert organizer.rating_as_organizer_count == 3
+    assert organizer.rating_as_player is None
+
+    await reviews.update(created[2], score=2)
+    await db_session.refresh(organizer)
+    assert organizer.rating_as_organizer == Decimal("4.00")
+
+    await db_session.refresh(players[0])
+    assert players[0].rating_as_player == Decimal("1.00")
+    assert players[0].rating_as_player_count == 1
+    await db_session.refresh(players[1])
+    assert players[1].rating_as_player_count == 0
+    # The tests share the development database; leave nothing behind.
+    await db_session.rollback()
