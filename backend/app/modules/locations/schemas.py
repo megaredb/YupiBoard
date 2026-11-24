@@ -37,6 +37,8 @@ class GeocodeResult(BaseModel):
     display_name: str
     address: str
     house_number: str | None = None
+    # A whole street, offered while no house number is typed yet; not a location.
+    is_street: bool = False
     city: str | None = None
     country_code: str | None = None
     lat: float

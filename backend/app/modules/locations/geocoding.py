@@ -14,7 +14,8 @@ logger = logging.getLogger("yupiboard.geocoding")
 
 CITY_RADIUS_DEGREES = 0.35
 SUGGEST_MIN_QUERY_LENGTH = 3
-GEOCODE_CANDIDATES = 5
+# Photon mixes in streets and buildings without numbers; ask for more to keep enough.
+CANDIDATES = 15
 HOUSE_NUMBER_RE = re.compile(r"\d+[^\W\d_]?(?:/\d+[^\W\d_]?)?")
 
 
@@ -62,6 +63,7 @@ def _photon_result(feature: Any) -> GeocodeResult | None:
         display_name=", ".join(part for part in (venue, address, city) if part),
         address=address,
         house_number=house if isinstance(house, str) and house else None,
+        is_street=props.get("type") == "street",
         city=city,
         country_code=(
             country_code.upper()
@@ -148,7 +150,7 @@ class GeocodingService:
         cache_digest = hashlib.sha256(
             f"{query.lower()}|{center}|{limit}".encode()
         ).hexdigest()
-        cache_key = f"geocode:search:{cache_digest}"
+        cache_key = f"geocode:search:v2:{cache_digest}"
         cached = await self._cache_get(cache_key)
         if cached is not None:
             try:
@@ -180,31 +182,27 @@ class GeocodingService:
         limit: int = 5,
         raise_on_failure: bool = False,
     ) -> list[GeocodeResult]:
-        """Photon always returns a closest guess, so a typed house number must match.
+        """The typed text must name a house number, and only that building counts.
         `raise_on_failure` turns provider errors into an exception instead of []."""
         clean_query = query.strip()
-        if not clean_query:
+        wanted_numbers = _house_numbers(clean_query)
+        if not wanted_numbers:
             return []
         search_text = (
             f"{clean_query}, {city.strip()}" if city and city.strip() else clean_query
         )
         try:
-            results = await self._search(
-                search_text, center, max(limit, GEOCODE_CANDIDATES)
-            )
+            results = await self._search(search_text, center, CANDIDATES)
         except GeocoderUnavailableError:
             if raise_on_failure:
                 raise
             return []
 
-        wanted_numbers = _house_numbers(clean_query)
-        if wanted_numbers:
-            results = [
-                result
-                for result in results
-                if result.house_number and result.house_number.lower() in wanted_numbers
-            ]
-        return results[:limit]
+        return [
+            result
+            for result in results
+            if result.house_number and result.house_number.lower() in wanted_numbers
+        ][:limit]
 
     async def suggest(
         self, query: str, *, center: tuple[float, float] | None = None, limit: int = 5
@@ -212,7 +210,10 @@ class GeocodingService:
         clean_query = query.strip()
         if len(clean_query) < SUGGEST_MIN_QUERY_LENGTH:
             return []
-        return await self._search(clean_query, center, limit)
+        results = await self._search(clean_query, center, CANDIDATES)
+        if _house_numbers(clean_query):
+            return [result for result in results if result.house_number][:limit]
+        return [result for result in results if result.is_street][:limit]
 
     async def reverse_geocode(
         self, lat: float, lon: float

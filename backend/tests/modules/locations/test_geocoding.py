@@ -150,7 +150,13 @@ async def test_create_event_accepts_explicit_coordinates_and_geocodes_when_omitt
 
 
 def _photon_feature(
-    *, name: str | None, street: str | None, house: str | None, lon: float, lat: float
+    *,
+    name: str | None,
+    street: str | None,
+    house: str | None,
+    lon: float,
+    lat: float,
+    kind: str = "house",
 ) -> dict[str, object]:
     return {
         "type": "Feature",
@@ -161,6 +167,7 @@ def _photon_feature(
             "housenumber": house,
             "city": "Харків",
             "countrycode": "ua",
+            "type": kind,
         },
     }
 
@@ -195,6 +202,7 @@ async def test_suggest_parses_photon_and_limits_area_to_the_city() -> None:
                         house=None,
                         lon=36.2338,
                         lat=49.9947,
+                        kind="street",
                     ),
                 ]
             },
@@ -209,10 +217,8 @@ async def test_suggest_parses_photon_and_limits_area_to_the_city() -> None:
     ):
         results = await service.suggest("Бригади Хартія 40", center=(49.99, 36.23))
 
-    assert [r.address for r in results] == [
-        "вулиця Бригади Хартія 40",
-        "Сумська вулиця",
-    ]
+    # The bare street ("Сумська вулиця") has no house number, so it is not offered.
+    assert [r.address for r in results] == ["вулиця Бригади Хартія 40"]
     assert results[0].display_name == "М'яснова, вулиця Бригади Хартія 40, Харків"
     assert results[0].country_code == "UA"
     assert results[0].lat == pytest.approx(49.95581)
@@ -289,19 +295,6 @@ async def test_typed_address_only_accepts_the_typed_house_number() -> None:
 
 
 @pytest.mark.asyncio
-async def test_venue_names_without_house_numbers_are_accepted() -> None:
-    venue = _photon_feature(
-        name="Geek Pub", street="Сумська вулиця", house="10", lon=36.2338, lat=49.9947
-    )
-    with (
-        patch.object(GeocodingService, "_cache_get", AsyncMock(return_value=None)),
-        patch.object(GeocodingService, "_cache_set", AsyncMock()),
-    ):
-        found = await _service_answering([venue], {}).geocode("Geek Pub")
-    assert found[0].display_name == "Geek Pub, Сумська вулиця 10, Харків"
-
-
-@pytest.mark.asyncio
 async def test_reverse_geocode_reads_photon_reverse() -> None:
     building = _photon_feature(
         name=None,
@@ -322,3 +315,31 @@ async def test_reverse_geocode_reads_photon_reverse() -> None:
     assert result is not None
     assert result.address == "вулиця Бригади Хартія 40"
     assert result.city == "Харків"
+
+
+@pytest.mark.asyncio
+async def test_streets_are_suggested_until_a_house_number_is_typed() -> None:
+    street = _photon_feature(
+        name="Сумська вулиця",
+        street=None,
+        house=None,
+        lon=36.2338,
+        lat=49.9947,
+        kind="street",
+    )
+    house = _photon_feature(
+        name=None, street="Сумська вулиця", house="10", lon=36.2330, lat=49.9946
+    )
+    with (
+        patch.object(GeocodingService, "_cache_get", AsyncMock(return_value=None)),
+        patch.object(GeocodingService, "_cache_set", AsyncMock()),
+    ):
+        service = _service_answering([street, house], {})
+        streets = await service.suggest("Сумська")
+        houses = await service.suggest("Сумська вулиця 10")
+        # A street is something to pick on the way, never a location by itself.
+        assert await service.geocode("Сумська вулиця") == []
+        assert await service.geocode("Geek Pub") == []
+
+    assert [(r.address, r.is_street) for r in streets] == [("Сумська вулиця", True)]
+    assert [(r.address, r.is_street) for r in houses] == [("Сумська вулиця 10", False)]

@@ -198,8 +198,9 @@
     "addressSuggestions": {
       "searching": "Searching addresses…",
       "unavailable": "Address suggestions are unavailable right now. You can still type the address.",
-      "empty": "No matching addresses. Check the spelling or try the Ukrainian street name.",
-      "picked": "Exact location saved from the suggestion."
+      "empty": "No matching streets or buildings. Check the spelling or try the Ukrainian name.",
+      "picked": "Exact location saved from the suggestion.",
+      "addHouseNumber": "Now add the house number, e.g. Sumska 10."
     }
   },
   "search": {

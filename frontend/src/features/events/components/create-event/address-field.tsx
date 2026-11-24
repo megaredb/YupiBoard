@@ -1,4 +1,4 @@
-import { MapPin } from "lucide-react";
+import { MapPin, Signpost } from "lucide-react";
 import { useController, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { GeocodeResult } from "@/shared/api/generated/model";
@@ -11,17 +11,14 @@ import {
   type AddressSuggestions,
 } from "@/features/events/hooks/use-address-suggestions";
 import { useCreateEventFormContext } from "@/features/events/hooks/use-create-event-form-context";
+import {
+  getAddressHintKey,
+  getAddressStatusKey,
+} from "@/features/events/lib/address-suggestion-status";
 import { CREATE_EVENT_LIMITS } from "@/features/events/schemas/create-event.schema";
 
 // Base UI reports a picked suggestion with this change reason.
 const ITEM_PRESS = "item-press";
-
-const STATUS_KEYS = {
-  idle: null,
-  searching: "events.create.addressSuggestions.searching",
-  unavailable: "events.create.addressSuggestions.unavailable",
-  ready: "events.create.addressSuggestions.empty",
-} as const;
 
 function getItems(suggestions: AddressSuggestions): GeocodeResult[] {
   return suggestions.status === "ready" ? suggestions.items : [];
@@ -38,7 +35,11 @@ function SuggestionList({ statusText }: { statusText: string | null }) {
       <Autocomplete.List>
         {(item: GeocodeResult) => (
           <Autocomplete.Item key={`${item.lat},${item.lon}`} value={item}>
-            <MapPin aria-hidden className="text-muted-foreground" />
+            {item.is_street ? (
+              <Signpost aria-hidden className="text-muted-foreground" />
+            ) : (
+              <MapPin aria-hidden className="text-muted-foreground" />
+            )}
             <span className="min-w-0">
               <span className="block truncate">{item.address}</span>
               <span className="block truncate text-xs text-muted-foreground">
@@ -61,16 +62,18 @@ export function AddressField() {
   const picked = useWatch({ control, name: "addressLocation" });
   const suggestions = useAddressSuggestions(field.value, city);
   const items = getItems(suggestions);
-  const statusKey = items.length > 0 ? null : STATUS_KEYS[suggestions.status];
-  const isPickedHere = picked?.city === city;
+  const statusKey = getAddressStatusKey(suggestions);
+  const hintKey = getAddressHintKey(field.value, picked?.city === city);
 
   const handleValueChange = (value: string, details: { reason: string }) => {
-    field.onChange(value);
     const suggestion =
       details.reason === ITEM_PRESS ? items.find((item) => item.address === value) : undefined;
+    // A picked street is only the start of the address: leave room for the house number.
+    field.onChange(suggestion?.is_street ? `${value} ` : value);
+    const isBuilding = suggestion && !suggestion.is_street;
     setValue(
       "addressLocation",
-      suggestion ? { lat: suggestion.lat, lon: suggestion.lon, city } : null,
+      isBuilding ? { lat: suggestion.lat, lon: suggestion.lon, city } : null,
     );
   };
 
@@ -78,11 +81,7 @@ export function AddressField() {
     <FormField
       label={t("events.create.fields.address")}
       isRequired
-      hint={
-        isPickedHere
-          ? t("events.create.addressSuggestions.picked")
-          : t("events.create.fields.addressHint")
-      }
+      hint={t(hintKey)}
       error={fieldError(fieldState.error?.message)}
     >
       {(fieldControl) => (
