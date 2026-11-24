@@ -1,4 +1,4 @@
-import { Building2, MapPin } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { Controller, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { FormField } from "@/shared/components/form-field";
@@ -7,6 +7,7 @@ import { useFieldError } from "@/shared/i18n/use-field-error";
 import { getTodayIsoDate } from "@/shared/lib/date/iso-date";
 import { DatePicker } from "@/shared/ui/date-picker";
 import { TimePicker } from "@/shared/ui/time-picker";
+import { AddressField } from "@/features/events/components/create-event/address-field";
 import { FormSection } from "@/features/events/components/create-event/form-section";
 import { useCreateEventFormContext } from "@/features/events/hooks/use-create-event-form-context";
 import { CREATE_EVENT_LIMITS } from "@/features/events/schemas/create-event.schema";
@@ -93,17 +94,7 @@ export function ScheduleSection() {
         />
       </div>
 
-      <TextField
-        label={t("events.create.fields.address")}
-        isRequired
-        startIcon={<MapPin />}
-        autoComplete="street-address"
-        maxLength={CREATE_EVENT_LIMITS.addressMax}
-        placeholder={t("events.create.fields.addressPlaceholder")}
-        hint={t("events.create.fields.addressHint")}
-        error={fieldError(errors.address?.message)}
-        {...register("address")}
-      />
+      <AddressField />
     </FormSection>
   );
 }

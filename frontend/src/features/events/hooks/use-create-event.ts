@@ -39,7 +39,11 @@ export function useCreateEvent(): UseCreateEventResult {
   const mutation = useMutation({
     mutationFn: async (values: CreateEventFormValues) => {
       // Before the cover upload, so a wrong address doesn't leave an orphaned image behind.
-      const coordinates = await geocodeEventAddress(values.address, values.city);
+      const picked = values.addressLocation;
+      const coordinates =
+        picked?.city === values.city
+          ? { lat: picked.lat, lon: picked.lon }
+          : await geocodeEventAddress(values.address, values.city);
       const photoUrl = values.coverImage ? await uploadCover(values.coverImage) : null;
       return createEventApiV1EventsPost(toEventCreate(values, photoUrl, coordinates));
     },

@@ -61,6 +61,7 @@ async def search_cities(
     "/geocode",
     response_model=list[GeocodeResult],
     summary="Forward geocode a street address or venue name into coordinates",
+    responses={503: {"description": "The geocoding provider is unavailable"}},
 )
 async def geocode_address(
     service: Annotated[LocationService, Depends(get_location_service)],
@@ -69,6 +70,21 @@ async def geocode_address(
     limit: Annotated[int, Query(ge=1, le=10)] = 5,
 ) -> list[GeocodeResult]:
     return await service.geocode(query=query, city=city, limit=limit)
+
+
+@router.get(
+    "/suggest",
+    response_model=list[GeocodeResult],
+    summary="Address suggestions while typing, limited to the area of `city`",
+    responses={503: {"description": "The suggestion provider is unavailable"}},
+)
+async def suggest_addresses(
+    service: Annotated[LocationService, Depends(get_location_service)],
+    query: Annotated[str, Query(min_length=3, max_length=255)],
+    city: Annotated[str | None, Query(min_length=1, max_length=100)] = None,
+    limit: Annotated[int, Query(ge=1, le=10)] = 5,
+) -> list[GeocodeResult]:
+    return await service.suggest_addresses(query=query, city=city, limit=limit)
 
 
 @router.get(

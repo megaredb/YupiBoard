@@ -36,6 +36,7 @@ class CountryWithCitiesRead(BaseModel):
 class GeocodeResult(BaseModel):
     display_name: str
     address: str
+    house_number: str | None = None
     city: str | None = None
     country_code: str | None = None
     lat: float

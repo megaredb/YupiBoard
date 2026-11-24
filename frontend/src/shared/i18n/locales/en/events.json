@@ -194,7 +194,13 @@
     "verifyEmailRequired": "Confirm your email to create events. Open the link we sent to {{email}}.",
     "verifyEmailFirst": "Confirm your email before creating events.",
     "toMyEvents": "Go to my events",
-    "addressNotFound": "We couldn't find this address in the selected city. Check the street and house number."
+    "addressNotFound": "We couldn't find this address in the selected city. Check the street and house number.",
+    "addressSuggestions": {
+      "searching": "Searching addresses…",
+      "unavailable": "Address suggestions are unavailable right now. You can still type the address.",
+      "empty": "No matching addresses. Check the spelling or try the Ukrainian street name.",
+      "picked": "Exact location saved from the suggestion."
+    }
   },
   "search": {
     "label": "Search events",

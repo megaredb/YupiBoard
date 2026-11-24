@@ -67,3 +67,10 @@ class CityRepository(BaseRepository[City]):
         stmt = stmt.order_by(City.name.asc()).limit(limit)
         result = await self.session.execute(stmt)
         return result.unique().scalars().all()
+
+    async def get_center(self, name: str) -> tuple[float, float] | None:
+        """Centre of the city whose English name is `name` (what events store)."""
+        clean_name = name.strip().lower()
+        cities = await self.search(query=name, limit=20)
+        match = next((c for c in cities if c.name.lower() == clean_name), None)
+        return (match.lat, match.lon) if match else None

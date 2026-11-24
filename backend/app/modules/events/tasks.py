@@ -7,6 +7,7 @@ from app.core.taskiq import broker
 from app.modules.events.repository import EventRepository
 from app.modules.events.service import EventService
 from app.modules.locations.geocoding import GeocodingService
+from app.modules.locations.repository import CityRepository
 from app.modules.notifications.repository import NotificationRepository
 from app.modules.notifications.service import NotificationService
 
@@ -28,7 +29,7 @@ async def advance_event_statuses() -> tuple[int, int]:
 
 @broker.task
 async def geocode_event_coordinates(event_id: str) -> bool:
-    """Retry geocoding for an event created when Nominatim was unavailable."""
+    """Retry geocoding for an event saved at its city centre."""
     try:
         parsed_id = uuid.UUID(event_id)
     except ValueError:
@@ -40,8 +41,9 @@ async def geocode_event_coordinates(event_id: str) -> bool:
         if event is None or event.is_deleted:
             return False
 
+        center = await CityRepository(session).get_center(event.city)
         results = await GeocodingService().geocode(
-            event.address, city=event.city, limit=1
+            event.address, city=event.city, center=center, limit=1
         )
         if not results:
             return False

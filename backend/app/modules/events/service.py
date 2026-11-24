@@ -72,19 +72,16 @@ class EventService:
         if lat is not None and lon is not None:
             return lat, lon, False
 
+        center = await self.city_repo.get_center(city) if self.city_repo else None
         if self.geocoding_service is not None:
-            results = await self.geocoding_service.geocode(address, city=city, limit=1)
+            results = await self.geocoding_service.geocode(
+                address, city=city, center=center, limit=1
+            )
             if results:
                 return results[0].lat, results[0].lon, False
 
-        if self.city_repo is not None:
-            cities = await self.city_repo.search(query=city, limit=5)
-            exact = next(
-                (c for c in cities if c.name.lower() == city.strip().lower()),
-                cities[0] if cities else None,
-            )
-            if exact is not None:
-                return exact.lat, exact.lon, True
+        if center is not None:
+            return center[0], center[1], True
 
         raise BadRequestException(
             "Could not determine coordinates for the given address; "
@@ -324,8 +321,11 @@ class EventService:
         ):
             new_address = updates.get("address", event.address)
             new_city = updates.get("city", event.city)
+            center = (
+                await self.city_repo.get_center(new_city) if self.city_repo else None
+            )
             results = await self.geocoding_service.geocode(
-                new_address, city=new_city, limit=1
+                new_address, city=new_city, center=center, limit=1
             )
             if results:
                 updates["lat"] = results[0].lat

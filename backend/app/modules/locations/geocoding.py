@@ -1,6 +1,7 @@
 import hashlib
 import json
 import logging
+import re
 from typing import Any
 
 import httpx
@@ -11,26 +12,84 @@ from app.modules.locations.schemas import GeocodeResult, ReverseGeocodeResult
 
 logger = logging.getLogger("yupiboard.geocoding")
 
-
-def _extract_city(address: dict[str, Any]) -> str | None:
-    for key in ("city", "town", "village", "municipality", "state"):
-        val = address.get(key)
-        if isinstance(val, str) and val.strip():
-            return val.strip()
-    return None
+CITY_RADIUS_DEGREES = 0.35
+SUGGEST_MIN_QUERY_LENGTH = 3
+GEOCODE_CANDIDATES = 5
+HOUSE_NUMBER_RE = re.compile(r"\d+[^\W\d_]?(?:/\d+[^\W\d_]?)?")
 
 
-def _extract_street_address(address: dict[str, Any], fallback: str) -> str:
-    road = address.get("road") or address.get("pedestrian") or address.get("suburb")
-    house = address.get("house_number")
-    if isinstance(road, str) and road.strip():
-        return f"{road.strip()} {house}".strip() if house else road.strip()
-    return fallback
+class GeocoderUnavailableError(Exception):
+    pass
+
+
+def _house_numbers(text: str) -> set[str]:
+    return {match.lower() for match in HOUSE_NUMBER_RE.findall(text)}
+
+
+def _city_bbox(center: tuple[float, float]) -> str:
+    lat, lon = center
+    radius = CITY_RADIUS_DEGREES
+    corners = (lon - radius, lat - radius, lon + radius, lat + radius)
+    return ",".join(f"{value:.6g}" for value in corners)
+
+
+def _photon_result(feature: Any) -> GeocodeResult | None:
+    if not isinstance(feature, dict):
+        return None
+    props = feature.get("properties")
+    geometry = feature.get("geometry")
+    if not isinstance(props, dict) or not isinstance(geometry, dict):
+        return None
+    try:
+        lon, lat = (float(value) for value in geometry["coordinates"][:2])
+    except KeyError, TypeError, ValueError:
+        return None
+    name, street, house = (
+        props.get("name"),
+        props.get("street"),
+        props.get("housenumber"),
+    )
+    if isinstance(street, str) and street:
+        address = f"{street} {house}" if isinstance(house, str) and house else street
+    elif isinstance(name, str) and name:
+        address = name
+    else:
+        return None
+    city = props.get("city") if isinstance(props.get("city"), str) else None
+    venue = name if isinstance(name, str) and name and name != address else None
+    country_code = props.get("countrycode")
+    return GeocodeResult(
+        display_name=", ".join(part for part in (venue, address, city) if part),
+        address=address,
+        house_number=house if isinstance(house, str) and house else None,
+        city=city,
+        country_code=(
+            country_code.upper()
+            if isinstance(country_code, str) and len(country_code) == 2
+            else None
+        ),
+        lat=lat,
+        lon=lon,
+    )
+
+
+def _photon_results(payload: Any) -> list[GeocodeResult]:
+    features = payload.get("features") if isinstance(payload, dict) else None
+    results: list[GeocodeResult] = []
+    seen: set[str] = set()
+    for feature in features if isinstance(features, list) else []:
+        result = _photon_result(feature)
+        if result is None:
+            continue
+        # Shops in one building share its address at slightly different points.
+        key = result.address.lower()
+        if key not in seen:
+            seen.add(key)
+            results.append(result)
+    return results
 
 
 class GeocodingService:
-    """OpenStreetMap Nominatim geocoding client with Redis caching."""
-
     def __init__(
         self,
         *,
@@ -63,10 +122,11 @@ class GeocodingService:
             await client.aclose()
 
     async def _get_json(self, path: str, params: dict[str, Any]) -> Any:
+        url = f"{self.base_url}{path}"
         headers = {"User-Agent": settings.GEOCODER_USER_AGENT}
         if self._http_client is not None:
             response = await self._http_client.get(
-                f"{self.base_url}{path}",
+                url,
                 params=params,
                 headers=headers,
                 timeout=settings.GEOCODER_TIMEOUT_SECONDS,
@@ -78,79 +138,81 @@ class GeocodingService:
             timeout=settings.GEOCODER_TIMEOUT_SECONDS,
             headers=headers,
         ) as client:
-            response = await client.get(f"{self.base_url}{path}", params=params)
+            response = await client.get(url, params=params)
             response.raise_for_status()
             return response.json()
 
-    async def geocode(
-        self, query: str, *, city: str | None = None, limit: int = 5
+    async def _search(
+        self, query: str, center: tuple[float, float] | None, limit: int
     ) -> list[GeocodeResult]:
+        cache_digest = hashlib.sha256(
+            f"{query.lower()}|{center}|{limit}".encode()
+        ).hexdigest()
+        cache_key = f"geocode:search:{cache_digest}"
+        cached = await self._cache_get(cache_key)
+        if cached is not None:
+            try:
+                return [
+                    GeocodeResult.model_validate(item) for item in json.loads(cached)
+                ]
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("Ignoring stale geocode cache entry: %s", exc)
+
+        params: dict[str, Any] = {"q": query, "limit": limit}
+        if center is not None:
+            params |= {"lat": center[0], "lon": center[1], "bbox": _city_bbox(center)}
+        try:
+            payload = await self._get_json("/api", params)
+        except Exception as exc:
+            logger.warning("Geocoding failed for %r: %s", query, exc)
+            raise GeocoderUnavailableError from exc
+
+        results = _photon_results(payload)
+        await self._cache_set(cache_key, json.dumps([r.model_dump() for r in results]))
+        return results
+
+    async def geocode(
+        self,
+        query: str,
+        *,
+        city: str | None = None,
+        center: tuple[float, float] | None = None,
+        limit: int = 5,
+        raise_on_failure: bool = False,
+    ) -> list[GeocodeResult]:
+        """Photon always returns a closest guess, so a typed house number must match.
+        `raise_on_failure` turns provider errors into an exception instead of []."""
         clean_query = query.strip()
         if not clean_query:
             return []
         search_text = (
             f"{clean_query}, {city.strip()}" if city and city.strip() else clean_query
         )
-        cache_digest = hashlib.sha256(
-            f"{search_text.lower()}|{limit}".encode()
-        ).hexdigest()
-        cache_key = f"geocode:fwd:{cache_digest}"
-
-        cached = await self._cache_get(cache_key)
-        if cached is not None:
-            try:
-                raw_items = json.loads(cached)
-                return [GeocodeResult.model_validate(item) for item in raw_items]
-            except Exception as exc:  # noqa: BLE001
-                logger.debug("Ignoring stale forward geocode cache entry: %s", exc)
-
         try:
-            payload = await self._get_json(
-                "/search",
-                {
-                    "q": search_text,
-                    "format": "jsonv2",
-                    "addressdetails": 1,
-                    "limit": limit,
-                },
+            results = await self._search(
+                search_text, center, max(limit, GEOCODE_CANDIDATES)
             )
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("Forward geocoding failed for %r: %s", search_text, exc)
+        except GeocoderUnavailableError:
+            if raise_on_failure:
+                raise
             return []
 
-        if not isinstance(payload, list):
+        wanted_numbers = _house_numbers(clean_query)
+        if wanted_numbers:
+            results = [
+                result
+                for result in results
+                if result.house_number and result.house_number.lower() in wanted_numbers
+            ]
+        return results[:limit]
+
+    async def suggest(
+        self, query: str, *, center: tuple[float, float] | None = None, limit: int = 5
+    ) -> list[GeocodeResult]:
+        clean_query = query.strip()
+        if len(clean_query) < SUGGEST_MIN_QUERY_LENGTH:
             return []
-
-        results: list[GeocodeResult] = []
-        for item in payload:
-            if not isinstance(item, dict):
-                continue
-            try:
-                lat = float(item["lat"])
-                lon = float(item["lon"])
-            except KeyError, TypeError, ValueError:
-                continue
-            display_name = str(item.get("display_name") or search_text)
-            address_obj = item.get("address")
-            addr_dict = address_obj if isinstance(address_obj, dict) else {}
-            country_code = addr_dict.get("country_code")
-            results.append(
-                GeocodeResult(
-                    display_name=display_name,
-                    address=_extract_street_address(addr_dict, display_name),
-                    city=_extract_city(addr_dict) or (city.strip() if city else None),
-                    country_code=(
-                        country_code.upper()
-                        if isinstance(country_code, str) and len(country_code) == 2
-                        else None
-                    ),
-                    lat=lat,
-                    lon=lon,
-                )
-            )
-
-        await self._cache_set(cache_key, json.dumps([r.model_dump() for r in results]))
-        return results
+        return await self._search(clean_query, center, limit)
 
     async def reverse_geocode(
         self, lat: float, lon: float
@@ -166,44 +228,23 @@ class GeocodingService:
                 logger.debug("Ignoring stale reverse geocode cache entry: %s", exc)
 
         try:
-            payload = await self._get_json(
-                "/reverse",
-                {
-                    "lat": lat,
-                    "lon": lon,
-                    "format": "jsonv2",
-                    "addressdetails": 1,
-                },
-            )
+            payload = await self._get_json("/reverse", {"lat": lat, "lon": lon})
         except Exception as exc:  # noqa: BLE001
             logger.warning("Reverse geocoding failed for (%s, %s): %s", lat, lon, exc)
             return None
 
-        if not isinstance(payload, dict) or payload.get("error"):
+        results = _photon_results(payload)
+        if not results:
             await self._cache_set(cache_key, "null")
             return None
-
-        try:
-            parsed_lat = float(payload.get("lat", lat))
-            parsed_lon = float(payload.get("lon", lon))
-        except TypeError, ValueError:
-            parsed_lat, parsed_lon = lat, lon
-
-        display_name = str(payload.get("display_name") or f"{lat}, {lon}")
-        address_obj = payload.get("address")
-        addr_dict = address_obj if isinstance(address_obj, dict) else {}
-        country_code = addr_dict.get("country_code")
+        found = results[0]
         result = ReverseGeocodeResult(
-            display_name=display_name,
-            address=_extract_street_address(addr_dict, display_name),
-            city=_extract_city(addr_dict),
-            country_code=(
-                country_code.upper()
-                if isinstance(country_code, str) and len(country_code) == 2
-                else None
-            ),
-            lat=parsed_lat,
-            lon=parsed_lon,
+            display_name=found.display_name,
+            address=found.address,
+            city=found.city,
+            country_code=found.country_code,
+            lat=found.lat,
+            lon=found.lon,
         )
         await self._cache_set(cache_key, json.dumps(result.model_dump()))
         return result

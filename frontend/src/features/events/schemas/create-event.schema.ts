@@ -59,6 +59,8 @@ export const createEventSchema = z
       .trim()
       .min(1, MESSAGES.addressRequired)
       .max(CREATE_EVENT_LIMITS.addressMax, MESSAGES.addressMax),
+    /** Set when the address was picked from the suggestions, for the city it was picked in. */
+    addressLocation: z.object({ lat: z.number(), lon: z.number(), city: z.string() }).nullable(),
     maxPlayers: z
       .number()
       .int()

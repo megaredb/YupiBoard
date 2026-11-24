@@ -67,8 +67,11 @@ async def test_moderation_lifecycle_approve_reject_resubmit_and_audit_logs(
     ).status_code == 403
 
     # 2. Admin sees event in moderation queue & rejects without reason -> 422
+    # Newest first: the shared dev database may hold more than a page of older events.
     queue_res = await async_client.get(
-        "/api/v1/moderation/events", headers=admin_headers
+        "/api/v1/moderation/events",
+        params={"sort_by": "created_at", "sort_order": "desc"},
+        headers=admin_headers,
     )
     assert queue_res.status_code == 200
     assert any(item["id"] == event_id for item in queue_res.json()["items"])

@@ -33,6 +33,7 @@ const DEFAULT_VALUES: Omit<CreateEventFormInput, "city"> = {
   time: "",
   venueName: "",
   address: "",
+  addressLocation: null,
   maxPlayers: CREATE_EVENT_LIMITS.playersMin,
   price: 0,
   coverImage: null,
