@@ -10,7 +10,10 @@ import { TimePicker } from "@/shared/ui/time-picker";
 import { AddressField } from "@/features/events/components/create-event/address-field";
 import { FormSection } from "@/features/events/components/create-event/form-section";
 import { useCreateEventFormContext } from "@/features/events/hooks/use-create-event-form-context";
-import { CREATE_EVENT_LIMITS } from "@/features/events/schemas/create-event.schema";
+import {
+  CREATE_EVENT_LIMITS,
+  START_IN_PAST_MESSAGE,
+} from "@/features/events/schemas/create-event.schema";
 import { CitySelect } from "@/features/locations";
 
 function ScheduleDateTimeRow() {
@@ -20,6 +23,7 @@ function ScheduleDateTimeRow() {
     control,
     formState: { errors },
   } = useCreateEventFormContext();
+  const isStartInPast = errors.date?.message === START_IN_PAST_MESSAGE;
 
   return (
     <div className="grid gap-5 sm:grid-cols-2">
@@ -47,6 +51,8 @@ function ScheduleDateTimeRow() {
       <Controller
         control={control}
         name="time"
+        // The start-in-past error lives on `date`, so a new time must re-check it.
+        rules={{ deps: "date" }}
         render={({ field }) => (
           <FormField
             label={t("events.create.fields.time")}
@@ -54,7 +60,12 @@ function ScheduleDateTimeRow() {
             error={fieldError(errors.time?.message)}
           >
             {(fieldControl) => (
-              <TimePicker {...fieldControl} value={field.value} onChange={field.onChange} />
+              <TimePicker
+                {...fieldControl}
+                aria-invalid={isStartInPast || fieldControl["aria-invalid"]}
+                value={field.value}
+                onChange={field.onChange}
+              />
             )}
           </FormField>
         )}

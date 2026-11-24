@@ -36,10 +36,16 @@ export function useBookingAction(event: EventRead): BookingAction {
 
   const create = useCreateBookingRequestApiV1EventsEventIdBookingsPost({
     mutation: {
-      onSuccess: async () => {
-        showToast(t("events.booking.applied"), {
-          description: t("events.booking.appliedDescription"),
-        });
+      onSuccess: async ({ status }) => {
+        if (status === "Waitlist") {
+          showToast(t("events.booking.waitlisted"), {
+            description: t("events.booking.waitlistedDescription"),
+          });
+        } else {
+          showToast(t("events.booking.applied"), {
+            description: t("events.booking.appliedDescription"),
+          });
+        }
         await refreshBookingData();
         create.reset();
       },

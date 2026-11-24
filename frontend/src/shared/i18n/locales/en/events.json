@@ -144,7 +144,10 @@
     "cancelled": "Booking cancelled",
     "players": "Players",
     "awaitingAttendance": "Waiting for the organizer to mark attendance",
-    "playersJoinedTotal": "Players joined: {{count}} ({{total}} seats total)"
+    "playersJoinedTotal": "Players joined: {{count}} ({{total}} seats total)",
+    "joinWaitlist": "Join the waitlist",
+    "waitlisted": "You're on the waitlist",
+    "waitlistedDescription": "The table is full. If the organizer accepts you, you get the next free seat."
   },
   "create": {
     "title": "Create new event",
@@ -298,7 +301,6 @@
     "mark": "Mark attendance",
     "notMarked": "Not marked",
     "popoverTitle": "Was the player at the table?",
-    "presentIsFinal": "“Present” can't be changed later.",
     "summary": "Confirmed players ({{total}}): {{attended}} attended · {{noShow}} no-show · {{notMarked}} not marked",
     "changeUntil": "You can change attendance until:",
     "hoursLeft_one": "({{count}} h left)",

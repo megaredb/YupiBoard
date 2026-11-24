@@ -50,8 +50,9 @@ export function canCancelBooking(
   return CANCELLABLE_STATES.has(state) && !hasEventStarted(event);
 }
 
+/** A full table still takes applications: the backend puts them on the waitlist. */
 export function canApplyBooking(state: BookingState): boolean {
-  return state === "open";
+  return state === "open" || state === "full";
 }
 
 export function getParticipantsViewer(state: BookingState): "host" | "participant" | null {

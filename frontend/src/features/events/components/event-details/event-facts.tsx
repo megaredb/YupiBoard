@@ -2,11 +2,7 @@ import type { ReactNode } from "react";
 import { Calendar, MapPin, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { EventRead } from "@/shared/api/generated/model";
-import {
-  formatLongDate,
-  formatTimeRange,
-  formatTimeZoneName,
-} from "@/shared/lib/format/format-date";
+import { formatLongDate, formatTime, formatTimeZoneName } from "@/shared/lib/format/format-date";
 import { SeatsProgress } from "@/shared/ui/seats-progress";
 import { EventMapLink } from "@/features/events/components/event-details/event-map-link";
 import { useCityLabel } from "@/features/locations";
@@ -36,7 +32,7 @@ export function EventFacts({ event }: { event: EventRead }) {
           icon={<Calendar aria-hidden />}
           title={formatLongDate(event.start_datetime)}
           detail={t("events.details.timeWithZone", {
-            time: formatTimeRange(event.start_datetime, event.end_datetime),
+            time: formatTime(event.start_datetime),
             zone: formatTimeZoneName(event.start_datetime),
           })}
         />

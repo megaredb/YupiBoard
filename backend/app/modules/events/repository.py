@@ -487,9 +487,9 @@ class EventRepository(BaseRepository[Event]):
         *,
         status: EventStatus | None = EventStatus.ON_MODERATION,
         query: str | None = None,
-        sort_by: Literal["created_at", "start_datetime", "cost", "distance"] = (
-            "created_at"
-        ),
+        sort_by: Literal[
+            "created_at", "start_datetime", "title", "cost", "distance"
+        ] = ("created_at"),
         descending: bool = False,
         origin: tuple[float, float] | None = None,
         page: int = 1,
@@ -512,6 +512,7 @@ class EventRepository(BaseRepository[Event]):
         sort_columns: dict[str, Any] = {
             "created_at": Event.created_at,
             "start_datetime": Event.start_datetime,
+            "title": func.lower(Event.title),
             "cost": Event.entry_cost,
         }
         if origin is not None:

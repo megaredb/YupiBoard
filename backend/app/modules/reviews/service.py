@@ -17,11 +17,20 @@ from app.modules.users.models import User
 from app.modules.users.repository import UserRepository
 
 
+# Reviews open with attendance marking, at the event start, so players present at the
+# table can be rated (and rate the organizer) without waiting for the event to end.
+def _is_window_open(event: Event, now: datetime) -> bool:
+    return (
+        event.status not in NOT_HELD_EVENT_STATUSES
+        and event.start_datetime <= now <= event.review_deadline
+    )
+
+
 def _ensure_window_open(event: Event, now: datetime) -> None:
     if event.status in NOT_HELD_EVENT_STATUSES:
         raise BadRequestException("This event did not take place")
-    if now < event.end_datetime:
-        raise BadRequestException("Reviews open after the event ends")
+    if now < event.start_datetime:
+        raise BadRequestException("Reviews open once the event starts")
     if now > event.review_deadline:
         raise BadRequestException(
             "Review window is closed (48 hours after the event end)"
@@ -82,13 +91,8 @@ class ReviewService:
     ) -> tuple[datetime, bool, Sequence[Review]]:
         """Returns (review_deadline, can_review, reviews left by the user)."""
         event = await self._get_event(event_id)
-        now = datetime.now(UTC)
-        window_open = (
-            event.status not in NOT_HELD_EVENT_STATUSES
-            and event.end_datetime <= now <= event.review_deadline
-        )
         is_organizer = event.organizer_id == user.id
-        can_review = window_open and (
+        can_review = _is_window_open(event, datetime.now(UTC)) and (
             is_organizer or await self._has_attended(event.id, user.id)
         )
         reviews = await self.review_repo.list_by_reviewer(event.id, user.id)

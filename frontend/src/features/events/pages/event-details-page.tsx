@@ -21,6 +21,7 @@ import { useEventOrganizer } from "@/features/events/hooks/use-event-organizer";
 import { useEventStream } from "@/features/events/hooks/use-event-stream";
 import { useFavoriteToggle } from "@/features/events/hooks/use-favorite-toggle";
 import { useGoBack } from "@/features/events/hooks/use-go-back";
+import { useRefreshOnStart } from "@/features/events/hooks/use-refresh-on-start";
 import { useShareEvent } from "@/features/events/hooks/use-share-event";
 import { getParticipantsViewer } from "@/features/events/lib/get-booking-state";
 import { useIsModerating } from "@/features/moderation";
@@ -46,6 +47,7 @@ export function EventDetailsPage() {
   const { eventId } = route.useParams();
   const event = useEventDetails(eventId);
   useEventStream(eventId);
+  useRefreshOnStart(event);
   const booking = useBookingAction(event);
   const cancelEvent = useCancelEvent(event);
   const organizer = useEventOrganizer(event);

@@ -44,9 +44,6 @@ export function ModerationQueuePage() {
           />
           <ModerationSortSelect value={search.sort} onChange={handleSortChange} />
         </div>
-        {queue.total !== null && (
-          <p className="text-sm font-semibold">{t("moderation.found", { count: queue.total })}</p>
-        )}
         <ModerationEventList
           state={queue.list}
           tab={search.tab}

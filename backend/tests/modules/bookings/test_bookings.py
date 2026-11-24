@@ -828,11 +828,11 @@ async def test_mark_attendance_sets_attended_and_notifies_player() -> None:
     sent = notifications.notify.call_args.args[0]
     assert sent.user_id == booking.user_id
     assert sent.notification_type == NotificationType.ATTENDANCE_MARKED
-    assert "rate the organizer within 48 hours" in sent.message
+    assert "can now rate the organizer" in sent.message
 
 
 @pytest.mark.asyncio
-async def test_mark_attendance_during_event_hints_rating_after_end() -> None:
+async def test_mark_attendance_during_event_lets_player_rate_now() -> None:
     organizer = User(id=uuid.uuid7(), email="org@example.com")
     event = _held_event(
         organizer.id,
@@ -846,7 +846,9 @@ async def test_mark_attendance_during_event_hints_rating_after_end() -> None:
 
     await service.mark_attendance(event.id, booking.id, organizer, attended=True)
 
-    assert "once the event ends" in notifications.notify.call_args.args[0].message
+    assert (
+        "can now rate the organizer" in notifications.notify.call_args.args[0].message
+    )
 
 
 @pytest.mark.asyncio
@@ -902,13 +904,35 @@ async def test_mark_attendance_outside_window_is_rejected(
 
 
 @pytest.mark.asyncio
-async def test_mark_attendance_cannot_revoke_attended() -> None:
+async def test_mark_attendance_attended_can_be_corrected_to_no_show() -> None:
     organizer = User(id=uuid.uuid7(), email="org@example.com")
     event = _held_event(organizer.id)
-    service, _, _, booking = _attendance_setup(event, BookingStatus.ATTENDED)
+    service, booking_repo, notifications, booking = _attendance_setup(
+        event, BookingStatus.ATTENDED
+    )
 
-    with pytest.raises(ConflictException, match="cannot be revoked"):
-        await service.mark_attendance(event.id, booking.id, organizer, attended=False)
+    result = await service.mark_attendance(
+        event.id, booking.id, organizer, attended=False
+    )
+
+    assert result.status == BookingStatus.NO_SHOW
+    booking_repo.delete_reviews_between.assert_awaited_once_with(
+        event.id, organizer.id, booking.user_id
+    )
+    notifications.notify.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_mark_attendance_keeps_reviews_when_marking_present() -> None:
+    organizer = User(id=uuid.uuid7(), email="org@example.com")
+    event = _held_event(organizer.id)
+    service, booking_repo, _, booking = _attendance_setup(
+        event, BookingStatus.CONFIRMED
+    )
+
+    await service.mark_attendance(event.id, booking.id, organizer, attended=True)
+
+    booking_repo.delete_reviews_between.assert_not_awaited()
 
 
 @pytest.mark.asyncio

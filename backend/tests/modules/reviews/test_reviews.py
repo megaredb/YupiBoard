@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import BadRequestException, ForbiddenException
 from app.main import app
 from app.modules.bookings.models import Booking, BookingStatus
+from app.modules.bookings.repository import BookingRepository
 from app.modules.events.models import Event, EventStatus
 from app.modules.events.repository import EventRepository
 from app.modules.reviews.models import Review, ReviewTargetRole
@@ -125,16 +126,63 @@ async def test_not_attended_player_cannot_rate_organizer(
 
 
 @pytest.mark.asyncio
-async def test_review_before_event_end_is_rejected() -> None:
+async def test_attended_player_rates_organizer_during_event() -> None:
     organizer = User(id=uuid.uuid7(), email="org@example.com")
     player = User(id=uuid.uuid7(), email="p@example.com")
     event = _event(
         organizer.id, end_offset=timedelta(hours=1), status=EventStatus.ONGOING
     )
+    service, review_repo, _ = _service(event, BookingStatus.ATTENDED, organizer)
+    review_repo.list_by_reviewer.return_value = []
+
+    review = await service.rate_organizer(event.id, player, 5)
+    _, can_review, _ = await service.get_my_reviews(event.id, player)
+
+    assert review.target_role == ReviewTargetRole.ORGANIZER
+    assert can_review is True
+
+
+@pytest.mark.asyncio
+async def test_organizer_rating_before_event_start_is_rejected() -> None:
+    organizer = User(id=uuid.uuid7(), email="org@example.com")
+    player = User(id=uuid.uuid7(), email="p@example.com")
+    event = _event(
+        organizer.id, end_offset=timedelta(hours=5), status=EventStatus.PUBLISHED
+    )
     service, _, _ = _service(event, BookingStatus.ATTENDED, organizer)
 
-    with pytest.raises(BadRequestException, match="after the event ends"):
+    with pytest.raises(BadRequestException, match="once the event starts"):
         await service.rate_organizer(event.id, player, 5)
+
+
+@pytest.mark.asyncio
+async def test_organizer_rates_player_during_event() -> None:
+    organizer = User(id=uuid.uuid7(), email="org@example.com")
+    player = User(id=uuid.uuid7(), email="p@example.com")
+    event = _event(
+        organizer.id, end_offset=timedelta(hours=1), status=EventStatus.ONGOING
+    )
+    service, review_repo, _ = _service(event, BookingStatus.ATTENDED, player)
+    review_repo.list_by_reviewer.return_value = []
+
+    review = await service.rate_player(event.id, organizer, player.id, 3)
+    _, can_review, _ = await service.get_my_reviews(event.id, organizer)
+
+    assert review.target_role == ReviewTargetRole.PLAYER
+    assert can_review is True
+
+
+@pytest.mark.asyncio
+async def test_player_rating_before_event_start_is_rejected() -> None:
+    organizer = User(id=uuid.uuid7(), email="org@example.com")
+    player = User(id=uuid.uuid7(), email="p@example.com")
+    event = _event(
+        organizer.id, end_offset=timedelta(hours=5), status=EventStatus.PUBLISHED
+    )
+    service, _, _ = _service(event, BookingStatus.ATTENDED, player)
+
+    with pytest.raises(BadRequestException, match="once the event starts"):
+        await service.rate_player(event.id, organizer, player.id, 3)
 
 
 @pytest.mark.asyncio
@@ -290,5 +338,64 @@ async def test_review_rows_keep_reviewee_ratings_in_step(
     assert players[0].rating_as_player_count == 1
     await db_session.refresh(players[1])
     assert players[1].rating_as_player_count == 0
+    # The tests share the development database; leave nothing behind.
+    await db_session.rollback()
+
+
+@pytest.mark.asyncio
+async def test_deleting_pair_reviews_recomputes_ratings(
+    db_session: AsyncSession,
+) -> None:
+    users = UserRepository(db_session)
+    organizer = await users.create(
+        email=f"org_{uuid.uuid7().hex}@example.com", hashed_password="x"
+    )
+    player, other = [
+        await users.create(
+            email=f"p_{uuid.uuid7().hex}@example.com", hashed_password="x"
+        )
+        for _ in range(2)
+    ]
+    now = datetime.now(UTC)
+    event = await EventRepository(db_session).create(
+        organizer_id=organizer.id,
+        title="Revoked attendance",
+        description="Desc",
+        game_title="Catan",
+        address="Main street 1",
+        city="Kyiv",
+        lat=50.45,
+        lon=30.52,
+        start_datetime=now - timedelta(hours=1),
+        end_datetime=now + timedelta(hours=1),
+        max_players=4,
+        entry_cost=Decimal("0.00"),
+        status=EventStatus.ONGOING,
+        is_verified=True,
+    )
+    reviews = ReviewRepository(db_session)
+    for reviewer, reviewee, role, score in (
+        (player, organizer, ReviewTargetRole.ORGANIZER, 1),
+        (other, organizer, ReviewTargetRole.ORGANIZER, 5),
+        (organizer, player, ReviewTargetRole.PLAYER, 2),
+    ):
+        await reviews.create(
+            event_id=event.id,
+            reviewer_id=reviewer.id,
+            reviewee_id=reviewee.id,
+            target_role=role,
+            score=score,
+        )
+
+    await BookingRepository(db_session).delete_reviews_between(
+        event.id, organizer.id, player.id
+    )
+
+    await db_session.refresh(organizer)
+    assert organizer.rating_as_organizer == Decimal("5.00")
+    assert organizer.rating_as_organizer_count == 1
+    await db_session.refresh(player)
+    assert player.rating_as_player is None
+    assert player.rating_as_player_count == 0
     # The tests share the development database; leave nothing behind.
     await db_session.rollback()

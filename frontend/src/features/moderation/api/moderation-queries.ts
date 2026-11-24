@@ -5,7 +5,6 @@ import type {
   ModerationSortBy,
   SortOrder,
 } from "@/shared/api/generated/model";
-import type { Coordinates } from "@/shared/platform/geolocation";
 import { EVENTS_PAGE_SIZE } from "@/features/events";
 import type {
   ModerationSearch,
@@ -20,30 +19,19 @@ const STATUS_BY_TAB = {
 } as const satisfies Record<ModerationTab, EventStatus>;
 
 const SORT_PARAMS = {
-  "distance-asc": ["distance", "asc"],
-  "distance-desc": ["distance", "desc"],
   "date-asc": ["start_datetime", "asc"],
   "date-desc": ["start_datetime", "desc"],
-  "cost-asc": ["cost", "asc"],
-  "cost-desc": ["cost", "desc"],
+  "name-asc": ["title", "asc"],
+  "name-desc": ["title", "desc"],
 } as const satisfies Record<ModerationSort, readonly [ModerationSortBy, SortOrder]>;
 
-/** Without a city to measure from, a distance sort falls back to the backend's queue order. */
-function toSortParams(sort: ModerationSort, origin: Coordinates | undefined) {
+export function moderationQueueQueryOptions({ tab, q, sort, page }: ModerationSearch) {
   const [sortBy, sortOrder] = SORT_PARAMS[sort];
-  if (sortBy !== "distance") return { sort_by: sortBy, sort_order: sortOrder };
-  if (!origin) return { sort_by: "created_at" as const, sort_order: "asc" as const };
-  return { sort_by: sortBy, sort_order: sortOrder, lat: origin.lat, lon: origin.lon };
-}
-
-export function moderationQueueQueryOptions(
-  { tab, q, sort, page }: ModerationSearch,
-  origin: Coordinates | undefined,
-) {
   const params: ListModerationEventsApiV1ModerationEventsGetParams = {
     status: STATUS_BY_TAB[tab],
     q,
-    ...toSortParams(sort, origin),
+    sort_by: sortBy,
+    sort_order: sortOrder,
     page,
     limit: EVENTS_PAGE_SIZE,
   };

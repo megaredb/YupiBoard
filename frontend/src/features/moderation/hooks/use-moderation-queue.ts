@@ -1,7 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import type { ModerationEventRead } from "@/shared/api/generated/model";
 import { toListState, type ListState } from "@/shared/lib/list-state";
-import { usePreferredCity } from "@/features/locations";
 import {
   moderationPendingCountQueryOptions,
   moderationQueueQueryOptions,
@@ -18,9 +17,8 @@ interface ModerationQueue {
 }
 
 export function useModerationQueue(search: ModerationSearch): ModerationQueue {
-  const origin = usePreferredCity();
   const query = useQuery({
-    ...moderationQueueQueryOptions(search, origin),
+    ...moderationQueueQueryOptions(search),
     placeholderData: keepPreviousData,
   });
   const pending = useQuery(moderationPendingCountQueryOptions());

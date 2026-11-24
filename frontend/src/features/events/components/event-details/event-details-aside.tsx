@@ -46,7 +46,7 @@ export function EventDetailsAside({
             )}
           </div>
         ) : (
-          <BookingActions eventId={event.id} action={booking} />
+          <BookingActions event={event} action={booking} />
         )}
       </BookingPanel>
     </aside>

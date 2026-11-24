@@ -24,6 +24,7 @@ class EventRejectRequest(BaseModel):
 class ModerationSortBy(StrEnum):
     CREATED = "created_at"
     DATE = "start_datetime"
+    TITLE = "title"
     COST = "cost"
     DISTANCE = "distance"
 

@@ -1,10 +1,6 @@
 {
   "title": "Події на модерації",
   "description": "Перевірте надіслані події, перш ніж вони з’являться на YupiBoard.",
-  "found_one": "Знайдено {{count}} подію",
-  "found_few": "Знайдено {{count}} події",
-  "found_many": "Знайдено {{count}} подій",
-  "found_other": "Знайдено {{count}} події",
   "tabs": {
     "label": "Статус модерації",
     "pending": "Очікують",
@@ -21,10 +17,8 @@
     "label": "Сортування",
     "dateAsc": "Дата ↑",
     "dateDesc": "Дата ↓",
-    "costAsc": "Вартість ↑",
-    "costDesc": "Вартість ↓",
-    "distanceAsc": "Відстань ↑",
-    "distanceDesc": "Відстань ↓"
+    "nameAsc": "Назва А–Я",
+    "nameDesc": "Назва Я–А"
   },
   "empty": {
     "pendingTitle": "Немає подій, що очікують на перевірку",

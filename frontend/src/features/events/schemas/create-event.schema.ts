@@ -31,6 +31,9 @@ const MESSAGES = {
   priceInvalid: "validation.priceInvalid",
 } as const satisfies Record<string, TranslationKey>;
 
+/** Reported on `date`; the time picker is outlined too, since either part can fix it. */
+export const START_IN_PAST_MESSAGE = MESSAGES.dateFuture;
+
 function startsInFuture({ date, time }: { date: string; time: string }): boolean {
   return !date || !time || new Date(`${date}T${time}`).getTime() > Date.now();
 }
@@ -72,7 +75,7 @@ export const createEventSchema = z
     price: z.number({ error: MESSAGES.priceInvalid }).min(0, MESSAGES.priceInvalid),
     coverImage: coverImageFileSchema,
   })
-  .refine(startsInFuture, { path: ["date"], message: MESSAGES.dateFuture });
+  .refine(startsInFuture, { path: ["date"], message: START_IN_PAST_MESSAGE });
 
 export type CreateEventFormInput = z.input<typeof createEventSchema>;
 export type CreateEventFormValues = z.infer<typeof createEventSchema>;

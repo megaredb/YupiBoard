@@ -8,6 +8,8 @@ import { useMyEventReviews } from "@/features/reviews/hooks/use-my-event-reviews
 interface RateOrganizerProps {
   eventId: string;
   hasAttended: boolean;
+  /** Players rate the organizer from the event start until the review deadline. */
+  isWindowOpen: boolean;
   showCaption?: boolean;
   className?: string;
 }
@@ -15,13 +17,14 @@ interface RateOrganizerProps {
 export function RateOrganizer({
   eventId,
   hasAttended,
+  isWindowOpen,
   showCaption = true,
   className,
 }: RateOrganizerProps) {
   const { t } = useTranslation();
   const reviews = useMyEventReviews(eventId);
   const score = reviews.organizerScore;
-  const isEditable = hasAttended && reviews.canReview;
+  const isEditable = hasAttended && isWindowOpen;
 
   if (score) {
     const badge = (

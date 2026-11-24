@@ -5,12 +5,12 @@ import { Popover } from "@/shared/ui/popover";
 
 interface AttendancePopoverProps {
   trigger: ReactElement;
-  /** A player already marked absent can only be switched to present. */
-  canMarkAbsent: boolean;
+  /** The current mark; only the other choice is offered. */
+  mark: "present" | "absent" | null;
   onMark: (attended: boolean) => void;
 }
 
-export function AttendancePopover({ trigger, canMarkAbsent, onMark }: AttendancePopoverProps) {
+export function AttendancePopover({ trigger, mark, onMark }: AttendancePopoverProps) {
   const { t } = useTranslation();
   const [isOpen, setOpen] = useState(false);
   const handlePresent = () => {
@@ -30,18 +30,17 @@ export function AttendancePopover({ trigger, canMarkAbsent, onMark }: Attendance
           {t("events.attendance.popoverTitle")}
         </p>
         <div className="flex gap-2">
-          <Button size="lg" className="flex-1" onClick={handlePresent}>
-            {t("events.attendance.present")}
-          </Button>
-          {canMarkAbsent && (
+          {mark !== "present" && (
+            <Button size="lg" className="flex-1" onClick={handlePresent}>
+              {t("events.attendance.present")}
+            </Button>
+          )}
+          {mark !== "absent" && (
             <Button variant="outline" size="lg" className="flex-1" onClick={handleAbsent}>
               {t("events.attendance.absent")}
             </Button>
           )}
         </div>
-        <p className="text-center text-xs text-muted-foreground">
-          {t("events.attendance.presentIsFinal")}
-        </p>
       </Popover.Content>
     </Popover>
   );

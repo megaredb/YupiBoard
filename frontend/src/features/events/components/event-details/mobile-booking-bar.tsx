@@ -8,6 +8,7 @@ import { PriceLabel } from "@/features/events/components/event-details/price-lab
 import type { BookingAction } from "@/features/events/hooks/use-booking-action";
 import type { CancelEventAction } from "@/features/events/hooks/use-cancel-event";
 import { BOOKING_STATE_LABEL_KEYS } from "@/features/events/lib/booking-state-label-keys";
+import { getAttendancePhase } from "@/features/events/lib/get-attendance-phase";
 import { getEventPrice } from "@/features/events/lib/get-event-price";
 import { RateOrganizer } from "@/features/reviews";
 
@@ -40,6 +41,7 @@ function MobileCallToAction({ event, action, cancelEvent }: MobileBookingBarProp
       <RateOrganizer
         eventId={event.id}
         hasAttended={action.state === "attended"}
+        isWindowOpen={getAttendancePhase(event) === "open"}
         showCaption={false}
         className="min-w-0 flex-1"
       />

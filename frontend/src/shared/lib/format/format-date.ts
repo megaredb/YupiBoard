@@ -23,18 +23,12 @@ export function formatLongDate(iso: string): string {
 }
 
 /** "17:00" */
-function formatTime(iso: string): string {
+export function formatTime(iso: string): string {
   return new Intl.DateTimeFormat(getActiveLocale(), {
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
   }).format(new Date(iso));
-}
-
-/** "18:00 – 22:00" (end time omitted when unknown). */
-export function formatTimeRange(startsAt: string, endsAt: string | null): string {
-  const start = formatTime(startsAt);
-  return endsAt ? `${start} – ${formatTime(endsAt)}` : start;
 }
 
 /** "Eastern European Time": the device's time zone as of `iso`, named in the active locale. */
