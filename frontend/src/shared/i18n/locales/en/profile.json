@@ -61,7 +61,6 @@
   "uploadPhoto": "Upload photo",
   "changeBanner": "Change cover",
   "bannerHint": "JPEG/PNG under 5 MB · wide images work best",
-  "cityNotSet": "Not set",
   "deleteAccount": {
     "title": "Delete my profile",
     "description": "Your profile, bookings and favorites will be removed and you will be signed out. This can't be undone.",

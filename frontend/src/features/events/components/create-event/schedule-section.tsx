@@ -1,5 +1,5 @@
 import { Building2 } from "lucide-react";
-import { Controller, useWatch } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { FormField } from "@/shared/components/form-field";
 import { TextField } from "@/shared/components/text-field";
@@ -14,7 +14,7 @@ import {
   CREATE_EVENT_LIMITS,
   START_IN_PAST_MESSAGE,
 } from "@/features/events/schemas/create-event.schema";
-import { CitySelect } from "@/features/locations";
+import { CityCombobox } from "@/features/locations";
 
 function ScheduleDateTimeRow() {
   const { t, i18n } = useTranslation();
@@ -82,18 +82,28 @@ export function ScheduleSection() {
     control,
     formState: { errors },
   } = useCreateEventFormContext();
-  const currentCity = useWatch({ control, name: "city" });
 
   return (
     <FormSection title={t("events.create.when.title")}>
       <ScheduleDateTimeRow />
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <FormField label={t("events.create.fields.city")} isRequired>
-          {(fieldControl) => (
-            <CitySelect {...fieldControl} {...register("city")} value={currentCity ?? ""} />
+        <Controller
+          control={control}
+          name="city"
+          render={({ field }) => (
+            <FormField label={t("events.create.fields.city")} isRequired>
+              {(fieldControl) => (
+                <CityCombobox
+                  fieldControl={fieldControl}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  onBlur={field.onBlur}
+                />
+              )}
+            </FormField>
           )}
-        </FormField>
+        />
         <TextField
           label={t("events.create.fields.venueName")}
           optionalText={t("common.optional")}

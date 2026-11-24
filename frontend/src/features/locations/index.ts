@@ -1,5 +1,5 @@
 export { citiesQueryOptions } from "@/features/locations/api/city-queries";
-export { CitySelect } from "@/features/locations/components/city-select";
+export { CityCombobox } from "@/features/locations/components/city-combobox";
 export { MyLocationButton } from "@/features/locations/components/my-location-button";
 export { NearestCityButton } from "@/features/locations/components/nearest-city-button";
 export { useCities } from "@/features/locations/hooks/use-cities";

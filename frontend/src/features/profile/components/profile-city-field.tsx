@@ -1,51 +1,53 @@
 import { MapPin } from "lucide-react";
-import { useFormContext, useWatch } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { CityRead } from "@/shared/api/generated/model";
 import { FormField } from "@/shared/components/form-field";
 import { useFieldError } from "@/shared/i18n/use-field-error";
-import { CitySelect, NearestCityButton } from "@/features/locations";
+import { CityCombobox, NearestCityButton } from "@/features/locations";
 import type { CompleteProfileFormValues } from "@/features/profile/schemas/profile.schema";
 
 interface ProfileCityFieldProps {
-  /** The stored city, kept selectable when the backend no longer lists it. */
-  savedCity: string | null | undefined;
   isPending: boolean;
 }
 
-export function ProfileCityField({ savedCity, isPending }: ProfileCityFieldProps) {
+export function ProfileCityField({ isPending }: ProfileCityFieldProps) {
   const { t } = useTranslation();
   const fieldError = useFieldError();
   const {
-    register,
     control,
     setValue,
     formState: { errors },
   } = useFormContext<CompleteProfileFormValues>();
-  const currentCity = useWatch({ control, name: "city" });
   const handleNearestCity = (city: CityRead) =>
     setValue("city", city.canonical_name, { shouldDirty: true, shouldValidate: true });
 
   return (
     <div className="space-y-1">
-      <FormField
-        label={t("profile.fields.city")}
-        optionalText={t("common.optional")}
-        hint={t("profile.locationHint")}
-        error={fieldError(errors.city?.message)}
-      >
-        {(fieldControl) => (
-          <CitySelect
-            {...fieldControl}
-            {...register("city")}
-            value={currentCity ?? ""}
-            startIcon={<MapPin />}
-            emptyLabel={t("profile.cityNotSet")}
-            legacyValue={savedCity}
-            disabled={isPending}
-          />
+      <Controller
+        control={control}
+        name="city"
+        render={({ field }) => (
+          <FormField
+            label={t("profile.fields.city")}
+            optionalText={t("common.optional")}
+            hint={t("profile.locationHint")}
+            error={fieldError(errors.city?.message)}
+          >
+            {(fieldControl) => (
+              <CityCombobox
+                fieldControl={fieldControl}
+                value={field.value ?? ""}
+                onValueChange={field.onChange}
+                onBlur={field.onBlur}
+                startIcon={<MapPin />}
+                isClearable
+                disabled={isPending}
+              />
+            )}
+          </FormField>
         )}
-      </FormField>
+      />
       <NearestCityButton onFound={handleNearestCity} isDisabled={isPending} />
     </div>
   );

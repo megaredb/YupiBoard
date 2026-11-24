@@ -1,4 +1,3 @@
-import type { ChangeEvent } from "react";
 import { MapPin, SlidersHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { FormField } from "@/shared/components/form-field";
@@ -6,7 +5,7 @@ import { Button } from "@/shared/ui/button";
 import { MyLocationChip } from "@/features/events/components/event-catalog/my-location-chip";
 import { toCityCenter } from "@/features/events/lib/to-my-location";
 import type { CatalogFilters } from "@/features/events/schemas/catalog-search.schema";
-import { CitySelect } from "@/features/locations";
+import { CityCombobox } from "@/features/locations";
 
 interface MobileCatalogToolbarProps {
   value: CatalogFilters;
@@ -17,8 +16,7 @@ interface MobileCatalogToolbarProps {
 export function MobileCatalogToolbar({ value, onApply, onOpenFilters }: MobileCatalogToolbarProps) {
   const { t } = useTranslation();
   const { lat, lon } = value;
-  const handleCityChange = (event: ChangeEvent<HTMLSelectElement>) =>
-    onApply(toCityCenter(value, event.target.value));
+  const handleCityChange = (city: string) => onApply(toCityCenter(value, city));
   const handleBackToCity = () => onApply(toCityCenter(value));
 
   return (
@@ -28,12 +26,12 @@ export function MobileCatalogToolbar({ value, onApply, onOpenFilters }: MobileCa
       ) : (
         <FormField label={t("events.filters.location")} isLabelHidden className="min-w-0 flex-1">
           {(fieldControl) => (
-            <CitySelect
-              {...fieldControl}
+            <CityCombobox
+              fieldControl={fieldControl}
               variant="ghost"
               startIcon={<MapPin />}
               value={value.city}
-              onChange={handleCityChange}
+              onValueChange={handleCityChange}
             />
           )}
         </FormField>

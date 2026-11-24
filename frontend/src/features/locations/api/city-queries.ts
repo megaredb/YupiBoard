@@ -18,3 +18,22 @@ export function citiesQueryOptions(language: string = getActiveLocale()) {
     staleTime: Number.POSITIVE_INFINITY,
   });
 }
+
+/** Most cities a search suggests at once. */
+const CITY_SEARCH_LIMIT = 3;
+
+/**
+ * Server-side city search: matches the English name and every translation. An empty query
+ * returns the first cities alphabetically.
+ */
+export function citySearchQueryOptions(query: string, language: string) {
+  const params: SearchCitiesApiV1LocationsCitiesGetParams = {
+    q: query || undefined,
+    limit: CITY_SEARCH_LIMIT,
+  };
+  return queryOptions({
+    queryKey: [...getSearchCitiesApiV1LocationsCitiesGetQueryKey(params), { language }],
+    queryFn: ({ signal }) => searchCitiesApiV1LocationsCitiesGet(params, undefined, signal),
+    staleTime: Number.POSITIVE_INFINITY,
+  });
+}

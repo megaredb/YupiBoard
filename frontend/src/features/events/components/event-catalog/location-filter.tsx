@@ -1,4 +1,3 @@
-import type { ChangeEvent } from "react";
 import { MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { FormField } from "@/shared/components/form-field";
@@ -11,7 +10,7 @@ import {
   DISTANCE_RANGE_KM,
   type CatalogFilters,
 } from "@/features/events/schemas/catalog-search.schema";
-import { CitySelect, MyLocationButton } from "@/features/locations";
+import { CityCombobox, MyLocationButton } from "@/features/locations";
 
 interface LocationFilterProps {
   value: CatalogFilters;
@@ -22,8 +21,7 @@ export function LocationFilter({ value, onChange }: LocationFilterProps) {
   const { t } = useTranslation();
   const { lat, lon } = value;
 
-  const handleCityChange = (event: ChangeEvent<HTMLSelectElement>) =>
-    onChange(toCityCenter(value, event.target.value));
+  const handleCityChange = (city: string) => onChange(toCityCenter(value, city));
   const handleMyLocation = (position: Coordinates) => onChange(toMyLocation(value, position));
   const handleBackToCity = () => onChange(toCityCenter(value));
   const handleDistanceCommit = (distance: number) => onChange({ ...value, distance });
@@ -41,12 +39,12 @@ export function LocationFilter({ value, onChange }: LocationFilterProps) {
       ) : (
         <FormField label={t("events.filters.location")} hint={t("events.filters.fromCityCenter")}>
           {(fieldControl) => (
-            <CitySelect
-              {...fieldControl}
+            <CityCombobox
+              fieldControl={fieldControl}
               variant="tinted"
               startIcon={<MapPin />}
               value={value.city}
-              onChange={handleCityChange}
+              onValueChange={handleCityChange}
             />
           )}
         </FormField>
