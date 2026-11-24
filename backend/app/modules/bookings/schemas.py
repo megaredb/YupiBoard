@@ -2,13 +2,18 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
+from app.core.media_url import resolve_media_url
 from app.modules.bookings.models import BookingStatus
 
 
 class BookingRejectRequest(BaseModel):
     reason: str | None = Field(default=None, max_length=500)
+
+
+class AttendanceRequest(BaseModel):
+    attended: bool
 
 
 class BookingCreateResponse(BaseModel):
@@ -26,6 +31,11 @@ class BookingParticipantSummary(BaseModel):
     rating_as_player: Decimal | None = None
     created_at: datetime | None = None
 
+    @field_serializer("avatar_url")
+    @classmethod
+    def serialize_avatar_url(cls, value: str | None) -> str | None:
+        return resolve_media_url(value)
+
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -40,6 +50,11 @@ class BookingEventSummary(BaseModel):
     entry_cost: Decimal
     photo_url: str | None = None
     status: str
+
+    @field_serializer("photo_url")
+    @classmethod
+    def serialize_photo_url(cls, value: str | None) -> str | None:
+        return resolve_media_url(value)
 
     model_config = ConfigDict(from_attributes=True)
 

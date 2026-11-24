@@ -10,6 +10,7 @@ from app.modules.auth.dependencies import get_current_superuser, get_current_use
 from app.modules.users.dependencies import get_user_service
 from app.modules.users.models import User
 from app.modules.users.schemas import (
+    EmailChangeRequest,
     PasswordChangeRequest,
     UserPublicRead,
     UserRead,
@@ -53,6 +54,26 @@ async def change_password(
         old_password=data.old_password,
     )
     return MessageResponse(message="Password successfully updated")
+
+
+@router.post(
+    "/me/email-change",
+    response_model=MessageResponse,
+    summary="Request an email address change; sends a confirmation link to the new email",
+)
+async def request_email_change(
+    data: EmailChangeRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    user_service: Annotated[UserService, Depends(get_user_service)],
+) -> MessageResponse:
+    await user_service.request_email_change(
+        user=current_user,
+        new_email=data.new_email,
+        current_password=data.current_password,
+    )
+    return MessageResponse(
+        message="Confirmation link has been sent to your new email address."
+    )
 
 
 @router.post(
@@ -158,4 +179,4 @@ async def delete_user(
     user_service: Annotated[UserService, Depends(get_user_service)],
 ) -> None:
     user = await user_service.get_by_id(user_id)
-    await user_service.delete(user)
+    await user_service.delete(user, force_cancel_events=True)

@@ -12,6 +12,7 @@ import {
   useNotificationsList,
   useUnreadNotificationsCount,
 } from "@/features/notifications/hooks/use-notifications";
+import { useNotificationsStream } from "@/features/notifications/hooks/use-notifications-stream";
 
 function NotificationEmptyState() {
   const { t } = useTranslation();
@@ -29,6 +30,7 @@ function NotificationEmptyState() {
 
 export function NotificationBell() {
   const { t } = useTranslation();
+  useNotificationsStream();
   const [isOpen, setOpen] = useState(false);
   const [isExpanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState<NotificationRead | null>(null);

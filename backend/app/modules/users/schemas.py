@@ -2,8 +2,16 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    field_serializer,
+    field_validator,
+)
 
+from app.core.media_url import resolve_media_url
 from app.core.types import UUID7
 from app.modules.users.enums import UserStatus
 
@@ -64,7 +72,14 @@ class UserPublicRead(BaseModel):
     bio: str | None = None
     rating_as_player: Decimal | None = None
     rating_as_organizer: Decimal | None = None
+    rating_as_player_count: int = 0
+    rating_as_organizer_count: int = 0
     created_at: datetime
+
+    @field_serializer("avatar_url", "banner_url")
+    @classmethod
+    def serialize_media_url(cls, value: str | None) -> str | None:
+        return resolve_media_url(value)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -80,8 +95,20 @@ class UserRead(UserBase):
     bio: str | None = None
     rating_as_player: Decimal | None = None
     rating_as_organizer: Decimal | None = None
+    rating_as_player_count: int = 0
+    rating_as_organizer_count: int = 0
     status: UserStatus = UserStatus.ACTIVE
     is_verified: bool
     is_superuser: bool
 
+    @field_serializer("avatar_url", "banner_url")
+    @classmethod
+    def serialize_media_url(cls, value: str | None) -> str | None:
+        return resolve_media_url(value)
+
     model_config = ConfigDict(from_attributes=True)
+
+
+class EmailChangeRequest(BaseModel):
+    new_email: EmailStr
+    current_password: str | None = Field(default=None, max_length=128)

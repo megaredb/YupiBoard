@@ -2,7 +2,9 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, status
+from fastapi.responses import StreamingResponse
 
+from app.core.realtime import realtime_broker, user_channel
 from app.modules.auth.dependencies import get_current_user
 from app.modules.notifications.dependencies import get_notification_service
 from app.modules.notifications.schemas import (
@@ -20,6 +22,24 @@ from app.modules.notifications.service import NotificationService
 from app.modules.users.models import User
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
+
+
+@router.get(
+    "/stream",
+    summary="Server-Sent Events stream for real-time user notifications",
+)
+async def stream_notifications(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> StreamingResponse:
+    return StreamingResponse(
+        realtime_broker.subscribe(user_channel(current_user.id)),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 @router.get(

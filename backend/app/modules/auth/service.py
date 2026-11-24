@@ -1,6 +1,8 @@
 import uuid
 from datetime import UTC, datetime, timedelta
+from typing import Literal
 
+import jwt
 from google.auth.exceptions import GoogleAuthError
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
@@ -23,7 +25,11 @@ from app.core.security import (
     verify_password,
 )
 from app.modules.auth.repository import ActionTokenRepository, RefreshTokenRepository
-from app.modules.auth.schemas import LoginRequest, RegisterRequest
+from app.modules.auth.schemas import (
+    ActionTokenValidationResponse,
+    LoginRequest,
+    RegisterRequest,
+)
 from app.modules.users.enums import UserStatus
 from app.modules.users.models import User
 from app.modules.users.repository import UserRepository
@@ -215,6 +221,109 @@ class AuthService:
         hashed_pwd = get_password_hash(new_password)
         updated_user = await self.user_repo.update(user, hashed_password=hashed_pwd)
         # Revoke all previous refresh tokens on password change
+        await self.token_repo.revoke_all_for_user(user.id)
+        return updated_user
+
+    async def validate_action_token(
+        self,
+        token_str: str,
+        expected_action: Literal["reset_password", "change_email"],
+    ) -> ActionTokenValidationResponse:
+        """Check whether a password-reset or email-change token is still usable without consuming it."""
+        try:
+            payload = jwt.decode(
+                token_str,
+                settings.SECRET_KEY,
+                algorithms=[settings.ALGORITHM],
+            )
+        except jwt.ExpiredSignatureError:
+            return ActionTokenValidationResponse(valid=False, reason="expired")
+        except jwt.InvalidTokenError:
+            return ActionTokenValidationResponse(valid=False, reason="invalid")
+
+        if payload.get("type") != expected_action:
+            return ActionTokenValidationResponse(valid=False, reason="invalid")
+
+        user_id_str = payload.get("sub")
+        jti = payload.get("jti")
+        if not user_id_str or not jti:
+            return ActionTokenValidationResponse(valid=False, reason="invalid")
+
+        if expected_action == "change_email" and not payload.get("new_email"):
+            return ActionTokenValidationResponse(valid=False, reason="invalid")
+
+        try:
+            user_id = uuid.UUID(user_id_str)
+        except ValueError:
+            return ActionTokenValidationResponse(valid=False, reason="invalid")
+
+        user = await self.user_repo.get_by_id(user_id)
+        if not user or user.status != UserStatus.ACTIVE or user.is_deleted:
+            return ActionTokenValidationResponse(valid=False, reason="invalid")
+
+        if self.action_token_repo is not None:
+            action_token = await self.action_token_repo.get_by_jti(jti)
+            if (
+                not action_token
+                or action_token.token_type != expected_action
+                or action_token.user_id != user.id
+            ):
+                return ActionTokenValidationResponse(valid=False, reason="invalid")
+            if action_token.is_used:
+                return ActionTokenValidationResponse(valid=False, reason="used")
+            if action_token.expires_at < datetime.now(UTC):
+                return ActionTokenValidationResponse(valid=False, reason="expired")
+
+        return ActionTokenValidationResponse(valid=True, reason="valid")
+
+    async def confirm_email_change(self, token_str: str) -> User:
+        try:
+            payload = decode_token(token_str, expected_type="change_email")
+        except UnauthorizedException as e:
+            raise BadRequestException(f"Invalid email change token: {e.detail}")
+
+        user_id_str = payload.get("sub")
+        jti = payload.get("jti")
+        raw_new_email = payload.get("new_email")
+        if not user_id_str or not jti or not isinstance(raw_new_email, str):
+            raise BadRequestException("Invalid email change token")
+
+        new_email = raw_new_email.strip().lower()
+        try:
+            user_id = uuid.UUID(user_id_str)
+        except ValueError:
+            raise BadRequestException("Invalid email change token")
+
+        user = await self.user_repo.get_by_id(user_id)
+        if not user or user.status != UserStatus.ACTIVE or user.is_deleted:
+            raise NotFoundException("User not found")
+
+        if self.action_token_repo is not None:
+            action_token = await self.action_token_repo.get_by_jti(jti)
+            if (
+                not action_token
+                or action_token.token_type != "change_email"
+                or action_token.user_id != user.id
+            ):
+                raise BadRequestException("Invalid or unrecognized email change token")
+            if action_token.is_used:
+                raise BadRequestException("Email change token has already been used")
+            if action_token.expires_at < datetime.now(UTC):
+                raise BadRequestException("Email change token has expired")
+
+            existing = await self.user_repo.get_by_email(new_email)
+            if existing is not None and existing.id != user.id:
+                raise ConflictException("Email address is already in use")
+
+            await self.action_token_repo.mark_used(action_token)
+        else:
+            existing = await self.user_repo.get_by_email(new_email)
+            if existing is not None and existing.id != user.id:
+                raise ConflictException("Email address is already in use")
+
+        updated_user = await self.user_repo.update(
+            user, email=new_email, is_verified=True
+        )
         await self.token_repo.revoke_all_for_user(user.id)
         return updated_user
 

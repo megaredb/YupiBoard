@@ -2,7 +2,7 @@ import uuid
 from collections.abc import Sequence
 from typing import Literal
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -26,6 +26,15 @@ class FavoriteRepository:
     async def delete(self, favorite: Favorite) -> None:
         await self.session.delete(favorite)
         await self.session.flush()
+
+    async def delete_all_for_user(self, user_id: uuid.UUID) -> int:
+        result = await self.session.execute(
+            delete(Favorite)
+            .where(Favorite.user_id == user_id)
+            .returning(Favorite.event_id)
+            .execution_options(synchronize_session=False)
+        )
+        return len(result.all())
 
     async def list_events(
         self,

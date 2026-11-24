@@ -4,8 +4,16 @@ from decimal import Decimal
 from enum import StrEnum
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 
+from app.core.media_url import resolve_media_url
 from app.modules.bookings.models import BookingStatus
 from app.modules.events.models import EventStatus
 
@@ -36,8 +44,8 @@ class EventCreate(BaseModel):
     location_name: str | None = Field(default=None, max_length=150)
     address: str = Field(min_length=1, max_length=255)
     city: str = Field(min_length=1, max_length=100)
-    lat: Latitude
-    lon: Longitude
+    lat: Latitude | None = None
+    lon: Longitude | None = None
     start_datetime: datetime
     end_datetime: datetime | None = None
     min_players: int = Field(default=1, ge=1, le=20)
@@ -52,6 +60,8 @@ class EventCreate(BaseModel):
 
     @model_validator(mode="after")
     def validate_event_data(self) -> EventCreate:
+        if (self.lat is None) != (self.lon is None):
+            raise ValueError("lat and lon must be provided together")
         now = datetime.now(UTC)
         if self.start_datetime <= now:
             raise ValueError("start_datetime must be in the future")
@@ -83,6 +93,12 @@ class EventUpdate(BaseModel):
     def check_photo_url(cls, v: str | None) -> str | None:
         return validate_media_url(v)
 
+    @model_validator(mode="after")
+    def validate_coordinates(self) -> EventUpdate:
+        if (self.lat is None) != (self.lon is None):
+            raise ValueError("lat and lon must be provided together")
+        return self
+
 
 class EventCreateResponse(BaseModel):
     event_id: uuid.UUID
@@ -96,6 +112,11 @@ class EventOrganizerSummary(BaseModel):
     name: str
     avatar_url: str | None = None
     rating_as_organizer: Decimal | None = None
+
+    @field_serializer("avatar_url")
+    @classmethod
+    def serialize_avatar_url(cls, value: str | None) -> str | None:
+        return resolve_media_url(value)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -111,6 +132,7 @@ class EventListItem(BaseModel):
     city: str
     address: str
     start_datetime: datetime
+    end_datetime: datetime
     entry_cost: Decimal
     max_players: int
     current_confirmed: int
@@ -122,6 +144,11 @@ class EventListItem(BaseModel):
     user_booking_status: BookingStatus | None = None
     status: EventStatus
     organizer: EventOrganizerSummary
+
+    @field_serializer("photo_url")
+    @classmethod
+    def serialize_photo_url(cls, value: str | None) -> str | None:
+        return resolve_media_url(value)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -220,7 +247,8 @@ class EventRead(BaseModel):
     lat: Latitude
     lon: Longitude
     start_datetime: datetime
-    end_datetime: datetime | None
+    end_datetime: datetime
+    review_deadline: datetime
     min_players: int
     max_players: int
     current_confirmed: int
@@ -228,6 +256,7 @@ class EventRead(BaseModel):
     entry_cost: Decimal
     photo_url: str | None
     status: EventStatus
+    rejection_reason: str | None = None
     is_verified: bool
     is_promoted: bool
     is_favorite: bool = False
@@ -237,8 +266,18 @@ class EventRead(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+    @field_serializer("photo_url")
+    @classmethod
+    def serialize_photo_url(cls, value: str | None) -> str | None:
+        return resolve_media_url(value)
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class EventImageUploadResponse(BaseModel):
     image_url: str
+
+    @field_serializer("image_url")
+    @classmethod
+    def serialize_image_url(cls, value: str) -> str:
+        return resolve_media_url(value) or value
