@@ -56,8 +56,10 @@ class UserRepository(BaseRepository[User]):
         user.first_name = None
         user.last_name = None
         user.avatar_url = None
+        user.banner_url = None
         user.city = None
         user.contact_info = None
+        user.bio = None
         self.session.add(user)
         await self.session.flush()
         await self.session.refresh(user)

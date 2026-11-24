@@ -420,18 +420,92 @@ class EventRepository(BaseRepository[Event]):
         )
         return list(result.all())
 
-    async def start_due_events(self, now: datetime) -> int:
+    async def start_due_events(self, now: datetime) -> list[uuid.UUID]:
         result = await self.session.execute(
             update(Event)
             .where(
                 Event.status == EventStatus.PUBLISHED,
                 Event.start_datetime <= now,
+                Event.end_datetime > now,
                 Event.is_deleted.is_(False),
             )
             .values(status=EventStatus.ONGOING)
+            .returning(Event.id)
             .execution_options(synchronize_session=False)
         )
-        return int(getattr(result, "rowcount", 0) or 0)
+        return list(result.scalars().all())
+
+    async def list_active_for_organizer(
+        self, organizer_id: uuid.UUID
+    ) -> Sequence[Event]:
+        result = await self.session.execute(
+            select(Event).where(
+                Event.organizer_id == organizer_id,
+                Event.is_deleted.is_(False),
+                Event.status.in_(
+                    (
+                        EventStatus.ON_MODERATION,
+                        EventStatus.PUBLISHED,
+                        EventStatus.ONGOING,
+                    )
+                ),
+            )
+        )
+        return result.scalars().all()
+
+    async def has_duplicate_event(
+        self,
+        *,
+        organizer_id: uuid.UUID,
+        start_datetime: datetime,
+        city: str,
+        address: str,
+        exclude_event_id: uuid.UUID | None = None,
+    ) -> bool:
+        filters = [
+            Event.organizer_id == organizer_id,
+            Event.is_deleted.is_(False),
+            Event.status.in_(
+                (
+                    EventStatus.ON_MODERATION,
+                    EventStatus.PUBLISHED,
+                    EventStatus.ONGOING,
+                )
+            ),
+            Event.start_datetime == start_datetime,
+            func.lower(Event.city) == city.strip().lower(),
+            func.lower(Event.address) == address.strip().lower(),
+        ]
+        if exclude_event_id is not None:
+            filters.append(Event.id != exclude_event_id)
+        count = await self.session.scalar(select(func.count(Event.id)).where(*filters))
+        return bool(count and count > 0)
+
+    async def list_for_moderation(
+        self,
+        *,
+        status: EventStatus | None = EventStatus.ON_MODERATION,
+        page: int = 1,
+        limit: int = 20,
+    ) -> tuple[Sequence[Event], int, int]:
+        filters = [Event.is_deleted.is_(False)]
+        if status is not None:
+            filters.append(Event.status == status)
+        total = int(
+            await self.session.scalar(
+                select(func.count()).select_from(Event).where(*filters)
+            )
+            or 0
+        )
+        result = await self.session.execute(
+            select(Event)
+            .options(joinedload(Event.organizer))
+            .where(*filters)
+            .order_by(Event.created_at.asc(), Event.id.asc())
+            .offset((page - 1) * limit)
+            .limit(limit)
+        )
+        return result.scalars().all(), total, ceil(total / limit) if total else 1
 
     async def complete_due_events(self, now: datetime) -> list[CompletedEventRow]:
         result = await self.session.execute(
