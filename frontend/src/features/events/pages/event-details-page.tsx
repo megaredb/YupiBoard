@@ -22,6 +22,7 @@ import { useBookingAction, type BookingAction } from "@/features/events/hooks/us
 import { useCancelEvent, type CancelEventAction } from "@/features/events/hooks/use-cancel-event";
 import { useEventDetails } from "@/features/events/hooks/use-event-details";
 import { useEventOrganizer } from "@/features/events/hooks/use-event-organizer";
+import { useEventStream } from "@/features/events/hooks/use-event-stream";
 import { useFavoriteToggle } from "@/features/events/hooks/use-favorite-toggle";
 import { useGoBack } from "@/features/events/hooks/use-go-back";
 import { useShareEvent } from "@/features/events/hooks/use-share-event";
@@ -93,6 +94,7 @@ function EventBreadcrumbs({ title, isModerating }: { title: string; isModerating
 export function EventDetailsPage() {
   const { eventId } = route.useParams();
   const event = useEventDetails(eventId);
+  useEventStream(eventId);
   const booking = useBookingAction(event);
   const cancelEvent = useCancelEvent(event);
   const organizer = useEventOrganizer(event);

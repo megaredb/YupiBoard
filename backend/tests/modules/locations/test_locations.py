@@ -1,5 +1,120 @@
+import uuid
+from types import SimpleNamespace
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
 from httpx import AsyncClient
+from sqlalchemy.dialects import postgresql
+
+from app.main import app
+from app.modules.locations.dependencies import get_location_service
+from app.modules.locations.repository import CityRepository
+from app.modules.locations.schemas import CityRead
+from app.modules.locations.service import LocationService
+
+
+@pytest.mark.asyncio
+async def test_city_search_matches_english_and_ukrainian_names() -> None:
+    session = AsyncMock()
+    result = MagicMock()
+    result.scalars.return_value.all.return_value = []
+    session.execute.return_value = result
+    repository = CityRepository(session)
+
+    await repository.search(query="Київ")
+
+    statement = session.execute.await_args.args[0]
+    sql = str(statement.compile(dialect=postgresql.dialect()))
+    assert "cities.name ILIKE" in sql
+    assert "city_translations.name ILIKE" in sql
+
+
+@pytest.mark.asyncio
+async def test_city_search_localizes_name_using_accept_language() -> None:
+    city = SimpleNamespace(
+        id=uuid.uuid7(),
+        name="Kyiv",
+        translations=[SimpleNamespace(language_code="uk", name="Київ")],
+        lat=50.4501,
+        lon=30.5234,
+        country=SimpleNamespace(code="UA"),
+    )
+    city_repo = AsyncMock()
+    city_repo.search.return_value = [city]
+    service = LocationService(city_repo, AsyncMock())
+
+    ukrainian = await service.search_cities(
+        query="Kyiv", country_code="UA", accept_language="en;q=0.8,uk-UA;q=0.9"
+    )
+    english = await service.search_cities(
+        query="Київ", country_code="UA", accept_language="en;q=0.9,uk;q=0.8"
+    )
+
+    assert ukrainian[0].name == "Київ"
+    assert english[0].name == "Kyiv"
+    city_repo.search.assert_awaited_with(query="Київ", country_code="UA", limit=20)
+
+
+@pytest.mark.asyncio
+async def test_grouped_cities_localize_names_using_accept_language() -> None:
+    city = SimpleNamespace(
+        id=uuid.uuid7(),
+        name="Kyiv",
+        translations=[SimpleNamespace(language_code="uk", name="Київ")],
+        lat=50.4501,
+        lon=30.5234,
+        is_active=True,
+    )
+    country = SimpleNamespace(
+        id=uuid.uuid7(),
+        code="UA",
+        name="Ukraine",
+        cities=[city],
+    )
+    country_repo = AsyncMock()
+    country_repo.list_with_cities.return_value = [country]
+    service = LocationService(AsyncMock(), country_repo)
+
+    grouped = await service.list_countries_with_cities("uk")
+
+    assert grouped[0].cities[0].name == "Київ"
+
+
+@pytest.mark.asyncio
+async def test_city_search_route_accepts_q_and_accept_language(
+    async_client: AsyncClient,
+) -> None:
+    service = AsyncMock()
+    service.search_cities.return_value = [
+        CityRead(
+            id=uuid.uuid7(),
+            name="Київ",
+            country_code="UA",
+            lat=50.4501,
+            lon=30.5234,
+        )
+    ]
+    previous_override = app.dependency_overrides.get(get_location_service)
+    app.dependency_overrides[get_location_service] = lambda: service
+    try:
+        response = await async_client.get(
+            "/api/v1/locations/cities?q=Kyiv",
+            headers={"Accept-Language": "uk"},
+        )
+    finally:
+        if previous_override is None:
+            app.dependency_overrides.pop(get_location_service, None)
+        else:
+            app.dependency_overrides[get_location_service] = previous_override
+
+    assert response.status_code == 200
+    assert response.json()[0]["name"] == "Київ"
+    service.search_cities.assert_awaited_once_with(
+        query="Kyiv",
+        country_code=None,
+        limit=50,
+        accept_language="uk",
+    )
 
 
 @pytest.mark.asyncio
@@ -28,6 +143,24 @@ async def test_locations_countries_and_cities_endpoints(
     kyiv_list = res_kyiv.json()
     assert any(c["name"] == "Kyiv" and c["country_code"] == "UA" for c in kyiv_list)
 
+    res_kyiv_uk = await async_client.get(
+        "/api/v1/locations/cities?q=Київ",
+        headers={"Accept-Language": "uk-UA,uk;q=0.9,en;q=0.8"},
+    )
+    assert res_kyiv_uk.status_code == 200
+    assert any(
+        c["name"] == "Київ" and c["country_code"] == "UA" for c in res_kyiv_uk.json()
+    )
+
+    res_kyiv_en_query_uk = await async_client.get(
+        "/api/v1/locations/cities?query=Kyiv",
+        headers={"Accept-Language": "uk"},
+    )
+    assert any(
+        c["name"] == "Київ" and c["country_code"] == "UA"
+        for c in res_kyiv_en_query_uk.json()
+    )
+
     # Test filter by country_code
     res_pl = await async_client.get("/api/v1/locations/cities?country_code=PL")
     assert res_pl.status_code == 200
@@ -43,3 +176,9 @@ async def test_locations_countries_and_cities_endpoints(
     ua_group = next(g for g in grouped if g["code"] == "UA")
     assert len(ua_group["cities"]) >= 3
     assert any(c["name"] == "Kyiv" for c in ua_group["cities"])
+
+    res_grouped_uk = await async_client.get(
+        "/api/v1/locations/grouped", headers={"Accept-Language": "uk"}
+    )
+    ua_group_uk = next(g for g in res_grouped_uk.json() if g["code"] == "UA")
+    assert any(c["name"] == "Київ" for c in ua_group_uk["cities"])

@@ -32,6 +32,12 @@ ACTIVE_BOOKING_STATUSES = {
     BookingStatus.WAITLIST,
 }
 
+# Players that hold (or held) a seat: listed as participants of the event.
+SEATED_BOOKING_STATUSES = {
+    BookingStatus.CONFIRMED,
+    BookingStatus.ATTENDED,
+}
+
 BLOCKED_BOOKING_STATUSES = {
     BookingStatus.REJECTED,
     BookingStatus.REMOVED_BY_ORGANIZER,

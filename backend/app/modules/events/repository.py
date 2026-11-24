@@ -1,7 +1,9 @@
 import uuid
+from collections import defaultdict
 from collections.abc import Sequence
+from datetime import datetime
 from math import ceil
-from typing import Any, Literal
+from typing import Any, Literal, NamedTuple
 
 from sqlalchemy import (
     Boolean,
@@ -13,12 +15,13 @@ from sqlalchemy import (
     func,
     null,
     select,
+    update,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import contains_eager, joinedload
 
 from app.core.repositories import BaseRepository
-from app.modules.events.models import Event, EventStatus
+from app.modules.events.models import REVIEW_WINDOW, Event, EventStatus
 from app.modules.events.schemas import EventFilterParams, EventSortBy, SortOrder
 from app.modules.users.models import User
 
@@ -32,6 +35,17 @@ def _contains_pattern(value: str) -> str:
         .replace("_", f"{LIKE_ESCAPE}_")
     )
     return f"%{escaped}%"
+
+
+class CompletedEventRow(NamedTuple):
+    id: uuid.UUID
+    organizer_id: uuid.UUID
+    title: str
+    end_datetime: datetime
+
+    @property
+    def review_deadline(self) -> datetime:
+        return self.end_datetime + REVIEW_WINDOW
 
 
 class EventRepository(BaseRepository[Event]):
@@ -406,9 +420,126 @@ class EventRepository(BaseRepository[Event]):
         )
         return list(result.all())
 
-    async def cancel_event(self, event: Event) -> Event:
-        from sqlalchemy import update
+    async def start_due_events(self, now: datetime) -> list[uuid.UUID]:
+        result = await self.session.execute(
+            update(Event)
+            .where(
+                Event.status == EventStatus.PUBLISHED,
+                Event.start_datetime <= now,
+                Event.end_datetime > now,
+                Event.is_deleted.is_(False),
+            )
+            .values(status=EventStatus.ONGOING)
+            .returning(Event.id)
+            .execution_options(synchronize_session=False)
+        )
+        return list(result.scalars().all())
 
+    async def list_active_for_organizer(
+        self, organizer_id: uuid.UUID
+    ) -> Sequence[Event]:
+        result = await self.session.execute(
+            select(Event).where(
+                Event.organizer_id == organizer_id,
+                Event.is_deleted.is_(False),
+                Event.status.in_(
+                    (
+                        EventStatus.ON_MODERATION,
+                        EventStatus.PUBLISHED,
+                        EventStatus.ONGOING,
+                    )
+                ),
+            )
+        )
+        return result.scalars().all()
+
+    async def has_duplicate_event(
+        self,
+        *,
+        organizer_id: uuid.UUID,
+        start_datetime: datetime,
+        city: str,
+        address: str,
+        exclude_event_id: uuid.UUID | None = None,
+    ) -> bool:
+        filters = [
+            Event.organizer_id == organizer_id,
+            Event.is_deleted.is_(False),
+            Event.status.in_(
+                (
+                    EventStatus.ON_MODERATION,
+                    EventStatus.PUBLISHED,
+                    EventStatus.ONGOING,
+                )
+            ),
+            Event.start_datetime == start_datetime,
+            func.lower(Event.city) == city.strip().lower(),
+            func.lower(Event.address) == address.strip().lower(),
+        ]
+        if exclude_event_id is not None:
+            filters.append(Event.id != exclude_event_id)
+        count = await self.session.scalar(select(func.count(Event.id)).where(*filters))
+        return bool(count and count > 0)
+
+    async def list_for_moderation(
+        self,
+        *,
+        status: EventStatus | None = EventStatus.ON_MODERATION,
+        page: int = 1,
+        limit: int = 20,
+    ) -> tuple[Sequence[Event], int, int]:
+        filters = [Event.is_deleted.is_(False)]
+        if status is not None:
+            filters.append(Event.status == status)
+        total = int(
+            await self.session.scalar(
+                select(func.count()).select_from(Event).where(*filters)
+            )
+            or 0
+        )
+        result = await self.session.execute(
+            select(Event)
+            .options(joinedload(Event.organizer))
+            .where(*filters)
+            .order_by(Event.created_at.asc(), Event.id.asc())
+            .offset((page - 1) * limit)
+            .limit(limit)
+        )
+        return result.scalars().all(), total, ceil(total / limit) if total else 1
+
+    async def complete_due_events(self, now: datetime) -> list[CompletedEventRow]:
+        result = await self.session.execute(
+            update(Event)
+            .where(
+                Event.status.in_((EventStatus.PUBLISHED, EventStatus.ONGOING)),
+                Event.end_datetime <= now,
+                Event.is_deleted.is_(False),
+            )
+            .values(status=EventStatus.COMPLETED)
+            .returning(Event.id, Event.organizer_id, Event.title, Event.end_datetime)
+            .execution_options(synchronize_session=False)
+        )
+        return [CompletedEventRow(*row) for row in result.all()]
+
+    async def get_attended_user_ids(
+        self, event_ids: Sequence[uuid.UUID]
+    ) -> dict[uuid.UUID, list[uuid.UUID]]:
+        from app.modules.bookings.models import Booking, BookingStatus
+
+        if not event_ids:
+            return {}
+        result = await self.session.execute(
+            select(Booking.event_id, Booking.user_id).where(
+                Booking.event_id.in_(event_ids),
+                Booking.status == BookingStatus.ATTENDED,
+            )
+        )
+        attended: dict[uuid.UUID, list[uuid.UUID]] = defaultdict(list)
+        for event_id, user_id in result.all():
+            attended[event_id].append(user_id)
+        return dict(attended)
+
+    async def cancel_event(self, event: Event) -> Event:
         from app.modules.bookings.models import (
             ACTIVE_BOOKING_STATUSES,
             Booking,

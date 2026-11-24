@@ -3,6 +3,7 @@ import enAuth from "@/shared/i18n/locales/en/auth.json";
 import enCommon from "@/shared/i18n/locales/en/common.json";
 import enErrors from "@/shared/i18n/locales/en/errors.json";
 import enEvents from "@/shared/i18n/locales/en/events.json";
+import enModeration from "@/shared/i18n/locales/en/moderation.json";
 import enNotifications from "@/shared/i18n/locales/en/notifications.json";
 import enProfile from "@/shared/i18n/locales/en/profile.json";
 import enReviews from "@/shared/i18n/locales/en/reviews.json";
@@ -13,6 +14,7 @@ import ukAuth from "@/shared/i18n/locales/uk/auth.json";
 import ukCommon from "@/shared/i18n/locales/uk/common.json";
 import ukErrors from "@/shared/i18n/locales/uk/errors.json";
 import ukEvents from "@/shared/i18n/locales/uk/events.json";
+import ukModeration from "@/shared/i18n/locales/uk/moderation.json";
 import ukNotifications from "@/shared/i18n/locales/uk/notifications.json";
 import ukProfile from "@/shared/i18n/locales/uk/profile.json";
 import ukReviews from "@/shared/i18n/locales/uk/reviews.json";
@@ -25,6 +27,7 @@ const en = {
   common: enCommon,
   errors: enErrors,
   events: enEvents,
+  moderation: enModeration,
   notifications: enNotifications,
   profile: enProfile,
   reviews: enReviews,
@@ -40,6 +43,7 @@ const uk = {
   common: ukCommon,
   errors: ukErrors,
   events: ukEvents,
+  moderation: ukModeration,
   notifications: ukNotifications,
   profile: ukProfile,
   reviews: ukReviews,

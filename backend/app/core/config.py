@@ -51,6 +51,33 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 24
+    EMAIL_CHANGE_TOKEN_EXPIRE_HOURS: int = 24
+
+    # Geocoding (OpenStreetMap Nominatim)
+    GEOCODER_BASE_URL: str = "https://nominatim.openstreetmap.org"
+    GEOCODER_USER_AGENT: str = "YupiBoard/1.0 (https://yupiboard.com)"
+    GEOCODER_TIMEOUT_SECONDS: float = 5.0
+    GEOCODER_CACHE_TTL_SECONDS: int = 86400
+
+    # Moderation
+    MODERATION_FORBIDDEN_WORDS: list[str] = [
+        "casino",
+        "gambling",
+        "porn",
+        "xxx",
+        "drugs",
+        "scam",
+        "fraud",
+        "viagra",
+        "crypto scam",
+        "наркотики",
+        "казино",
+        "порно",
+        "шахрайство",
+    ]
+
+    # Realtime SSE
+    SSE_HEARTBEAT_SECONDS: int = 20
 
     # CORS
     CORS_ORIGINS: Annotated[list[str], BeforeValidator(parse_cors)] = [

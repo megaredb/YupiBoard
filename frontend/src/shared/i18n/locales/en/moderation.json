@@ -1,0 +1,18 @@
+{
+  "rejectEvent": {
+    "title": "Reject \"{{title}}\"?",
+    "description": "Select a reason for rejecting \"{{title}}\". The organizer will receive a notification with the reason and will need to update the event before resubmitting.",
+    "reasonsLabel": "Reason (required)",
+    "reasons": {
+      "inappropriate": "Inappropriate content",
+      "spam": "Fake or spam",
+      "duplicate": "Duplicate event",
+      "inaccurate": "Inaccurate details",
+      "missing": "Missing details",
+      "guidelines": "Guidelines violation",
+      "other": "Other"
+    },
+    "otherPlaceholder": "Please specify a reason for rejection…",
+    "confirm": "Reject event"
+  }
+}

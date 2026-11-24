@@ -7,6 +7,7 @@ from app.modules.auth.dependencies import get_current_user, get_current_verified
 from app.modules.bookings.dependencies import get_booking_service
 from app.modules.bookings.models import BookingStatus
 from app.modules.bookings.schemas import (
+    AttendanceRequest,
     BookingCreateResponse,
     BookingPage,
     BookingParticipantSummary,
@@ -132,6 +133,24 @@ async def reject_booking(
         current_user,
         approve=False,
         reason=payload.reason if payload else None,
+    )
+    return BookingRead.model_validate(booking)
+
+
+@router.post(
+    "/events/{event_id}/bookings/{booking_id}/attendance",
+    response_model=BookingRead,
+    summary="Organizer marks a confirmed participant as attended or no-show",
+)
+async def mark_attendance(
+    event_id: uuid.UUID,
+    booking_id: uuid.UUID,
+    payload: AttendanceRequest,
+    current_user: Annotated[User, Depends(get_current_verified_user)],
+    service: Annotated[BookingService, Depends(get_booking_service)],
+) -> BookingRead:
+    booking = await service.mark_attendance(
+        event_id, booking_id, current_user, attended=payload.attended
     )
     return BookingRead.model_validate(booking)
 

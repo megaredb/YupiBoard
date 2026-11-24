@@ -28,3 +28,21 @@ class CountryWithCitiesRead(BaseModel):
     cities: list[CityRead]
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class GeocodeResult(BaseModel):
+    display_name: str
+    address: str
+    city: str | None = None
+    country_code: str | None = None
+    lat: float
+    lon: float
+
+
+class ReverseGeocodeResult(BaseModel):
+    display_name: str
+    address: str
+    city: str | None = None
+    country_code: str | None = None
+    lat: float
+    lon: float

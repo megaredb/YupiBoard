@@ -1,12 +1,14 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Cookie, Depends, Response, status
+from fastapi import APIRouter, Cookie, Depends, Query, Response, status
 
 from app.core.config import settings
 from app.core.exceptions import UnauthorizedException
 from app.core.schemas import MessageResponse
 from app.modules.auth.dependencies import get_auth_service
 from app.modules.auth.schemas import (
+    ActionTokenValidationResponse,
+    EmailChangeConfirmRequest,
     EmailVerifyRequest,
     GoogleAuthRequest,
     LoginRequest,
@@ -156,6 +158,18 @@ async def password_recovery(
     )
 
 
+@router.get(
+    "/reset-password/validate",
+    response_model=ActionTokenValidationResponse,
+    summary="Check whether a password reset token is valid without consuming it",
+)
+async def validate_reset_password_token(
+    token: Annotated[str, Query(min_length=1)],
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
+) -> ActionTokenValidationResponse:
+    return await auth_service.validate_action_token(token, "reset_password")
+
+
 @router.post("/reset-password", response_model=MessageResponse)
 async def reset_password(
     data: PasswordResetConfirmRequest,
@@ -163,3 +177,30 @@ async def reset_password(
 ) -> MessageResponse:
     await auth_service.confirm_password_reset(data.token, data.new_password)
     return MessageResponse(message="Password changed successfully")
+
+
+@router.get(
+    "/email-change/validate",
+    response_model=ActionTokenValidationResponse,
+    summary="Check whether an email change confirmation token is valid without consuming it",
+)
+async def validate_email_change_token(
+    token: Annotated[str, Query(min_length=1)],
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
+) -> ActionTokenValidationResponse:
+    return await auth_service.validate_action_token(token, "change_email")
+
+
+@router.post(
+    "/confirm-email-change",
+    response_model=UserRead,
+    summary="Confirm email change using the token sent to the new email address",
+)
+async def confirm_email_change(
+    data: EmailChangeConfirmRequest,
+    response: Response,
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
+) -> UserRead:
+    user = await auth_service.confirm_email_change(data.token)
+    _clear_auth_cookies(response)
+    return UserRead.model_validate(user)

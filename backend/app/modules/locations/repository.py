@@ -1,11 +1,11 @@
 from collections.abc import Sequence
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.core.repositories import BaseRepository
-from app.modules.locations.models import City, Country
+from app.modules.locations.models import City, CityTranslation, Country
 
 
 class CountryRepository(BaseRepository[Country]):
@@ -20,7 +20,8 @@ class CountryRepository(BaseRepository[Country]):
     async def list_with_cities(self) -> Sequence[Country]:
         stmt = (
             select(Country)
-            .options(joinedload(Country.cities))
+            
+            .options(joinedload(Country.cities).joinedload(City.translations))
             .order_by(Country.name.asc())
         )
         result = await self.session.execute(stmt)
@@ -44,7 +45,7 @@ class CityRepository(BaseRepository[City]):
     ) -> Sequence[City]:
         stmt = (
             select(City)
-            .options(joinedload(City.country))
+            .options(joinedload(City.country), joinedload(City.translations))
             .where(City.is_active.is_(True))
         )
 
@@ -55,8 +56,15 @@ class CityRepository(BaseRepository[City]):
 
         if query:
             clean_query = query.strip()
-            stmt = stmt.where(City.name.ilike(f"%{clean_query}%"))
+            if clean_query:
+                pattern = f"%{clean_query}%"
+                stmt = stmt.where(
+                    or_(
+                        City.name.ilike(pattern),
+                        City.translations.any(CityTranslation.name.ilike(pattern)),
+                    )
+                )
 
         stmt = stmt.order_by(City.name.asc()).limit(limit)
         result = await self.session.execute(stmt)
-        return result.scalars().all()
+        return result.unique().scalars().all()

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from enum import StrEnum
 from typing import TYPE_CHECKING
@@ -33,6 +33,17 @@ class EventStatus(StrEnum):
     ONGOING = "Ongoing"
     COMPLETED = "Completed"
     CANCELLED = "Cancelled"
+
+
+# Used when the organizer does not provide end_datetime.
+DEFAULT_EVENT_DURATION = timedelta(hours=4)
+# Attendance marking and reviews stay open this long after the event ends.
+REVIEW_WINDOW = timedelta(hours=48)
+
+# Events in these statuses never took place, so no attendance or reviews.
+NOT_HELD_EVENT_STATUSES = frozenset(
+    {EventStatus.ON_MODERATION, EventStatus.REJECTED, EventStatus.CANCELLED}
+)
 
 
 class Event(Base, UUIDMixin, TimestampMixin):
@@ -70,8 +81,8 @@ class Event(Base, UUIDMixin, TimestampMixin):
     start_datetime: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), index=True, nullable=False
     )
-    end_datetime: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
+    end_datetime: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), index=True, nullable=False
     )
     min_players: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
     max_players: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -99,3 +110,7 @@ class Event(Base, UUIDMixin, TimestampMixin):
     )
 
     organizer: Mapped[User] = relationship("User")
+
+    @property
+    def review_deadline(self) -> datetime:
+        return self.end_datetime + REVIEW_WINDOW

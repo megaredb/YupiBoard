@@ -6,6 +6,7 @@ export {
   myBookingsQueryOptions,
   myCreatedEventsQueryOptions,
 } from "@/features/events/api/event-queries";
+export { invalidateEventQueries } from "@/features/events/api/invalidate-event-queries";
 export { loadCatalog } from "@/features/events/api/load-catalog";
 export { EventDetailsSkeleton } from "@/features/events/components/event-details/event-details-skeleton";
 export { EventList } from "@/features/events/components/event-list";
