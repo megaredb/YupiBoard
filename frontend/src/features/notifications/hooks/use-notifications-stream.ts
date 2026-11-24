@@ -1,84 +1,47 @@
 import { useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { z } from "zod";
-import {
-  getListEventBookingsApiV1EventsEventIdBookingsGetQueryKey,
-  getListEventParticipantsApiV1EventsEventIdParticipantsGetQueryKey,
-  getListMyBookingsApiV1BookingsMeGetQueryKey,
-} from "@/shared/api/generated/endpoints/bookings/bookings";
-import {
-  getGetEventApiV1EventsEventIdGetQueryKey,
-  getListMyCreatedEventsApiV1EventsMyCreatedGetQueryKey,
-} from "@/shared/api/generated/endpoints/events/events";
+import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 import {
   getGetNotificationCountsApiV1NotificationsCountsGetQueryKey,
   getGetUnreadCountApiV1NotificationsUnreadCountGetQueryKey,
   getListNotificationsApiV1NotificationsGetQueryKey,
+  streamNotificationsApiV1NotificationsStreamGet,
 } from "@/shared/api/generated/endpoints/notifications/notifications";
-import type { UnreadCountResponse } from "@/shared/api/generated/model";
-import { connectSseStream } from "@/shared/api/sse";
+import { connectSseStream, SSE_REQUEST_OPTIONS } from "@/shared/api/sse";
+import { invalidateEventQueries } from "@/features/events";
+import { readStreamedEventId } from "@/features/notifications/lib/read-streamed-event-id";
 
-const notificationPayloadSchema = z.object({
-  metadata_payload: z
-    .object({
-      event_id: z.string().optional(),
-    })
-    .nullish(),
-});
+const NOTIFICATION_CREATED = "notification.created";
 
-function extractEventId(rawData: string): string | null {
-  try {
-    const parsed = notificationPayloadSchema.safeParse(JSON.parse(rawData));
-    return parsed.success ? (parsed.data.metadata_payload?.event_id ?? null) : null;
-  } catch {
-    return null;
-  }
+async function invalidateNotificationQueries(queryClient: QueryClient): Promise<void> {
+  const queryKeys = [
+    getListNotificationsApiV1NotificationsGetQueryKey(),
+    getGetUnreadCountApiV1NotificationsUnreadCountGetQueryKey(),
+    getGetNotificationCountsApiV1NotificationsCountsGetQueryKey(),
+  ];
+  await Promise.all(queryKeys.map((queryKey) => queryClient.invalidateQueries({ queryKey })));
 }
 
+/** Keeps the signed-in user's notifications, and the events they mention, live. */
 export function useNotificationsStream(): void {
   const queryClient = useQueryClient();
 
+  // ORG-9: subscribes to an external system (the server's notification stream).
   useEffect(() => {
     const controller = new AbortController();
-    const unreadKey = getGetUnreadCountApiV1NotificationsUnreadCountGetQueryKey();
+    const refreshNotifications = () => void invalidateNotificationQueries(queryClient);
+    const handleNotificationCreated = (rawData: string) => {
+      refreshNotifications();
+      const eventId = readStreamedEventId(rawData);
+      if (eventId) void invalidateEventQueries(queryClient, eventId);
+    };
 
     void connectSseStream({
-      path: "/api/v1/notifications/stream",
-      requireAuth: true,
+      open: (signal) => streamNotificationsApiV1NotificationsStreamGet(SSE_REQUEST_OPTIONS, signal),
       signal: controller.signal,
-      onEvent: (message) => {
-        if (message.event !== "notification.created") return;
-
-        queryClient.setQueryData<UnreadCountResponse>(unreadKey, (old) => ({
-          unread: (old?.unread ?? 0) + 1,
-        }));
-        void queryClient.invalidateQueries({
-          queryKey: getListNotificationsApiV1NotificationsGetQueryKey(),
-        });
-        void queryClient.invalidateQueries({ queryKey: unreadKey });
-        void queryClient.invalidateQueries({
-          queryKey: getGetNotificationCountsApiV1NotificationsCountsGetQueryKey(),
-        });
-
-        const eventId = extractEventId(message.data);
-        if (eventId) {
-          void queryClient.invalidateQueries({
-            queryKey: getGetEventApiV1EventsEventIdGetQueryKey(eventId),
-          });
-          void queryClient.invalidateQueries({
-            queryKey: getListEventBookingsApiV1EventsEventIdBookingsGetQueryKey(eventId),
-          });
-          void queryClient.invalidateQueries({
-            queryKey: getListEventParticipantsApiV1EventsEventIdParticipantsGetQueryKey(eventId),
-          });
-          void queryClient.invalidateQueries({
-            queryKey: getListMyCreatedEventsApiV1EventsMyCreatedGetQueryKey(),
-          });
-          void queryClient.invalidateQueries({
-            queryKey: getListMyBookingsApiV1BookingsMeGetQueryKey(),
-          });
-        }
+      onMessage: (message) => {
+        if (message.event === NOTIFICATION_CREATED) handleNotificationCreated(message.data);
       },
+      onReconnect: refreshNotifications,
     });
 
     return () => controller.abort();
