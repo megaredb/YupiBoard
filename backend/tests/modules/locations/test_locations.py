@@ -89,6 +89,7 @@ async def test_city_search_route_accepts_q_and_accept_language(
         CityRead(
             id=uuid.uuid7(),
             name="Київ",
+            canonical_name="Kyiv",
             country_code="UA",
             lat=50.4501,
             lon=30.5234,

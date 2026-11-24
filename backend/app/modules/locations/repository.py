@@ -20,7 +20,6 @@ class CountryRepository(BaseRepository[Country]):
     async def list_with_cities(self) -> Sequence[Country]:
         stmt = (
             select(Country)
-            
             .options(joinedload(Country.cities).joinedload(City.translations))
             .order_by(Country.name.asc())
         )

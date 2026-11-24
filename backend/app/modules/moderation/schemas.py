@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -20,8 +21,22 @@ class EventRejectRequest(BaseModel):
         return value
 
 
+class ModerationSortBy(StrEnum):
+    CREATED = "created_at"
+    DATE = "start_datetime"
+    COST = "cost"
+    DISTANCE = "distance"
+
+
+class ModerationEventRead(EventRead):
+    """A queue entry: the event plus who decided on it and when."""
+
+    moderated_at: datetime | None = None
+    moderator_name: str | None = None
+
+
 class ModerationQueuePage(BaseModel):
-    items: list[EventRead]
+    items: list[ModerationEventRead]
     total: int
     page: int
     total_pages: int

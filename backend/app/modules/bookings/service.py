@@ -121,6 +121,7 @@ class BookingService:
                         },
                     )
                 )
+            await self._publish_event_update(event)
             return booking
 
         # Booking starts as Pending for organizer review
@@ -159,14 +160,47 @@ class BookingService:
         )
 
     async def _promote_from_waitlist(self, event: Event) -> None:
-        """A seat was freed: the oldest waitlisted player goes back to Pending
-        so the organizer can confirm them."""
+        """A seat was freed. A waitlisted player the organizer already accepted
+        takes it straight away; otherwise the oldest waitlisted player goes back
+        to Pending so the organizer can decide on them."""
         waiting = await self.booking_repo.get_first_waitlisted(event.id)
         if waiting is None:
+            return
+        if waiting.is_preapproved and event.current_confirmed < event.max_players:
+            await self._confirm_preapproved(event, waiting)
             return
         promoted = await self.booking_repo.update(waiting, status=BookingStatus.PENDING)
         await self._notify_booking_requested(
             event, promoted, promoted.user, from_waitlist=True
+        )
+
+    async def _confirm_preapproved(self, event: Event, booking: Booking) -> None:
+        await self.event_repo.update(
+            event, current_confirmed=event.current_confirmed + 1
+        )
+        await self.booking_repo.update(
+            booking, status=BookingStatus.CONFIRMED, is_preapproved=False
+        )
+        if self.notification_service is None:
+            return
+        organizer = await self.booking_repo.session.get(User, event.organizer_id)
+        host_name = _display_name(organizer) if organizer is not None else ""
+        await self.notification_service.notify(
+            NotificationCreate(
+                user_id=booking.user_id,
+                notification_type=NotificationType.BOOKING_APPROVED,
+                title="Application Approved",
+                message=(
+                    f"Great news! Host {host_name} has approved your "
+                    "booking request. Your seat is confirmed."
+                ),
+                metadata_payload={
+                    "event_id": str(event.id),
+                    "booking_id": str(booking.id),
+                    "host_name": host_name,
+                    "from_waitlist": True,
+                },
+            )
         )
 
     async def list_for_user(
@@ -286,20 +320,31 @@ class BookingService:
                         metadata_payload=meta,
                     )
                 )
+            await self._publish_event_update(event)
             return updated
-        if booking.status != BookingStatus.PENDING:
-            raise BadRequestException("Only pending bookings can be decided")
+        is_open_waitlist = (
+            booking.status == BookingStatus.WAITLIST and not booking.is_preapproved
+        )
+        if booking.status != BookingStatus.PENDING and not is_open_waitlist:
+            raise BadRequestException(
+                "Only pending or not yet accepted waitlisted bookings can be approved"
+            )
         if event.current_confirmed >= event.max_players:
             updated = await self.booking_repo.update(
-                booking, status=BookingStatus.WAITLIST
+                booking, status=BookingStatus.WAITLIST, is_preapproved=True
             )
+            await self._publish_event_update(event)
             if self.notification_service is not None:
                 await self.notification_service.notify(
                     NotificationCreate(
                         user_id=booking.user_id,
                         notification_type=NotificationType.WAITLIST_PROMOTED,
                         title="Added to Waitlist",
-                        message=f"The table for {event.title} is currently full. You have been added to the waitlist.",
+                        message=(
+                            f"The table for {event.title} is currently full. "
+                            "The organizer accepted your request: you will get "
+                            "the next free seat automatically."
+                        ),
                         metadata_payload={
                             "event_id": str(event.id),
                             "booking_id": str(booking.id),
@@ -311,7 +356,7 @@ class BookingService:
             event, current_confirmed=event.current_confirmed + 1
         )
         updated = await self.booking_repo.update(
-            booking, status=BookingStatus.CONFIRMED
+            booking, status=BookingStatus.CONFIRMED, is_preapproved=False
         )
         await self._publish_event_update(event)
         if self.notification_service is not None:

@@ -48,7 +48,7 @@ class BookingRepository(BaseRepository[Booking]):
                 Booking.event_id == event_id,
                 Booking.status == BookingStatus.WAITLIST,
             )
-            .order_by(Booking.created_at, Booking.id)
+            .order_by(Booking.is_preapproved.desc(), Booking.created_at, Booking.id)
             .limit(1)
         )
         return result.scalar_one_or_none()

@@ -4,14 +4,14 @@ import uuid
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Enum, ForeignKey, Index, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Boolean, Enum, ForeignKey, Index, String, false, func, select
+from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 
 from app.core.models import Base, TimestampMixin, UUIDMixin
+from app.modules.users.models import User
 
 if TYPE_CHECKING:
     from app.modules.events.models import Event
-    from app.modules.users.models import User
 
 
 class BookingStatus(StrEnum):
@@ -69,6 +69,20 @@ class Booking(Base, UUIDMixin, TimestampMixin):
         nullable=False,
     )
     rejection_reason: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    # A waitlisted booking the organizer already accepted: it is confirmed
+    # automatically when a seat frees up, instead of going back to Pending.
+    is_preapproved: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false(), nullable=False
+    )
 
     event: Mapped[Event] = relationship("Event", lazy="selectin")
     user: Mapped[User] = relationship("User", lazy="selectin")
+
+
+# Attached here because the user model cannot import bookings (it would be circular).
+User.events_played_count = column_property(
+    select(func.count(Booking.id))
+    .where(Booking.user_id == User.id, Booking.status == BookingStatus.ATTENDED)
+    .correlate_except(Booking)
+    .scalar_subquery()
+)

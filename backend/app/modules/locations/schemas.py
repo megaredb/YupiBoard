@@ -13,7 +13,10 @@ class CountryRead(BaseModel):
 
 class CityRead(BaseModel):
     id: uuid.UUID
+    # Localized by `Accept-Language`; for display only.
     name: str
+    # The English name that events and profiles store; stable across languages.
+    canonical_name: str
     country_code: str
     lat: float
     lon: float

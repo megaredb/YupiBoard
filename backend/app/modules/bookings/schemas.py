@@ -29,6 +29,8 @@ class BookingParticipantSummary(BaseModel):
     last_name: str | None = None
     avatar_url: str | None = None
     rating_as_player: Decimal | None = None
+    rating_as_player_count: int = 0
+    events_played_count: int = 0
     created_at: datetime | None = None
 
     @field_serializer("avatar_url")
@@ -65,6 +67,7 @@ class BookingRead(BaseModel):
     user_id: uuid.UUID
     status: BookingStatus
     rejection_reason: str | None = None
+    is_preapproved: bool = False
     created_at: datetime
     updated_at: datetime
     event: BookingEventSummary | None = None

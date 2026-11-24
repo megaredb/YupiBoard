@@ -11,7 +11,12 @@ from app.core.exceptions import (
 from app.core.media_url import normalize_stored_media_url
 from app.core.realtime import RealtimeBroker, realtime_broker
 from app.modules.bookings.models import BookingStatus
-from app.modules.events.models import DEFAULT_EVENT_DURATION, Event, EventStatus
+from app.modules.events.models import (
+    DEFAULT_EVENT_DURATION,
+    AutoCheckStatus,
+    Event,
+    EventStatus,
+)
 from app.modules.events.repository import CompletedEventRow, EventRepository
 from app.modules.events.schemas import (
     EventCreate,
@@ -97,7 +102,7 @@ class EventService:
         city: str,
         address: str,
         exclude_event_id: uuid.UUID | None = None,
-    ) -> tuple[bool, str | None]:
+    ) -> tuple[AutoCheckStatus, str | None]:
         try:
             has_duplicate = (
                 await self.event_repo.has_duplicate_event(
@@ -108,16 +113,19 @@ class EventService:
                     exclude_event_id=exclude_event_id,
                 )
             ) is True
-            return run_event_auto_moderation(
+            passed, reason = run_event_auto_moderation(
                 title=title,
                 description=description,
                 game_title=game_title,
                 has_duplicate=has_duplicate,
             )
+            return (
+                AutoCheckStatus.PASSED if passed else AutoCheckStatus.FAILED
+            ), reason
         except Exception as exc:  # noqa: BLE001
             # Per SRS 3.2.6.5: automatic check failure sends event to manual queue.
             logger.warning("Automatic moderation check failed, falling back: %s", exc)
-            return True, None
+            return AutoCheckStatus.UNAVAILABLE, None
 
     async def create(self, organizer: User, data: EventCreate) -> Event:
         values = data.model_dump()
@@ -135,7 +143,7 @@ class EventService:
         values["lat"] = lat
         values["lon"] = lon
 
-        passed, auto_reason = await self._run_auto_moderation(
+        auto_check, auto_reason = await self._run_auto_moderation(
             organizer_id=organizer.id,
             title=data.title,
             description=data.description,
@@ -144,10 +152,12 @@ class EventService:
             city=data.city,
             address=data.address,
         )
+        passed = auto_check != AutoCheckStatus.FAILED
 
         event = await self.event_repo.create(
             **values,
             organizer_id=organizer.id,
+            auto_check_status=auto_check,
             status=(EventStatus.ON_MODERATION if passed else EventStatus.REJECTED),
             rejection_reason=None if passed else auto_reason,
             is_verified=False,
@@ -322,7 +332,7 @@ class EventService:
                 updates["lon"] = results[0].lon
 
         if event.status == EventStatus.REJECTED:
-            passed, auto_reason = await self._run_auto_moderation(
+            auto_check, auto_reason = await self._run_auto_moderation(
                 organizer_id=event.organizer_id,
                 title=updates.get("title", event.title),
                 description=updates.get("description", event.description),
@@ -332,7 +342,10 @@ class EventService:
                 address=updates.get("address", event.address),
                 exclude_event_id=event.id,
             )
-            if passed:
+            updates["auto_check_status"] = auto_check
+            updates["moderated_by_id"] = None
+            updates["moderated_at"] = None
+            if auto_check != AutoCheckStatus.FAILED:
                 updates["status"] = EventStatus.ON_MODERATION
                 updates["is_verified"] = False
                 updates["rejection_reason"] = None
@@ -620,6 +633,7 @@ class EventService:
             name=self._format_organizer_name(event.organizer),
             avatar_url=event.organizer.avatar_url,
             rating_as_organizer=event.organizer.rating_as_organizer,
+            rating_as_organizer_count=event.organizer.rating_as_organizer_count or 0,
         )
         return EventListItem(
             id=event.id,
@@ -662,6 +676,7 @@ class EventService:
             name=self._format_organizer_name(event.organizer),
             avatar_url=event.organizer.avatar_url,
             rating_as_organizer=event.organizer.rating_as_organizer,
+            rating_as_organizer_count=event.organizer.rating_as_organizer_count or 0,
         )
         return EventRead(
             id=event.id,
@@ -684,6 +699,7 @@ class EventService:
             entry_cost=event.entry_cost,
             photo_url=event.photo_url,
             status=event.status,
+            auto_check_status=event.auto_check_status,
             rejection_reason=(
                 event.rejection_reason if include_rejection_reason else None
             ),

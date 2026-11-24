@@ -96,6 +96,7 @@ class LocationService:
                     CityRead(
                         id=city.id,
                         name=_localized_city_name(city, languages),
+                        canonical_name=city.name,
                         country_code=c.code,
                         lat=city.lat,
                         lon=city.lon,
@@ -122,6 +123,7 @@ class LocationService:
             CityRead(
                 id=city.id,
                 name=_localized_city_name(city, languages),
+                canonical_name=city.name,
                 country_code=city.country.code,
                 lat=city.lat,
                 lon=city.lon,

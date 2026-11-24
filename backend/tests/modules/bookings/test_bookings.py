@@ -349,6 +349,62 @@ async def test_organizer_removing_confirmed_seat_promotes_waitlist() -> None:
 
 
 @pytest.mark.asyncio
+async def test_accepting_request_on_full_table_preapproves_waitlist_seat() -> None:
+    service, booking_repo, _, notifications, event, _ = _waitlist_setup(waiting=False)
+    organizer = User(id=event.organizer_id, email="host@example.com")
+    pending = Booking(
+        id=uuid.uuid7(),
+        event_id=event.id,
+        user_id=uuid.uuid7(),
+        status=BookingStatus.PENDING,
+    )
+    booking_repo.get_by_id_for_event.return_value = pending
+
+    result = await service.decide(event.id, pending.id, organizer, approve=True)
+
+    assert result.status == BookingStatus.WAITLIST
+    assert result.is_preapproved is True
+    sent = notifications.notify.await_args.args[0]
+    assert sent.notification_type == NotificationType.WAITLIST_PROMOTED
+
+
+@pytest.mark.asyncio
+async def test_freed_seat_confirms_preapproved_waitlisted_player() -> None:
+    service, booking_repo, event_repo, notifications, event, waiting = _waitlist_setup(
+        waiting=True
+    )
+    assert waiting is not None
+    waiting.is_preapproved = True
+
+    def _apply_event_update(obj: Event, **kwargs: object) -> Event:
+        for key, value in kwargs.items():
+            setattr(obj, key, value)
+        return obj
+
+    event_repo.update.side_effect = _apply_event_update
+    booking_repo.session.get.return_value = User(
+        id=event.organizer_id, email="host@example.com", first_name="Olena"
+    )
+    player_id = uuid.uuid7()
+    booking_repo.get_active_booking.return_value = Booking(
+        id=uuid.uuid7(),
+        event_id=event.id,
+        user_id=player_id,
+        status=BookingStatus.CONFIRMED,
+    )
+
+    await service.cancel_for_player(event.id, player_id)
+
+    assert waiting.status == BookingStatus.CONFIRMED
+    assert waiting.is_preapproved is False
+    assert event.current_confirmed == event.max_players
+    last = notifications.notify.await_args_list[-1].args[0]
+    assert last.user_id == waiting.user_id
+    assert last.notification_type == NotificationType.BOOKING_APPROVED
+    assert last.metadata_payload["host_name"] == "Olena"
+
+
+@pytest.mark.asyncio
 async def test_freed_seat_without_waitlist_promotes_nobody() -> None:
     service, booking_repo, _, notifications, event, _ = _waitlist_setup(waiting=False)
     player_id = uuid.uuid7()

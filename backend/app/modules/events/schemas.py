@@ -15,7 +15,7 @@ from pydantic import (
 
 from app.core.media_url import resolve_media_url
 from app.modules.bookings.models import BookingStatus
-from app.modules.events.models import EventStatus
+from app.modules.events.models import AutoCheckStatus, EventStatus
 
 Latitude = Annotated[float, Field(ge=-90, le=90)]
 Longitude = Annotated[float, Field(ge=-180, le=180)]
@@ -112,6 +112,7 @@ class EventOrganizerSummary(BaseModel):
     name: str
     avatar_url: str | None = None
     rating_as_organizer: Decimal | None = None
+    rating_as_organizer_count: int = 0
 
     @field_serializer("avatar_url")
     @classmethod
@@ -256,6 +257,7 @@ class EventRead(BaseModel):
     entry_cost: Decimal
     photo_url: str | None
     status: EventStatus
+    auto_check_status: AutoCheckStatus | None = None
     rejection_reason: str | None = None
     is_verified: bool
     is_promoted: bool

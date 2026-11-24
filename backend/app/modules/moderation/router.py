@@ -3,14 +3,16 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
+from app.core.exceptions import BadRequestException
 from app.modules.auth.dependencies import get_current_superuser
 from app.modules.events.models import EventStatus
-from app.modules.events.schemas import EventRead
+from app.modules.events.schemas import EventRead, Latitude, Longitude, SortOrder
 from app.modules.moderation.dependencies import get_moderation_service
 from app.modules.moderation.schemas import (
     AdminAuditLogPage,
     EventRejectRequest,
     ModerationQueuePage,
+    ModerationSortBy,
 )
 from app.modules.moderation.service import ModerationService
 from app.modules.users.models import User
@@ -32,10 +34,36 @@ async def list_moderation_events(
     event_status: Annotated[
         EventStatus | None, Query(alias="status")
     ] = EventStatus.ON_MODERATION,
+    q: Annotated[
+        str | None,
+        Query(
+            min_length=1,
+            max_length=100,
+            description="Search in title, game title and organizer name",
+        ),
+    ] = None,
+    sort_by: Annotated[ModerationSortBy, Query()] = ModerationSortBy.CREATED,
+    sort_order: Annotated[SortOrder, Query()] = SortOrder.ASC,
+    lat: Annotated[
+        Latitude | None, Query(description="Origin for distance sort")
+    ] = None,
+    lon: Annotated[
+        Longitude | None, Query(description="Origin for distance sort")
+    ] = None,
     page: Annotated[int, Query(ge=1)] = 1,
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> ModerationQueuePage:
-    return await service.list_queue(status=event_status, page=page, limit=limit)
+    if sort_by == ModerationSortBy.DISTANCE and (lat is None or lon is None):
+        raise BadRequestException("lat and lon are required to sort by distance")
+    return await service.list_queue(
+        status=event_status,
+        query=q,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        origin=(lat, lon) if lat is not None and lon is not None else None,
+        page=page,
+        limit=limit,
+    )
 
 
 @router.post(

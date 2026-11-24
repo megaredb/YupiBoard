@@ -14,6 +14,7 @@ from sqlalchemy import (
     cast,
     func,
     null,
+    or_,
     select,
     update,
 )
@@ -485,23 +486,58 @@ class EventRepository(BaseRepository[Event]):
         self,
         *,
         status: EventStatus | None = EventStatus.ON_MODERATION,
+        query: str | None = None,
+        sort_by: Literal["created_at", "start_datetime", "cost", "distance"] = (
+            "created_at"
+        ),
+        descending: bool = False,
+        origin: tuple[float, float] | None = None,
         page: int = 1,
         limit: int = 20,
     ) -> tuple[Sequence[Event], int, int]:
-        filters = [Event.is_deleted.is_(False)]
+        filters: list[ColumnElement[bool]] = [Event.is_deleted.is_(False)]
         if status is not None:
             filters.append(Event.status == status)
+        if query and query.strip():
+            pattern = _contains_pattern(query.strip())
+            filters.append(
+                or_(
+                    Event.title.ilike(pattern, escape=LIKE_ESCAPE),
+                    Event.game_title.ilike(pattern, escape=LIKE_ESCAPE),
+                    User.first_name.ilike(pattern, escape=LIKE_ESCAPE),
+                    User.last_name.ilike(pattern, escape=LIKE_ESCAPE),
+                )
+            )
+
+        sort_columns: dict[str, Any] = {
+            "created_at": Event.created_at,
+            "start_datetime": Event.start_datetime,
+            "cost": Event.entry_cost,
+        }
+        if origin is not None:
+            sort_columns["distance"] = func.earth_distance(
+                func.ll_to_earth(Event.lat, Event.lon),
+                func.ll_to_earth(origin[0], origin[1]),
+            )
+        column = sort_columns.get(sort_by)
+        if column is None:
+            raise ValueError("lat and lon are required to sort by distance")
+
         total = int(
             await self.session.scalar(
-                select(func.count()).select_from(Event).where(*filters)
+                select(func.count(Event.id))
+                .select_from(Event)
+                .join(Event.organizer)
+                .where(*filters)
             )
             or 0
         )
         result = await self.session.execute(
             select(Event)
-            .options(joinedload(Event.organizer))
+            .join(Event.organizer)
+            .options(contains_eager(Event.organizer))
             .where(*filters)
-            .order_by(Event.created_at.asc(), Event.id.asc())
+            .order_by(column.desc() if descending else column.asc(), Event.id.asc())
             .offset((page - 1) * limit)
             .limit(limit)
         )

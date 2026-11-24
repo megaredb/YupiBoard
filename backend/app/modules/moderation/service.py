@@ -1,17 +1,20 @@
 import uuid
+from datetime import UTC, datetime
 
 from app.core.exceptions import ConflictException, NotFoundException
 from app.core.realtime import RealtimeBroker, realtime_broker
-from app.modules.events.models import EventStatus
+from app.modules.events.models import Event, EventStatus
 from app.modules.events.repository import EventRepository
-from app.modules.events.schemas import EventRead
+from app.modules.events.schemas import EventRead, SortOrder
 from app.modules.events.service import EventService
 from app.modules.moderation.models import AuditActionType
 from app.modules.moderation.repository import AuditLogRepository
 from app.modules.moderation.schemas import (
     AdminAuditLogPage,
     AdminAuditLogRead,
+    ModerationEventRead,
     ModerationQueuePage,
+    ModerationSortBy,
 )
 from app.modules.notifications.enums import NotificationType
 from app.modules.notifications.schemas import NotificationCreate
@@ -37,15 +40,43 @@ class ModerationService:
         self,
         *,
         status: EventStatus | None = EventStatus.ON_MODERATION,
+        query: str | None = None,
+        sort_by: ModerationSortBy = ModerationSortBy.CREATED,
+        sort_order: SortOrder = SortOrder.ASC,
+        origin: tuple[float, float] | None = None,
         page: int = 1,
         limit: int = 20,
     ) -> ModerationQueuePage:
         events, total, total_pages = await self.event_repo.list_for_moderation(
-            status=status, page=page, limit=limit
+            status=status,
+            query=query,
+            sort_by=sort_by.value,
+            descending=sort_order == SortOrder.DESC,
+            origin=origin,
+            page=page,
+            limit=limit,
         )
-        items = [self._event_serializer.serialize_event(event) for event in events]
+        items = [self._to_queue_item(event) for event in events]
         return ModerationQueuePage(
             items=items, total=total, page=page, total_pages=total_pages
+        )
+
+    def _to_queue_item(self, event: Event) -> ModerationEventRead:
+        moderator = event.moderated_by
+        moderator_name = (
+            " ".join(
+                part for part in (moderator.first_name, moderator.last_name) if part
+            )
+            or None
+            if moderator is not None and not moderator.is_deleted
+            else None
+        )
+        event_read = self._event_serializer.serialize_event(event)
+        # Copied field by field: `model_dump()` would run the media URL serializers twice.
+        return ModerationEventRead(
+            **{name: getattr(event_read, name) for name in EventRead.model_fields},
+            moderated_at=event.moderated_at,
+            moderator_name=moderator_name,
         )
 
     async def approve_event(self, event_id: uuid.UUID, admin: User) -> EventRead:
@@ -61,6 +92,8 @@ class ModerationService:
             status=EventStatus.PUBLISHED,
             is_verified=True,
             rejection_reason=None,
+            moderated_by_id=admin.id,
+            moderated_at=datetime.now(UTC),
         )
         await self.audit_repo.create_log(
             admin_id=admin.id,
@@ -109,6 +142,8 @@ class ModerationService:
             status=EventStatus.REJECTED,
             is_verified=False,
             rejection_reason=clean_reason,
+            moderated_by_id=admin.id,
+            moderated_at=datetime.now(UTC),
         )
         await self.audit_repo.create_log(
             admin_id=admin.id,
