@@ -8,7 +8,7 @@ import { RejectEventDialog } from "@/features/moderation/components/reject-event
 import { useModerateEvent } from "@/features/moderation/hooks/use-moderate-event";
 
 interface ModerationPanelProps {
-  event: Pick<EventRead, "id" | "title">;
+  event: Pick<EventRead, "id" | "title" | "auto_check_status">;
 }
 
 /** Auto-check result and the publish / reject decision; shown instead of the booking panel. */
@@ -27,7 +27,7 @@ export function ModerationPanel({ event }: ModerationPanelProps) {
 
   return (
     <div className="space-y-4">
-      <AutoCheckCard />
+      <AutoCheckCard status={event.auto_check_status} />
       <Card size="lg">
         <Card.Header>
           <Card.Title>{t("moderation.panel.title")}</Card.Title>

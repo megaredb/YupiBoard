@@ -24,7 +24,6 @@ import { useGoBack } from "@/features/events/hooks/use-go-back";
 import { useShareEvent } from "@/features/events/hooks/use-share-event";
 import { getParticipantsViewer } from "@/features/events/lib/get-booking-state";
 import { useIsModerating } from "@/features/moderation";
-import { RateOrganizerCard } from "@/features/reviews";
 
 const route = getRouteApi("/events/$eventId");
 
@@ -86,7 +85,6 @@ export function EventDetailsPage() {
               {participantsViewer && (
                 <EventParticipantsSection event={event} viewer={participantsViewer} />
               )}
-              {booking.state === "attended" && <RateOrganizerCard eventId={event.id} />}
               {!isHost && <OrganizerCard organizer={organizer} />}
               {!isHost && <MobileOrganizerRow organizer={organizer} />}
             </div>

@@ -5,10 +5,10 @@ export const MODERATION_TABS = ["pending", "approved", "rejected"] as const;
 
 export type ModerationTab = (typeof MODERATION_TABS)[number];
 
-/** `created-asc` keeps the backend order of the queue: the longest-waiting event comes first. */
+/** Distance is measured from the moderator's city, as in the event catalog. */
 export const MODERATION_SORTS = [
-  "created-asc",
-  "created-desc",
+  "distance-asc",
+  "distance-desc",
   "date-asc",
   "date-desc",
   "cost-asc",
@@ -20,7 +20,7 @@ export type ModerationSort = (typeof MODERATION_SORTS)[number];
 export const MODERATION_QUERY_MAX_LENGTH = 100;
 
 const DEFAULT_TAB: ModerationTab = "pending";
-const DEFAULT_SORT: ModerationSort = "created-asc";
+const DEFAULT_SORT: ModerationSort = "distance-asc";
 
 export const moderationSearchSchema = pageSearchSchema.extend({
   tab: z.enum(MODERATION_TABS).default(DEFAULT_TAB).catch(DEFAULT_TAB),

@@ -6,7 +6,6 @@ import { AccountBannedError } from "@/features/auth/api/session-lifecycle";
 const GOOGLE_FAILURE_KEYS = {
   cancelled: "auth.google.cancelled",
   unavailable: "auth.google.unavailable",
-  unsupported: "auth.google.unsupported",
 } as const satisfies Record<GoogleSignInFailure, TranslationKey>;
 
 export function getSignInErrorKey(

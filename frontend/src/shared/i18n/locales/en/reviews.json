@@ -1,24 +1,16 @@
 {
-  "organizerCard": {
-    "title": "How was the event?",
-    "description": "Rate the organizer. You can change your rating until {{deadline}}.",
-    "descriptionNoDeadline": "Rate the organizer. You can change your rating while the review period is open.",
-    "action": "Rate the organizer",
-    "edit": "Change rating"
-  },
-  "playerAction": "Rate player",
-  "playerEdit": "Change rating",
-  "yourRating": "Your rating: {{score}}/5",
-  "dialog": {
-    "organizerTitle": "Rate the organizer",
-    "playerTitle": "Rate {{name}}",
-    "description": "Choose from 1 to 5 stars. You can change your rating until the review period ends.",
-    "ratingLabel": "Your rating",
-    "submit": "Save rating",
-    "scoreRequired": "Choose a rating first."
-  },
   "stars_one": "{{count}} star",
   "stars_other": "{{count}} stars",
   "saved": "Rating saved",
-  "saveFailed": "Couldn't save your rating. Please try again."
+  "saveFailed": "Couldn't save your rating. Please try again.",
+  "player": {
+    "action": "Rate",
+    "rateLabel": "Rate {{name}}",
+    "popoverTitle": "Rate the player"
+  },
+  "organizer": {
+    "action": "Rate the organizer",
+    "popoverTitle": "Rate the organizer",
+    "yourRating": "Your rating of the organizer:"
+  }
 }

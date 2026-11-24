@@ -16,6 +16,13 @@ export function ParticipantRow({ participant, aside }: ParticipantRowProps) {
   const name = getFullName(participant) ?? t("events.participants.unnamed");
   const rating = formatRating(participant.rating_as_player);
   const memberSince = participant.created_at ? formatMonthYear(participant.created_at) : null;
+  const details = [
+    participant.events_played_count !== undefined &&
+      t("events.participants.eventsPlayed", { count: participant.events_played_count }),
+    memberSince && t("events.details.memberSince", { date: memberSince }),
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <li className="flex flex-col gap-3 rounded-xl border border-border p-3 sm:flex-row sm:items-center sm:justify-between">
@@ -40,11 +47,7 @@ export function ParticipantRow({ participant, aside }: ParticipantRowProps) {
               <span>{t("events.participants.noRating")}</span>
             )}
           </p>
-          {memberSince && (
-            <p className="text-xs text-muted-foreground">
-              {t("events.details.memberSince", { date: memberSince })}
-            </p>
-          )}
+          <p className="text-xs text-muted-foreground">{details}</p>
         </div>
       </div>
       {aside && <div className="flex shrink-0 items-center gap-3 sm:justify-end">{aside}</div>}

@@ -7,6 +7,13 @@ import { UserAvatar } from "@/features/users";
 
 export function OrganizerCard({ organizer }: { organizer: EventOrganizer }) {
   const { t } = useTranslation();
+  const details = [
+    organizer.eventsHosted !== null &&
+      t("events.details.eventsHosted", { count: organizer.eventsHosted }),
+    organizer.memberSince && t("events.details.memberSince", { date: organizer.memberSince }),
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <Card size="lg" className="max-desktop:hidden">
@@ -28,11 +35,7 @@ export function OrganizerCard({ organizer }: { organizer: EventOrganizer }) {
                 {t("events.details.organizerRating", { rating: organizer.rating })}
               </p>
             )}
-            {organizer.memberSince && (
-              <p className="text-xs text-muted-foreground">
-                {t("events.details.memberSince", { date: organizer.memberSince })}
-              </p>
-            )}
+            <p className="text-xs text-muted-foreground">{details}</p>
           </div>
         </div>
         <Link

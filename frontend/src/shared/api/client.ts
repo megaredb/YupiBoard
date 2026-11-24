@@ -31,6 +31,7 @@ export const apiClient: AxiosInstance = axios.create({
 });
 
 let tokenStore: TokenStore | null = null;
+let getLanguage: (() => string) | null = null;
 let interceptorIds: { request: number; response: number } | null = null;
 let refreshInFlight: Promise<void> | null = null;
 const sessionExpiredListeners = new Set<SessionExpiredListener>();
@@ -82,9 +83,12 @@ export async function restoreSessionFromRefreshToken(): Promise<boolean> {
   }
 }
 
-function attachAccessToken(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
+function attachRequestHeaders(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
   const token = tokenStore?.getAccessToken();
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  // The backend localizes reference data (city names) by this header.
+  const language = getLanguage?.();
+  if (language) config.headers["Accept-Language"] = language;
   return config;
 }
 
@@ -117,15 +121,20 @@ async function retryAfterRefresh(error: unknown): Promise<unknown> {
 }
 
 /** Called from `bootstrap()`; calling it again replaces the interceptors instead of stacking them. */
-export function configureApiClient(options: { baseURL: string; tokenStore: TokenStore }): void {
+export function configureApiClient(options: {
+  baseURL: string;
+  tokenStore: TokenStore;
+  getLanguage: () => string;
+}): void {
   apiClient.defaults.baseURL = options.baseURL;
   tokenStore = options.tokenStore;
+  getLanguage = options.getLanguage;
   if (interceptorIds) {
     apiClient.interceptors.request.eject(interceptorIds.request);
     apiClient.interceptors.response.eject(interceptorIds.response);
   }
   interceptorIds = {
-    request: apiClient.interceptors.request.use(attachAccessToken),
+    request: apiClient.interceptors.request.use(attachRequestHeaders),
     response: apiClient.interceptors.response.use(undefined, retryAfterRefresh),
   };
 }

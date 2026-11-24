@@ -48,7 +48,7 @@ export function CreateEventForm({
   const { t } = useTranslation();
   const preferredCity = usePreferredCity();
   const form = useAppForm(createEventSchema, {
-    defaultValues: { ...DEFAULT_VALUES, city: preferredCity?.name ?? "" },
+    defaultValues: { ...DEFAULT_VALUES, city: preferredCity?.canonical_name ?? "" },
   });
 
   return (

@@ -5,6 +5,7 @@ import type { UserPublicRead } from "@/shared/api/generated/model";
 import { cn } from "@/shared/lib/cn";
 import { Badge } from "@/shared/ui/badge";
 import { Card } from "@/shared/ui/card";
+import { useCityLabel } from "@/features/locations";
 import { RatingTile } from "@/features/profile/components/rating-tile";
 import { formatMemberSince, formatRating } from "@/features/users";
 
@@ -38,6 +39,7 @@ export function ProfileSummaryCard({
   showCity = false,
 }: ProfileSummaryCardProps) {
   const { t } = useTranslation();
+  const cityLabel = useCityLabel(user.city);
   const memberSince = formatMemberSince(user.created_at);
 
   return (
@@ -64,7 +66,7 @@ export function ProfileSummaryCard({
               {showCity && (
                 <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                   <MapPin aria-hidden className="size-3.5 shrink-0" />
-                  <span>{user.city ?? t("common.notProvided")}</span>
+                  <span>{cityLabel ?? t("common.notProvided")}</span>
                 </p>
               )}
               {memberSince && (

@@ -6,6 +6,8 @@ export type BookingState =
   | "hosting"
   | "closed"
   | "approved"
+  /** Confirmed, the event has started, and the organizer hasn't marked attendance yet. */
+  | "awaitingAttendance"
   | "attended"
   | "waitlist"
   | "pending"
@@ -33,6 +35,7 @@ const CANCELLABLE_STATES: ReadonlySet<BookingState> = new Set(["pending", "appro
 export function getBookingState({ event, userId, bookingStatus }: BookingStateInput): BookingState {
   if (userId && userId === event.organizer_id) return "hosting";
   const fromBooking = bookingStatus && BOOKING_STATES[bookingStatus];
+  if (fromBooking === "approved" && hasEventStarted(event)) return "awaitingAttendance";
   if (fromBooking) return fromBooking;
   if (event.status !== "Published" || hasEventStarted(event)) return "closed";
   if (event.available_seats <= 0) return "full";
@@ -53,6 +56,8 @@ export function canApplyBooking(state: BookingState): boolean {
 
 export function getParticipantsViewer(state: BookingState): "host" | "participant" | null {
   if (state === "hosting") return "host";
-  if (state === "approved" || state === "attended") return "participant";
+  if (state === "approved" || state === "awaitingAttendance" || state === "attended") {
+    return "participant";
+  }
   return null;
 }

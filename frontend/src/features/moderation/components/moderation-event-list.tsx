@@ -1,6 +1,6 @@
 import { BadgeCheck, Dices } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { EventRead } from "@/shared/api/generated/model";
+import type { ModerationEventRead } from "@/shared/api/generated/model";
 import { cn } from "@/shared/lib/cn";
 import type { ListState } from "@/shared/lib/list-state";
 import { Button } from "@/shared/ui/button";
@@ -11,7 +11,7 @@ import { MODERATION_EMPTY_KEYS } from "@/features/moderation/lib/moderation-labe
 import type { ModerationTab } from "@/features/moderation/schemas/moderation-search.schema";
 
 interface ModerationEventListProps {
-  state: ListState<EventRead>;
+  state: ListState<ModerationEventRead>;
   tab: ModerationTab;
   /** Whether a search narrowed the list down, which changes what "empty" means. */
   isSearching: boolean;

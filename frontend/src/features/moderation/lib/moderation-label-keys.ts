@@ -11,8 +11,8 @@ export const MODERATION_TAB_LABEL_KEYS = {
 } as const satisfies Record<ModerationTab, TranslationKey>;
 
 export const MODERATION_SORT_LABEL_KEYS = {
-  "created-asc": "moderation.sort.createdAsc",
-  "created-desc": "moderation.sort.createdDesc",
+  "distance-asc": "moderation.sort.distanceAsc",
+  "distance-desc": "moderation.sort.distanceDesc",
   "date-asc": "moderation.sort.dateAsc",
   "date-desc": "moderation.sort.dateDesc",
   "cost-asc": "moderation.sort.costAsc",

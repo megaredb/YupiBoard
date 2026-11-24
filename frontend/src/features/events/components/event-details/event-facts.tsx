@@ -9,6 +9,7 @@ import {
 } from "@/shared/lib/format/format-date";
 import { SeatsProgress } from "@/shared/ui/seats-progress";
 import { EventMapLink } from "@/features/events/components/event-details/event-map-link";
+import { useCityLabel } from "@/features/locations";
 
 function Fact({ icon, title, detail }: { icon: ReactNode; title: string; detail: ReactNode }) {
   return (
@@ -26,6 +27,7 @@ function Fact({ icon, title, detail }: { icon: ReactNode; title: string; detail:
 
 export function EventFacts({ event }: { event: EventRead }) {
   const { t } = useTranslation();
+  const cityLabel = useCityLabel(event.city) ?? event.city;
 
   return (
     <div className="space-y-5">
@@ -40,7 +42,7 @@ export function EventFacts({ event }: { event: EventRead }) {
         />
         <Fact
           icon={<MapPin aria-hidden />}
-          title={event.location_name || event.city}
+          title={event.location_name || cityLabel}
           detail={<EventMapLink event={event} />}
         />
       </div>

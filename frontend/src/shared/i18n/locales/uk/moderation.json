@@ -19,12 +19,12 @@
   },
   "sort": {
     "label": "Сортування",
-    "createdAsc": "Чекають найдовше",
-    "createdDesc": "Нещодавно надіслані",
     "dateAsc": "Дата ↑",
     "dateDesc": "Дата ↓",
     "costAsc": "Вартість ↑",
-    "costDesc": "Вартість ↓"
+    "costDesc": "Вартість ↓",
+    "distanceAsc": "Відстань ↑",
+    "distanceDesc": "Відстань ↓"
   },
   "empty": {
     "pendingTitle": "Немає подій, що очікують на перевірку",
@@ -42,7 +42,9 @@
     "review": "Перевірити",
     "approved": "Схвалено",
     "rejected": "Відхилено",
-    "reason": "Причина: {{reason}}"
+    "reason": "Причина: {{reason}}",
+    "reviewedBy": "Розглянуто {{date}}, {{name}}",
+    "organizerRating": "{{rating}} ({{count}})"
   },
   "autoCheck": {
     "title": "Автоперевірка",
@@ -50,7 +52,11 @@
     "passedShort": "Пройдено",
     "requiredFields": "Обов’язкові поля заповнені",
     "forbiddenWords": "Заборонених слів немає",
-    "duplicates": "Дублікатів не знайдено"
+    "duplicates": "Дублікатів не знайдено",
+    "failed": "Автоперевірку не пройдено",
+    "unavailable": "Автоперевірка недоступна",
+    "unavailableShort": "Недоступна",
+    "unavailableDescription": "Автоматична перевірка не змогла запуститися для цієї події. Перевірте її вміст вручну."
   },
   "approved": "Подію схвалено та опубліковано",
   "rejected": "Подію відхилено, організатора сповіщено",

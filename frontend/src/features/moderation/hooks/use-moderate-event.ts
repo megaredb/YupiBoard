@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   approveEventApiV1ModerationEventsEventIdApprovePost,
-  getListModerationEventsApiV1ModerationEventsGetQueryKey,
   rejectEventApiV1ModerationEventsEventIdRejectPost,
 } from "@/shared/api/generated/endpoints/moderation/moderation";
 import { getApiErrorKey } from "@/shared/i18n/get-api-error-key";
@@ -30,13 +29,7 @@ export function useModerateEvent(eventId: string): ModerateEvent {
     onError: (error) =>
       showToast(t(getApiErrorKey(error, "moderation.decisionFailed")), { tone: "error" }),
     // A published event joins the catalog and the organizer's list, not only the queue.
-    onSettled: () =>
-      Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: getListModerationEventsApiV1ModerationEventsGetQueryKey(),
-        }),
-        invalidateEventQueries(queryClient, eventId),
-      ]),
+    onSettled: () => invalidateEventQueries(queryClient, eventId),
   });
 
   return {

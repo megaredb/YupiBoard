@@ -17,12 +17,12 @@
   },
   "sort": {
     "label": "Sort by",
-    "createdAsc": "Waiting longest",
-    "createdDesc": "Newest submitted",
     "dateAsc": "Date ↑",
     "dateDesc": "Date ↓",
     "costAsc": "Cost ↑",
-    "costDesc": "Cost ↓"
+    "costDesc": "Cost ↓",
+    "distanceAsc": "Distance ↑",
+    "distanceDesc": "Distance ↓"
   },
   "empty": {
     "pendingTitle": "No events waiting for review",
@@ -40,7 +40,9 @@
     "review": "Review",
     "approved": "Approved",
     "rejected": "Rejected",
-    "reason": "Reason: {{reason}}"
+    "reason": "Reason: {{reason}}",
+    "reviewedBy": "Reviewed {{date}} by {{name}}",
+    "organizerRating": "{{rating}} ({{count}})"
   },
   "autoCheck": {
     "title": "Auto-check",
@@ -48,7 +50,11 @@
     "passedShort": "Passed",
     "requiredFields": "Required fields complete",
     "forbiddenWords": "No forbidden words",
-    "duplicates": "No duplicates found"
+    "duplicates": "No duplicates found",
+    "failed": "Auto-check failed",
+    "unavailable": "Auto-check unavailable",
+    "unavailableShort": "Unavailable",
+    "unavailableDescription": "The automatic check couldn't run for this event. Review its content manually."
   },
   "approved": "Event approved and published",
   "rejected": "Event rejected, the organizer was notified",

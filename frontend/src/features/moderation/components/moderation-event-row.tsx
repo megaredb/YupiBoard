@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Calendar, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { EventRead } from "@/shared/api/generated/model";
+import type { EventRead, ModerationEventRead } from "@/shared/api/generated/model";
 import { formatCardDate } from "@/shared/lib/format/format-date";
 import { formatRelativeTime } from "@/shared/lib/format/format-relative-time";
 import { ModerationRowStatus } from "@/features/moderation/components/moderation-row-status";
@@ -9,7 +9,7 @@ import type { ModerationTab } from "@/features/moderation/schemas/moderation-sea
 import { formatRating, UserAvatar } from "@/features/users";
 
 interface ModerationEventRowProps {
-  event: EventRead;
+  event: ModerationEventRead;
   tab: ModerationTab;
 }
 
@@ -70,7 +70,10 @@ export function ModerationEventRow({ event, tab }: ModerationEventRowProps) {
               {rating && (
                 <span className="flex items-center gap-1">
                   <Star aria-hidden className="size-3 fill-rating text-rating" />
-                  {rating}
+                  {t("moderation.row.organizerRating", {
+                    rating,
+                    count: event.organizer.rating_as_organizer_count ?? 0,
+                  })}
                 </span>
               )}
             </div>

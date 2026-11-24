@@ -54,7 +54,7 @@ export function ModerationQueuePage() {
           isRefreshing={queue.isRefreshing}
         />
         <EventPagination
-          page={queue.page}
+          page={search.page}
           total={queue.total}
           totalPages={queue.totalPages}
           onPageChange={goToPage}

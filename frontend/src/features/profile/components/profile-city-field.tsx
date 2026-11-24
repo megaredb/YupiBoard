@@ -24,7 +24,7 @@ export function ProfileCityField({ savedCity, isPending }: ProfileCityFieldProps
   } = useFormContext<CompleteProfileFormValues>();
   const currentCity = useWatch({ control, name: "city" });
   const handleNearestCity = (city: CityRead) =>
-    setValue("city", city.name, { shouldDirty: true, shouldValidate: true });
+    setValue("city", city.canonical_name, { shouldDirty: true, shouldValidate: true });
 
   return (
     <div className="space-y-1">

@@ -1,52 +1,52 @@
-import { useState } from "react";
-import { Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/shared/ui/button";
-import { ReviewDialog } from "@/features/reviews/components/review-dialog";
+import { RatingPopover } from "@/features/reviews/components/rating-popover";
+import { ScoreBadge } from "@/features/reviews/components/score-badge";
 import { useMyEventReviews } from "@/features/reviews/hooks/use-my-event-reviews";
-import { useSubmitReview } from "@/features/reviews/hooks/use-submit-review";
 
 interface RatePlayerButtonProps {
   eventId: string;
   playerId: string;
   playerName: string;
+  hasAttended: boolean;
 }
 
-/** For the organizer: rate a player who attended, while the review window is open. */
-export function RatePlayerButton({ eventId, playerId, playerName }: RatePlayerButtonProps) {
+export function RatePlayerButton({
+  eventId,
+  playerId,
+  playerName,
+  hasAttended,
+}: RatePlayerButtonProps) {
   const { t } = useTranslation();
-  const [isOpen, setOpen] = useState(false);
   const reviews = useMyEventReviews(eventId);
-  const review = useSubmitReview(eventId);
-
-  if (!reviews.canReview) return null;
-
   const score = reviews.getPlayerScore(playerId);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-  const handleSubmit = (next: number) =>
-    review.submit({ role: "player", userId: playerId }, next, handleClose);
+  const label = t("reviews.player.rateLabel", { name: playerName });
+
+  if (!hasAttended || !reviews.canReview) {
+    return score ? (
+      <ScoreBadge score={score} aria-label={label} disabled />
+    ) : (
+      <Button variant="ghost" size="lg" className="bg-muted text-muted-foreground" disabled>
+        {t("reviews.player.action")}
+      </Button>
+    );
+  }
 
   return (
-    <>
-      {score && (
-        <span className="flex items-center gap-1 text-sm text-muted-foreground">
-          <Star aria-hidden className="size-4 fill-rating text-rating" />
-          {score}
-        </span>
-      )}
-      <Button variant="secondary" size="lg" onClick={handleOpen}>
-        {score ? t("reviews.playerEdit") : t("reviews.playerAction")}
-      </Button>
-      {isOpen && (
-        <ReviewDialog
-          title={t("reviews.dialog.playerTitle", { name: playerName })}
-          initialScore={score}
-          isSubmitting={review.isPending}
-          onSubmit={handleSubmit}
-          onClose={handleClose}
-        />
-      )}
-    </>
+    <RatingPopover
+      eventId={eventId}
+      target={{ role: "player", userId: playerId }}
+      title={t("reviews.player.popoverTitle")}
+      score={score}
+      trigger={
+        score ? (
+          <ScoreBadge score={score} aria-label={label} />
+        ) : (
+          <Button size="lg" aria-label={label}>
+            {t("reviews.player.action")}
+          </Button>
+        )
+      }
+    />
   );
 }

@@ -18,7 +18,8 @@
     "found_many": "Знайдено {{count}} подій",
     "found_other": "Знайдено {{count}} події",
     "emptyTitle": "Нічого не знайдено...",
-    "emptyDescription": "Спробуйте скинути фільтри або виправити пошуковий запит."
+    "emptyDescription": "Спробуйте скинути фільтри або виправити пошуковий запит.",
+    "subtitleNearby": "Хороші ігри. Нові друзі. Місце за столом зовсім поруч із вами."
   },
   "collection": {
     "found_one": "{{count}} подія",
@@ -86,7 +87,13 @@
     "ratingOption_few": "Від {{count}} зірок",
     "ratingOption_many": "Від {{count}} зірок",
     "ratingOption_other": "Від {{count}} зірки",
-    "anyDate": "Будь-яка дата"
+    "anyDate": "Будь-яка дата",
+    "fromMyLocation": "Відстань рахується від вашого місцезнаходження",
+    "myLocation": {
+      "label": "Моє місцезнаходження",
+      "coordinates": "{{lat}}, {{lon}}",
+      "dismiss": "Шукати від центру міста"
+    }
   },
   "details": {
     "pageTitle": "Подія",
@@ -106,7 +113,11 @@
     "linkCopied": "Посилання скопійовано",
     "favorite": "Обране",
     "opensMap": "(відкриває мапу)",
-    "timeWithZone": "{{time}} · {{zone}}"
+    "timeWithZone": "{{time}} · {{zone}}",
+    "eventsHosted_one": "Провів {{count}} подію",
+    "eventsHosted_few": "Провів {{count}} події",
+    "eventsHosted_many": "Провів {{count}} подій",
+    "eventsHosted_other": "Провів {{count}} подій"
   },
   "booking": {
     "title": "Ваше місце за столом",
@@ -147,7 +158,9 @@
     "applied": "Заявку надіслано",
     "appliedDescription": "Організатор незабаром її розгляне.",
     "cancelled": "Бронювання скасовано",
-    "players": "Гравці"
+    "players": "Гравці",
+    "awaitingAttendance": "Очікуємо, поки організатор відмітить відвідуваність",
+    "playersJoinedTotal": "Гравців долучилось: {{count}} (усього місць: {{total}})"
   },
   "create": {
     "title": "Нова подія",
@@ -196,7 +209,8 @@
     },
     "verifyEmailRequired": "Підтвердьте пошту, щоб створювати події. Відкрийте посилання, яке ми надіслали на {{email}}.",
     "verifyEmailFirst": "Підтвердьте пошту, перш ніж створювати події.",
-    "toMyEvents": "До моїх подій"
+    "toMyEvents": "До моїх подій",
+    "addressNotFound": "Не вдалося знайти цю адресу у вибраному місті. Перевірте вулицю та номер будинку."
   },
   "search": {
     "label": "Пошук подій",
@@ -261,7 +275,14 @@
     "pagination": "Показано {{from}}–{{to}} з {{total}} заявок",
     "accepted": "Заявку прийнято",
     "waitlisted": "Стіл заповнений, тому гравця додано до листа очікування",
-    "declined": "Заявку відхилено"
+    "declined": "Заявку відхилено",
+    "waitlistTitle": "Лист очікування ({{count}})",
+    "waitlistHint": "Прийняті гравці автоматично отримають перше вільне місце.",
+    "waitlistAccepted": "Прийнято · наступне вільне місце",
+    "eventsPlayed_one": "Зіграв у {{count}} події",
+    "eventsPlayed_few": "Зіграв у {{count}} подіях",
+    "eventsPlayed_many": "Зіграв у {{count}} подіях",
+    "eventsPlayed_other": "Зіграв у {{count}} подіях"
   },
   "cancelEvent": {
     "button": "Скасувати подію",
@@ -283,14 +304,21 @@
     "noReason": "Причину не вказано."
   },
   "attendance": {
-    "awaiting": "Очікують відмітки ({{count}})",
-    "attended": "Були присутні ({{count}})",
-    "noShow": "Не прийшли ({{count}})",
-    "present": "Був присутній",
+    "present": "Був",
     "absent": "Не прийшов",
-    "allMarked": "Усіх відмічено.",
     "saved": "Присутність збережено",
-    "saveFailed": "Не вдалося зберегти присутність. Спробуйте ще раз."
+    "saveFailed": "Не вдалося зберегти присутність. Спробуйте ще раз.",
+    "mark": "Відмітити",
+    "notMarked": "Не відмічено",
+    "popoverTitle": "Чи був гравець за столом?",
+    "presentIsFinal": "Позначку «Був» потім змінити не можна.",
+    "summary": "Підтверджені гравці ({{total}}): були — {{attended}} · не прийшли — {{noShow}} · не відмічено — {{notMarked}}",
+    "changeUntil": "Відвідуваність можна змінити до:",
+    "hoursLeft_one": "(залишилась {{count}} год)",
+    "hoursLeft_few": "(залишилось {{count}} год)",
+    "hoursLeft_many": "(залишилось {{count}} год)",
+    "hoursLeft_other": "(залишилось {{count}} год)",
+    "closed": "Відвідуваність остаточна з {{date}}."
   },
   "eventStatus": {
     "onModeration": "На модерації",

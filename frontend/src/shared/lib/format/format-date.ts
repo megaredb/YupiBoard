@@ -54,11 +54,14 @@ export function formatMonthYear(iso: string): string | null {
   );
 }
 
+/** "Oct 30" in the active locale. */
+export function formatShortDate(iso: string): string {
+  return new Intl.DateTimeFormat(getActiveLocale(), { month: "short", day: "numeric" }).format(
+    new Date(iso),
+  );
+}
+
 /** "Oct 30, 14:25" in the active locale. */
 export function formatShortDateTime(iso: string): string {
-  const day = new Intl.DateTimeFormat(getActiveLocale(), {
-    month: "short",
-    day: "numeric",
-  }).format(new Date(iso));
-  return `${day}, ${formatTime(iso)}`;
+  return `${formatShortDate(iso)}, ${formatTime(iso)}`;
 }

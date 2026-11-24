@@ -8,9 +8,12 @@ import {
   getGetEventApiV1EventsEventIdGetQueryKey,
   getListEventsApiV1EventsGetQueryKey,
   getListMyCreatedEventsApiV1EventsMyCreatedGetQueryKey,
+  getListMyParticipatingEventsApiV1EventsMyParticipatingGetQueryKey,
 } from "@/shared/api/generated/endpoints/events/events";
+import { getListFavoritesApiV1UsersMeFavoritesGetQueryKey } from "@/shared/api/generated/endpoints/favorites/favorites";
+import { getListModerationEventsApiV1ModerationEventsGetQueryKey } from "@/shared/api/generated/endpoints/moderation/moderation";
+import { getGetMyEventReviewsApiV1EventsEventIdReviewsMeGetQueryKey } from "@/shared/api/generated/endpoints/reviews/reviews";
 
-/** Refetches everything that shows an event's status, seats or bookings after it changed. */
 export async function invalidateEventQueries(
   queryClient: QueryClient,
   eventId: string,
@@ -19,9 +22,14 @@ export async function invalidateEventQueries(
     getGetEventApiV1EventsEventIdGetQueryKey(eventId),
     getListEventBookingsApiV1EventsEventIdBookingsGetQueryKey(eventId),
     getListEventParticipantsApiV1EventsEventIdParticipantsGetQueryKey(eventId),
+    // Marking a player present opens their review window.
+    getGetMyEventReviewsApiV1EventsEventIdReviewsMeGetQueryKey(eventId),
     getListEventsApiV1EventsGetQueryKey(),
     getListMyCreatedEventsApiV1EventsMyCreatedGetQueryKey(),
+    getListMyParticipatingEventsApiV1EventsMyParticipatingGetQueryKey(),
     getListMyBookingsApiV1BookingsMeGetQueryKey(),
+    getListFavoritesApiV1UsersMeFavoritesGetQueryKey(),
+    getListModerationEventsApiV1ModerationEventsGetQueryKey(),
   ];
   await Promise.all(queryKeys.map((queryKey) => queryClient.invalidateQueries({ queryKey })));
 }

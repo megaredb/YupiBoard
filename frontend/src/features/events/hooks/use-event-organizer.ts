@@ -9,6 +9,7 @@ export interface EventOrganizer {
   avatarUrl: string | null;
   rating: string | null;
   memberSince: string | null;
+  eventsHosted: number | null;
 }
 
 export function useEventOrganizer(event: EventRead): EventOrganizer {
@@ -19,5 +20,6 @@ export function useEventOrganizer(event: EventRead): EventOrganizer {
     avatarUrl: profile?.avatar_url ?? null,
     rating: formatRating(profile?.rating_as_organizer ?? event.organizer.rating_as_organizer),
     memberSince: formatMemberSince(profile?.created_at),
+    eventsHosted: profile?.events_hosted_count ?? null,
   };
 }

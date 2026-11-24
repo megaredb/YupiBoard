@@ -75,7 +75,15 @@ export const catalogSearchSchema = z.object({
 
 type CatalogSearch = z.infer<typeof catalogSearchSchema>;
 
-export type CatalogFilters = Omit<CatalogSearch, "page" | "city"> & { city: string };
+/**
+ * `lat`/`lon` come from "Use my location" and never reach the URL, so a shared or bookmarked link
+ * does not reveal where the user is.
+ */
+export type CatalogFilters = Omit<CatalogSearch, "page" | "city"> & {
+  city: string;
+  lat?: number;
+  lon?: number;
+};
 
 export const DEFAULT_DISTANCE = DEFAULT_DISTANCE_KM;
 

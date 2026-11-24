@@ -5,6 +5,7 @@ import { createQueryClient } from "@/app/query-client";
 import { createAppRouter } from "@/app/router";
 import { configureApiClient, onSessionExpired } from "@/shared/api/client";
 import { setRuntimeConfig } from "@/shared/config/runtime-config";
+import { getActiveLocale } from "@/shared/i18n/active-locale";
 import { initI18n } from "@/shared/i18n/init-i18n";
 import { showToast } from "@/shared/lib/toast/toast-store";
 import { exitApp, onBackButton } from "@/shared/platform/back-button";
@@ -41,7 +42,11 @@ function wireNativeNavigation(router: AppRouter): void {
 export async function bootstrap(): Promise<{ router: AppRouter; queryClient: QueryClient }> {
   const env = readEnv();
   setRuntimeConfig(env);
-  configureApiClient({ baseURL: env.apiBaseUrl, tokenStore: sessionTokenStore });
+  configureApiClient({
+    baseURL: env.apiBaseUrl,
+    tokenStore: sessionTokenStore,
+    getLanguage: getActiveLocale,
+  });
   await initI18n();
   initPlatformAttribute();
   initTheme();
