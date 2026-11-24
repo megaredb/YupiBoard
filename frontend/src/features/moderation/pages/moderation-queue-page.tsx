@@ -24,10 +24,7 @@ export function ModerationQueuePage() {
 
   return (
     <PageContainer size="wide">
-      <PageHeader
-        title={t("admin.moderation.title")}
-        description={t("admin.moderation.description")}
-      />
+      <PageHeader title={t("moderation.title")} description={t("moderation.description")} />
       <div className="mt-6 space-y-6">
         <div className="flex flex-col gap-3 desktop:flex-row desktop:items-center">
           <ModerationTabs
@@ -37,9 +34,9 @@ export function ModerationQueuePage() {
           />
           <SearchField
             key={search.q ?? ""}
-            label={t("admin.moderation.search.label")}
-            placeholder={t("admin.moderation.search.placeholder")}
-            submitLabel={t("admin.moderation.search.submit")}
+            label={t("moderation.search.label")}
+            placeholder={t("moderation.search.placeholder")}
+            submitLabel={t("moderation.search.submit")}
             maxLength={MODERATION_QUERY_MAX_LENGTH}
             defaultValue={search.q ?? ""}
             onSearch={handleSearch}
@@ -48,9 +45,7 @@ export function ModerationQueuePage() {
           <ModerationSortSelect value={search.sort} onChange={handleSortChange} />
         </div>
         {queue.total !== null && (
-          <p className="text-sm font-semibold">
-            {t("admin.moderation.found", { count: queue.total })}
-          </p>
+          <p className="text-sm font-semibold">{t("moderation.found", { count: queue.total })}</p>
         )}
         <ModerationEventList
           state={queue.list}

@@ -30,8 +30,8 @@ export function ModerationPanel({ event }: ModerationPanelProps) {
       <AutoCheckCard />
       <Card size="lg">
         <Card.Header>
-          <Card.Title>{t("admin.moderation.panel.title")}</Card.Title>
-          <Card.Description>{t("admin.moderation.panel.description")}</Card.Description>
+          <Card.Title>{t("moderation.panel.title")}</Card.Title>
+          <Card.Description>{t("moderation.panel.description")}</Card.Description>
         </Card.Header>
         <Card.Content className="space-y-3">
           <Button
@@ -40,7 +40,7 @@ export function ModerationPanel({ event }: ModerationPanelProps) {
             isLoading={moderation.isPending}
             onClick={handleApprove}
           >
-            {t("admin.moderation.panel.approve")}
+            {t("moderation.panel.approve")}
           </Button>
           <Button
             variant="secondary"
@@ -49,9 +49,9 @@ export function ModerationPanel({ event }: ModerationPanelProps) {
             disabled={moderation.isPending}
             onClick={handleAskReject}
           >
-            {t("admin.moderation.panel.reject")}
+            {t("moderation.panel.reject")}
           </Button>
-          <p className="pt-1 text-xs text-muted-foreground">{t("admin.moderation.panel.note")}</p>
+          <p className="pt-1 text-xs text-muted-foreground">{t("moderation.panel.note")}</p>
         </Card.Content>
       </Card>
       {isRejecting && (

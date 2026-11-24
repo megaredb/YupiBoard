@@ -2,14 +2,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   approveBookingApiV1EventsEventIdBookingsBookingIdApprovePost,
-  getListEventBookingsApiV1EventsEventIdBookingsGetQueryKey,
-  getListEventParticipantsApiV1EventsEventIdParticipantsGetQueryKey,
   rejectBookingApiV1EventsEventIdBookingsBookingIdRejectPost,
 } from "@/shared/api/generated/endpoints/bookings/bookings";
-import { getGetEventApiV1EventsEventIdGetQueryKey } from "@/shared/api/generated/endpoints/events/events";
 import type { BookingRead } from "@/shared/api/generated/model";
 import { getApiErrorKey } from "@/shared/i18n/get-api-error-key";
 import { showToast } from "@/shared/lib/toast/toast-store";
+import { invalidateEventQueries } from "@/features/events/api/invalidate-event-queries";
 
 interface Decision {
   bookingId: string;
@@ -42,14 +40,7 @@ export function useBookingDecision(eventId: string): BookingDecision {
     onSuccess: (booking) => showToast(t(getDecisionMessageKey(booking))),
     onError: (error) =>
       showToast(t(getApiErrorKey(error, "events.participants.decisionFailed")), { tone: "error" }),
-    onSettled: () =>
-      Promise.all(
-        [
-          getListEventBookingsApiV1EventsEventIdBookingsGetQueryKey(eventId),
-          getListEventParticipantsApiV1EventsEventIdParticipantsGetQueryKey(eventId),
-          getGetEventApiV1EventsEventIdGetQueryKey(eventId),
-        ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
-      ),
+    onSettled: () => invalidateEventQueries(queryClient, eventId),
   });
 
   return {

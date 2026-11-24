@@ -5,9 +5,9 @@ import { Card } from "@/shared/ui/card";
 import { Separator } from "@/shared/ui/separator";
 
 const CHECK_KEYS = [
-  "admin.moderation.autoCheck.requiredFields",
-  "admin.moderation.autoCheck.forbiddenWords",
-  "admin.moderation.autoCheck.duplicates",
+  "moderation.autoCheck.requiredFields",
+  "moderation.autoCheck.forbiddenWords",
+  "moderation.autoCheck.duplicates",
 ] as const;
 
 /**
@@ -20,8 +20,8 @@ export function AutoCheckCard() {
   return (
     <Card size="lg">
       <Card.Header className="grid-cols-[1fr_auto] items-center">
-        <Card.Title>{t("admin.moderation.autoCheck.title")}</Card.Title>
-        <Badge variant="success">{t("admin.moderation.autoCheck.passedShort")}</Badge>
+        <Card.Title>{t("moderation.autoCheck.title")}</Card.Title>
+        <Badge variant="success">{t("moderation.autoCheck.passedShort")}</Badge>
       </Card.Header>
       <Card.Content className="space-y-4">
         <Separator />

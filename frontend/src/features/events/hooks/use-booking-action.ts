@@ -2,15 +2,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import {
-  getListMyBookingsApiV1BookingsMeGetQueryKey,
   useCancelMyBookingApiV1EventsEventIdBookingsMeDelete,
   useCreateBookingRequestApiV1EventsEventIdBookingsPost,
 } from "@/shared/api/generated/endpoints/bookings/bookings";
-import { getGetEventApiV1EventsEventIdGetQueryKey } from "@/shared/api/generated/endpoints/events/events";
 import type { EventRead } from "@/shared/api/generated/model";
 import { getApiErrorKey } from "@/shared/i18n/get-api-error-key";
 import { showToast } from "@/shared/lib/toast/toast-store";
 import { useCurrentUser } from "@/features/auth";
+import { invalidateEventQueries } from "@/features/events/api/invalidate-event-queries";
 import {
   canApplyBooking,
   canCancelBooking,
@@ -33,13 +32,7 @@ export function useBookingAction(event: EventRead): BookingAction {
   const queryClient = useQueryClient();
   const user = useCurrentUser();
 
-  const refreshBookingData = () =>
-    Promise.all(
-      [
-        getGetEventApiV1EventsEventIdGetQueryKey(event.id),
-        getListMyBookingsApiV1BookingsMeGetQueryKey(),
-      ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
-    );
+  const refreshBookingData = () => invalidateEventQueries(queryClient, event.id);
 
   const create = useCreateBookingRequestApiV1EventsEventIdBookingsPost({
     mutation: {
@@ -82,7 +75,7 @@ export function useBookingAction(event: EventRead): BookingAction {
   return {
     state,
     canApply: canApplyBooking(state),
-    canCancel: canCancelBooking(state),
+    canCancel: canCancelBooking(state, event),
     isPending: create.isPending || cancel.isPending,
     apply,
     cancel: handleCancel,

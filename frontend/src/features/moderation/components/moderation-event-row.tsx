@@ -54,7 +54,7 @@ export function ModerationEventRow({ event, tab }: ModerationEventRowProps) {
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
               <h2 className="text-base leading-snug font-semibold">{event.title}</h2>
               <span className="text-xs text-muted-foreground">
-                {t("admin.moderation.row.created", {
+                {t("moderation.row.created", {
                   time: formatRelativeTime(event.created_at),
                 })}
               </span>

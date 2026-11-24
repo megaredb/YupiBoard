@@ -27,7 +27,7 @@ export function ModerationSortSelect({ value, onChange }: ModerationSortSelectPr
 
   return (
     <LabeledSelect
-      label={t("admin.moderation.sort.label")}
+      label={t("moderation.sort.label")}
       value={value}
       options={options}
       onChange={handleChange}

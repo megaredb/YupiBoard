@@ -1,4 +1,3 @@
-import enAdmin from "@/shared/i18n/locales/en/admin.json";
 import enAuth from "@/shared/i18n/locales/en/auth.json";
 import enCommon from "@/shared/i18n/locales/en/common.json";
 import enErrors from "@/shared/i18n/locales/en/errors.json";
@@ -9,7 +8,6 @@ import enProfile from "@/shared/i18n/locales/en/profile.json";
 import enReviews from "@/shared/i18n/locales/en/reviews.json";
 import enShell from "@/shared/i18n/locales/en/shell.json";
 import enValidation from "@/shared/i18n/locales/en/validation.json";
-import ukAdmin from "@/shared/i18n/locales/uk/admin.json";
 import ukAuth from "@/shared/i18n/locales/uk/auth.json";
 import ukCommon from "@/shared/i18n/locales/uk/common.json";
 import ukErrors from "@/shared/i18n/locales/uk/errors.json";
@@ -22,7 +20,6 @@ import ukShell from "@/shared/i18n/locales/uk/shell.json";
 import ukValidation from "@/shared/i18n/locales/uk/validation.json";
 
 const en = {
-  admin: enAdmin,
   auth: enAuth,
   common: enCommon,
   errors: enErrors,
@@ -38,7 +35,6 @@ const en = {
 export type TranslationResources = typeof en;
 
 const uk = {
-  admin: ukAdmin,
   auth: ukAuth,
   common: ukCommon,
   errors: ukErrors,

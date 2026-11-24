@@ -17,9 +17,9 @@ export function ModerationRowStatus({ event, tab }: ModerationRowStatusProps) {
   if (tab === "pending") {
     return (
       <div className="flex shrink-0 items-center gap-3">
-        <Badge variant="success">{t("admin.moderation.autoCheck.passed")}</Badge>
+        <Badge variant="success">{t("moderation.autoCheck.passed")}</Badge>
         <span className={buttonVariants({ size: "lg", className: "px-4" })}>
-          {t("admin.moderation.row.review")}
+          {t("moderation.row.review")}
         </span>
       </div>
     );
@@ -30,17 +30,17 @@ export function ModerationRowStatus({ event, tab }: ModerationRowStatusProps) {
   return (
     <div className="flex shrink-0 flex-col gap-1.5 sm:max-w-64 sm:items-end sm:text-right">
       <p className="text-xs text-muted-foreground">
-        {t("admin.moderation.row.reviewed", { date: formatShortDateTime(event.updated_at) })}
+        {t("moderation.row.reviewed", { date: formatShortDateTime(event.updated_at) })}
       </p>
       <div className="flex flex-wrap gap-2 sm:justify-end">
-        {isApproved && <Badge variant="muted">{t("admin.moderation.autoCheck.passed")}</Badge>}
+        {isApproved && <Badge variant="muted">{t("moderation.autoCheck.passed")}</Badge>}
         <Badge variant={isApproved ? "success" : "destructive"}>
-          {t(isApproved ? "admin.moderation.row.approved" : "admin.moderation.row.rejected")}
+          {t(isApproved ? "moderation.row.approved" : "moderation.row.rejected")}
         </Badge>
       </div>
       {!isApproved && event.rejection_reason && (
         <p className="line-clamp-2 text-xs text-destructive">
-          {t("admin.moderation.row.reason", { reason: event.rejection_reason })}
+          {t("moderation.row.reason", { reason: event.rejection_reason })}
         </p>
       )}
     </div>

@@ -1,25 +1,21 @@
 import { getRouteApi } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import type { EventRead } from "@/shared/api/generated/model";
 import { Breadcrumbs } from "@/shared/components/breadcrumbs";
 import { PageContainer } from "@/shared/layout/page-container";
 import { cn } from "@/shared/lib/cn";
-import { BookingActions } from "@/features/events/components/event-details/booking-actions";
-import { BookingPanel } from "@/features/events/components/event-details/booking-panel";
-import { CancelEventButton } from "@/features/events/components/event-details/cancel-event-button";
 import { DisqualificationModal } from "@/features/events/components/event-details/disqualification-modal";
 import { EventAbout } from "@/features/events/components/event-details/event-about";
 import { EventActionButtons } from "@/features/events/components/event-details/event-action-buttons";
+import { EventDetailsAside } from "@/features/events/components/event-details/event-details-aside";
 import { EventParticipantsSection } from "@/features/events/components/event-details/event-participants-section";
 import { EventRejectionNotice } from "@/features/events/components/event-details/event-rejection-notice";
 import { EventSummary } from "@/features/events/components/event-details/event-summary";
 import { MobileBookingBar } from "@/features/events/components/event-details/mobile-booking-bar";
 import { MobileOrganizerRow } from "@/features/events/components/event-details/mobile-organizer-row";
 import { OrganizerCard } from "@/features/events/components/event-details/organizer-card";
-import { PlayersLink } from "@/features/events/components/event-details/players-link";
 import { MobileTopBar } from "@/features/events/components/mobile-top-bar";
-import { useBookingAction, type BookingAction } from "@/features/events/hooks/use-booking-action";
-import { useCancelEvent, type CancelEventAction } from "@/features/events/hooks/use-cancel-event";
+import { useBookingAction } from "@/features/events/hooks/use-booking-action";
+import { useCancelEvent } from "@/features/events/hooks/use-cancel-event";
 import { useEventDetails } from "@/features/events/hooks/use-event-details";
 import { useEventOrganizer } from "@/features/events/hooks/use-event-organizer";
 import { useEventStream } from "@/features/events/hooks/use-event-stream";
@@ -27,54 +23,10 @@ import { useFavoriteToggle } from "@/features/events/hooks/use-favorite-toggle";
 import { useGoBack } from "@/features/events/hooks/use-go-back";
 import { useShareEvent } from "@/features/events/hooks/use-share-event";
 import { getParticipantsViewer } from "@/features/events/lib/get-booking-state";
-import { ModerationPanel, useIsModerating } from "@/features/moderation";
+import { useIsModerating } from "@/features/moderation";
 import { RateOrganizerCard } from "@/features/reviews";
 
 const route = getRouteApi("/events/$eventId");
-
-function EventDetailsAside({
-  event,
-  isHost,
-  isModerating,
-  booking,
-  cancelEvent,
-}: {
-  event: EventRead;
-  isHost: boolean;
-  isModerating: boolean;
-  booking: BookingAction;
-  cancelEvent: CancelEventAction;
-}) {
-  if (isModerating) {
-    // Unlike the booking panel, the decision has to be reachable on a phone as well.
-    return (
-      <aside className="max-desktop:px-4 desktop:sticky desktop:top-20">
-        <ModerationPanel event={event} />
-      </aside>
-    );
-  }
-
-  return (
-    <aside className="hidden desktop:sticky desktop:top-20 desktop:block">
-      <BookingPanel event={event} isHost={isHost}>
-        {isHost ? (
-          <div className="space-y-3">
-            <PlayersLink eventId={event.id} className="w-full" />
-            {cancelEvent.canCancel && (
-              <CancelEventButton
-                action={cancelEvent}
-                confirmedCount={event.current_confirmed}
-                className="w-full"
-              />
-            )}
-          </div>
-        ) : (
-          <BookingActions action={booking} />
-        )}
-      </BookingPanel>
-    </aside>
-  );
-}
 
 function EventBreadcrumbs({ title, isModerating }: { title: string; isModerating: boolean }) {
   const { t } = useTranslation();

@@ -6,6 +6,7 @@ import { HostBookingList } from "@/features/events/components/event-details/host
 import { ParticipantList } from "@/features/events/components/event-details/participant-list";
 import { useEventBookings } from "@/features/events/hooks/use-event-bookings";
 import { getAttendancePhase } from "@/features/events/lib/get-attendance-phase";
+import { hasEventStarted } from "@/features/events/lib/has-event-started";
 import { PARTICIPANTS_SECTION_ID } from "@/features/events/lib/participants-section-id";
 
 interface EventParticipantsSectionProps {
@@ -68,7 +69,8 @@ export function EventParticipantsSection({ event, viewer }: EventParticipantsSec
           {!isHost && <ParticipantList eventId={event.id} />}
         </Card.Content>
       </Card>
-      {isHost && <HostPendingCard eventId={event.id} />}
+      {/* The backend closes booking decisions at the start time. */}
+      {isHost && !hasEventStarted(event) && <HostPendingCard eventId={event.id} />}
     </div>
   );
 }

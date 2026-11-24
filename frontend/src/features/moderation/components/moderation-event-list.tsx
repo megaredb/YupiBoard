@@ -28,8 +28,8 @@ function EmptyState({ tab, isSearching }: Pick<ModerationEventListProps, "tab" |
     return (
       <StatusMessage
         icon={<Dices aria-hidden className="size-12 stroke-[1.5]" />}
-        title={t("admin.moderation.empty.noMatchTitle")}
-        description={t("admin.moderation.empty.noMatchDescription")}
+        title={t("moderation.empty.noMatchTitle")}
+        description={t("moderation.empty.noMatchDescription")}
       />
     );
   }

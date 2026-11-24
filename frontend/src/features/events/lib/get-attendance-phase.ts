@@ -1,4 +1,5 @@
 import type { EventRead, EventStatus } from "@/shared/api/generated/model";
+import { hasEventStarted } from "@/features/events/lib/has-event-started";
 
 /** Events that never took place can't have attendance (mirrors the backend rule). */
 const NOT_HELD_STATUSES: ReadonlySet<EventStatus> = new Set([
@@ -15,13 +16,9 @@ export type AttendancePhase = "upcoming" | "open" | "closed";
  * `closed` — the review deadline has passed, marks are final.
  */
 export function getAttendancePhase(
-  {
-    status,
-    start_datetime,
-    review_deadline,
-  }: Pick<EventRead, "status" | "start_datetime" | "review_deadline">,
+  event: Pick<EventRead, "status" | "start_datetime" | "review_deadline">,
   now: number = Date.now(),
 ): AttendancePhase {
-  if (NOT_HELD_STATUSES.has(status) || now < Date.parse(start_datetime)) return "upcoming";
-  return now <= Date.parse(review_deadline) ? "open" : "closed";
+  if (NOT_HELD_STATUSES.has(event.status) || !hasEventStarted(event, now)) return "upcoming";
+  return now <= Date.parse(event.review_deadline) ? "open" : "closed";
 }

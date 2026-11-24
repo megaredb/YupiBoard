@@ -13,6 +13,6 @@ export const Route = createFileRoute("/_authenticated/_admin/moderation")({
   loaderDeps: ({ search }) => ({ tab: search.tab }),
   loader: ({ context, deps }) =>
     loadQuery(context.queryClient, moderationQueueQueryOptions(deps.tab)),
-  staticData: { titleKey: "admin.moderation.title" },
+  staticData: { titleKey: "moderation.title" },
   component: ModerationQueuePage,
 });

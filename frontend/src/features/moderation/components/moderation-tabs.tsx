@@ -26,7 +26,7 @@ export function ModerationTabs({ value, pendingCount, onChange }: ModerationTabs
 
   return (
     <ToggleGroup
-      aria-label={t("admin.moderation.tabs.label")}
+      aria-label={t("moderation.tabs.label")}
       value={[value]}
       onValueChange={handleChange}
       className="w-fit gap-1 rounded-xl bg-muted p-1"
@@ -38,7 +38,7 @@ export function ModerationTabs({ value, pendingCount, onChange }: ModerationTabs
           className="h-8 rounded-lg border-transparent bg-transparent px-3 text-sm hover:bg-transparent data-pressed:border-transparent data-pressed:shadow-sm"
         >
           {tab === "pending" && pendingCount !== null
-            ? t("admin.moderation.tabs.pendingCount", { count: pendingCount })
+            ? t("moderation.tabs.pendingCount", { count: pendingCount })
             : t(MODERATION_TAB_LABEL_KEYS[tab])}
         </ToggleGroup.Item>
       ))}

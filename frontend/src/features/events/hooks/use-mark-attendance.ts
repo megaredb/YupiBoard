@@ -1,12 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import {
-  getListEventBookingsApiV1EventsEventIdBookingsGetQueryKey,
-  getListEventParticipantsApiV1EventsEventIdParticipantsGetQueryKey,
-  markAttendanceApiV1EventsEventIdBookingsBookingIdAttendancePost,
-} from "@/shared/api/generated/endpoints/bookings/bookings";
+import { markAttendanceApiV1EventsEventIdBookingsBookingIdAttendancePost } from "@/shared/api/generated/endpoints/bookings/bookings";
 import { getApiErrorKey } from "@/shared/i18n/get-api-error-key";
 import { showToast } from "@/shared/lib/toast/toast-store";
+import { invalidateEventQueries } from "@/features/events/api/invalidate-event-queries";
 
 interface Attendance {
   bookingId: string;
@@ -29,13 +26,7 @@ export function useMarkAttendance(eventId: string): MarkAttendance {
     onSuccess: () => showToast(t("events.attendance.saved")),
     onError: (error) =>
       showToast(t(getApiErrorKey(error, "events.attendance.saveFailed")), { tone: "error" }),
-    onSettled: () =>
-      Promise.all(
-        [
-          getListEventBookingsApiV1EventsEventIdBookingsGetQueryKey(eventId),
-          getListEventParticipantsApiV1EventsEventIdParticipantsGetQueryKey(eventId),
-        ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
-      ),
+    onSettled: () => invalidateEventQueries(queryClient, eventId),
   });
 
   return {
