@@ -14,6 +14,7 @@ from app.main import app
 from app.modules.bookings.models import Booking, BookingStatus
 from app.modules.bookings.service import BookingService
 from app.modules.events.models import Event, EventStatus
+from app.modules.notifications.enums import NotificationType
 from app.modules.users.enums import UserStatus
 from app.modules.users.models import User
 
@@ -513,3 +514,81 @@ async def test_decide_decline_confirmed_booking_removes_participant_and_notifies
         booking, status=BookingStatus.REMOVED_BY_ORGANIZER
     )
     notification_service.notify.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("approve", "initial_status", "expected_status", "expected_type"),
+    [
+        (
+            True,
+            BookingStatus.PENDING,
+            BookingStatus.CONFIRMED,
+            NotificationType.BOOKING_APPROVED,
+        ),
+        (
+            False,
+            BookingStatus.PENDING,
+            BookingStatus.REJECTED,
+            NotificationType.BOOKING_REJECTED,
+        ),
+    ],
+)
+async def test_decide_notifies_player_of_booking_decision(
+    approve: bool,
+    initial_status: BookingStatus,
+    expected_status: BookingStatus,
+    expected_type: NotificationType,
+) -> None:
+    booking_repo = AsyncMock()
+    event_repo = AsyncMock()
+    notification_service = AsyncMock()
+    service = BookingService(
+        booking_repo, event_repo, notification_service=notification_service
+    )
+
+    organizer = User(
+        id=uuid.uuid7(),
+        email="host@example.com",
+        first_name="Ada",
+        status=UserStatus.ACTIVE,
+    )
+    event = Event(
+        id=uuid.uuid7(),
+        organizer_id=organizer.id,
+        title="Board Game Night",
+        status=EventStatus.PUBLISHED,
+        is_verified=True,
+        start_datetime=datetime.now(UTC) + timedelta(days=1),
+        current_confirmed=0,
+        max_players=5,
+    )
+    booking = Booking(
+        id=uuid.uuid7(),
+        event_id=event.id,
+        user_id=uuid.uuid7(),
+        status=initial_status,
+    )
+    updated_booking = Booking(
+        id=booking.id,
+        event_id=event.id,
+        user_id=booking.user_id,
+        status=expected_status,
+    )
+    event_repo.lock_event.return_value = event
+    booking_repo.get_by_id_for_event.return_value = booking
+    booking_repo.update.return_value = updated_booking
+
+    result = await service.decide(event.id, booking.id, organizer, approve=approve)
+
+    assert result.status == expected_status
+    notification_service.notify.assert_awaited_once()
+    notification = notification_service.notify.await_args.args[0]
+    assert notification.user_id == booking.user_id
+    assert notification.notification_type == expected_type
+    assert notification.metadata_payload["event_id"] == str(event.id)
+    assert notification.metadata_payload["booking_id"] == str(booking.id)
+    if approve:
+        assert "event_title" not in notification.metadata_payload
+    else:
+        assert notification.metadata_payload["event_title"] == event.title

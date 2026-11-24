@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Header, Query
 
 from app.modules.locations.dependencies import get_location_service
 from app.modules.locations.schemas import (
@@ -29,8 +29,9 @@ async def list_countries(
 )
 async def list_countries_with_cities(
     service: Annotated[LocationService, Depends(get_location_service)],
+    accept_language: Annotated[str | None, Header()] = None,
 ) -> list[CountryWithCitiesRead]:
-    return await service.list_countries_with_cities()
+    return await service.list_countries_with_cities(accept_language)
 
 
 @router.get(
@@ -40,10 +41,15 @@ async def list_countries_with_cities(
 )
 async def search_cities(
     service: Annotated[LocationService, Depends(get_location_service)],
+    accept_language: Annotated[str | None, Header()] = None,
     query: Annotated[str | None, Query(min_length=1, max_length=100)] = None,
+    q: Annotated[str | None, Query(min_length=1, max_length=100)] = None,
     country_code: Annotated[str | None, Query(min_length=2, max_length=2)] = None,
     limit: Annotated[int, Query(ge=1, le=500)] = 50,
 ) -> list[CityRead]:
     return await service.search_cities(
-        query=query, country_code=country_code, limit=limit
+        query=q or query,
+        country_code=country_code,
+        limit=limit,
+        accept_language=accept_language,
     )

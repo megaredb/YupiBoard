@@ -33,3 +33,20 @@ class City(Base, UUIDMixin, TimestampMixin):
     )
 
     country: Mapped[Country] = relationship("Country", back_populates="cities")
+    translations: Mapped[list[CityTranslation]] = relationship(
+        "CityTranslation",
+        back_populates="city",
+        cascade="all, delete-orphan",
+    )
+
+
+class CityTranslation(Base):
+    __tablename__ = "city_translations"
+
+    city_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("cities.id", ondelete="CASCADE"), primary_key=True
+    )
+    language_code: Mapped[str] = mapped_column(String(35), primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+
+    city: Mapped[City] = relationship("City", back_populates="translations")
