@@ -179,7 +179,11 @@ class BookingService:
             event, current_confirmed=event.current_confirmed + 1
         )
         await self.booking_repo.update(
-            booking, status=BookingStatus.CONFIRMED, is_preapproved=False
+            booking,
+            status=BookingStatus.CONFIRMED,
+            is_preapproved=False,
+            preapproved_at=None,
+            exclude_none=False,
         )
         if self.notification_service is None:
             return
@@ -301,11 +305,17 @@ class BookingService:
                     booking,
                     status=BookingStatus.REJECTED,
                     is_preapproved=False,
+                    preapproved_at=None,
+                    exclude_none=False,
                     rejection_reason=clean_reason,
                 )
                 if clean_reason is not None
                 else await self.booking_repo.update(
-                    booking, status=BookingStatus.REJECTED, is_preapproved=False
+                    booking,
+                    status=BookingStatus.REJECTED,
+                    is_preapproved=False,
+                    preapproved_at=None,
+                    exclude_none=False,
                 )
             )
             if self.notification_service is not None:
@@ -332,7 +342,10 @@ class BookingService:
             )
         if event.current_confirmed >= event.max_players:
             updated = await self.booking_repo.update(
-                booking, status=BookingStatus.WAITLIST, is_preapproved=True
+                booking,
+                status=BookingStatus.WAITLIST,
+                is_preapproved=True,
+                preapproved_at=datetime.now(UTC),
             )
             await self._publish_event_update(event)
             if self.notification_service is not None:
@@ -357,7 +370,11 @@ class BookingService:
             event, current_confirmed=event.current_confirmed + 1
         )
         updated = await self.booking_repo.update(
-            booking, status=BookingStatus.CONFIRMED, is_preapproved=False
+            booking,
+            status=BookingStatus.CONFIRMED,
+            is_preapproved=False,
+            preapproved_at=None,
+            exclude_none=False,
         )
         await self._publish_event_update(event)
         if self.notification_service is not None:
@@ -398,7 +415,11 @@ class BookingService:
                 event, current_confirmed=max(0, event.current_confirmed - 1)
             )
         updated = await self.booking_repo.update(
-            booking, status=BookingStatus.CANCELLED_BY_PLAYER, is_preapproved=False
+            booking,
+            status=BookingStatus.CANCELLED_BY_PLAYER,
+            is_preapproved=False,
+            preapproved_at=None,
+            exclude_none=False,
         )
         if self.notification_service is not None:
             await self.notification_service.notify(

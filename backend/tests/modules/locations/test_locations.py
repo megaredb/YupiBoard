@@ -227,6 +227,4 @@ async def test_city_search_appends_deduped_photon_results() -> None:
     assert results[0].name == "Київ"
     assert results[1].name == "Prague"
     assert results[1].country_code == "CZ"
-    geocoding.search_cities.assert_awaited_once_with(
-        "Pra", country_code=None, limit=9
-    )
+    geocoding.search_cities.assert_awaited_once_with("Pra", country_code=None, limit=9)

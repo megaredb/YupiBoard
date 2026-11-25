@@ -156,7 +156,9 @@ class LocationService:
 
         return results
 
-    async def _resolve_city_center(self, city: str | None) -> tuple[float, float] | None:
+    async def _resolve_city_center(
+        self, city: str | None
+    ) -> tuple[float, float] | None:
         if not city:
             return None
         center = await self.city_repo.get_center(city)

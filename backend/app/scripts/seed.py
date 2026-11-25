@@ -376,6 +376,9 @@ async def _create_events(
                     user_id=users[user_key].id,
                     status=status,
                     is_preapproved=user_key in spec.preapproved_waitlist,
+                    preapproved_at=(
+                        now - HOUR if user_key in spec.preapproved_waitlist else None
+                    ),
                     rejection_reason=spec.booking_rejection_reasons.get(user_key),
                 )
             )
