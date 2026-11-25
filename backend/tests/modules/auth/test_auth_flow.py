@@ -316,7 +316,11 @@ async def test_google_auth_flow(async_client: AsyncClient) -> None:
         assert data["user"]["email"] == email
         assert data["user"]["first_name"] == "Google"
         assert data["user"]["last_name"] == "User"
+        assert data["user"]["avatar_url"] == "https://example.com/avatar.jpg"
         assert data["user"]["is_verified"] is True
+        assert data["user"]["has_password"] is False
+        # Google fills the names, but the user still confirms them on "complete profile".
+        assert data["user"]["profile_completed_at"] is None
         assert "access_token" in data
 
     # Test Google signin for existing user
@@ -457,3 +461,40 @@ async def test_auth_service_edge_cases(db_session: AsyncSession) -> None:
     )
     with pytest.raises(NotFoundException):
         await auth_service.confirm_password_reset(ghost_reset_token, "newpwd12345")
+
+
+@pytest.mark.asyncio
+async def test_google_auth_fills_missing_names_of_existing_account(
+    async_client: AsyncClient,
+) -> None:
+    from app.core.config import settings
+
+    email = f"linked_{uuid.uuid4().hex[:8]}@example.com"
+    r_register = await async_client.post(
+        "/api/v1/auth/register", json={"email": email, "password": "Password123"}
+    )
+    assert r_register.status_code in (200, 201)
+    assert r_register.json()["user"]["first_name"] is None
+
+    claims = {
+        "aud": "test-google-client-id-xyz",
+        "email_verified": True,
+        "sub": f"sub_{uuid.uuid4().hex[:8]}",
+        "email": email,
+        "given_name": "Linked",
+        "family_name": "Person",
+        "picture": "https://example.com/linked.jpg",
+    }
+    with (
+        patch.object(settings, "GOOGLE_CLIENT_ID", claims["aud"]),
+        patch("google.oauth2.id_token.verify_oauth2_token", return_value=claims),
+    ):
+        res = await async_client.post(
+            "/api/v1/auth/google", json={"id_token": "valid-mock-token"}
+        )
+    assert res.status_code == 200
+    user = res.json()["user"]
+    assert user["first_name"] == "Linked"
+    assert user["last_name"] == "Person"
+    assert user["avatar_url"] == "https://example.com/linked.jpg"
+    assert user["has_password"] is True

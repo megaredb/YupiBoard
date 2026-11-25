@@ -6,6 +6,7 @@ export {
 export { renewSessionAfterPasswordChange } from "@/features/auth/api/renew-session-after-password-change";
 export {
   redirectSignedInUser,
+  requireCompleteProfile,
   requireSuperuser,
   requireUser,
 } from "@/features/auth/api/route-guards";
@@ -15,6 +16,7 @@ export { SignedInOutlet } from "@/features/auth/components/signed-in-outlet";
 export { useCurrentUser } from "@/features/auth/hooks/use-current-user";
 export { useSignedInUser } from "@/features/auth/hooks/use-signed-in-user";
 export { useLogout } from "@/features/auth/hooks/use-logout";
+export { usePasswordRecovery } from "@/features/auth/hooks/use-password-recovery";
 export { checkResetToken } from "@/features/auth/api/check-reset-token";
 export { sessionTokenStore } from "@/features/auth/lib/session-storage";
 export { hasAcceptedTermsOnRegister } from "@/features/auth/lib/terms-consent";

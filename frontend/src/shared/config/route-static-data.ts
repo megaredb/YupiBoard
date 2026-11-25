@@ -11,5 +11,10 @@ declare module "@tanstack/react-router" {
     /** The one layout flag (RT-3); the deepest match that sets it wins. */
     layout?: AppLayout;
     titleKey?: TranslationKey;
+    /**
+     * Reachable by a signed-in user who has not completed their profile yet. Every other page
+     * sends them to "complete profile" first.
+     */
+    allowsIncompleteProfile?: boolean;
   }
 }

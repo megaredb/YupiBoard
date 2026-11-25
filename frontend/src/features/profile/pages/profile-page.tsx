@@ -2,8 +2,8 @@ import { useTranslation } from "react-i18next";
 import { FormAlert } from "@/shared/components/form-alert";
 import { showToast } from "@/shared/lib/toast/toast-store";
 import { useSignedInUser } from "@/features/auth";
+import { AccountPasswordDialog } from "@/features/profile/components/account-password-dialog";
 import { BannerPicker } from "@/features/profile/components/banner-picker";
-import { ChangePasswordDialog } from "@/features/profile/components/change-password-dialog";
 import { ProfileAvatar } from "@/features/profile/components/profile-avatar";
 import { ProfileBanner } from "@/features/profile/components/profile-banner";
 import { ProfileEditForm } from "@/features/profile/components/profile-edit-form";
@@ -75,14 +75,7 @@ export function ProfilePage() {
           />
         )}
       </div>
-      {password.isOpen && (
-        <ChangePasswordDialog
-          onClose={password.close}
-          isPending={password.isPending}
-          errorKey={password.errorKey}
-          onSubmit={password.changePassword}
-        />
-      )}
+      <AccountPasswordDialog user={user} dialog={password} />
     </div>
   );
 }

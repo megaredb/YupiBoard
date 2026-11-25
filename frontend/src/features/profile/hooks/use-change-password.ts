@@ -20,7 +20,7 @@ export function useChangePassword(onSuccess: () => void): UseChangePasswordResul
   const mutation = useMutation({
     mutationFn: async ({ currentPassword, password }: ChangePasswordFormValues) => {
       await changePasswordApiV1UsersMeChangePasswordPost({
-        old_password: currentPassword || null,
+        old_password: currentPassword,
         new_password: password,
       });
       await renewSessionAfterPasswordChange(queryClient, password);

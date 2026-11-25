@@ -1,6 +1,6 @@
 import uuid
 from datetime import UTC, datetime, timedelta
-from typing import Literal
+from typing import Any, Literal
 
 import jwt
 from google.auth.exceptions import GoogleAuthError
@@ -33,6 +33,25 @@ from app.modules.auth.schemas import (
 from app.modules.users.enums import UserStatus
 from app.modules.users.models import User
 from app.modules.users.repository import UserRepository
+
+# Matches the `users.first_name` / `last_name` column length.
+NAME_MAX_LENGTH = 50
+
+
+def _google_names(claims: dict[str, Any]) -> tuple[str | None, str | None]:
+    """First and last name from Google's claims, split from `name` when the parts are missing."""
+    given_name = claims.get("given_name")
+    family_name = claims.get("family_name")
+    name = claims.get("name")
+    if not given_name and name:
+        parts = name.strip().split(" ", 1)
+        given_name = parts[0]
+        family_name = family_name or (parts[1] if len(parts) > 1 else None)
+
+    def clean(value: str | None) -> str | None:
+        return (value.strip()[:NAME_MAX_LENGTH] or None) if value else None
+
+    return clean(given_name), clean(family_name)
 
 
 class AuthService:
@@ -349,7 +368,6 @@ class AuthService:
 
         email = claims.get("email")
         google_sub = claims.get("sub")
-        name = claims.get("name")
         picture = claims.get("picture")
 
         if not email or not google_sub:
@@ -365,24 +383,21 @@ class AuthService:
                     raise ConflictException(
                         "Email is already linked to another Google account"
                     )
+                first_name, last_name = _google_names(claims)
                 user = await self.user_repo.update(
                     user,
                     google_sub=google_sub,
+                    first_name=user.first_name or first_name,
+                    last_name=user.last_name or last_name,
                     avatar_url=user.avatar_url or picture,
                     is_verified=True,
                 )
             else:
-                given_name = claims.get("given_name")
-                family_name = claims.get("family_name")
-                if not given_name and name:
-                    parts = name.strip().split(" ", 1)
-                    given_name = parts[0]
-                    family_name = parts[1] if len(parts) > 1 else None
-
+                first_name, last_name = _google_names(claims)
                 user = await self.user_repo.create(
                     email=normalized_email,
-                    first_name=given_name,
-                    last_name=family_name,
+                    first_name=first_name,
+                    last_name=last_name,
                     google_sub=google_sub,
                     avatar_url=picture,
                     is_verified=True,

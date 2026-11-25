@@ -3,8 +3,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { FormAlert } from "@/shared/components/form-alert";
 import { BrandLogo } from "@/shared/layout/brand-logo";
+import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
-import { useSignedInUser } from "@/features/auth";
+import { useLogout, useSignedInUser } from "@/features/auth";
 import { AvatarPicker } from "@/features/profile/components/avatar-picker";
 import { CompleteProfileForm } from "@/features/profile/components/complete-profile-form";
 import { useUpdateProfile } from "@/features/profile/hooks/use-update-profile";
@@ -15,6 +16,8 @@ export function CompleteProfilePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useSignedInUser();
+  // The only way out: every other page sends an incomplete profile back here.
+  const { logout, isPending: isLoggingOut } = useLogout();
   const [avatar, setAvatar] = useState<File | null>(null);
   const handleSaved = () => void navigate({ to: "/events", replace: true });
   const { updateProfile, isPending, errorKey } = useUpdateProfile(handleSaved);
@@ -49,6 +52,16 @@ export function CompleteProfilePage() {
       <p className="mt-5 text-center text-xs text-muted-foreground">
         {t("profile.complete.footerNote")}
       </p>
+      <Button
+        type="button"
+        variant="link"
+        className="mt-2 min-h-11"
+        isLoading={isLoggingOut}
+        disabled={isPending}
+        onClick={logout}
+      >
+        {t("profile.complete.signOut")}
+      </Button>
     </div>
   );
 }

@@ -37,8 +37,11 @@ function androidAssetLinks(fingerprints: string[]): Plugin {
 }
 
 export default defineConfig(({ mode }) => {
+  const rootEnv = loadEnv(mode, ENV_DIR, "");
+  // The backend's GOOGLE_CLIENT_ID is the single source of the Google web client ID
+  process.env.VITE_GOOGLE_CLIENT_ID = rootEnv.GOOGLE_CLIENT_ID ?? "";
   // Not a VITE_ variable: it configures the build and never reaches the app bundle.
-  const fingerprints = (loadEnv(mode, ENV_DIR, "").ANDROID_CERT_SHA256 ?? "")
+  const fingerprints = (rootEnv.ANDROID_CERT_SHA256 ?? "")
     .split(",")
     .map((fingerprint) => fingerprint.trim())
     .filter(Boolean);

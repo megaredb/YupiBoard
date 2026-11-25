@@ -37,7 +37,6 @@ export function ChangePasswordForm({ isPending, onSubmit, actions }: ChangePassw
         type="password"
         autoComplete="current-password"
         maxLength={PASSWORD_LIMITS.max}
-        hint={t("profile.passwordDialog.currentPasswordHint")}
         isRequired
         error={fieldError(errors.currentPassword?.message)}
         disabled={isPending}

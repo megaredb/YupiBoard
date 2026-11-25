@@ -92,6 +92,8 @@ async def test_update_current_user_profile(
     )
     assert r_patch.status_code == 200
     body = r_patch.json()
+    assert body["profile_completed_at"] is not None
+    assert body["has_password"] is True
     assert body["first_name"] == "NewFirst"
     assert body["last_name"] == "NewLast"
     assert body["city"] == "Kyiv"
@@ -271,13 +273,15 @@ async def test_change_password(
     await db_session.refresh(active_token)
     assert active_token.revoked is True
 
-    # Google user (hashed_password is None) can change password without old_password
+    # Google user (hashed_password is None) must use password reset instead
     _, google_token = await create_mock_user(password=None)
     google_headers = {"Authorization": f"Bearer {google_token}"}
+    r_me = await async_client.get("/api/v1/users/me", headers=google_headers)
+    assert r_me.json()["has_password"] is False
     r_google = await async_client.post(
         "/api/v1/users/me/change-password",
         headers=google_headers,
         json={"new_password": "BrandNewGooglePassword123"},
     )
-    assert r_google.status_code == 200
-    assert r_google.json()["message"] == "Password successfully updated"
+    assert r_google.status_code == 400
+    assert "password reset" in r_google.json()["detail"].lower()

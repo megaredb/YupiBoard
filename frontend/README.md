@@ -35,7 +35,10 @@ startup and refuses to start when a required one is missing.
 | `VITE_API_BASE_URL`         | yes      | Backend origin, e.g. `https://api.yupiboard.localhost`                                               |
 | `VITE_PUBLIC_WEB_URL`       | yes      | Public web origin used for shareable links                                                           |
 | `VITE_ANDROID_API_BASE_URL` | no       | Backend origin for the Android app; local device testing uses `https://api.yupiboard.localhost:8443` |
-| `VITE_GOOGLE_CLIENT_ID`     | no       | Google OAuth web client id; without it Google sign-in is disabled                                    |
+
+Google sign-in uses the backend's `GOOGLE_CLIENT_ID` (the web client ID): `vite.config.ts` passes
+it to the app as `VITE_GOOGLE_CLIENT_ID`, so it is set in one place. Without it Google sign-in
+reports that it is unavailable.
 
 `ANDROID_CERT_SHA256` (optional, not a `VITE_` variable, so it never reaches the bundle) lists the
 SHA-256 fingerprints of the Android signing certificates, comma-separated. When set, Vite serves
@@ -175,13 +178,13 @@ Credentials):
    every web origin: `http://localhost:5173` for local testing and the real site. Google only
    accepts `localhost` itself or hosts under a public top-level domain, so
    `https://yupiboard.localhost` is rejected; test Google sign-in on the web through
-   `http://localhost:5173`. Put its client ID in the root `.env` as both `GOOGLE_CLIENT_ID` (backend) and
-   `VITE_GOOGLE_CLIENT_ID` (frontend). No client secret is needed.
+   `http://localhost:5173`. Put its client ID in the root `.env` as `GOOGLE_CLIENT_ID`; the backend and the
+   frontend both read it. No client secret is needed.
 3. Create an OAuth client of type **Android** for package `com.yupiboard.app` with the **SHA-1**
    of a signing certificate, one Android client per certificate (debug keys, release key, Play
    app signing key). Its client ID is never put in the app: Google matches the installed app to
    it by package name and SHA-1, and the app asks for a token for the web client.
-4. Rebuild: `pnpm cap:sync` (or `pnpm cap:run`) after changing `VITE_GOOGLE_CLIENT_ID`.
+4. Rebuild: `pnpm cap:sync` (or `pnpm cap:run`) after changing `GOOGLE_CLIENT_ID`.
 
 On the web the page shows the button Google renders (One Tap is not used; browsers without
 third-party cookies never show it). On Android the button opens the system account picker.
