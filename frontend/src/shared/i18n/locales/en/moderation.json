@@ -21,7 +21,7 @@
     "nameDesc": "Name Z–A"
   },
   "empty": {
-    "pendingTitle": "No events waiting for review",
+    "pendingTitle": "Nothing to review",
     "pendingDescription": "All submitted events have been moderated.",
     "approvedTitle": "No approved events",
     "approvedDescription": "Events you publish will show up here.",
@@ -50,10 +50,10 @@
     "failed": "Auto-check failed",
     "unavailable": "Auto-check unavailable",
     "unavailableShort": "Unavailable",
-    "unavailableDescription": "The automatic check couldn't run for this event. Review its content manually."
+    "unavailableDescription": "The automatic check didn't run. Review this event manually."
   },
   "approved": "Event approved and published",
-  "rejected": "Event rejected, the organizer was notified",
+  "rejected": "Event rejected, organizer notified",
   "decisionFailed": "Couldn't save the decision. Please try again.",
   "panel": {
     "title": "Moderation decision",
@@ -64,7 +64,7 @@
   },
   "rejectEvent": {
     "title": "Reject \"{{title}}\"?",
-    "description": "Select a reason for rejecting \"{{title}}\". The organizer will receive a notification with the reason and will need to update the event before resubmitting.",
+    "description": "Choose a reason for rejecting “{{title}}”. The organizer will be notified and can update the event and resubmit.",
     "reasonsLabel": "Reason (required)",
     "reasons": {
       "inappropriate": "Inappropriate content",
@@ -75,7 +75,7 @@
       "guidelines": "Guidelines violation",
       "other": "Other"
     },
-    "otherPlaceholder": "Please specify a reason for rejection…",
+    "otherPlaceholder": "Specify the reason…",
     "confirm": "Reject event"
   }
 }

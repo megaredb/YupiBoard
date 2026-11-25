@@ -3,6 +3,6 @@
   "offline": "You are offline",
   "serviceUnavailable": "Service is temporarily unavailable",
   "accountBanned": "Your account has been blocked",
-  "forbidden": "You don't have permission to do this",
+  "forbidden": "You don't have permission",
   "tooManyRequests": "Too many attempts. Please wait a moment and try again."
 }

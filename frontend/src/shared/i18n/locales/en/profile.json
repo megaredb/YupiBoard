@@ -12,7 +12,7 @@
   "photoHint": "JPEG/PNG under 2 MB",
   "bioHint": "Tell others about your board game preferences…",
   "emailLinkedNote": "Your email cannot be changed",
-  "locationHint": "Events are searched around this city by default",
+  "locationHint": "Events are searched around this city",
   "passwordMasked": "••••••••",
   "changePassword": "Change password",
   "saveChanges": "Save changes",
@@ -40,7 +40,7 @@
   },
   "setPasswordDialog": {
     "title": "Set a password",
-    "description": "You signed up with Google, so your account has no password yet. We'll email you a link to set one.",
+    "description": "You signed up with Google, so there's no password yet. We'll email you a link to set one.",
     "submit": "Email me a link",
     "sentMessage": "We sent a link to set your password to:",
     "failed": "Couldn't send the link. Please try again."
@@ -56,7 +56,7 @@
     "pageTitle": "Player profile",
     "hostedEvents": "Hosted Events ({{count}})",
     "joinedEvents": "Joined Events ({{count}})",
-    "upcomingHostedBy": "Upcoming games hosted by {{name}}",
+    "upcomingHostedBy": "Games hosted by {{name}}",
     "upcomingJoinedBy": "Games joined by {{name}}",
     "noHostedEvents": "No hosted events",
     "noHostedEventsDescription": "This organizer has not hosted any events yet.",
@@ -70,13 +70,13 @@
   "bannerHint": "JPEG/PNG under 5 MB · wide images work best",
   "deleteAccount": {
     "title": "Delete my profile",
-    "description": "Your profile, bookings and favorites will be removed and you will be signed out. This can't be undone.",
+    "description": "Your profile, bookings and favorites will be deleted and you'll be signed out. This can't be undone.",
     "action": "Delete my profile",
     "confirmTitle": "Delete your profile?",
     "confirmDescription": "This permanently deletes your YupiBoard profile. You won't be able to restore it.",
     "confirm": "Yes, delete my profile",
     "deleted": "Your profile was deleted",
     "failed": "Couldn't delete your profile. Please try again.",
-    "hasActiveEvents": "Cancel or finish the events you organize before deleting your profile."
+    "hasActiveEvents": "Cancel or finish your events before deleting your profile."
   }
 }

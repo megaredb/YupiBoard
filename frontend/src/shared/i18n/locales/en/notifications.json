@@ -1,13 +1,13 @@
 {
   "open": "Open notifications",
   "title": "Notifications",
-  "viewAll": "View All",
-  "showLess": "Show Less",
+  "viewAll": "View all",
+  "showLess": "Show less",
   "emptyTitle": "No notifications yet",
   "emptyDescription": "We'll notify you when something important arrives.",
-  "entryFee": "Entry fee: {{amount}} UAH (Pay at venue after arrival)",
-  "entryFree": "Entry fee: Free",
-  "viewEvent": "View Event Details",
+  "entryFee": "Entry: {{amount}} UAH (pay at the venue)",
+  "entryFree": "Entry: free",
+  "viewEvent": "View event",
   "reason": "Reason: {{reason}}",
   "types": {
     "BOOKING_REQUESTED": {
@@ -16,7 +16,7 @@
     },
     "BOOKING_APPROVED": {
       "title": "Application Approved",
-      "message": "Great news! Host {{host}} has approved your booking request. Your seat is confirmed."
+      "message": "Great news! {{host}} approved your request. Your seat is confirmed."
     },
     "BOOKING_REJECTED": {
       "title": "Application Declined",
@@ -32,7 +32,7 @@
     },
     "WAITLIST_PROMOTED": {
       "title": "Added to Waitlist",
-      "message": "The table for {{event}} is currently full. You have been added to the waitlist."
+      "message": "{{event}} is full. You've been added to the waitlist."
     },
     "EVENT_CANCELLED": {
       "title": "Event Cancelled",
@@ -48,7 +48,7 @@
       "title": "Venue Details Updated"
     },
     "REMINDER_24H": {
-      "title": "Upcoming Event Tomorrow"
+      "title": "Event Tomorrow"
     },
     "REMINDER_2H": {
       "title": "Event Starting Soon"

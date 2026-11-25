@@ -3,7 +3,7 @@
   "promoted": "Promoted",
   "card": {
     "participants": "{{current}} of {{max}} participants",
-    "placeWithDistance": "{{place}} · {{km}} km away",
+    "placeWithDistance": "{{place}} · {{km}} km",
     "favorite": "Favorite: {{title}}"
   },
   "pagination": {
@@ -12,12 +12,12 @@
   "catalog": {
     "title": "Find your next game night",
     "mobileTitle": "Nearby events",
-    "subtitle": "Good games. New friends. A seat at the table, right here in {{city}}.",
+    "subtitle": "Good games. New friends. A seat at the table in {{city}}.",
     "found_one": "{{count}} event found",
     "found_other": "{{count}} events found",
     "emptyTitle": "No results found...",
     "emptyDescription": "Try clearing filters or correcting your search query.",
-    "subtitleNearby": "Good games. New friends. A seat at the table, right near you."
+    "subtitleNearby": "Good games. New friends. A seat at the table near you."
   },
   "collection": {
     "found_one": "{{count}} event",
@@ -25,7 +25,7 @@
   },
   "myEvents": {
     "title": "My events",
-    "emptyTitle": "You have not created any events yet",
+    "emptyTitle": "No events yet",
     "emptyDescription": "Create your first board game event and manage it here.",
     "statusLabel": "Status",
     "allStatuses": "All statuses",
@@ -34,7 +34,7 @@
   },
   "myBookings": {
     "title": "My bookings",
-    "emptyTitle": "You have no bookings yet",
+    "emptyTitle": "No bookings yet",
     "emptyDescription": "Apply to an event in the catalog to see your bookings here.",
     "found_one": "{{count}} booking",
     "found_other": "{{count}} bookings",
@@ -43,8 +43,8 @@
   },
   "favorites": {
     "title": "Favorites",
-    "emptyTitle": "You have no favorite events yet",
-    "emptyDescription": "Save events with the heart button to find them quickly here.",
+    "emptyTitle": "No favorites yet",
+    "emptyDescription": "Tap the heart on an event to save it here.",
     "added": "Added to favorites",
     "removed": "Removed from favorites",
     "toggleFailed": "Couldn't update your favorites. Please try again."
@@ -52,7 +52,7 @@
   "filters": {
     "title": "Filters",
     "location": "Location",
-    "fromCityCenter": "Distance calculated from city centre",
+    "fromCityCenter": "From the city centre",
     "distance": "Distance",
     "within": "Within {{km}} km",
     "km": "{{km}} km",
@@ -72,13 +72,13 @@
     "costMin": "Minimum cost",
     "costMax": "Maximum cost",
     "freeOnly": "Free only",
-    "withFreeSeats": "Only with free seats",
-    "seats": "Number of free seats:",
-    "rating": "Minimum organizer rating",
+    "withFreeSeats": "With free seats",
+    "seats": "Free seats:",
+    "rating": "Organizer rating",
     "ratingOption_one": "{{count}} star & up",
     "ratingOption_other": "{{count}} stars & up",
     "anyDate": "Any date",
-    "fromMyLocation": "Distance calculated from your location",
+    "fromMyLocation": "From your location",
     "myLocation": {
       "label": "My location",
       "coordinates": "{{lat}}, {{lon}}",
@@ -94,9 +94,9 @@
     "viewProfile": "View profile",
     "organizerRating": "Organizer rating: {{rating}}",
     "memberSince": "On YupiBoard since {{date}}",
-    "playersJoined": "{{taken}} of {{total}} players joined",
+    "playersJoined": "{{taken}} of {{total}} players",
     "seatsProgress": "Seats taken",
-    "share": "Share event",
+    "share": "Share",
     "shareFailed": "Couldn't share the link",
     "linkCopied": "Link copied",
     "favorite": "Favorite",
@@ -109,55 +109,55 @@
     "title": "Your seat at the table",
     "subtitle": "One evening. Plenty of great moves.",
     "perPerson": "/ person",
-    "seatsAvailable": "Seats available ({{left}} of {{total}} remaining)",
+    "seatsAvailable": "{{left}} of {{total}} seats left",
     "seatsAvailableShort": "Seats available",
     "playersJoining_one": "{{count}} player joining",
     "playersJoining_other": "{{count}} players joining",
     "seatsTotal_one": "{{count}} seat total",
     "seatsTotal_other": "{{count}} seats total",
     "apply": "Apply",
-    "pending": "Waiting for organizer's approval",
+    "pending": "Awaiting approval",
     "approved": "Approved",
     "attended": "You attended",
     "waitlist": "You're on the waitlist",
-    "hosting": "You're hosting this event",
+    "hosting": "You're hosting",
     "full": "No seats left",
     "closed": "Bookings closed",
     "failed": "Couldn't send your application. Please try again.",
-    "reviewNote": "The organizer will review your request after submission.",
+    "reviewNote": "The organizer will review your request.",
     "payAtVenue": "Pay at the venue after approval",
-    "hostTitle": "Cost of the seat at the table",
-    "goToPlayers": "Go to the list of players",
+    "hostTitle": "Seat price",
+    "goToPlayers": "View players",
     "rejected": "Declined",
     "cancel": "Cancel booking",
     "cancelFailed": "Couldn't cancel your booking. Please try again.",
     "cancelDialog": {
       "title": "Cancel your application?",
-      "description": "Are you sure you want to cancel your seat? It will immediately become available for other players.",
+      "description": "Your seat will go to other players right away.",
       "keep": "Keep my seat",
-      "confirm": "Yes, cancel request"
+      "confirm": "Yes, cancel"
     },
     "applied": "Request sent",
     "appliedDescription": "The organizer will review it soon.",
     "cancelled": "Booking cancelled",
     "players": "Players",
-    "awaitingAttendance": "Waiting for the organizer to mark attendance",
-    "playersJoinedTotal": "Players joined: {{count}} ({{total}} seats total)",
-    "joinWaitlist": "Join the waitlist",
+    "awaitingAttendance": "Awaiting attendance check",
+    "playersJoinedTotal": "Players: {{count}} of {{total}}",
+    "joinWaitlist": "Join waitlist",
     "waitlisted": "You're on the waitlist",
     "waitlistedDescription": "The table is full. If the organizer accepts you, you get the next free seat."
   },
   "create": {
     "title": "Create new event",
     "successTitle": "Event submitted for review",
-    "successDescription": "Your event has been submitted to administrators and will be published once approved.",
-    "moderationBanner": "New events are reviewed by an administrator before appearing in the catalog.",
-    "submit": "Submit for moderation",
+    "successDescription": "It will be published once an administrator approves it.",
+    "moderationBanner": "An administrator reviews new events before they're published.",
+    "submit": "Submit for review",
     "reviewNote": "Usually reviewed within 24 hours",
     "failed": "Couldn't create the event. Please try again.",
     "general": {
       "title": "General information",
-      "description": "Give your session a clear title and let players know what to expect."
+      "description": "Give it a clear title and tell players what to expect."
     },
     "when": {
       "title": "When & where"
@@ -173,7 +173,7 @@
       "title": "Event title",
       "titlePlaceholder": "e.g., Catan & expansions night",
       "titleHint": "{{min}}–{{max}} characters",
-      "gameTitle": "Board game name",
+      "gameTitle": "Game name",
       "gameTitlePlaceholder": "e.g., Catan, Dune: Imperium, Wingspan…",
       "description": "Description",
       "descriptionPlaceholder": "What games will you play, experience level, house rules, what to bring…",
@@ -185,26 +185,26 @@
       "city": "City",
       "address": "Address or venue",
       "addressPlaceholder": "Street and building number",
-      "addressHint": "Players use it to find the venue on a map",
+      "addressHint": "Players will find the venue on a map",
       "seats": "Max players",
       "seatsHint": "Including you, {{min}}–{{max}} players",
       "seatsDecrease": "Fewer seats",
       "seatsIncrease": "More seats",
       "price": "Price per player (UAH)",
-      "priceHint": "Set 0 for a free session",
+      "priceHint": "0 = free",
       "venueName": "Venue name",
       "venueNamePlaceholder": "e.g., The Guild board game café"
     },
-    "verifyEmailRequired": "Confirm your email to create events. Open the link we sent to {{email}}.",
+    "verifyEmailRequired": "Confirm your email to create events. We sent a link to {{email}}.",
     "verifyEmailFirst": "Confirm your email before creating events.",
     "toMyEvents": "Go to my events",
-    "addressNotFound": "We couldn't find this address in the selected city. Check the street and house number.",
+    "addressNotFound": "Address not found in this city. Check the street and house number.",
     "addressSuggestions": {
       "searching": "Searching addresses…",
-      "unavailable": "Address suggestions are unavailable right now. You can still type the address.",
-      "empty": "No matching streets or buildings. Check the spelling or try the Ukrainian name.",
-      "picked": "Exact location saved from the suggestion.",
-      "addHouseNumber": "Now add the house number, e.g. Sumska 10."
+      "unavailable": "Suggestions unavailable. You can type the address.",
+      "empty": "No matches. Check the spelling or try the Ukrainian name.",
+      "picked": "Exact location saved.",
+      "addHouseNumber": "Add the house number, e.g. Sumska 10."
     }
   },
   "search": {
@@ -235,45 +235,45 @@
     "noShow": "No-show"
   },
   "participants": {
-    "title": "Participants ({{taken}}/{{total}} joined)",
-    "confirmedTitle": "Confirmed Players ({{count}})",
-    "pendingTitle": "Pending Requests ({{count}}) - Organizer Only",
+    "title": "Participants ({{taken}}/{{total}})",
+    "confirmedTitle": "Confirmed players ({{count}})",
+    "pendingTitle": "Pending requests ({{count}})",
     "unnamed": "YupiBoard player",
     "playerRatingLabel": "Player rating:",
-    "noRating": "No player rating yet",
+    "noRating": "No rating yet",
     "accept": "Accept",
     "decline": "Decline",
     "declineDialog": {
-      "title": "Decline or remove participant?",
-      "description": "Select the reason for declining or removing {{name}}. They will be notified and won't be able to apply to this event again.",
+      "title": "Decline participant?",
+      "description": "Choose a reason for {{name}}. They'll be notified and can't apply to this event again.",
       "reasonsLabel": "Reason (required)",
       "reasons": {
-        "experience": "Experience level does not match this game",
-        "requirements": "Does not meet event requirements or rules",
-        "conduct": "Violation of community rules or misconduct",
-        "groupFull": "Seat reserved for a regular group member",
-        "other": "Specify another reason"
+        "experience": "Not enough experience for this game",
+        "requirements": "Doesn't meet the event rules",
+        "conduct": "Misconduct or rule violation",
+        "groupFull": "Seat kept for a regular player",
+        "other": "Other reason"
       },
-      "otherPlaceholder": "Enter the reason for removal…",
+      "otherPlaceholder": "Enter the reason…",
       "confirm": "Yes, decline"
     },
     "disqualified": {
-      "title": "Participation Declined",
-      "description": "The organizer has declined or removed your participation in this event. You cannot apply to this event again.",
+      "title": "Participation declined",
+      "description": "The organizer declined or removed you. You can't apply to this event again.",
       "reasonLabel": "Reason from organizer:",
       "defaultReason": "Decision of the event organizer",
-      "backToEvents": "Back to events catalog"
+      "backToEvents": "Back to events"
     },
     "decisionFailed": "Couldn't save your decision. Please try again.",
     "noRequests": "No booking requests yet.",
     "noPlayers": "No confirmed players yet.",
     "pagination": "Showing {{from}}–{{to}} of {{total}} requests",
     "accepted": "Request accepted",
-    "waitlisted": "The table is full, so the player was added to the waitlist",
+    "waitlisted": "The table is full, so the player is on the waitlist",
     "declined": "Request declined",
     "waitlistTitle": "Waitlist ({{count}})",
     "waitlistHint": "Accepted players get the next free seat automatically.",
-    "waitlistAccepted": "Accepted · next free seat",
+    "waitlistAccepted": "Accepted · next seat",
     "eventsPlayed_one": "Played in {{count}} event",
     "eventsPlayed_other": "Played in {{count}} events"
   },
@@ -282,26 +282,26 @@
     "cancelled": "Event cancelled",
     "failed": "Couldn't cancel the event. Please try again.",
     "dialog": {
-      "title": "Cancel This Event?",
-      "description_one": "This action cannot be undone. {{count}} confirmed player will receive an immediate cancellation notice.",
-      "description_other": "This action cannot be undone. All {{count}} confirmed players will receive an immediate cancellation notice.",
-      "keep": "Keep Event",
-      "confirm": "Cancel Event"
+      "title": "Cancel this event?",
+      "description_one": "This can't be undone. {{count}} confirmed player will be notified.",
+      "description_other": "This can't be undone. All {{count}} confirmed players will be notified.",
+      "keep": "Keep event",
+      "confirm": "Cancel event"
     }
   },
   "completeEvent": {
     "button": "Complete event",
-    "completed": "Event marked as completed",
+    "completed": "Event completed",
     "failed": "Couldn't complete the event. Please try again.",
     "dialog": {
-      "title": "Complete This Event?",
-      "description": "The event will move to Completed and the 48-hour review and attendance window will start now.",
-      "keep": "Keep Ongoing",
-      "confirm": "Complete Event"
+      "title": "Complete this event?",
+      "description": "The 48-hour window for reviews and attendance starts now.",
+      "keep": "Keep ongoing",
+      "confirm": "Complete event"
     }
   },
   "rejectionNotice": {
-    "title": "This event was rejected by moderation",
+    "title": "Rejected by moderation",
     "reason": "Reason: {{reason}}",
     "noReason": "No reason was given."
   },
@@ -313,8 +313,8 @@
     "mark": "Mark attendance",
     "notMarked": "Not marked",
     "popoverTitle": "Was the player at the table?",
-    "summary": "Confirmed players ({{total}}): {{attended}} attended · {{noShow}} no-show · {{notMarked}} not marked",
-    "changeUntil": "You can change attendance until:",
+    "summary": "Confirmed ({{total}}): {{attended}} attended · {{noShow}} no-show · {{notMarked}} not marked",
+    "changeUntil": "Editable until:",
     "hoursLeft_one": "({{count}} h left)",
     "hoursLeft_other": "({{count}} h left)",
     "closed": "Attendance is final since {{date}}."
