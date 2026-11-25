@@ -5,6 +5,10 @@ import { CompleteProfilePage } from "@/features/profile/pages/complete-profile-p
 
 export const Route = createFileRoute("/_authenticated/profile/complete")({
   loader: ({ context }) => loadQuery(context.queryClient, citiesQueryOptions()),
-  staticData: { layout: "standalone", titleKey: "profile.complete.title" },
+  staticData: {
+    allowsIncompleteProfile: true,
+    layout: "standalone",
+    titleKey: "profile.complete.title",
+  },
   component: CompleteProfilePage,
 });

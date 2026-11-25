@@ -35,15 +35,22 @@
     "submit": "Update password",
     "success": "Password updated",
     "currentPassword": "Current password",
-    "currentPasswordHint": "Leave empty if you signed up with Google and have not set a password yet.",
     "wrongCurrentPassword": "The current password is incorrect.",
     "failed": "Could not change your password. Please try again."
+  },
+  "setPasswordDialog": {
+    "title": "Set a password",
+    "description": "You signed up with Google, so your account has no password yet. We'll email you a link to set one.",
+    "submit": "Email me a link",
+    "sentMessage": "We sent a link to set your password to:",
+    "failed": "Couldn't send the link. Please try again."
   },
   "complete": {
     "title": "Complete your profile",
     "subtitle": "Tell other players and organizers a little bit about yourself.",
     "submit": "Save and continue",
-    "footerNote": "You can update these details anytime."
+    "footerNote": "You can update these details anytime.",
+    "signOut": "Not now? Sign out and browse as a guest"
   },
   "public": {
     "pageTitle": "Player profile",

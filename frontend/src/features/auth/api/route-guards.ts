@@ -1,6 +1,6 @@
 import { redirect } from "@tanstack/react-router";
 import type { RouterContext } from "@/shared/config/router-context";
-import { ensureCurrentUser } from "@/features/auth/api/current-user-query";
+import { ensureCurrentUser, getCachedCurrentUser } from "@/features/auth/api/current-user-query";
 import { isProfileComplete } from "@/features/auth/lib/is-profile-complete";
 import { toSafeRedirect } from "@/features/auth/lib/safe-redirect";
 import type { AuthRedirectSearch } from "@/features/auth/schemas/auth-redirect-search.schema";
@@ -27,6 +27,23 @@ export async function requireSuperuser({
   const user = await ensureCurrentUser(context.queryClient);
   if (!user) throw redirect({ to: "/login", search: { redirect: location.href } });
   if (!user.is_superuser) throw redirect({ to: "/events" });
+}
+
+/**
+ * For the root route: a signed-in user with an incomplete profile may only open the pages that
+ * allow it (the profile form itself, terms, e-mail links); everything else redirects there.
+ */
+export function requireCompleteProfile({
+  context,
+  matches,
+}: {
+  context: RouterContext;
+  matches: readonly { staticData: { allowsIncompleteProfile?: boolean } }[];
+}): void {
+  const user = getCachedCurrentUser(context.queryClient);
+  if (!user || isProfileComplete(user)) return;
+  if (matches.some((match) => match.staticData.allowsIncompleteProfile)) return;
+  throw redirect({ to: "/profile/complete" });
 }
 
 export async function redirectSignedInUser({

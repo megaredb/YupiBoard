@@ -2,6 +2,8 @@
 // every connected phone or emulator, forwards the device port of VITE_ANDROID_API_BASE_URL to the
 // local Traefik on port 443 (Android does not let adb bind ports below 1024) and starts the app.
 // `pnpm cap:stop` undoes the forwarding and releases the devices.
+// With `--release` it builds the release APK, signed when android/keystore.properties is set up.
+// With `--signing-report` it prints the SHA-1/SHA-256 of the debug and release certificates.
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -18,6 +20,8 @@ import {
 const TRAEFIK_PORT = "tcp:443";
 const ROOT_ENV_FILE = path.resolve("..", ".env");
 const shouldRun = process.argv.includes("--run");
+const isRelease = process.argv.includes("--release");
+const isSigningReport = process.argv.includes("--signing-report");
 
 /** Port of VITE_ANDROID_API_BASE_URL in the root `.env`, the one the app calls on the device. */
 function androidApiPort() {
@@ -64,8 +68,14 @@ function installAndLaunch(javaHome) {
 const javaHome = requireJavaHome();
 process.stdout.write(`Using JDK: ${javaHome}\n`);
 
-if (shouldRun) {
+if (isSigningReport) {
+  gradle(":app:signingReport", javaHome);
+} else if (shouldRun) {
   installAndLaunch(javaHome);
+} else if (isRelease) {
+  gradle("assembleRelease", javaHome);
+  const dir = path.join(ANDROID_DIR, "app", "build", "outputs", "apk", "release");
+  process.stdout.write(`APK folder: ${path.relative(".", dir)}\n`);
 } else {
   gradle("assembleDebug", javaHome);
   const apk = path.join(ANDROID_DIR, "app", "build", "outputs", "apk", "debug", "app-debug.apk");

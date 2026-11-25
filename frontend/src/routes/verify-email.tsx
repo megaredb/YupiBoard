@@ -8,6 +8,10 @@ export const Route = createFileRoute("/verify-email")({
   loader: ({ deps }) => verifyEmailToken(deps.token),
   // The token is single-use: never re-run the verification for the same URL.
   staleTime: Number.POSITIVE_INFINITY,
-  staticData: { layout: "standalone", titleKey: "auth.verifyEmail.pageTitle" },
+  staticData: {
+    allowsIncompleteProfile: true,
+    layout: "standalone",
+    titleKey: "auth.verifyEmail.pageTitle",
+  },
   component: VerifyEmailPage,
 });

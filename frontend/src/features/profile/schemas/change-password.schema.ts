@@ -8,14 +8,12 @@ import {
   passwordsMatch,
 } from "@/shared/lib/validators/password";
 
-/**
- * The current password is optional: accounts created with Google have none, and `UserRead` does
- * not say which kind the user has, so the backend decides (400 when it is required and wrong).
- */
+/** Only for accounts that have a password; Google-only accounts set one through password reset. */
 export const changePasswordSchema = z
   .object({
     currentPassword: z
       .string()
+      .min(1, "validation.passwordRequired" satisfies TranslationKey)
       .max(PASSWORD_LIMITS.max, "validation.passwordMax" satisfies TranslationKey),
     password: passwordSchema,
     confirmPassword: passwordConfirmationSchema,

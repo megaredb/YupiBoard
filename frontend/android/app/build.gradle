@@ -14,6 +14,19 @@ def appLinkHost = {
     return new URI(line.substring(line.indexOf('=') + 1).trim()).host
 }()
 
+// Release signing. The upload key stays out of git: its location and passwords come from
+// android/keystore.properties (see keystore.properties.example) or ANDROID_KEYSTORE_* variables.
+// Without them the release build is left unsigned.
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+def signingValue = { String key, String envName ->
+    keystoreProperties.getProperty(key) ?: System.getenv(envName)
+}
+def releaseStoreFile = signingValue('storeFile', 'ANDROID_KEYSTORE_FILE')
+
 android {
     namespace = "com.yupiboard.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -29,8 +42,28 @@ android {
         // Unlike aapt's default, keeps files starting with "_" that web bundles rely on.
         ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
     }
+    signingConfigs {
+        // Shared, committed debug key: every developer's debug build has the same SHA-1/SHA-256,
+        // so one Google Android OAuth client and one assetlinks.json entry cover the whole team.
+        // Debug only; never sign a release with it.
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+        release {
+            if (releaseStoreFile) {
+                storeFile rootProject.file(releaseStoreFile)
+                storePassword signingValue('storePassword', 'ANDROID_KEYSTORE_PASSWORD')
+                keyAlias signingValue('keyAlias', 'ANDROID_KEY_ALIAS')
+                keyPassword signingValue('keyPassword', 'ANDROID_KEY_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
+            signingConfig = releaseStoreFile ? signingConfigs.release : null
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

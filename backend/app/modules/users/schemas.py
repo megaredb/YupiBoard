@@ -104,6 +104,8 @@ class UserRead(UserBase):
     status: UserStatus = UserStatus.ACTIVE
     is_verified: bool
     is_superuser: bool
+    has_password: bool
+    profile_completed_at: datetime | None = None
 
     @field_serializer("avatar_url", "banner_url")
     @classmethod

@@ -82,21 +82,33 @@ class UserService:
         for field in ("avatar_url", "banner_url"):
             if field in update_data and update_data[field] is not None:
                 update_data[field] = normalize_stored_media_url(update_data[field])
+        # The first save that leaves both names set is the "complete profile" step: users who
+        # have not completed it are kept on that screen and never reach the regular edit form.
+        first_name = update_data.get("first_name", user.first_name)
+        last_name = update_data.get("last_name", user.last_name)
+        if user.profile_completed_at is None and first_name and last_name:
+            update_data["profile_completed_at"] = datetime.now(UTC)
         # exclude_none=False: an explicit null in the request clears the field
         return await self.user_repo.update(user, exclude_none=False, **update_data)
 
     async def change_password(
         self, user: User, new_password: str, old_password: str | None = None
     ) -> User:
-        if user.hashed_password is not None:
-            if not old_password:
-                raise BadRequestException("Current password is required")
-            try:
-                is_valid = verify_password(old_password, user.hashed_password)
-            except Exception:  # noqa: BLE001
-                is_valid = False
-            if not is_valid:
-                raise BadRequestException("Invalid old password")
+        if user.hashed_password is None:
+            # Accounts created through Google have no password to confirm; setting one here
+            # would let anyone holding a session take over the login, so they use the e-mailed
+            # password reset instead.
+            raise BadRequestException(
+                "This account has no password yet; set one through password reset"
+            )
+        if not old_password:
+            raise BadRequestException("Current password is required")
+        try:
+            is_valid = verify_password(old_password, user.hashed_password)
+        except Exception:  # noqa: BLE001
+            is_valid = False
+        if not is_valid:
+            raise BadRequestException("Invalid old password")
 
         hashed_password = get_password_hash(new_password)
         updated_user = await self.user_repo.update(

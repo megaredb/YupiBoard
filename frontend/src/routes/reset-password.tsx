@@ -6,6 +6,10 @@ export const Route = createFileRoute("/reset-password")({
   validateSearch: tokenSearchSchema,
   loaderDeps: ({ search }) => ({ token: search.token }),
   loader: ({ deps, abortController }) => checkResetToken(deps.token, abortController.signal),
-  staticData: { layout: "standalone", titleKey: "auth.resetPassword.pageTitle" },
+  staticData: {
+    allowsIncompleteProfile: true,
+    layout: "standalone",
+    titleKey: "auth.resetPassword.pageTitle",
+  },
   component: ResetPasswordPage,
 });

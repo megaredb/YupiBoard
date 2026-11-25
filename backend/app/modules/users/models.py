@@ -1,9 +1,11 @@
+from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
+    DateTime,
     Integer,
     Numeric,
     String,
@@ -59,6 +61,12 @@ class User(Base, UUIDMixin, TimestampMixin):
         String(255), unique=True, index=True, nullable=True
     )
     avatar_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    # Set once the user confirms their details on the "complete profile" screen; until then
+    # the frontend keeps them on that screen. Google fills the names, so names alone are not
+    # enough to tell a confirmed profile from a fresh Google sign-up.
+    profile_completed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     banner_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     city: Mapped[str | None] = mapped_column(String(100), nullable=True)
     contact_info: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -81,3 +89,8 @@ class User(Base, UUIDMixin, TimestampMixin):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+
+    @property
+    def has_password(self) -> bool:
+        """False for accounts created through Google that never set a password."""
+        return self.hashed_password is not None
