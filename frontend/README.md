@@ -37,33 +37,37 @@ startup and refuses to start when a required one is missing.
 | `VITE_ANDROID_API_BASE_URL` | no       | Backend origin for the Android app; local device testing uses `https://api.yupiboard.localhost:8443` |
 | `VITE_GOOGLE_CLIENT_ID`     | no       | Google OAuth web client id; without it Google sign-in is disabled                                    |
 
+`ANDROID_CERT_SHA256` (optional, not a `VITE_` variable, so it never reaches the bundle) lists the
+SHA-256 fingerprints of the Android signing certificates, comma-separated. When set, Vite serves
+and builds `/.well-known/assetlinks.json` from it (see [App Links](#app-links)).
+
 ## Scripts
 
 Run them from `frontend/`, or from the repository root with the `fe` prefix: `pnpm fe check`,
 `pnpm fe cap:run`, and so on.
 
-| Script                | What it does                                                        |
-| --------------------- | ------------------------------------------------------------------- |
-| `pnpm dev`            | Vite dev server                                                     |
-| `pnpm build`          | Typecheck, then production build into `dist/`                       |
-| `pnpm preview`        | Serve the production build                                          |
-| `pnpm check`          | **Every code check**; must pass before handing work over            |
-| `pnpm fix`            | **Apply lint auto-fixes and Prettier formatting** to the whole code |
-| `pnpm typecheck`      | Regenerate `src/routeTree.gen.ts`, then `tsc --noEmit`              |
-| `pnpm lint`           | Type-aware oxlint (oxlint-tsgolint); every rule is an error         |
-| `pnpm lint:fix`       | Type-aware oxlint with automatic fixes                              |
-| `pnpm format`         | Prettier, write                                                     |
-| `pnpm format:check`   | Prettier, check only                                                |
-| `pnpm knip`           | Unused files, exports and dependencies                              |
-| `pnpm depcruise`      | Layer boundaries (`app → routes → features → shared`)               |
-| `pnpm i18n:check`     | Translation keys exist, are used, and match between `en` and `uk`   |
-| `pnpm check:platform` | No browser APIs outside `src/shared/platform`                       |
-| `pnpm generate:api`   | Regenerate the API client from `openapi/openapi.json` with Orval    |
-| `pnpm cap:sync`       | Build the web app and copy it into the Android project              |
-| `pnpm cap:android`    | Open the Android project in Android Studio                          |
-| `pnpm cap:build`      | `cap:sync`, then build a debug APK with Gradle                      |
-| `pnpm cap:run`        | `cap:sync`, then install and start the app on connected devices     |
-| `pnpm cap:stop`       | Stop the app, port forwarding, adb and Gradle so the phone unplugs  |
+| Script                | What it does                                                              |
+| --------------------- | ------------------------------------------------------------------------- |
+| `pnpm dev`            | Vite dev server                                                           |
+| `pnpm build`          | Typecheck, then production build into `dist/`                             |
+| `pnpm preview`        | Serve the production build                                                |
+| `pnpm check`          | **Every code check**; must pass before handing work over                  |
+| `pnpm fix`            | **Apply lint auto-fixes and Prettier formatting** to the whole code       |
+| `pnpm typecheck`      | Regenerate `src/routeTree.gen.ts`, then `tsc --noEmit`                    |
+| `pnpm lint`           | Type-aware oxlint (oxlint-tsgolint); every rule is an error               |
+| `pnpm lint:fix`       | Type-aware oxlint with automatic fixes                                    |
+| `pnpm format`         | Prettier, write                                                           |
+| `pnpm format:check`   | Prettier, check only                                                      |
+| `pnpm knip`           | Unused files, exports and dependencies                                    |
+| `pnpm depcruise`      | Layer boundaries (`app → routes → features → shared`)                     |
+| `pnpm i18n:check`     | Translation keys exist, are used, and match between `en` and `uk`         |
+| `pnpm check:platform` | No browser APIs outside `src/shared/platform`                             |
+| `pnpm generate:api`   | Regenerate the API client from `openapi/openapi.json` with Orval          |
+| `pnpm cap:sync`       | Build the web app and copy it into the Android project                    |
+| `pnpm cap:android`    | Open the Android project in Android Studio                                |
+| `pnpm cap:build`      | `cap:sync`, then build a debug APK with Gradle ([signing](#signing-keys)) |
+| `pnpm cap:run`        | `cap:sync`, then install and start the app on connected devices           |
+| `pnpm cap:stop`       | Stop the app, port forwarding, adb and Gradle so the phone unplugs        |
 
 `pnpm check` runs `typecheck`, `lint`, `format:check`, `knip`, `depcruise`, `i18n:check` and
 `check:platform`. There are no tests in this project (RULES.md §16).
@@ -120,14 +124,95 @@ Known gap: media URLs (avatars, event covers) come from the backend as absolute
 `https://api.yupiboard.localhost/media/…` links without the port, so images do not load on a
 device until the backend builds them from the request's host.
 
+### Signing keys
+
+Every APK is signed. Google sign-in and App Links both identify the app by its package name
+(`com.yupiboard.app`) **plus** the fingerprint of the certificate it was signed with, so every key
+you install from must be registered in both places.
+
+- **Debug key**: `android/app/debug.keystore` is committed and every debug build (`pnpm cap:build`,
+  `cap:run`, Android Studio) is signed with it, so the whole team shares one fingerprint:
+  SHA-1 `7C:A6:2A:C5:F2:4D:F1:2C:E9:DE:EA:54:4F:70:EC:AF:E5:55:6B:5C`, SHA-256
+  `2B:C4:E0:2A:C9:32:F6:7A:C6:FC:54:E1:73:CB:C4:33:C6:20:4F:3A:91:A6:A8:9B:DF:E9:5B:43:EA:57:6F:91`.
+  It is a debug-only key with the standard `android` passwords: never sign a release with it. A
+  phone that has a build signed with another key needs `adb uninstall com.yupiboard.app` once.
+- **Release (upload) key**: create it once and keep it safe; losing it means you cannot update the
+  app. Never commit it (`*.jks`, `*.keystore` other than the debug key, and `keystore.properties`
+  are git-ignored).
+
+  ```sh
+  keytool -genkeypair -v -keystore android/yupiboard-upload.jks -alias upload -keyalg RSA -keysize 2048 -validity 10000
+  ```
+
+  Copy `android/keystore.properties.example` to `android/keystore.properties` and fill in the
+  passwords (or set `ANDROID_KEYSTORE_FILE`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`,
+  `ANDROID_KEY_PASSWORD`). Then `pnpm cap:sync && node tooling/build-android.mjs --release`
+  builds a signed `android/app/build/outputs/apk/release/app-release.apk`. Without the
+  properties the release APK is unsigned and cannot be installed.
+
+- **Play App Signing**: if the app is published on Google Play, Google re-signs it with its own
+  app signing key. Register that key's fingerprints too (Play Console → Test and release → App
+  integrity → App signing).
+
+Print the SHA-1 and SHA-256 of the debug and (when configured) release certificates with:
+
+```sh
+node tooling/build-android.mjs --signing-report
+```
+
+`keytool -list -v -keystore <file> -alias <alias>` prints the same for any keystore (the debug
+keystore's alias is `androiddebugkey`, password `android`).
+
+### Google sign-in
+
+The backend verifies Google ID tokens against **one** audience, the web client ID, on web and on
+Android. Set it up in one Google Cloud project (Google Auth Platform / APIs & Services →
+Credentials):
+
+1. Configure the OAuth consent screen (app name, support e-mail; add testers while it is in
+   testing).
+2. Create an OAuth client of type **Web application**. Under Authorized JavaScript origins add
+   every web origin: `http://localhost:5173` for local testing and the real site. Google only
+   accepts `localhost` itself or hosts under a public top-level domain, so
+   `https://yupiboard.localhost` is rejected; test Google sign-in on the web through
+   `http://localhost:5173`. Put its client ID in the root `.env` as both `GOOGLE_CLIENT_ID` (backend) and
+   `VITE_GOOGLE_CLIENT_ID` (frontend). No client secret is needed.
+3. Create an OAuth client of type **Android** for package `com.yupiboard.app` with the **SHA-1**
+   of a signing certificate, one Android client per certificate (debug keys, release key, Play
+   app signing key). Its client ID is never put in the app: Google matches the installed app to
+   it by package name and SHA-1, and the app asks for a token for the web client.
+4. Rebuild: `pnpm cap:sync` (or `pnpm cap:run`) after changing `VITE_GOOGLE_CLIENT_ID`.
+
+On the web the page shows the button Google renders (One Tap is not used; browsers without
+third-party cookies never show it). On Android the button opens the system account picker.
+"Google sign-in is not available" on Android almost always means the SHA-1 of the installed
+build is not registered, or the phone has no Google account.
+
+### App Links
+
 Links to `/events`, `/events/…`, `/users/…`, `/verify-email` and `/reset-password` open in the app
-through Android App Links. Their host is the host of `VITE_PUBLIC_WEB_URL` in the root `.env` (the
-same origin shared links use), read by `android/app/build.gradle` at build time; to switch from
-`yupiboard.localhost` to the real site.
-Android only verifies the links (opens them without
-asking) when that host serves `/.well-known/assetlinks.json` for the app's signing key. For a
-host that cannot be verified, such as `yupiboard.localhost`, enable it on the phone under App
-info → Open by default → Add link, or open one directly.
+through Android App Links, so the links in verification and password-reset e-mails land on the
+app's own pages. Their host is the host of `VITE_PUBLIC_WEB_URL` in the root `.env` (the same
+origin shared links use), read by `android/app/build.gradle` at build time; rebuild after
+changing it. The backend builds e-mail links from `FRONTEND_URL`, which must be the same origin.
+
+Android opens them without asking only after it verifies the host: the host must serve
+`https://<host>/.well-known/assetlinks.json` listing the SHA-256 of the installed app's
+certificate. Put the fingerprints in `ANDROID_CERT_SHA256` in the root `.env`; `pnpm dev` serves
+the file and `pnpm build` writes it to `dist/.well-known/`. Deploy it with the site, served as
+`application/json` without redirects. Check a deployed host with Google's
+[Statement List tester](https://developers.google.com/digital-asset-links/tools/generator), and the
+phone's view with `adb shell pm get-app-links com.yupiboard.app`.
+
+`yupiboard.localhost` cannot be verified (Google's verifier cannot reach it). For local testing,
+approve the host for the app by hand, then open a link:
+
+```sh
+adb shell pm set-app-links-user-selection --user cur --package com.yupiboard.app true yupiboard.localhost
+adb shell am start -a android.intent.action.VIEW -d "https://yupiboard.localhost/verify-email?token=test"
+```
+
+or on the phone: App info → Open by default → Add link.
 
 Native code (`android/`) and `capacitor.config.ts` are part of the repository; build outputs are
 ignored. Platform-specific code lives only in `src/shared/platform/`.

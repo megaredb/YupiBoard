@@ -17,7 +17,7 @@ export function LoginPage() {
   const { t } = useTranslation();
   const { redirect } = route.useSearch();
   const { login, isPending, errorKey } = useLogin(redirect);
-  const google = useGoogleSignIn(redirect);
+  const google = useGoogleSignIn(redirect, "continue_with");
   const recovery = usePasswordRecovery();
   const [isRecoveryOpen, setRecoveryOpen] = useState(false);
   const shownErrorKey = errorKey ?? google.errorKey;
@@ -49,10 +49,10 @@ export function LoginPage() {
       }
     >
       <GoogleSignInSection
+        control={google.control}
         label={t("auth.google.continue")}
         isPending={google.isPending}
         isDisabled={isPending}
-        onSignIn={google.signInWithGoogle}
       />
       {shownErrorKey && <FormAlert message={t(shownErrorKey)} />}
       <LoginForm isPending={isPending} onSubmit={login} onForgotPassword={handleOpenRecovery} />

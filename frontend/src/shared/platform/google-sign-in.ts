@@ -13,9 +13,17 @@ export class GoogleSignInError extends Error {
   }
 }
 
-interface PromptNotification {
-  isNotDisplayed: () => boolean;
-  isSkippedMoment: () => boolean;
+/** Which Google-provided wording the web button shows. */
+export type GoogleButtonText = "continue_with" | "signup_with";
+
+interface GoogleButtonOptions {
+  type: "standard";
+  theme: "outline" | "filled_black";
+  size: "large";
+  shape: "rectangular";
+  text: GoogleButtonText;
+  width: number;
+  locale: string;
 }
 
 interface GoogleIdentity {
@@ -23,7 +31,7 @@ interface GoogleIdentity {
     client_id: string;
     callback: (response: { credential?: string }) => void;
   }) => void;
-  prompt: (listener: (notification: PromptNotification) => void) => void;
+  renderButton: (parent: HTMLElement, options: GoogleButtonOptions) => void;
 }
 
 declare global {
@@ -33,6 +41,9 @@ declare global {
 }
 
 const SDK_URL = "https://accounts.google.com/gsi/client";
+// Width limits of Google's rendered button.
+const BUTTON_MIN_WIDTH = 200;
+const BUTTON_MAX_WIDTH = 400;
 let sdkLoading: Promise<GoogleIdentity> | null = null;
 
 function loadSdk(): Promise<GoogleIdentity> {
@@ -54,19 +65,50 @@ function loadSdk(): Promise<GoogleIdentity> {
   return sdkLoading;
 }
 
-async function requestOnWeb(clientId: string): Promise<string> {
-  const identity = await loadSdk();
-  return new Promise<string>((resolve, reject) => {
-    identity.initialize({
-      client_id: clientId,
-      callback: ({ credential }) =>
-        credential ? resolve(credential) : reject(new GoogleSignInError("cancelled")),
+export interface GoogleButtonConfig {
+  clientId: string;
+  text: GoogleButtonText;
+  locale: string;
+  isDark: boolean;
+  onIdToken: (idToken: string) => void;
+  onFailure: (error: GoogleSignInError) => void;
+}
+
+/**
+ * Web: renders Google's own sign-in button into `container`. One Tap (`prompt()`) is not used:
+ * browsers without third-party cookies or FedCM never show it, and after a dismissal Google
+ * suppresses it for hours, which would leave the button dead. Returns a cleanup function.
+ */
+export function renderGoogleButton(container: HTMLElement, config: GoogleButtonConfig): () => void {
+  let isActive = true;
+  loadSdk()
+    .then((identity) => {
+      if (!isActive) return;
+      identity.initialize({
+        client_id: config.clientId,
+        callback: ({ credential }) => {
+          if (credential) config.onIdToken(credential);
+          else config.onFailure(new GoogleSignInError("cancelled"));
+        },
+      });
+      const width = Math.min(Math.max(container.clientWidth, BUTTON_MIN_WIDTH), BUTTON_MAX_WIDTH);
+      identity.renderButton(container, {
+        type: "standard",
+        theme: config.isDark ? "filled_black" : "outline",
+        size: "large",
+        shape: "rectangular",
+        text: config.text,
+        width,
+        locale: config.locale,
+      });
+    })
+    .catch(() => {
+      if (isActive) config.onFailure(new GoogleSignInError("unavailable"));
     });
-    identity.prompt((notification) => {
-      if (notification.isNotDisplayed()) reject(new GoogleSignInError("unavailable"));
-      else if (notification.isSkippedMoment()) reject(new GoogleSignInError("cancelled"));
-    });
-  });
+  return () => {
+    isActive = false;
+    container.replaceChildren();
+  };
 }
 
 // Rejection code of the native plugin when the user closes the account picker.
@@ -84,10 +126,11 @@ function isNativeCancellation(error: unknown): boolean {
 
 /**
  * Android Credential Manager. Initialised with the *web* client ID so the `idToken` audience is
- * the one the backend verifies. The authorization step is skipped: only the `idToken` is needed,
- * and the stock `BridgeActivity` cannot route that step's consent screen.
+ * the one the backend verifies; Google matches the app to its Android OAuth client by package
+ * name and signing-certificate SHA-1. The authorization step is skipped: only the `idToken` is
+ * needed, and the stock `BridgeActivity` cannot route that step's consent screen.
  */
-async function requestOnAndroid(clientId: string): Promise<string> {
+export async function requestNativeGoogleIdToken(clientId: string): Promise<string> {
   nativeReady ??= SocialLogin.initialize({
     google: { webClientId: clientId, skipAuthOnlyAuthorizationAfterSignIn: true },
   }).catch((error: unknown) => {
@@ -104,11 +147,6 @@ async function requestOnAndroid(clientId: string): Promise<string> {
     throw new GoogleSignInError("unavailable");
   }
   return result.idToken;
-}
-
-/** The single social sign-in entry point: resolves Google's `idToken` for the backend. */
-export function requestGoogleIdToken(clientId: string): Promise<string> {
-  return isNativePlatform() ? requestOnAndroid(clientId) : requestOnWeb(clientId);
 }
 
 /** Clears cached native Google credentials on logout; no-op on web. */

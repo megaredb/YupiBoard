@@ -14,7 +14,7 @@ export function RegisterPage() {
   const { t } = useTranslation();
   const { redirect } = route.useSearch();
   const { register, isPending, errorKey } = useRegister(redirect);
-  const google = useGoogleSignIn(redirect);
+  const google = useGoogleSignIn(redirect, "signup_with");
   const shownErrorKey = errorKey ?? google.errorKey;
 
   return (
@@ -36,10 +36,10 @@ export function RegisterPage() {
       }
     >
       <GoogleSignInSection
+        control={google.control}
         label={t("auth.google.signUp")}
         isPending={google.isPending}
         isDisabled={isPending}
-        onSignIn={google.signInWithGoogle}
       />
       {shownErrorKey && <FormAlert message={t(shownErrorKey)} />}
       <RegisterForm isPending={isPending} onSubmit={register} />
