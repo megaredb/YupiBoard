@@ -46,10 +46,15 @@ const BUTTON_MIN_WIDTH = 200;
 const BUTTON_MAX_WIDTH = 400;
 let sdkLoading: Promise<GoogleIdentity> | null = null;
 
-function loadSdk(): Promise<GoogleIdentity> {
+/**
+ * `hl` sets the language of the placeholder the SDK draws before its iframe loads (Google guesses
+ * one without it). The SDK is loaded once per page: Google does not support loading it twice, so
+ * after a language switch only the iframe, which follows `renderButton`'s `locale`, changes.
+ */
+function loadSdk(locale: string): Promise<GoogleIdentity> {
   sdkLoading ??= new Promise<GoogleIdentity>((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = SDK_URL;
+    script.src = `${SDK_URL}?hl=${encodeURIComponent(locale)}`;
     script.async = true;
     script.onload = () => {
       const identity = window.google?.accounts?.id;
@@ -81,7 +86,7 @@ export interface GoogleButtonConfig {
  */
 export function renderGoogleButton(container: HTMLElement, config: GoogleButtonConfig): () => void {
   let isActive = true;
-  loadSdk()
+  loadSdk(config.locale)
     .then((identity) => {
       if (!isActive) return;
       identity.initialize({
