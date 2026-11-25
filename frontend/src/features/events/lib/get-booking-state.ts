@@ -32,12 +32,30 @@ const BOOKING_STATES: Partial<Record<BookingStatus, BookingState>> = {
 
 const CANCELLABLE_STATES: ReadonlySet<BookingState> = new Set(["pending", "approved", "waitlist"]);
 
+/**
+ * Nobody can accept these after the start; the backend then cancels them on its next scheduled
+ * run, so until then they already read as closed.
+ */
+const OPEN_REQUEST_STATES: ReadonlySet<BookingState> = new Set(["pending", "waitlist"]);
+
+/** The state the player's own booking puts them in, or null without one. */
+function getStateFromBooking(
+  bookingStatus: BookingStatus | null,
+  hasStarted: boolean,
+): BookingState | null {
+  const fromBooking = bookingStatus ? BOOKING_STATES[bookingStatus] : undefined;
+  if (!fromBooking) return null;
+  if (!hasStarted) return fromBooking;
+  if (fromBooking === "approved") return "awaitingAttendance";
+  return OPEN_REQUEST_STATES.has(fromBooking) ? "closed" : fromBooking;
+}
+
 export function getBookingState({ event, userId, bookingStatus }: BookingStateInput): BookingState {
   if (userId && userId === event.organizer_id) return "hosting";
-  const fromBooking = bookingStatus && BOOKING_STATES[bookingStatus];
-  if (fromBooking === "approved" && hasEventStarted(event)) return "awaitingAttendance";
+  const hasStarted = hasEventStarted(event);
+  const fromBooking = getStateFromBooking(bookingStatus, hasStarted);
   if (fromBooking) return fromBooking;
-  if (event.status !== "Published" || hasEventStarted(event)) return "closed";
+  if (event.status !== "Published" || hasStarted) return "closed";
   if (event.available_seats <= 0) return "full";
   return "open";
 }

@@ -229,6 +229,21 @@ class BookingRepository(BaseRepository[Booking]):
         )
         return int(getattr(result, "rowcount", 0) or 0)
 
+    async def close_open_requests_of_started_events(self, now: datetime) -> int:
+        """PENDING/WAITLIST -> CANCELLED_BY_SYSTEM once the event has started: nobody can
+        accept them any more, so they must not keep showing as waiting for a seat."""
+        started_events = select(Event.id).where(Event.start_datetime <= now)
+        result = await self.session.execute(
+            update(Booking)
+            .where(
+                Booking.status.in_((BookingStatus.PENDING, BookingStatus.WAITLIST)),
+                Booking.event_id.in_(started_events),
+            )
+            .values(status=BookingStatus.CANCELLED_BY_SYSTEM, is_preapproved=False)
+            .execution_options(synchronize_session=False)
+        )
+        return int(getattr(result, "rowcount", 0) or 0)
+
     async def get_confirmed_participants(self, event_id: uuid.UUID) -> Sequence[User]:
         result = await self.session.execute(
             select(User)

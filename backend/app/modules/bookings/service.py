@@ -492,6 +492,11 @@ class BookingService:
         """After the review window closes, unmarked confirmed seats become NO_SHOW."""
         return await self.booking_repo.mark_unmarked_as_no_show(now - REVIEW_WINDOW)
 
+    async def close_open_requests(self, now: datetime) -> int:
+        """Booking decisions close at the start time, so requests and waitlist places
+        still open then can never turn into a seat."""
+        return await self.booking_repo.close_open_requests_of_started_events(now)
+
     async def list_confirmed_participants(
         self, event_id: uuid.UUID, viewer: User
     ) -> Sequence[User]:
