@@ -73,6 +73,8 @@ class EventService:
             return lat, lon, False
 
         center = await self.city_repo.get_center(city) if self.city_repo else None
+        if center is None and self.geocoding_service is not None:
+            center = await self.geocoding_service.geocode_city_center(city)
         if self.geocoding_service is not None:
             results = await self.geocoding_service.geocode(
                 address, city=city, center=center, limit=1
@@ -324,6 +326,8 @@ class EventService:
             center = (
                 await self.city_repo.get_center(new_city) if self.city_repo else None
             )
+            if center is None:
+                center = await self.geocoding_service.geocode_city_center(new_city)
             results = await self.geocoding_service.geocode(
                 new_address, city=new_city, center=center, limit=1
             )

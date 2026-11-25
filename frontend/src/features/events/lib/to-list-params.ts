@@ -39,8 +39,11 @@ export function toListParams({
   limit,
 }: ListParamsInput): ListEventsApiV1EventsGetParams {
   const origin = getSearchOrigin(filters, cities);
-  const area = origin ? { lat: origin.lat, lon: origin.lon, radius_km: filters.distance } : {};
-  const [sortBy, sortOrder] = SORT_PARAMS[filters.sort];
+  const area = origin
+    ? { lat: origin.lat, lon: origin.lon, radius_km: filters.distance }
+    : { city: filters.city || undefined };
+  const [rawSortBy, sortOrder] = SORT_PARAMS[filters.sort];
+  const sortBy = !origin && rawSortBy === "distance" ? "start_datetime" : rawSortBy;
   return {
     ...area,
     title: filters.q,

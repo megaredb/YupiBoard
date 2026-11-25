@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  getGetUserApiV1UsersUserIdGetQueryKey,
   updateCurrentUserProfileApiV1UsersMePatch,
   uploadAvatarApiV1UsersMeAvatarPost,
   uploadBannerApiV1UsersMeBannerPost,
@@ -36,7 +37,13 @@ export function useUpdateProfile(onSuccess: (user: UserRead) => void): UseUpdate
       return updateCurrentUserProfileApiV1UsersMePatch(toUserUpdate(values));
     },
     onSuccess: async (user) => {
-      await queryClient.invalidateQueries({ queryKey: currentUserQueryOptions().queryKey });
+      queryClient.setQueryData(currentUserQueryOptions().queryKey, user);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: currentUserQueryOptions().queryKey }),
+        queryClient.invalidateQueries({
+          queryKey: getGetUserApiV1UsersUserIdGetQueryKey(user.id),
+        }),
+      ]);
       onSuccess(user);
     },
   });
