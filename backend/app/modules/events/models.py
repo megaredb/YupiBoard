@@ -135,7 +135,7 @@ class Event(Base, UUIDMixin, TimestampMixin):
 
     organizer: Mapped[User] = relationship("User", foreign_keys=[organizer_id])
     moderated_by: Mapped[User | None] = relationship(
-        "User", foreign_keys=[moderated_by_id], lazy="selectin"
+        "User", foreign_keys=[moderated_by_id]
     )
 
     @property

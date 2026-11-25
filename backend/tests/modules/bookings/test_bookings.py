@@ -441,6 +441,7 @@ async def test_cancelling_non_confirmed_booking_does_not_promote(
 @pytest.mark.asyncio
 async def test_organizer_can_reject_waitlisted_booking() -> None:
     service, booking_repo, _, _, event, waiting = _waitlist_setup(waiting=True)
+    assert waiting is not None
     organizer = User(id=event.organizer_id, email="host@example.com")
     booking_repo.get_by_id_for_event.return_value = waiting
 

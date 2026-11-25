@@ -107,6 +107,7 @@ export function PublicProfilePage() {
           <EventList
             state={currentEvents.list}
             showOrganizer={activeTab === "joined"}
+            showStatus
             empty={{
               title:
                 activeTab === "hosted"

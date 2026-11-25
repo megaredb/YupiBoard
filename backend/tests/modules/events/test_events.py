@@ -118,6 +118,7 @@ def test_event_routes_are_registered() -> None:
         "title",
         "organizer_id",
         "participant_id",
+        "include_past",
         "organizer_name",
         "organizer_rating_min",
         "organizer_rating_max",

@@ -181,6 +181,9 @@
       "descriptionPlaceholder": "What games will you play, experience level, house rules, what to bring…",
       "date": "Date",
       "time": "Start time",
+      "duration": "Duration (hours)",
+      "durationDecrease": "Shorter duration",
+      "durationIncrease": "Longer duration",
       "city": "City",
       "address": "Address or venue",
       "addressPlaceholder": "Street and building number",
@@ -286,6 +289,17 @@
       "description_other": "This action cannot be undone. All {{count}} confirmed players will receive an immediate cancellation notice.",
       "keep": "Keep Event",
       "confirm": "Cancel Event"
+    }
+  },
+  "completeEvent": {
+    "button": "Complete event",
+    "completed": "Event marked as completed",
+    "failed": "Couldn't complete the event. Please try again.",
+    "dialog": {
+      "title": "Complete This Event?",
+      "description": "The event will move to Completed and the 48-hour review and attendance window will start now.",
+      "keep": "Keep Ongoing",
+      "confirm": "Complete Event"
     }
   },
   "rejectionNotice": {

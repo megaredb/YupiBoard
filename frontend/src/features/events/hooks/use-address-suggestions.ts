@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getSuggestAddressesApiV1LocationsSuggestGetQueryOptions } from "@/shared/api/generated/endpoints/locations/locations";
 import type { GeocodeResult } from "@/shared/api/generated/model";
 import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
@@ -24,7 +24,6 @@ export function useAddressSuggestions(text: string, city: string): AddressSugges
       limit: SUGGESTION_LIMIT,
     }),
     enabled: isEnabled,
-    placeholderData: keepPreviousData,
     staleTime: Number.POSITIVE_INFINITY,
   });
 

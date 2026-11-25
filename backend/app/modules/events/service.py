@@ -699,7 +699,9 @@ class EventService:
             entry_cost=event.entry_cost,
             photo_url=event.photo_url,
             status=event.status,
-            auto_check_status=event.auto_check_status,
+            auto_check_status=(
+                event.auto_check_status if include_rejection_reason else None
+            ),
             rejection_reason=(
                 event.rejection_reason if include_rejection_reason else None
             ),

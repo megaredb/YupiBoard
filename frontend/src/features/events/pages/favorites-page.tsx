@@ -29,6 +29,7 @@ export function FavoritesPage() {
           description: t("events.favorites.emptyDescription"),
         }}
         showOrganizer
+        showStatus
       />
     </EventCollection>
   );

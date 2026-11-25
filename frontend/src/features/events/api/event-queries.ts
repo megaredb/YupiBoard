@@ -41,6 +41,9 @@ export function organizerQueryOptions(organizerId: string) {
 export function hostedEventsQueryOptions(organizerId: string, page: number) {
   return getListEventsApiV1EventsGetQueryOptions({
     organizer_id: organizerId,
+    include_past: true,
+    sort_by: "start_datetime",
+    sort_order: "desc",
     page,
     limit: EVENTS_PAGE_SIZE,
   });
@@ -49,6 +52,9 @@ export function hostedEventsQueryOptions(organizerId: string, page: number) {
 export function joinedEventsQueryOptions(participantId: string, page: number) {
   return getListEventsApiV1EventsGetQueryOptions({
     participant_id: participantId,
+    include_past: true,
+    sort_by: "start_datetime",
+    sort_order: "desc",
     page,
     limit: EVENTS_PAGE_SIZE,
   });

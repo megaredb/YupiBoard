@@ -10,6 +10,7 @@ from sqlalchemy import (
     ColumnElement,
     Numeric,
     String,
+    and_,
     case,
     cast,
     func,
@@ -19,7 +20,7 @@ from sqlalchemy import (
     update,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import contains_eager, joinedload
+from sqlalchemy.orm import contains_eager, joinedload, selectinload
 
 from app.core.repositories import BaseRepository
 from app.modules.events.models import REVIEW_WINDOW, Event, EventStatus
@@ -143,12 +144,30 @@ class EventRepository(BaseRepository[Event]):
         filters: EventFilterParams,
         distance_meters: ColumnElement[Any] | None,
     ) -> list[ColumnElement[bool]]:
+        include_history = filters.include_past and (
+            filters.organizer_id is not None or filters.participant_id is not None
+        )
         conditions: list[ColumnElement[bool]] = [
             Event.is_deleted.is_(False),
-            Event.status == EventStatus.PUBLISHED,
             Event.is_verified.is_(True),
-            Event.start_datetime > func.now(),
         ]
+        if include_history:
+            conditions.append(
+                Event.status.in_(
+                    (
+                        EventStatus.PUBLISHED,
+                        EventStatus.ONGOING,
+                        EventStatus.COMPLETED,
+                    )
+                )
+            )
+        else:
+            conditions.extend(
+                [
+                    Event.status == EventStatus.PUBLISHED,
+                    Event.start_datetime > func.now(),
+                ]
+            )
 
         if filters.title:
             conditions.append(
@@ -160,14 +179,25 @@ class EventRepository(BaseRepository[Event]):
         if filters.participant_id is not None:
             from app.modules.bookings.models import Booking, BookingStatus
 
+            booking_match: ColumnElement[bool] = (
+                or_(
+                    Booking.status == BookingStatus.ATTENDED,
+                    and_(
+                        Booking.status == BookingStatus.CONFIRMED,
+                        Event.status.in_((EventStatus.PUBLISHED, EventStatus.ONGOING)),
+                    ),
+                )
+                if include_history
+                else Booking.status.in_(
+                    (BookingStatus.CONFIRMED, BookingStatus.ATTENDED)
+                )
+            )
             conditions.append(
                 select(Booking.id)
                 .where(
                     Booking.event_id == Event.id,
                     Booking.user_id == filters.participant_id,
-                    Booking.status.in_(
-                        (BookingStatus.CONFIRMED, BookingStatus.ATTENDED)
-                    ),
+                    booking_match,
                 )
                 .correlate(Event)
                 .exists()
@@ -500,12 +530,12 @@ class EventRepository(BaseRepository[Event]):
             filters.append(Event.status == status)
         if query and query.strip():
             pattern = _contains_pattern(query.strip())
+            full_name = func.concat_ws(" ", User.first_name, User.last_name)
             filters.append(
                 or_(
                     Event.title.ilike(pattern, escape=LIKE_ESCAPE),
                     Event.game_title.ilike(pattern, escape=LIKE_ESCAPE),
-                    User.first_name.ilike(pattern, escape=LIKE_ESCAPE),
-                    User.last_name.ilike(pattern, escape=LIKE_ESCAPE),
+                    full_name.ilike(pattern, escape=LIKE_ESCAPE),
                 )
             )
 
@@ -536,7 +566,7 @@ class EventRepository(BaseRepository[Event]):
         result = await self.session.execute(
             select(Event)
             .join(Event.organizer)
-            .options(contains_eager(Event.organizer))
+            .options(contains_eager(Event.organizer), selectinload(Event.moderated_by))
             .where(*filters)
             .order_by(column.desc() if descending else column.asc(), Event.id.asc())
             .offset((page - 1) * limit)
@@ -592,7 +622,7 @@ class EventRepository(BaseRepository[Event]):
                 Booking.event_id == event.id,
                 Booking.status.in_(ACTIVE_BOOKING_STATUSES),
             )
-            .values(status=BookingStatus.CANCELLED_BY_SYSTEM)
+            .values(status=BookingStatus.CANCELLED_BY_SYSTEM, is_preapproved=False)
         )
         await self.session.flush()
         return event

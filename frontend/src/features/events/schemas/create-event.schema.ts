@@ -13,6 +13,9 @@ export const CREATE_EVENT_LIMITS = {
   venueNameMax: 150,
   playersMin: 2,
   playersMax: 20,
+  durationMin: 1,
+  durationMax: 24,
+  durationDefault: 4,
 } as const;
 
 const MESSAGES = {
@@ -57,6 +60,11 @@ export const createEventSchema = z
       .max(CREATE_EVENT_LIMITS.descriptionMax, MESSAGES.descriptionMax),
     date: z.string().min(1, MESSAGES.dateRequired),
     time: z.string().min(1, MESSAGES.timeRequired),
+    durationHours: z
+      .number()
+      .int()
+      .min(CREATE_EVENT_LIMITS.durationMin)
+      .max(CREATE_EVENT_LIMITS.durationMax),
     city: z.string().min(1),
     venueName: z.string().trim().max(CREATE_EVENT_LIMITS.venueNameMax, MESSAGES.venueNameMax),
     address: z

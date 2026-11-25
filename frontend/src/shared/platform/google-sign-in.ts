@@ -110,3 +110,13 @@ async function requestOnAndroid(clientId: string): Promise<string> {
 export function requestGoogleIdToken(clientId: string): Promise<string> {
   return isNativePlatform() ? requestOnAndroid(clientId) : requestOnWeb(clientId);
 }
+
+/** Clears cached native Google credentials on logout; no-op on web. */
+export async function signOutGoogle(): Promise<void> {
+  if (!isNativePlatform()) return;
+  try {
+    await SocialLogin.logout({ provider: "google" });
+  } catch {
+    // Best-effort cleanup; ignore when the plugin was never initialized.
+  }
+}

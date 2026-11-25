@@ -28,7 +28,7 @@ function dedupeBookings(bookings: BookingRead[]): BookingRead[] {
       byId.set(booking.id, booking);
     }
   }
-  return [...byId.values()];
+  return [...byId.values()].toSorted((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
 }
 
 export function useAttendanceRoster(eventId: string): AttendanceRoster {
@@ -51,9 +51,9 @@ export function useAttendanceRoster(eventId: string): AttendanceRoster {
   return {
     list: { status: "success", items },
     counts: {
-      attended: attended.total ?? 0,
-      noShow: noShow.total ?? 0,
-      notMarked: notMarked.total ?? 0,
+      attended: items.filter((item) => item.status === "Attended").length,
+      noShow: items.filter((item) => item.status === "NoShow").length,
+      notMarked: items.filter((item) => item.status === "Confirmed").length,
     },
   };
 }

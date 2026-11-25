@@ -23,7 +23,7 @@ export function MyLocationButton({ onFound, isDisabled, className }: MyLocationB
       isLoading={isLocating}
       disabled={isDisabled}
       onClick={locate}
-      className={cn("h-auto px-0", className)}
+      className={cn("touch-hitbox h-auto px-0", className)}
     >
       {!isLocating && <LocateFixed aria-hidden />}
       {isLocating ? t("common.location.locating") : t("common.location.useMyLocation")}
