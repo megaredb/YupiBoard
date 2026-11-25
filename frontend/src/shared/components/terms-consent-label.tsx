@@ -1,23 +1,28 @@
-import type { MouseEvent } from "react";
-import { Link } from "@tanstack/react-router";
+import { useState, type MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
+import { TermsDialog } from "@/shared/components/terms-dialog";
 
 export function TermsConsentLabel() {
   const { t } = useTranslation();
-  const handleLinkClick = (event: MouseEvent<HTMLAnchorElement>) => {
+  const [isOpen, setOpen] = useState(false);
+
+  const handleOpen = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
     event.stopPropagation();
+    setOpen(true);
   };
 
   return (
     <>
       {t("auth.register.termsConfirmPrefix")}
-      <Link
-        to="/terms"
-        onClick={handleLinkClick}
-        className="font-medium text-primary underline-offset-4 hover:underline"
+      <button
+        type="button"
+        onClick={handleOpen}
+        className="cursor-pointer font-medium text-primary underline-offset-4 hover:underline"
       >
         {t("auth.register.termsConfirmLink")}
-      </Link>
+      </button>
+      <TermsDialog open={isOpen} onOpenChange={setOpen} />
     </>
   );
 }

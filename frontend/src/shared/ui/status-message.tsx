@@ -34,8 +34,13 @@ export function StatusMessage({
 }: StatusMessageProps) {
   return (
     <div className={cn(messageVariants({ size }), className)}>
-      {icon && <div className="mb-3 text-muted-foreground/60">{icon}</div>}
-      <p className={size === "compact" ? "text-sm font-medium" : "text-base font-medium"}>
+      {icon && <div className="mb-3 text-muted-foreground">{icon}</div>}
+      <p
+        className={cn(
+          "font-medium text-muted-foreground",
+          size === "compact" ? "text-sm" : "text-base",
+        )}
+      >
         {title}
       </p>
       {description && <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>}

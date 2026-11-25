@@ -33,6 +33,7 @@ export function EventLinkCard({ event, showOrganizer, showStatus }: EventLinkCar
         name: event.organizer.name,
         avatarUrl: event.organizer.avatar_url ?? null,
         rating: formatRating(event.organizer.rating_as_organizer),
+        ratingCount: event.organizer.rating_as_organizer_count ?? 0,
       }
     : null;
   const favoriteLabel = t("events.card.favorite", { title: event.title });

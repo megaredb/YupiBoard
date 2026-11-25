@@ -71,7 +71,7 @@ async def test_login_errors(
     )
     assert r_no_user.status_code == 401
 
-    # Deactivated user returns 401
+    # Banned user returns 403
     user_repo = UserRepository(db_session)
     user = await user_repo.get_by_email(email)
     assert user is not None
@@ -82,8 +82,8 @@ async def test_login_errors(
         "/api/v1/auth/login",
         json={"email": email, "password": pwd},
     )
-    assert r_deact.status_code == 401
-    assert "deactivated" in r_deact.json()["detail"].lower()
+    assert r_deact.status_code == 403
+    assert "banned" in r_deact.json()["detail"].lower()
 
 
 @pytest.mark.asyncio

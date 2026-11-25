@@ -1,14 +1,15 @@
 import type { ReactNode } from "react";
-import { cva } from "class-variance-authority";
-import { Calendar, MapPin, Star, Users } from "lucide-react";
+import { Calendar, MapPin, Star } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
 import { Card } from "@/shared/ui/card";
+import { SeatAvailabilityBadge } from "@/shared/ui/seat-availability-badge";
 import { UserAvatar } from "@/features/users";
 
 interface EventCardOrganizer {
   name: string;
   avatarUrl: string | null;
   rating: string | null;
+  ratingCount: number;
 }
 
 interface EventCardProps {
@@ -21,30 +22,6 @@ interface EventCardProps {
   participants: { current: number; max: number; label: string } | null;
   organizer: EventCardOrganizer | null;
   className?: string;
-}
-
-const LOW_SEATS_THRESHOLD = 0.3;
-
-type SeatsAvailability = "default" | "low" | "full";
-
-const participantsVariants = cva(
-  "absolute right-3 bottom-3 z-10 inline-flex items-center gap-1.5 rounded-lg px-2 py-0.5 text-xs font-medium",
-  {
-    variants: {
-      availability: {
-        default: "bg-muted text-primary",
-        low: "bg-secondary text-secondary-foreground",
-        full: "bg-secondary-deep text-secondary-foreground",
-      },
-    },
-  },
-);
-
-function getSeatsAvailability(current: number, max: number): SeatsAvailability {
-  if (max <= 0) return "default";
-  const remaining = Math.max(0, max - current);
-  if (remaining === 0) return "full";
-  return remaining / max < LOW_SEATS_THRESHOLD ? "low" : "default";
 }
 
 export function EventCard({
@@ -80,7 +57,14 @@ export function EventCard({
           </span>
         )}
         {organizer && <CardOrganizer organizer={organizer} />}
-        {participants && <CardParticipants participants={participants} />}
+        {participants && (
+          <SeatAvailabilityBadge
+            current={participants.current}
+            max={participants.max}
+            label={participants.label}
+            className="absolute right-3 bottom-3 z-10"
+          />
+        )}
       </div>
 
       <Card.Content className="flex flex-1 flex-col gap-2 px-3 py-3">
@@ -111,21 +95,6 @@ export function EventCard({
   );
 }
 
-function CardParticipants({
-  participants,
-}: {
-  participants: NonNullable<EventCardProps["participants"]>;
-}) {
-  const availability = getSeatsAvailability(participants.current, participants.max);
-
-  return (
-    <span aria-label={participants.label} className={participantsVariants({ availability })}>
-      <span aria-hidden>{`${participants.current} / ${participants.max}`}</span>
-      <Users aria-hidden className="size-3.5 fill-current" />
-    </span>
-  );
-}
-
 function CardOrganizer({ organizer }: { organizer: EventCardOrganizer }) {
   return (
     <div className="absolute right-20 bottom-3 left-3 z-10 flex min-w-0 items-center gap-2">
@@ -139,7 +108,7 @@ function CardOrganizer({ organizer }: { organizer: EventCardOrganizer }) {
         {organizer.rating && (
           <p className="flex items-center gap-1 text-xs leading-tight">
             <Star aria-hidden className="size-3 shrink-0 fill-rating text-rating" />
-            <span className="truncate">{organizer.rating}</span>
+            <span className="truncate">{`${organizer.rating} (${organizer.ratingCount})`}</span>
           </p>
         )}
       </div>

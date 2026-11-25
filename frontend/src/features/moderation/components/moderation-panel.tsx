@@ -36,7 +36,7 @@ export function ModerationPanel({ event }: ModerationPanelProps) {
         <Card.Content className="space-y-3">
           <Button
             size="xl"
-            className="w-full"
+            className="w-full text-sm font-medium"
             isLoading={moderation.isPending}
             onClick={handleApprove}
           >
@@ -45,7 +45,7 @@ export function ModerationPanel({ event }: ModerationPanelProps) {
           <Button
             variant="secondary"
             size="xl"
-            className="w-full"
+            className="w-full text-sm font-medium"
             disabled={moderation.isPending}
             onClick={handleAskReject}
           >

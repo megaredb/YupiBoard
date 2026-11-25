@@ -40,8 +40,9 @@ export function ParticipantRow({ participant, aside }: ParticipantRowProps) {
           <p className="flex items-center gap-1 text-xs text-muted-foreground">
             {rating ? (
               <>
+                <span>{t("events.participants.playerRatingLabel")}</span>
                 <Star aria-hidden className="size-3 fill-rating text-rating" />
-                <span>{t("events.participants.playerRating", { rating })}</span>
+                <span>{rating}</span>
               </>
             ) : (
               <span>{t("events.participants.noRating")}</span>

@@ -81,6 +81,8 @@ export function useGoogleSignIn(
   return {
     control,
     isPending: mutation.isPending,
-    errorKey: failure ? getSignInErrorKey(failure, "auth.google.failed") : null,
+    errorKey: failure
+      ? getSignInErrorKey(failure, "auth.google.failed", { 403: "errors.accountBanned" })
+      : null,
   };
 }

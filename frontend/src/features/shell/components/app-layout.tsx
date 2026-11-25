@@ -23,7 +23,7 @@ export function AppLayout() {
     <div
       className={cn(
         "flex min-h-dvh flex-col bg-background text-foreground",
-        hasTabBar && "max-desktop:with-tab-bar",
+        hasTabBar && "max-[48rem]:with-tab-bar",
         // A fixed phone action bar (booking on the event page) reserves its own space.
         "max-desktop:has-data-[slot=action-bar]:with-action-bar",
       )}

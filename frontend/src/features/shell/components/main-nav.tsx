@@ -10,7 +10,10 @@ export function MainNav() {
   const navItems = useNavItems();
 
   return (
-    <nav aria-label={t("shell.nav.label")} className="ml-8 hidden items-center gap-6 desktop:flex">
+    <nav
+      aria-label={t("shell.nav.label")}
+      className="ml-4 hidden items-center gap-4 min-[48rem]:flex desktop:ml-8 desktop:gap-6"
+    >
       {navItems.map((item) => (
         <Link
           key={item.to}

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { FormField } from "@/shared/components/form-field";
 import type { Coordinates } from "@/shared/platform/geolocation";
 import { RangeSlider } from "@/shared/ui/range-slider";
+import { useCurrentUser } from "@/features/auth";
 import { FilterSection } from "@/features/events/components/event-catalog/filter-section";
 import { MyLocationChip } from "@/features/events/components/event-catalog/my-location-chip";
 import { toCityCenter, toMyLocation } from "@/features/events/lib/to-my-location";
@@ -19,6 +20,7 @@ interface LocationFilterProps {
 
 export function LocationFilter({ value, onChange }: LocationFilterProps) {
   const { t } = useTranslation();
+  const user = useCurrentUser();
   const { lat, lon } = value;
 
   const handleCityChange = (city: string) => onChange(toCityCenter(value, city));
@@ -49,7 +51,7 @@ export function LocationFilter({ value, onChange }: LocationFilterProps) {
           )}
         </FormField>
       )}
-      <MyLocationButton onFound={handleMyLocation} />
+      <MyLocationButton onFound={handleMyLocation} isGuest={user === null} />
       <RangeSlider
         key={value.distance}
         label={t("events.filters.distance")}

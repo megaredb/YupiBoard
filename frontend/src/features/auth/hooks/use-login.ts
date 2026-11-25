@@ -23,6 +23,7 @@ export function useLogin(redirectTo: string | undefined): UseLoginResult {
       mutation.isError && !hasFieldErrors(mutation.error)
         ? getSignInErrorKey(mutation.error, "auth.login.failed", {
             401: "auth.login.invalidCredentials",
+            403: "errors.accountBanned",
           })
         : null,
   };

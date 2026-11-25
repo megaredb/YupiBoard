@@ -54,13 +54,21 @@ export function useNotificationActions(): {
     Promise.all([
       queryClient.invalidateQueries({
         queryKey: getListNotificationsApiV1NotificationsGetQueryKey(),
+        refetchType: "all",
       }),
-      queryClient.invalidateQueries({ queryKey: unreadKey }),
+      queryClient.invalidateQueries({ queryKey: unreadKey, refetchType: "all" }),
     ]);
 
   const markOne = useMarkNotificationReadApiV1NotificationsNotificationIdReadPost({
     mutation: {
-      onMutate: ({ notificationId }) => {
+      onMutate: async ({ notificationId }) => {
+        await Promise.all([
+          queryClient.cancelQueries({ queryKey: listKey }),
+          queryClient.cancelQueries({ queryKey: unreadKey }),
+        ]);
+        const cachedList = queryClient.getQueryData<NotificationPage>(listKey);
+        const wasUnread =
+          cachedList?.items.find((item) => item.id === notificationId)?.is_read === false;
         queryClient.setQueryData<NotificationPage>(listKey, (old) =>
           old
             ? {
@@ -71,16 +79,22 @@ export function useNotificationActions(): {
               }
             : old,
         );
-        queryClient.setQueryData<UnreadCountResponse>(unreadKey, (old) =>
-          old ? { unread: Math.max(0, old.unread - 1) } : old,
-        );
+        if (wasUnread || !cachedList) {
+          queryClient.setQueryData<UnreadCountResponse>(unreadKey, (old) =>
+            old ? { unread: Math.max(0, old.unread - 1) } : old,
+          );
+        }
       },
       onSettled: invalidate,
     },
   });
   const markAll = useMarkAllNotificationsReadApiV1NotificationsReadAllPost({
     mutation: {
-      onMutate: () => {
+      onMutate: async () => {
+        await Promise.all([
+          queryClient.cancelQueries({ queryKey: listKey }),
+          queryClient.cancelQueries({ queryKey: unreadKey }),
+        ]);
         queryClient.setQueryData<NotificationPage>(listKey, (old) =>
           old
             ? {

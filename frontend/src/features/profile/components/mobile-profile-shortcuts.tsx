@@ -82,7 +82,11 @@ export function MobileProfileShortcuts({
         <RowLabel>{t("shell.language.label")}</RowLabel>
         <span className="text-muted-foreground">{t(LANGUAGE_LABEL_KEYS[language].name)}</span>
       </button>
-      <button type="button" onClick={logout} className={cn(ROW_CLASS, "text-destructive")}>
+      <button
+        type="button"
+        onClick={logout}
+        className={cn(ROW_CLASS, "text-destructive [&>svg:first-child]:text-destructive")}
+      >
         <LogOut aria-hidden />
         <RowLabel>{t("shell.userMenu.logout")}</RowLabel>
       </button>

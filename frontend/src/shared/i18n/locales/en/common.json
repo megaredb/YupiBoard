@@ -24,7 +24,8 @@
   "location": {
     "useMyLocation": "Use my location",
     "locating": "Locating…",
-    "unavailable": "Couldn't get your location"
+    "unavailable": "Couldn't get your location",
+    "signInRequired": "You need to log in to use this option"
   },
   "city": {
     "placeholder": "Search for a city",
