@@ -1,7 +1,6 @@
 import uuid
 from collections.abc import Sequence
 from datetime import UTC, datetime
-from decimal import ROUND_HALF_UP, Decimal
 
 from app.core.exceptions import (
     BadRequestException,
@@ -17,14 +16,21 @@ from app.modules.reviews.repository import ReviewRepository
 from app.modules.users.models import User
 from app.modules.users.repository import UserRepository
 
-RATING_PRECISION = Decimal("0.01")
+
+# Reviews open with attendance marking, at the event start, so players present at the
+# table can be rated (and rate the organizer) without waiting for the event to end.
+def _is_window_open(event: Event, now: datetime) -> bool:
+    return (
+        event.status not in NOT_HELD_EVENT_STATUSES
+        and event.start_datetime <= now <= event.review_deadline
+    )
 
 
 def _ensure_window_open(event: Event, now: datetime) -> None:
     if event.status in NOT_HELD_EVENT_STATUSES:
         raise BadRequestException("This event did not take place")
-    if now < event.end_datetime:
-        raise BadRequestException("Reviews open after the event ends")
+    if now < event.start_datetime:
+        raise BadRequestException("Reviews open once the event starts")
     if now > event.review_deadline:
         raise BadRequestException(
             "Review window is closed (48 hours after the event end)"
@@ -85,13 +91,8 @@ class ReviewService:
     ) -> tuple[datetime, bool, Sequence[Review]]:
         """Returns (review_deadline, can_review, reviews left by the user)."""
         event = await self._get_event(event_id)
-        now = datetime.now(UTC)
-        window_open = (
-            event.status not in NOT_HELD_EVENT_STATUSES
-            and event.end_datetime <= now <= event.review_deadline
-        )
         is_organizer = event.organizer_id == user.id
-        can_review = window_open and (
+        can_review = _is_window_open(event, datetime.now(UTC)) and (
             is_organizer or await self._has_attended(event.id, user.id)
         )
         reviews = await self.review_repo.list_by_reviewer(event.id, user.id)
@@ -115,6 +116,7 @@ class ReviewService:
         target_role: ReviewTargetRole,
         score: int,
     ) -> Review:
+        # Serializes concurrent reviews of one user, whose rating the Review model recomputes.
         reviewee = await self.user_repo.lock_by_id(reviewee_id)
         if reviewee is None:
             raise NotFoundException("User not found")
@@ -130,25 +132,6 @@ class ReviewService:
             )
         else:
             review = await self.review_repo.update(review, score=score)
-
-        average, count = await self.review_repo.aggregate_for(reviewee_id, target_role)
-        rating = (
-            average.quantize(RATING_PRECISION, rounding=ROUND_HALF_UP)
-            if average is not None
-            else None
-        )
-        if target_role == ReviewTargetRole.ORGANIZER:
-            await self.user_repo.update(
-                reviewee,
-                exclude_none=False,
-                rating_as_organizer=rating,
-                rating_as_organizer_count=count,
-            )
-        else:
-            await self.user_repo.update(
-                reviewee,
-                exclude_none=False,
-                rating_as_player=rating,
-                rating_as_player_count=count,
-            )
+        # The rating columns were updated in SQL; reload them for later reads in this session.
+        await self.user_repo.session.refresh(reviewee)
         return review

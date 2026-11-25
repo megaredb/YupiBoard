@@ -33,5 +33,6 @@
   "venueNameMax": "Venue name is too long (max 150 characters)",
   "reasonRequired": "Please select at least one reason or enter your own.",
   "otherReasonRequired": "Please describe the reason.",
-  "reasonTooLong": "Reason is too long (max 300 characters)"
+  "reasonTooLong": "Reason is too long (max 300 characters)",
+  "addressHouseNumber": "Add the house number to the street"
 }

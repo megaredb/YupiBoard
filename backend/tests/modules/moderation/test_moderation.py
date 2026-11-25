@@ -1,3 +1,4 @@
+import uuid
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -67,8 +68,11 @@ async def test_moderation_lifecycle_approve_reject_resubmit_and_audit_logs(
     ).status_code == 403
 
     # 2. Admin sees event in moderation queue & rejects without reason -> 422
+    # Newest first: the shared dev database may hold more than a page of older events.
     queue_res = await async_client.get(
-        "/api/v1/moderation/events", headers=admin_headers
+        "/api/v1/moderation/events",
+        params={"sort_by": "created_at", "sort_order": "desc"},
+        headers=admin_headers,
     )
     assert queue_res.status_code == 200
     assert any(item["id"] == event_id for item in queue_res.json()["items"])
@@ -188,3 +192,34 @@ async def test_auto_moderation_rejects_forbidden_words_and_duplicates(
     )
     assert dup.status_code == 201
     assert dup.json()["status"] == EventStatus.REJECTED
+
+
+@pytest.mark.asyncio
+async def test_moderation_queue_sorts_by_title_ignoring_case(
+    async_client: AsyncClient, create_mock_user
+) -> None:
+    _organizer, org_token = await create_mock_user(is_verified=True, is_superuser=False)
+    _admin, admin_token = await create_mock_user(is_verified=True, is_superuser=True)
+    token = uuid.uuid4().hex[:8]
+    for index, title in enumerate((f"bravo {token}", f"Alpha {token}")):
+        res = await async_client.post(
+            "/api/v1/events",
+            headers={"Authorization": f"Bearer {org_token}"},
+            json=_event_payload(
+                title=title,
+                start_datetime=(
+                    datetime.now(UTC) + timedelta(days=3, hours=index)
+                ).isoformat(),
+            ),
+        )
+        assert res.status_code == 201
+
+    queue_res = await async_client.get(
+        "/api/v1/moderation/events",
+        params={"q": token, "sort_by": "title", "sort_order": "asc"},
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+
+    assert queue_res.status_code == 200
+    titles = [item["title"] for item in queue_res.json()["items"]]
+    assert titles == [f"Alpha {token}", f"bravo {token}"]

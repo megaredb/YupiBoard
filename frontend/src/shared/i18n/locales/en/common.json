@@ -25,5 +25,13 @@
     "useMyLocation": "Use my location",
     "locating": "Locating…",
     "unavailable": "Couldn't get your location"
+  },
+  "city": {
+    "placeholder": "Search for a city",
+    "showSuggestions": "Show city suggestions",
+    "clear": "Clear city",
+    "searching": "Searching…",
+    "noResults": "No cities found",
+    "unavailable": "Couldn't load cities. Please try again."
   }
 }

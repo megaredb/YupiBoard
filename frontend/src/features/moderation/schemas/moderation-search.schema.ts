@@ -5,22 +5,14 @@ export const MODERATION_TABS = ["pending", "approved", "rejected"] as const;
 
 export type ModerationTab = (typeof MODERATION_TABS)[number];
 
-/** `created-asc` keeps the backend order of the queue: the longest-waiting event comes first. */
-export const MODERATION_SORTS = [
-  "created-asc",
-  "created-desc",
-  "date-asc",
-  "date-desc",
-  "cost-asc",
-  "cost-desc",
-] as const;
+export const MODERATION_SORTS = ["date-asc", "date-desc", "name-asc", "name-desc"] as const;
 
 export type ModerationSort = (typeof MODERATION_SORTS)[number];
 
 export const MODERATION_QUERY_MAX_LENGTH = 100;
 
 const DEFAULT_TAB: ModerationTab = "pending";
-const DEFAULT_SORT: ModerationSort = "created-asc";
+const DEFAULT_SORT: ModerationSort = "date-asc";
 
 export const moderationSearchSchema = pageSearchSchema.extend({
   tab: z.enum(MODERATION_TABS).default(DEFAULT_TAB).catch(DEFAULT_TAB),

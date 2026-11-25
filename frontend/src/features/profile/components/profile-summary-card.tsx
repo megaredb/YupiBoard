@@ -5,6 +5,7 @@ import type { UserPublicRead } from "@/shared/api/generated/model";
 import { cn } from "@/shared/lib/cn";
 import { Badge } from "@/shared/ui/badge";
 import { Card } from "@/shared/ui/card";
+import { useCityLabel } from "@/features/locations";
 import { RatingTile } from "@/features/profile/components/rating-tile";
 import { formatMemberSince, formatRating } from "@/features/users";
 
@@ -38,6 +39,7 @@ export function ProfileSummaryCard({
   showCity = false,
 }: ProfileSummaryCardProps) {
   const { t } = useTranslation();
+  const cityLabel = useCityLabel(user.city);
   const memberSince = formatMemberSince(user.created_at);
 
   return (
@@ -64,7 +66,7 @@ export function ProfileSummaryCard({
               {showCity && (
                 <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                   <MapPin aria-hidden className="size-3.5 shrink-0" />
-                  <span>{user.city ?? t("common.notProvided")}</span>
+                  <span>{cityLabel ?? t("common.notProvided")}</span>
                 </p>
               )}
               {memberSince && (
@@ -84,11 +86,13 @@ export function ProfileSummaryCard({
               label={t("profile.playerRating")}
               icon={<Star aria-hidden className="size-4 fill-rating text-rating" />}
               rating={formatRating(user.rating_as_player)}
+              reviewCount={user.rating_as_player_count}
             />
             <RatingTile
               label={t("profile.organizerRating")}
               icon={<Shield aria-hidden className="size-4 text-primary" />}
               rating={formatRating(user.rating_as_organizer)}
+              reviewCount={user.rating_as_organizer_count}
             />
           </div>
         </div>

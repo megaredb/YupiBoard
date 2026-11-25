@@ -74,6 +74,8 @@ class UserPublicRead(BaseModel):
     rating_as_organizer: Decimal | None = None
     rating_as_player_count: int = 0
     rating_as_organizer_count: int = 0
+    events_played_count: int = 0
+    events_hosted_count: int = 0
     created_at: datetime
 
     @field_serializer("avatar_url", "banner_url")
@@ -97,6 +99,8 @@ class UserRead(UserBase):
     rating_as_organizer: Decimal | None = None
     rating_as_player_count: int = 0
     rating_as_organizer_count: int = 0
+    events_played_count: int = 0
+    events_hosted_count: int = 0
     status: UserStatus = UserStatus.ACTIVE
     is_verified: bool
     is_superuser: bool

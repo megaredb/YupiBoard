@@ -53,8 +53,8 @@ class Settings(BaseSettings):
     EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 24
     EMAIL_CHANGE_TOKEN_EXPIRE_HOURS: int = 24
 
-    # Geocoding (OpenStreetMap Nominatim)
-    GEOCODER_BASE_URL: str = "https://nominatim.openstreetmap.org"
+    # Geocoding (Photon)
+    GEOCODER_BASE_URL: str = "https://photon.komoot.io"
     GEOCODER_USER_AGENT: str = "YupiBoard/1.0 (https://yupiboard.com)"
     GEOCODER_TIMEOUT_SECONDS: float = 5.0
     GEOCODER_CACHE_TTL_SECONDS: int = 86400

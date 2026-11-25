@@ -1,5 +1,5 @@
-import { Building2, MapPin } from "lucide-react";
-import { Controller, useWatch } from "react-hook-form";
+import { Building2 } from "lucide-react";
+import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { FormField } from "@/shared/components/form-field";
 import { TextField } from "@/shared/components/text-field";
@@ -7,10 +7,14 @@ import { useFieldError } from "@/shared/i18n/use-field-error";
 import { getTodayIsoDate } from "@/shared/lib/date/iso-date";
 import { DatePicker } from "@/shared/ui/date-picker";
 import { TimePicker } from "@/shared/ui/time-picker";
+import { AddressField } from "@/features/events/components/create-event/address-field";
 import { FormSection } from "@/features/events/components/create-event/form-section";
 import { useCreateEventFormContext } from "@/features/events/hooks/use-create-event-form-context";
-import { CREATE_EVENT_LIMITS } from "@/features/events/schemas/create-event.schema";
-import { CitySelect } from "@/features/locations";
+import {
+  CREATE_EVENT_LIMITS,
+  START_IN_PAST_MESSAGE,
+} from "@/features/events/schemas/create-event.schema";
+import { CityCombobox } from "@/features/locations";
 
 function ScheduleDateTimeRow() {
   const { t, i18n } = useTranslation();
@@ -19,6 +23,7 @@ function ScheduleDateTimeRow() {
     control,
     formState: { errors },
   } = useCreateEventFormContext();
+  const isStartInPast = errors.date?.message === START_IN_PAST_MESSAGE;
 
   return (
     <div className="grid gap-5 sm:grid-cols-2">
@@ -46,6 +51,8 @@ function ScheduleDateTimeRow() {
       <Controller
         control={control}
         name="time"
+        // The start-in-past error lives on `date`, so a new time must re-check it.
+        rules={{ deps: "date" }}
         render={({ field }) => (
           <FormField
             label={t("events.create.fields.time")}
@@ -53,7 +60,12 @@ function ScheduleDateTimeRow() {
             error={fieldError(errors.time?.message)}
           >
             {(fieldControl) => (
-              <TimePicker {...fieldControl} value={field.value} onChange={field.onChange} />
+              <TimePicker
+                {...fieldControl}
+                aria-invalid={isStartInPast || fieldControl["aria-invalid"]}
+                value={field.value}
+                onChange={field.onChange}
+              />
             )}
           </FormField>
         )}
@@ -70,18 +82,28 @@ export function ScheduleSection() {
     control,
     formState: { errors },
   } = useCreateEventFormContext();
-  const currentCity = useWatch({ control, name: "city" });
 
   return (
     <FormSection title={t("events.create.when.title")}>
       <ScheduleDateTimeRow />
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <FormField label={t("events.create.fields.city")} isRequired>
-          {(fieldControl) => (
-            <CitySelect {...fieldControl} {...register("city")} value={currentCity ?? ""} />
+        <Controller
+          control={control}
+          name="city"
+          render={({ field }) => (
+            <FormField label={t("events.create.fields.city")} isRequired>
+              {(fieldControl) => (
+                <CityCombobox
+                  fieldControl={fieldControl}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  onBlur={field.onBlur}
+                />
+              )}
+            </FormField>
           )}
-        </FormField>
+        />
         <TextField
           label={t("events.create.fields.venueName")}
           optionalText={t("common.optional")}
@@ -93,17 +115,7 @@ export function ScheduleSection() {
         />
       </div>
 
-      <TextField
-        label={t("events.create.fields.address")}
-        isRequired
-        startIcon={<MapPin />}
-        autoComplete="street-address"
-        maxLength={CREATE_EVENT_LIMITS.addressMax}
-        placeholder={t("events.create.fields.addressPlaceholder")}
-        hint={t("events.create.fields.addressHint")}
-        error={fieldError(errors.address?.message)}
-        {...register("address")}
-      />
+      <AddressField />
     </FormSection>
   );
 }

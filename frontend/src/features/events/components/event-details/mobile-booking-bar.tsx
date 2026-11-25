@@ -8,7 +8,9 @@ import { PriceLabel } from "@/features/events/components/event-details/price-lab
 import type { BookingAction } from "@/features/events/hooks/use-booking-action";
 import type { CancelEventAction } from "@/features/events/hooks/use-cancel-event";
 import { BOOKING_STATE_LABEL_KEYS } from "@/features/events/lib/booking-state-label-keys";
+import { getAttendancePhase } from "@/features/events/lib/get-attendance-phase";
 import { getEventPrice } from "@/features/events/lib/get-event-price";
+import { RateOrganizer } from "@/features/reviews";
 
 interface MobileBookingBarProps {
   event: EventRead;
@@ -34,6 +36,17 @@ function MobileCallToAction({ event, action, cancelEvent }: MobileBookingBarProp
       </div>
     );
   }
+  if (action.state === "attended" || action.state === "awaitingAttendance") {
+    return (
+      <RateOrganizer
+        eventId={event.id}
+        hasAttended={action.state === "attended"}
+        isWindowOpen={getAttendancePhase(event) === "open"}
+        showCaption={false}
+        className="min-w-0 flex-1"
+      />
+    );
+  }
   if (action.canCancel) return <CancelBookingButton action={action} className={ACTION_CLASS} />;
   return <BookingButton action={action} className={ACTION_CLASS} />;
 }
@@ -42,6 +55,11 @@ export function MobileBookingBar({ event, action, cancelEvent }: MobileBookingBa
   const { t } = useTranslation();
   const seatsLabel =
     event.available_seats > 0 ? t("events.booking.seatsAvailableShort") : t("events.booking.full");
+  const showsStateLabel =
+    action.canCancel ||
+    action.state === "rejected" ||
+    action.state === "attended" ||
+    action.state === "awaitingAttendance";
 
   return (
     <div
@@ -53,9 +71,7 @@ export function MobileBookingBar({ event, action, cancelEvent }: MobileBookingBa
           <div className="min-w-0">
             <PriceLabel price={getEventPrice(event)} className="text-xl" />
             <p className="truncate text-xs text-muted-foreground">
-              {action.canCancel || action.state === "rejected"
-                ? t(BOOKING_STATE_LABEL_KEYS[action.state])
-                : seatsLabel}
+              {showsStateLabel ? t(BOOKING_STATE_LABEL_KEYS[action.state]) : seatsLabel}
             </p>
           </div>
           <MobileCallToAction event={event} action={action} cancelEvent={cancelEvent} />

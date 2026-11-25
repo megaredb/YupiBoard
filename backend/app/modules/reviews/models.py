@@ -2,18 +2,25 @@ from __future__ import annotations
 
 import uuid
 from enum import StrEnum
+from typing import Any
 
 from sqlalchemy import (
     CheckConstraint,
+    Connection,
     Enum,
     ForeignKey,
     Index,
     SmallInteger,
     UniqueConstraint,
+    event,
+    func,
+    select,
+    update,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.models import Base, TimestampMixin, UUIDMixin
+from app.modules.users.models import User
 
 
 class ReviewTargetRole(StrEnum):
@@ -56,3 +63,38 @@ class Review(Base, UUIDMixin, TimestampMixin):
         nullable=False,
     )
     score: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+
+
+RATING_COLUMNS = {
+    ReviewTargetRole.ORGANIZER: ("rating_as_organizer", "rating_as_organizer_count"),
+    ReviewTargetRole.PLAYER: ("rating_as_player", "rating_as_player_count"),
+}
+
+
+@event.listens_for(Review, "after_insert")
+@event.listens_for(Review, "after_update")
+@event.listens_for(Review, "after_delete")
+def refresh_reviewee_rating(
+    _mapper: Any, connection: Connection, review: Review
+) -> None:
+    """Keeps the reviewee's average and count in step with their review rows, whoever
+    writes them (the review API, the seed, tests). Runs in the same transaction."""
+    rating_column, count_column = RATING_COLUMNS[ReviewTargetRole(review.target_role)]
+    same_reviews = (
+        Review.reviewee_id == review.reviewee_id,
+        Review.target_role == review.target_role,
+    )
+    connection.execute(
+        update(User)
+        .where(User.id == review.reviewee_id)
+        .values(
+            {
+                rating_column: select(func.round(func.avg(Review.score), 2))
+                .where(*same_reviews)
+                .scalar_subquery(),
+                count_column: select(func.count(Review.id))
+                .where(*same_reviews)
+                .scalar_subquery(),
+            }
+        )
+    )

@@ -8,7 +8,7 @@ import { RejectEventDialog } from "@/features/moderation/components/reject-event
 import { useModerateEvent } from "@/features/moderation/hooks/use-moderate-event";
 
 interface ModerationPanelProps {
-  event: Pick<EventRead, "id" | "title">;
+  event: Pick<EventRead, "id" | "title" | "auto_check_status">;
 }
 
 /** Auto-check result and the publish / reject decision; shown instead of the booking panel. */
@@ -27,11 +27,11 @@ export function ModerationPanel({ event }: ModerationPanelProps) {
 
   return (
     <div className="space-y-4">
-      <AutoCheckCard />
+      <AutoCheckCard status={event.auto_check_status} />
       <Card size="lg">
         <Card.Header>
-          <Card.Title>{t("admin.moderation.panel.title")}</Card.Title>
-          <Card.Description>{t("admin.moderation.panel.description")}</Card.Description>
+          <Card.Title>{t("moderation.panel.title")}</Card.Title>
+          <Card.Description>{t("moderation.panel.description")}</Card.Description>
         </Card.Header>
         <Card.Content className="space-y-3">
           <Button
@@ -40,7 +40,7 @@ export function ModerationPanel({ event }: ModerationPanelProps) {
             isLoading={moderation.isPending}
             onClick={handleApprove}
           >
-            {t("admin.moderation.panel.approve")}
+            {t("moderation.panel.approve")}
           </Button>
           <Button
             variant="secondary"
@@ -49,9 +49,9 @@ export function ModerationPanel({ event }: ModerationPanelProps) {
             disabled={moderation.isPending}
             onClick={handleAskReject}
           >
-            {t("admin.moderation.panel.reject")}
+            {t("moderation.panel.reject")}
           </Button>
-          <p className="pt-1 text-xs text-muted-foreground">{t("admin.moderation.panel.note")}</p>
+          <p className="pt-1 text-xs text-muted-foreground">{t("moderation.panel.note")}</p>
         </Card.Content>
       </Card>
       {isRejecting && (

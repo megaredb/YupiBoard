@@ -5,10 +5,11 @@ interface RatingTileProps {
   label: string;
   icon: ReactNode;
   rating: string | null;
+  /** Optional in the API schema, where it defaults to 0. */
+  reviewCount: number | undefined;
 }
 
-// Review counts are not part of `UserRead` yet, so only the rating itself is shown.
-export function RatingTile({ label, icon, rating }: RatingTileProps) {
+export function RatingTile({ label, icon, rating, reviewCount }: RatingTileProps) {
   const { t } = useTranslation();
 
   return (
@@ -22,7 +23,7 @@ export function RatingTile({ label, icon, rating }: RatingTileProps) {
         {rating && <span className="text-xs text-muted-foreground">{t("profile.outOfFive")}</span>}
       </div>
       <p className="mt-0.5 text-xs text-muted-foreground">
-        {t("profile.reviewsCount", { count: 0 })}
+        {t("profile.reviewsCount", { count: reviewCount ?? 0 })}
       </p>
     </div>
   );

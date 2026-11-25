@@ -1,6 +1,7 @@
+import { SocialLogin } from "@capgo/capacitor-social-login";
 import { isNativePlatform } from "@/shared/platform/is-native";
 
-export type GoogleSignInFailure = "unsupported" | "unavailable" | "cancelled";
+export type GoogleSignInFailure = "unavailable" | "cancelled";
 
 export class GoogleSignInError extends Error {
   readonly reason: GoogleSignInFailure;
@@ -68,11 +69,44 @@ async function requestOnWeb(clientId: string): Promise<string> {
   });
 }
 
+// Rejection code of the native plugin when the user closes the account picker.
+const NATIVE_CANCELLED_CODE = "USER_CANCELLED";
+let nativeReady: Promise<void> | null = null;
+
+function isNativeCancellation(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === NATIVE_CANCELLED_CODE
+  );
+}
+
 /**
- * The single social sign-in entry point: resolves Google's `idToken` for the backend.
- * Android has no sign-in plugin yet, so it rejects with `unsupported`.
+ * Android Credential Manager. Initialised with the *web* client ID so the `idToken` audience is
+ * the one the backend verifies. The authorization step is skipped: only the `idToken` is needed,
+ * and the stock `BridgeActivity` cannot route that step's consent screen.
  */
+async function requestOnAndroid(clientId: string): Promise<string> {
+  nativeReady ??= SocialLogin.initialize({
+    google: { webClientId: clientId, skipAuthOnlyAuthorizationAfterSignIn: true },
+  }).catch((error: unknown) => {
+    nativeReady = null;
+    throw error;
+  });
+  const response = await nativeReady
+    .then(() => SocialLogin.login({ provider: "google", options: {} }))
+    .catch((error: unknown) => {
+      throw new GoogleSignInError(isNativeCancellation(error) ? "cancelled" : "unavailable");
+    });
+  const { result } = response;
+  if (result.responseType !== "online" || !result.idToken) {
+    throw new GoogleSignInError("unavailable");
+  }
+  return result.idToken;
+}
+
+/** The single social sign-in entry point: resolves Google's `idToken` for the backend. */
 export function requestGoogleIdToken(clientId: string): Promise<string> {
-  if (isNativePlatform()) return Promise.reject(new GoogleSignInError("unsupported"));
-  return requestOnWeb(clientId);
+  return isNativePlatform() ? requestOnAndroid(clientId) : requestOnWeb(clientId);
 }

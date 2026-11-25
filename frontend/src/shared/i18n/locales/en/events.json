@@ -16,7 +16,8 @@
     "found_one": "{{count}} event found",
     "found_other": "{{count}} events found",
     "emptyTitle": "No results found...",
-    "emptyDescription": "Try clearing filters or correcting your search query."
+    "emptyDescription": "Try clearing filters or correcting your search query.",
+    "subtitleNearby": "Good games. New friends. A seat at the table, right near you."
   },
   "collection": {
     "found_one": "{{count}} event",
@@ -76,7 +77,13 @@
     "rating": "Minimum organizer rating",
     "ratingOption_one": "{{count}} star & up",
     "ratingOption_other": "{{count}} stars & up",
-    "anyDate": "Any date"
+    "anyDate": "Any date",
+    "fromMyLocation": "Distance calculated from your location",
+    "myLocation": {
+      "label": "My location",
+      "coordinates": "{{lat}}, {{lon}}",
+      "dismiss": "Search from the city centre instead"
+    }
   },
   "details": {
     "pageTitle": "Event",
@@ -96,7 +103,9 @@
     "linkCopied": "Link copied",
     "favorite": "Favorite",
     "opensMap": "(opens a map)",
-    "timeWithZone": "{{time}} · {{zone}}"
+    "timeWithZone": "{{time}} · {{zone}}",
+    "eventsHosted_one": "{{count}} event hosted",
+    "eventsHosted_other": "{{count}} events hosted"
   },
   "booking": {
     "title": "Your seat at the table",
@@ -133,7 +142,12 @@
     "applied": "Request sent",
     "appliedDescription": "The organizer will review it soon.",
     "cancelled": "Booking cancelled",
-    "players": "Players"
+    "players": "Players",
+    "awaitingAttendance": "Waiting for the organizer to mark attendance",
+    "playersJoinedTotal": "Players joined: {{count}} ({{total}} seats total)",
+    "joinWaitlist": "Join the waitlist",
+    "waitlisted": "You're on the waitlist",
+    "waitlistedDescription": "The table is full. If the organizer accepts you, you get the next free seat."
   },
   "create": {
     "title": "Create new event",
@@ -182,7 +196,15 @@
     },
     "verifyEmailRequired": "Confirm your email to create events. Open the link we sent to {{email}}.",
     "verifyEmailFirst": "Confirm your email before creating events.",
-    "toMyEvents": "Go to my events"
+    "toMyEvents": "Go to my events",
+    "addressNotFound": "We couldn't find this address in the selected city. Check the street and house number.",
+    "addressSuggestions": {
+      "searching": "Searching addresses…",
+      "unavailable": "Address suggestions are unavailable right now. You can still type the address.",
+      "empty": "No matching streets or buildings. Check the spelling or try the Ukrainian name.",
+      "picked": "Exact location saved from the suggestion.",
+      "addHouseNumber": "Now add the house number, e.g. Sumska 10."
+    }
   },
   "search": {
     "label": "Search events",
@@ -247,7 +269,12 @@
     "pagination": "Showing {{from}}–{{to}} of {{total}} requests",
     "accepted": "Request accepted",
     "waitlisted": "The table is full, so the player was added to the waitlist",
-    "declined": "Request declined"
+    "declined": "Request declined",
+    "waitlistTitle": "Waitlist ({{count}})",
+    "waitlistHint": "Accepted players get the next free seat automatically.",
+    "waitlistAccepted": "Accepted · next free seat",
+    "eventsPlayed_one": "Played in {{count}} event",
+    "eventsPlayed_other": "Played in {{count}} events"
   },
   "cancelEvent": {
     "button": "Cancel event",
@@ -267,14 +294,18 @@
     "noReason": "No reason was given."
   },
   "attendance": {
-    "awaiting": "Waiting for a mark ({{count}})",
-    "attended": "Attended ({{count}})",
-    "noShow": "No-show ({{count}})",
-    "present": "Was there",
-    "absent": "Didn't come",
-    "allMarked": "Everyone has been marked.",
+    "present": "Present",
+    "absent": "Absent",
     "saved": "Attendance saved",
-    "saveFailed": "Couldn't save attendance. Please try again."
+    "saveFailed": "Couldn't save attendance. Please try again.",
+    "mark": "Mark attendance",
+    "notMarked": "Not marked",
+    "popoverTitle": "Was the player at the table?",
+    "summary": "Confirmed players ({{total}}): {{attended}} attended · {{noShow}} no-show · {{notMarked}} not marked",
+    "changeUntil": "You can change attendance until:",
+    "hoursLeft_one": "({{count}} h left)",
+    "hoursLeft_other": "({{count}} h left)",
+    "closed": "Attendance is final since {{date}}."
   },
   "eventStatus": {
     "onModeration": "On moderation",

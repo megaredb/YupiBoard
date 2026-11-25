@@ -1,11 +1,13 @@
 import { useTranslation } from "react-i18next";
 import type { EventRead } from "@/shared/api/generated/model";
 import { Card } from "@/shared/ui/card";
-import { HostAttendanceGroups } from "@/features/events/components/event-details/host-attendance-groups";
+import { AttendanceRoster } from "@/features/events/components/event-details/attendance-roster";
 import { HostBookingList } from "@/features/events/components/event-details/host-booking-list";
+import { HostWaitlist } from "@/features/events/components/event-details/host-waitlist";
 import { ParticipantList } from "@/features/events/components/event-details/participant-list";
 import { useEventBookings } from "@/features/events/hooks/use-event-bookings";
 import { getAttendancePhase } from "@/features/events/lib/get-attendance-phase";
+import { hasEventStarted } from "@/features/events/lib/has-event-started";
 import { PARTICIPANTS_SECTION_ID } from "@/features/events/lib/participants-section-id";
 
 interface EventParticipantsSectionProps {
@@ -39,6 +41,7 @@ export function EventParticipantsSection({ event, viewer }: EventParticipantsSec
   const { t } = useTranslation();
   const isHost = viewer === "host";
   const attendancePhase = getAttendancePhase(event);
+  const isRoster = isHost && attendancePhase !== "upcoming";
 
   return (
     <div id={PARTICIPANTS_SECTION_ID} className="scroll-mt-20 space-y-6">
@@ -50,25 +53,29 @@ export function EventParticipantsSection({ event, viewer }: EventParticipantsSec
               total: event.max_players,
             })}
           </Card.Title>
-          <Card.Description>
-            {t("events.participants.confirmedTitle", { count: event.current_confirmed })}
-          </Card.Description>
+          {!isRoster && (
+            <Card.Description>
+              {t("events.participants.confirmedTitle", { count: event.current_confirmed })}
+            </Card.Description>
+          )}
         </Card.Header>
         <Card.Content>
-          {isHost && attendancePhase !== "upcoming" && (
-            <HostAttendanceGroups eventId={event.id} canMark={attendancePhase === "open"} />
-          )}
+          {isRoster && <AttendanceRoster event={event} canMark={attendancePhase === "open"} />}
           {isHost && attendancePhase === "upcoming" && (
-            <HostBookingList
-              eventId={event.id}
-              status="Confirmed"
-              emptyText={t("events.participants.noPlayers")}
-            />
+            <div className="space-y-4">
+              <HostBookingList
+                eventId={event.id}
+                status="Confirmed"
+                emptyText={t("events.participants.noPlayers")}
+              />
+              <HostWaitlist eventId={event.id} />
+            </div>
           )}
           {!isHost && <ParticipantList eventId={event.id} />}
         </Card.Content>
       </Card>
-      {isHost && <HostPendingCard eventId={event.id} />}
+      {/* The backend closes booking decisions at the start time. */}
+      {isHost && !hasEventStarted(event) && <HostPendingCard eventId={event.id} />}
     </div>
   );
 }

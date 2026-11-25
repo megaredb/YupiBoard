@@ -1,5 +1,5 @@
-from app.core.exceptions import NotFoundException
-from app.modules.locations.geocoding import GeocodingService
+from app.core.exceptions import NotFoundException, ServiceUnavailableException
+from app.modules.locations.geocoding import GeocoderUnavailableError, GeocodingService
 from app.modules.locations.models import City
 from app.modules.locations.repository import CityRepository, CountryRepository
 from app.modules.locations.schemas import (
@@ -96,6 +96,7 @@ class LocationService:
                     CityRead(
                         id=city.id,
                         name=_localized_city_name(city, languages),
+                        canonical_name=city.name,
                         country_code=c.code,
                         lat=city.lat,
                         lon=city.lon,
@@ -122,6 +123,7 @@ class LocationService:
             CityRead(
                 id=city.id,
                 name=_localized_city_name(city, languages),
+                canonical_name=city.name,
                 country_code=city.country.code,
                 lat=city.lat,
                 lon=city.lon,
@@ -132,7 +134,24 @@ class LocationService:
     async def geocode(
         self, query: str, *, city: str | None = None, limit: int = 5
     ) -> list[GeocodeResult]:
-        return await self.geocoding_service.geocode(query, city=city, limit=limit)
+        center = await self.city_repo.get_center(city) if city else None
+        try:
+            return await self.geocoding_service.geocode(
+                query, city=city, center=center, limit=limit, raise_on_failure=True
+            )
+        except GeocoderUnavailableError as exc:
+            raise ServiceUnavailableException("Address search is unavailable") from exc
+
+    async def suggest_addresses(
+        self, query: str, *, city: str | None = None, limit: int = 5
+    ) -> list[GeocodeResult]:
+        center = await self.city_repo.get_center(city) if city else None
+        try:
+            return await self.geocoding_service.suggest(
+                query, center=center, limit=limit
+            )
+        except GeocoderUnavailableError as exc:
+            raise ServiceUnavailableException("Address search is unavailable") from exc
 
     async def reverse_geocode(self, lat: float, lon: float) -> ReverseGeocodeResult:
         result = await self.geocoding_service.reverse_geocode(lat, lon)

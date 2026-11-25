@@ -4,7 +4,6 @@ import uuid
 from datetime import datetime, timedelta
 from decimal import Decimal
 from enum import StrEnum
-from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     Boolean,
@@ -17,13 +16,13 @@ from sqlalchemy import (
     Numeric,
     String,
     Text,
+    func,
+    select,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 
 from app.core.models import Base, TimestampMixin, UUIDMixin
-
-if TYPE_CHECKING:
-    from app.modules.users.models import User
+from app.modules.users.models import User
 
 
 class EventStatus(StrEnum):
@@ -33,6 +32,15 @@ class EventStatus(StrEnum):
     ONGOING = "Ongoing"
     COMPLETED = "Completed"
     CANCELLED = "Cancelled"
+
+
+class AutoCheckStatus(StrEnum):
+    """Outcome of the automatic stage-1 moderation check (SRS 3.2.6)."""
+
+    PASSED = "Passed"
+    FAILED = "Failed"
+    # The check itself crashed; the event goes to the manual queue unchecked.
+    UNAVAILABLE = "Unavailable"
 
 
 # Used when the organizer does not provide end_datetime.
@@ -108,9 +116,41 @@ class Event(Base, UUIDMixin, TimestampMixin):
     is_deleted: Mapped[bool] = mapped_column(
         Boolean, default=False, index=True, nullable=False
     )
+    # Null for events created before the check result was stored.
+    auto_check_status: Mapped[AutoCheckStatus | None] = mapped_column(
+        Enum(
+            AutoCheckStatus,
+            name="auto_check_status",
+            native_enum=False,
+            values_callable=lambda enum: [item.value for item in enum],
+        ),
+        nullable=True,
+    )
+    moderated_by_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    moderated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
-    organizer: Mapped[User] = relationship("User")
+    organizer: Mapped[User] = relationship("User", foreign_keys=[organizer_id])
+    moderated_by: Mapped[User | None] = relationship(
+        "User", foreign_keys=[moderated_by_id], lazy="selectin"
+    )
 
     @property
     def review_deadline(self) -> datetime:
         return self.end_datetime + REVIEW_WINDOW
+
+
+# Attached here because the user model cannot import events (it would be circular).
+User.events_hosted_count = column_property(
+    select(func.count(Event.id))
+    .where(
+        Event.organizer_id == User.id,
+        Event.status == EventStatus.COMPLETED,
+        Event.is_deleted.is_(False),
+    )
+    .correlate_except(Event)
+    .scalar_subquery()
+)

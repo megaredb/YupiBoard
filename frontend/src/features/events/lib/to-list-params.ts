@@ -24,14 +24,22 @@ const SORT_PARAMS = {
   "cost-desc": ["cost", "desc"],
 } as const satisfies Record<CatalogSort, readonly [EventSortBy, SortOrder]>;
 
+/** The device position from "Use my location" when set, otherwise the city centre. */
+function getSearchOrigin(filters: CatalogFilters, cities: CityRead[]) {
+  if (filters.lat !== undefined && filters.lon !== undefined) {
+    return { lat: filters.lat, lon: filters.lon };
+  }
+  return findCityByName(cities, filters.city);
+}
+
 export function toListParams({
   filters,
   cities,
   page,
   limit,
 }: ListParamsInput): ListEventsApiV1EventsGetParams {
-  const city = findCityByName(cities, filters.city);
-  const area = city ? { lat: city.lat, lon: city.lon, radius_km: filters.distance } : {};
+  const origin = getSearchOrigin(filters, cities);
+  const area = origin ? { lat: origin.lat, lon: origin.lon, radius_km: filters.distance } : {};
   const [sortBy, sortOrder] = SORT_PARAMS[filters.sort];
   return {
     ...area,

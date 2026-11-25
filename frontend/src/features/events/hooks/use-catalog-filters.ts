@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
+import type { Coordinates } from "@/shared/platform/geolocation";
 import type { CatalogFilters } from "@/features/events/schemas/catalog-search.schema";
 import { usePreferredCity } from "@/features/locations";
 
@@ -12,17 +14,23 @@ interface CatalogFiltersState {
   goToPage: (page: number) => void;
 }
 
+/** Everything but the device position goes to the URL; the position stays in this page only. */
 export function useCatalogFilters(): CatalogFiltersState {
   const { page, city, ...search } = route.useSearch();
   const preferredCity = usePreferredCity();
   const navigate = useNavigate();
-  const filters: CatalogFilters = { ...search, city: city ?? preferredCity?.name ?? "" };
+  const [myLocation, setMyLocation] = useState<Coordinates | null>(null);
+  const urlFilters = { ...search, city: city ?? preferredCity?.canonical_name ?? "" };
+  const filters: CatalogFilters = { ...urlFilters, lat: myLocation?.lat, lon: myLocation?.lon };
 
   return {
     filters,
     page,
-    applyFilters: (next) => void navigate({ to: "/events", search: { ...next, page: 1 } }),
+    applyFilters: ({ lat, lon, ...next }) => {
+      setMyLocation(lat !== undefined && lon !== undefined ? { lat, lon } : null);
+      void navigate({ to: "/events", search: { ...next, page: 1 } });
+    },
     goToPage: (nextPage) =>
-      void navigate({ to: "/events", search: { ...filters, page: nextPage } }),
+      void navigate({ to: "/events", search: { ...urlFilters, page: nextPage } }),
   };
 }

@@ -19,3 +19,6 @@ project(':capacitor-share').projectDir = new File('../../node_modules/.pnpm/@cap
 
 include ':capacitor-status-bar'
 project(':capacitor-status-bar').projectDir = new File('../../node_modules/.pnpm/@capacitor+status-bar@8.0.4_@capacitor+core@8.5.3/node_modules/@capacitor/status-bar/android')
+
+include ':capgo-capacitor-social-login'
+project(':capgo-capacitor-social-login').projectDir = new File('../../node_modules/.pnpm/@capgo+capacitor-social-login@8.7.13_@capacitor+core@8.5.3/node_modules/@capgo/capacitor-social-login/android')

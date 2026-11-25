@@ -19,20 +19,33 @@ interface HostBookingListProps {
   emptyText: string;
 }
 
+const DECIDABLE_STATUSES: ReadonlySet<BookingStatus> = new Set([
+  "Pending",
+  "Confirmed",
+  "Waitlist",
+]);
+
 export function HostBookingList({ eventId, status, emptyText }: HostBookingListProps) {
   const { t } = useTranslation();
   const { page, goToPage } = useBookingsPage();
   const bookings = useEventBookings(eventId, status === "Pending" ? page : 1, status);
   const decision = useBookingDecision(eventId);
 
+  const getAcceptedLabel = (booking: BookingRead) => {
+    if (booking.status === "Confirmed") return t("events.bookingStatus.confirmed");
+    if (booking.status === "Waitlist" && booking.is_preapproved) {
+      return t("events.participants.waitlistAccepted");
+    }
+    return null;
+  };
+
   const renderBooking = (booking: BookingRead) => {
     const participant = booking.user ?? { id: booking.user_id };
     const playerName = getFullName(participant) ?? t("events.participants.unnamed");
-    const canDecide = booking.status === "Pending" || booking.status === "Confirmed";
-    const aside = canDecide ? (
+    const aside = DECIDABLE_STATUSES.has(booking.status) ? (
       <BookingDecisionButtons
         playerName={playerName}
-        showAccept={booking.status === "Pending"}
+        acceptedLabel={getAcceptedLabel(booking)}
         isPending={decision.pendingBookingId === booking.id}
         isDisabled={decision.pendingBookingId !== null}
         onDecide={(isApproved, reason) => decision.decide(booking.id, isApproved, reason)}

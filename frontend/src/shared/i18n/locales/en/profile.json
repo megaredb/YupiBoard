@@ -61,5 +61,15 @@
   "uploadPhoto": "Upload photo",
   "changeBanner": "Change cover",
   "bannerHint": "JPEG/PNG under 5 MB · wide images work best",
-  "cityNotSet": "Not set"
+  "deleteAccount": {
+    "title": "Delete my profile",
+    "description": "Your profile, bookings and favorites will be removed and you will be signed out. This can't be undone.",
+    "action": "Delete my profile",
+    "confirmTitle": "Delete your profile?",
+    "confirmDescription": "This permanently deletes your YupiBoard profile. You won't be able to restore it.",
+    "confirm": "Yes, delete my profile",
+    "deleted": "Your profile was deleted",
+    "failed": "Couldn't delete your profile. Please try again.",
+    "hasActiveEvents": "Cancel or finish the events you organize before deleting your profile."
+  }
 }

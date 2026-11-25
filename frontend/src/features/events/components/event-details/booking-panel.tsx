@@ -6,6 +6,7 @@ import { Card } from "@/shared/ui/card";
 import { SeatsProgress } from "@/shared/ui/seats-progress";
 import { PriceLabel } from "@/features/events/components/event-details/price-label";
 import { getEventPrice } from "@/features/events/lib/get-event-price";
+import { hasEventStarted } from "@/features/events/lib/has-event-started";
 
 interface BookingPanelProps {
   event: EventRead;
@@ -17,6 +18,7 @@ interface BookingPanelProps {
 export function BookingPanel({ event, isHost, children }: BookingPanelProps) {
   const { t } = useTranslation();
   const price = getEventPrice(event);
+  const hasStarted = hasEventStarted(event);
 
   return (
     <Card size="lg">
@@ -33,10 +35,15 @@ export function BookingPanel({ event, isHost, children }: BookingPanelProps) {
           <p className="flex items-center gap-2 text-sm font-medium text-primary">
             <Users aria-hidden className="size-4" />
             <span>
-              {t("events.booking.seatsAvailable", {
-                left: event.available_seats,
-                total: event.max_players,
-              })}
+              {hasStarted
+                ? t("events.booking.playersJoinedTotal", {
+                    count: event.current_confirmed,
+                    total: event.max_players,
+                  })
+                : t("events.booking.seatsAvailable", {
+                    left: event.available_seats,
+                    total: event.max_players,
+                  })}
             </span>
           </p>
           <SeatsProgress
@@ -44,15 +51,17 @@ export function BookingPanel({ event, isHost, children }: BookingPanelProps) {
             total={event.max_players}
             label={t("events.details.seatsProgress")}
           />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{t("events.booking.playersJoining", { count: event.current_confirmed })}</span>
-            <span>{t("events.booking.seatsTotal", { count: event.max_players })}</span>
-          </div>
+          {!hasStarted && (
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{t("events.booking.playersJoining", { count: event.current_confirmed })}</span>
+              <span>{t("events.booking.seatsTotal", { count: event.max_players })}</span>
+            </div>
+          )}
         </div>
 
         {children}
 
-        {!isHost && (
+        {!isHost && !hasStarted && (
           <div className="space-y-2 text-center text-xs text-muted-foreground">
             <p>{t("events.booking.reviewNote")}</p>
             {!price.isFree && (

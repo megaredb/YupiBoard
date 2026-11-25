@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { UserRead } from "@/shared/api/generated/model";
+import { DeleteAccountSection } from "@/features/profile/components/delete-account-section";
 import { MobileAccountDetailsSheet } from "@/features/profile/components/mobile-account-details-sheet";
 import { MobileProfileShortcuts } from "@/features/profile/components/mobile-profile-shortcuts";
 import { ProfileDetails } from "@/features/profile/components/profile-details";
@@ -39,6 +40,7 @@ export function ProfileOverview({ user, onEdit, onChangePassword }: ProfileOverv
         onEdit={handleEditFromSheet}
         onChangePassword={handleChangePasswordFromSheet}
       />
+      <DeleteAccountSection />
     </>
   );
 }

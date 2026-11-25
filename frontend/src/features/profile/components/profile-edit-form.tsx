@@ -97,7 +97,7 @@ export function ProfileEditForm(props: ProfileEditFormProps) {
               startIcon={<Lock />}
               hint={t("profile.emailLinkedNote")}
             />
-            <ProfileCityField savedCity={user.city} isPending={isPending} />
+            <ProfileCityField isPending={isPending} />
             <ProfileEditActions
               isPending={isPending}
               onCancel={props.onCancel}

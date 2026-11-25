@@ -15,7 +15,7 @@ export async function loadCatalog(
   const cities = await loadQuery(queryClient, citiesQueryOptions());
   if (!cities) return;
   const searchedCity =
-    city ?? getPreferredCity(cities, getCachedCurrentUser(queryClient)?.city)?.name ?? "";
+    city ?? getPreferredCity(cities, getCachedCurrentUser(queryClient)?.city)?.canonical_name ?? "";
   await loadQuery(
     queryClient,
     catalogQueryOptions({ ...filters, city: searchedCity }, cities, page),

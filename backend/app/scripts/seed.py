@@ -1,19 +1,30 @@
+"""Development/QA test data: one account per role and one event per scenario.
+
+Every account uses the password ``Password123!``. ``pnpm be seed`` only inserts; run
+``pnpm be seed:remove`` first when seed data is already there (times are relative to "now",
+so re-seeding also refreshes scenarios like the "running now" event). See ``SEED_GUIDE``
+below for what each account can test.
+"""
+
 import argparse
 import asyncio
 import logging
+import shutil
 import sys
+from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
-from typing import Any
+from pathlib import Path
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, or_, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.database import async_session_maker
 from app.core.security import get_password_hash
 from app.modules.bookings.models import Booking, BookingStatus
-from app.modules.events.models import Event, EventStatus
+from app.modules.events.models import AutoCheckStatus, Event, EventStatus
 from app.modules.favorites.models import Favorite
 from app.modules.moderation.models import AdminAuditLog, AuditActionType
 from app.modules.notifications.enums import NotificationType
@@ -26,78 +37,224 @@ logger = logging.getLogger("yupiboard.seed")
 
 SEED_PASSWORD = "Password123!"
 
+COVER_SOURCE = Path(__file__).parent / "seed_assets" / "event-cover.webp"
+COVER_MEDIA_PATH = "events/seed-event-cover.webp"
+
+
+@dataclass(frozen=True)
+class SeedUser:
+    key: str
+    email: str
+    first_name: str | None
+    last_name: str | None
+    city: str | None
+    bio: str | None = None
+    is_verified: bool = True
+    is_superuser: bool = False
+    status: UserStatus = UserStatus.ACTIVE
+
+
 SEED_USERS = [
-    {
-        "email": "admin@yupiboard.com",
-        "first_name": "Admin",
-        "last_name": "YupiBoard",
-        "city": "Kyiv",
-        "is_verified": True,
-        "is_superuser": True,
-        "bio": "Platform administrator and tabletop moderator.",
-    },
-    {
-        "email": "organizer1@yupiboard.com",
-        "first_name": "Olena",
-        "last_name": "Kovalenko",
-        "city": "Kyiv",
-        "is_verified": True,
-        "is_superuser": False,
-        "bio": "Eurogames & Catan host in Kyiv.",
-        "contact_info": "@olena_boardgames",
-    },
-    {
-        "email": "organizer2@yupiboard.com",
-        "first_name": "Taras",
-        "last_name": "Shevchuk",
-        "city": "Lviv",
-        "is_verified": True,
-        "is_superuser": False,
-        "bio": "D&D and cooperative strategy organizer.",
-        "contact_info": "@taras_dm",
-    },
-    {
-        "email": "player1@yupiboard.com",
-        "first_name": "Andrii",
-        "last_name": "Melnyk",
-        "city": "Kyiv",
-        "is_verified": True,
-        "is_superuser": False,
-        "bio": "Always up for Dune: Imperium or Brass.",
-    },
-    {
-        "email": "player2@yupiboard.com",
-        "first_name": "Sofia",
-        "last_name": "Bondar",
-        "city": "Kyiv",
-        "is_verified": True,
-        "is_superuser": False,
-        "bio": "Party games and deckbuilders fan.",
-    },
-    {
-        "email": "player3@yupiboard.com",
-        "first_name": "Dmytro",
-        "last_name": "Tkachenko",
-        "city": "Lviv",
-        "is_verified": True,
-        "is_superuser": False,
-        "bio": "Sci-fi and RPG enthusiast.",
-    },
-    {
-        "email": "unverified@yupiboard.com",
-        "first_name": "New",
-        "last_name": "Player",
-        "city": "Odesa",
-        "is_verified": False,
-        "is_superuser": False,
-        "bio": "Just joined YupiBoard.",
-    },
+    SeedUser("admin", "admin@example.com", "Admin", "YupiBoard", "Kharkiv",
+             "Platform moderator.", is_superuser=True),
+    SeedUser("org1", "organizer1@example.com", "Olena", "Kovalenko", "Kharkiv",
+             "Eurogames host in Kharkiv."),
+    SeedUser("org2", "organizer2@example.com", "Taras", "Shevchuk", "Lviv",
+             "Campaign and strategy nights."),
+    SeedUser("p1", "player1@example.com", "Andrii", "Melnyk", "Kharkiv",
+             "Always up for Dune or Brass."),
+    SeedUser("p2", "player2@example.com", "Sofia", "Bondar", "Kharkiv",
+             "Party games and deckbuilders."),
+    SeedUser("p3", "player3@example.com", "Dmytro", "Tkachenko", "Lviv",
+             "Sci-fi and RPG fan."),
+    SeedUser("p4", "player4@example.com", "Iryna", "Savchenko", "Kharkiv"),
+    SeedUser("p5", "player5@example.com", "Maksym", "Lysenko", "Kharkiv"),
+    SeedUser("unverified", "unverified@example.com", "Nina", "Unverified", "Kharkiv",
+             is_verified=False),
+    SeedUser("incomplete", "incomplete@example.com", None, None, None),
+    SeedUser("banned", "banned@example.com", "Bohdan", "Banned", "Kharkiv",
+             status=UserStatus.BANNED),
+    SeedUser("deleteme", "deleteme@example.com", "Dana", "Deleteme", "Kharkiv"),
+]  # fmt: skip
+
+SEED_USER_EMAILS = [user.email for user in SEED_USERS]
+
+SEED_GUIDE = """
+Seed accounts (password: Password123!)
+  admin@example.com        moderation queue: 3 pending (auto-check passed/unavailable), rejected, auto-rejected
+  organizer1@example.com   Catan: accept/decline 2 requests | Brass: full table + waitlist
+                           Terraforming Mars (running): mark attendance | Ticket to Ride: rate players
+  organizer2@example.com   Dune (a disqualified player), Lviv event, pending + rejected events
+  player1@example.com      confirmed seats, waiting for attendance, rated organizer, favorites
+  player2@example.com      pending request, attended Ticket to Ride (rate the organizer)
+  player3@example.com      Lviv player, no-shows
+  player4@example.com      self-joined waitlist on Brass (organizer can still accept)
+  player5@example.com      accepted waitlist on Brass (auto-confirmed when a seat frees),
+                           disqualified from Dune
+  unverified@example.com   cannot create events (email not verified)
+  incomplete@example.com   no name yet: lands on "complete your profile"
+  banned@example.com       banned account: sign-in is refused
+  deleteme@example.com     nothing organized: "Delete my profile" succeeds
+"""
+
+
+@dataclass(frozen=True)
+class Venue:
+    name: str
+    address: str
+    city: str
+    lat: float
+    lon: float
+
+
+KHARKIV_CENTRE = Venue("Geek Pub", "Sumska St, 10", "Kharkiv", 49.9947, 36.2338)
+KHARKIV_PUSHKINSKA = Venue(
+    "Board & Brew", "Pushkinska St, 32", "Kharkiv", 49.9973, 36.2414
+)
+KHARKIV_NAUKY = Venue("Meeple House", "Nauky Ave, 27", "Kharkiv", 50.0130, 36.2275)
+KHARKIV_SALTIVKA = Venue(
+    "Tabletop Club", "Heroiv Pratsi St, 7", "Kharkiv", 50.0270, 36.3330
+)
+KHARKIV_HAHARINA = Venue("Dice Cafe", "Haharina Ave, 20", "Kharkiv", 49.9780, 36.2610)
+KHARKIV_FAR = Venue(
+    "Merefa Board Club", "Dniprovska St, 140, Merefa", "Kharkiv", 49.8230, 36.0530
+)
+LVIV_CENTRE = Venue("Lviv Dice Hall", "Rynok Square, 1", "Lviv", 49.8419, 24.0315)
+
+
+@dataclass(frozen=True)
+class SeedEvent:
+    key: str
+    organizer: str
+    title: str
+    game_title: str
+    description: str
+    venue: Venue
+    starts_in: timedelta
+    max_players: int
+    cost: int
+    status: EventStatus = EventStatus.PUBLISHED
+    auto_check: AutoCheckStatus = AutoCheckStatus.PASSED
+    rejection_reason: str | None = None
+    is_promoted: bool = False
+    duration: timedelta = timedelta(hours=4)
+    bookings: dict[str, BookingStatus] = field(default_factory=dict)
+    preapproved_waitlist: frozenset[str] = frozenset()
+    booking_rejection_reasons: dict[str, str] = field(default_factory=dict)
+
+
+B = BookingStatus
+DAY = timedelta(days=1)
+HOUR = timedelta(hours=1)
+
+SEED_EVENTS = [
+    SeedEvent(
+        "catan", "org1", "Catan Friday Night", "Catan",
+        "Relaxed Catan for newcomers and regulars. Two requests wait for the host.",
+        KHARKIV_CENTRE, 2 * DAY, max_players=5, cost=0, is_promoted=True,
+        bookings={"p1": B.CONFIRMED, "p2": B.PENDING, "p4": B.PENDING},
+    ),
+    SeedEvent(
+        "brass", "org1", "Brass: Birmingham Full Table", "Brass: Birmingham",
+        "Heavy economic strategy. The table is full and two players wait for a seat.",
+        KHARKIV_PUSHKINSKA, 3 * DAY, max_players=3, cost=150,
+        bookings={"p1": B.CONFIRMED, "p2": B.CONFIRMED, "p3": B.CONFIRMED,
+                  "p4": B.WAITLIST, "p5": B.WAITLIST},
+        preapproved_waitlist=frozenset({"p5"}),
+    ),
+    SeedEvent(
+        "dune", "org2", "Dune: Imperium Evening", "Dune: Imperium",
+        "Competitive Dune with the Rise of Ix expansion.",
+        KHARKIV_NAUKY, 5 * DAY, max_players=4, cost=200,
+        bookings={"p4": B.CONFIRMED, "p5": B.REJECTED},
+        booking_rejection_reasons={"p5": "Seat reserved for a regular group member"},
+    ),
+    SeedEvent(
+        "wingspan", "org1", "Wingspan Morning in Merefa", "Wingspan",
+        "Calm engine-building over coffee, about 23 km from the centre.",
+        KHARKIV_FAR, 1 * DAY, max_players=4, cost=80,
+    ),
+    SeedEvent(
+        "gloomhaven", "org2", "Gloomhaven Campaign, Session 3", "Gloomhaven",
+        "Ongoing campaign in Lviv; new players welcome.",
+        LVIV_CENTRE, 4 * DAY, max_players=4, cost=100, bookings={"p3": B.CONFIRMED},
+    ),
+    SeedEvent(
+        "root", "org1", "Root for Newcomers", "Root",
+        "Teaching game of Root. Waiting for moderation.",
+        KHARKIV_SALTIVKA, 6 * DAY, max_players=4, cost=0, status=EventStatus.ON_MODERATION,
+    ),
+    SeedEvent(
+        "twilight", "org2", "Twilight Imperium Marathon", "Twilight Imperium",
+        "All-day galactic epic. The automatic check could not run for this one.",
+        KHARKIV_HAHARINA, 8 * DAY, max_players=6, cost=300,
+        status=EventStatus.ON_MODERATION, auto_check=AutoCheckStatus.UNAVAILABLE,
+    ),
+    SeedEvent(
+        "azul", "org1", "Azul Tournament", "Azul",
+        "Swiss-format Azul tournament with prizes.",
+        LVIV_CENTRE, 7 * DAY, max_players=8, cost=120, status=EventStatus.ON_MODERATION,
+    ),
+    SeedEvent(
+        "mystery", "org2", "Mystery Meetup", "Catan",
+        "Board game meetup.",
+        KHARKIV_CENTRE, 4 * DAY, max_players=4, cost=0, status=EventStatus.REJECTED,
+        rejection_reason="Inaccurate details",
+    ),
+    SeedEvent(
+        "casino", "org2", "Casino Night", "Poker",
+        "Gambling night with real stakes.",
+        KHARKIV_PUSHKINSKA, 3 * DAY, max_players=6, cost=500, status=EventStatus.REJECTED,
+        auto_check=AutoCheckStatus.FAILED,
+        rejection_reason=(
+            "Event content violates platform moderation guidelines "
+            "(prohibited content detected)."
+        ),
+    ),
+    SeedEvent(
+        "mars", "org1", "Terraforming Mars (running now)", "Terraforming Mars",
+        "Started an hour ago: the host can mark attendance.",
+        KHARKIV_NAUKY, -1 * HOUR, max_players=5, cost=80,
+        bookings={"p1": B.CONFIRMED, "p2": B.ATTENDED, "p3": B.NO_SHOW},
+    ),
+    SeedEvent(
+        "ticket", "org1", "Ticket to Ride Evening (just ended)", "Ticket to Ride",
+        "Ended two hours ago: attendance and ratings are open for 48 hours.",
+        KHARKIV_CENTRE, -6 * HOUR, max_players=5, cost=0, status=EventStatus.COMPLETED,
+        bookings={"p1": B.ATTENDED, "p2": B.ATTENDED, "p3": B.NO_SHOW,
+                  "p4": B.CONFIRMED},
+    ),
+    SeedEvent(
+        "carcassonne", "org1", "Carcassonne Classic (last week)", "Carcassonne",
+        "Finished last week: attendance and ratings are final.",
+        KHARKIV_PUSHKINSKA, -6 * DAY, max_players=4, cost=50, status=EventStatus.COMPLETED,
+        bookings={"p1": B.ATTENDED, "p2": B.ATTENDED},
+    ),
+    SeedEvent(
+        "scythe", "org2", "Scythe Tournament (cancelled)", "Scythe",
+        "Cancelled because of venue maintenance.",
+        KHARKIV_SALTIVKA, 7 * DAY, max_players=5, cost=120, status=EventStatus.CANCELLED,
+        bookings={"p1": B.CANCELLED_BY_SYSTEM},
+    ),
+]  # fmt: skip
+
+SEED_REVIEWS = [
+    ("ticket", "p1", "org1", ReviewTargetRole.ORGANIZER, 5),
+    ("ticket", "org1", "p1", ReviewTargetRole.PLAYER, 4),
+    ("carcassonne", "p1", "org1", ReviewTargetRole.ORGANIZER, 4),
+    ("carcassonne", "p2", "org1", ReviewTargetRole.ORGANIZER, 5),
+    ("carcassonne", "org1", "p1", ReviewTargetRole.PLAYER, 5),
+    ("carcassonne", "org1", "p2", ReviewTargetRole.PLAYER, 4),
 ]
 
-SEED_USER_EMAILS = [u["email"] for u in SEED_USERS]
+SEED_FAVORITES = [("p1", "catan"), ("p1", "wingspan"), ("p1", "gloomhaven")]
+
+SEATED_STATUSES = {B.CONFIRMED, B.ATTENDED, B.NO_SHOW}
 
 
-async def _reset_seed_data(session: AsyncSession) -> None:
+async def remove_seed_data(session: AsyncSession) -> int:
+    if settings.is_production:
+        raise RuntimeError("Seeding is disabled when ENVIRONMENT=production")
     user_ids = list(
         (
             await session.scalars(
@@ -106,8 +263,7 @@ async def _reset_seed_data(session: AsyncSession) -> None:
         ).all()
     )
     if not user_ids:
-        return
-
+        return 0
     event_ids = list(
         (
             await session.scalars(
@@ -115,376 +271,205 @@ async def _reset_seed_data(session: AsyncSession) -> None:
             )
         ).all()
     )
-    if event_ids:
-        await session.execute(
-            delete(AdminAuditLog).where(AdminAuditLog.target_id.in_(event_ids))
-        )
-        await session.execute(delete(Event).where(Event.id.in_(event_ids)))
-
     await session.execute(
-        delete(AdminAuditLog).where(AdminAuditLog.admin_id.in_(user_ids))
+        delete(AdminAuditLog).where(
+            or_(
+                AdminAuditLog.admin_id.in_(user_ids),
+                AdminAuditLog.target_id.in_(event_ids),
+            )
+        )
     )
+    # Bookings, reviews, favorites and notifications cascade with users and events.
+    await session.execute(delete(Event).where(Event.id.in_(event_ids)))
     await session.execute(delete(User).where(User.id.in_(user_ids)))
     await session.flush()
+    return len(user_ids)
 
 
-async def seed_database(
-    session: AsyncSession, *, reset: bool = False
-) -> dict[str, int]:
-    """Populate idempotent development/QA data across all core modules."""
+async def _create_users(session: AsyncSession) -> dict[str, User]:
+    pwd_hash = get_password_hash(SEED_PASSWORD)
+    users: dict[str, User] = {}
+    for spec in SEED_USERS:
+        user = User(
+            email=spec.email,
+            hashed_password=pwd_hash,
+            first_name=spec.first_name,
+            last_name=spec.last_name,
+            city=spec.city,
+            bio=spec.bio,
+            is_verified=spec.is_verified,
+            is_superuser=spec.is_superuser,
+            status=spec.status,
+            is_deleted=False,
+        )
+        session.add(user)
+        users[spec.key] = user
+    await session.flush()
+    return users
+
+
+def _build_event(
+    spec: SeedEvent, users: dict[str, User], admin: User, now: datetime
+) -> Event:
+    start = now + spec.starts_in
+    is_decided = spec.status != EventStatus.ON_MODERATION
+    is_auto_rejected = spec.auto_check == AutoCheckStatus.FAILED
+    seated = sum(1 for status in spec.bookings.values() if status in SEATED_STATUSES)
+    return Event(
+        organizer_id=users[spec.organizer].id,
+        title=spec.title,
+        description=spec.description,
+        game_title=spec.game_title,
+        location_name=spec.venue.name,
+        address=spec.venue.address,
+        city=spec.venue.city,
+        lat=spec.venue.lat,
+        lon=spec.venue.lon,
+        start_datetime=start,
+        end_datetime=start + spec.duration,
+        min_players=2,
+        max_players=spec.max_players,
+        current_confirmed=seated,
+        entry_cost=Decimal(spec.cost),
+        status=spec.status,
+        rejection_reason=spec.rejection_reason,
+        is_verified=spec.status
+        in {EventStatus.PUBLISHED, EventStatus.COMPLETED, EventStatus.CANCELLED},
+        promoted_to_datetime=now + 7 * DAY if spec.is_promoted else None,
+        auto_check_status=spec.auto_check,
+        moderated_by_id=admin.id if is_decided and not is_auto_rejected else None,
+        moderated_at=start - 10 * DAY if is_decided and not is_auto_rejected else None,
+        photo_url=f"/media/{COVER_MEDIA_PATH}",
+        is_deleted=False,
+    )
+
+
+def _cover_target() -> Path:
+    return Path(settings.MEDIA_DIR) / COVER_MEDIA_PATH
+
+
+async def _create_events(
+    session: AsyncSession, users: dict[str, User], now: datetime
+) -> dict[str, Event]:
+    admin = users["admin"]
+    events = {spec.key: _build_event(spec, users, admin, now) for spec in SEED_EVENTS}
+    session.add_all(events.values())
+    await session.flush()
+
+    for spec in SEED_EVENTS:
+        event = events[spec.key]
+        for user_key, status in spec.bookings.items():
+            session.add(
+                Booking(
+                    event_id=event.id,
+                    user_id=users[user_key].id,
+                    status=status,
+                    is_preapproved=user_key in spec.preapproved_waitlist,
+                    rejection_reason=spec.booking_rejection_reasons.get(user_key),
+                )
+            )
+        if spec.status == EventStatus.REJECTED:
+            is_auto = spec.auto_check == AutoCheckStatus.FAILED
+            session.add(
+                AdminAuditLog(
+                    admin_id=None if is_auto else admin.id,
+                    action_type=(
+                        AuditActionType.EVENT_AUTO_REJECTED
+                        if is_auto
+                        else AuditActionType.EVENT_REJECTED
+                    ),
+                    target_entity="Event",
+                    target_id=event.id,
+                    justification_reason=spec.rejection_reason,
+                )
+            )
+    return events
+
+
+def _create_reviews(
+    session: AsyncSession, users: dict[str, User], events: dict[str, Event]
+) -> None:
+    # Ratings and their counts are derived from these rows by the Review model on flush.
+    session.add_all(
+        Review(
+            event_id=events[event_key].id,
+            reviewer_id=users[reviewer].id,
+            reviewee_id=users[reviewee].id,
+            target_role=role,
+            score=score,
+        )
+        for event_key, reviewer, reviewee, role, score in SEED_REVIEWS
+    )
+
+
+def _notifications(
+    users: dict[str, User], events: dict[str, Event]
+) -> list[Notification]:
+    def note(
+        user: str, kind: NotificationType, title: str, message: str, event: str
+    ) -> Notification:
+        return Notification(
+            user_id=users[user].id,
+            notification_type=kind,
+            title=title,
+            message=message,
+            metadata_payload={
+                "event_id": str(events[event].id),
+                "event_title": events[event].title,
+            },
+        )
+
+    catan, brass = events["catan"].title, events["brass"].title
+    return [
+        note("org1", NotificationType.BOOKING_REQUESTED, "New Booking Request",
+             f"Sofia Bondar requested a seat at {catan}.", "catan"),
+        note("org1", NotificationType.BOOKING_REQUESTED, "New Booking Request",
+             f"Iryna Savchenko requested a seat at {catan}.", "catan"),
+        note("p1", NotificationType.BOOKING_APPROVED, "Application Approved",
+             "Great news! Host Olena Kovalenko has approved your booking request. "
+             "Your seat is confirmed.", "catan"),
+        note("p5", NotificationType.WAITLIST_PROMOTED, "Added to Waitlist",
+             f"The table for {brass} is currently full. The organizer accepted your "
+             "request: you will get the next free seat automatically.", "brass"),
+        note("p2", NotificationType.REVIEW_REMINDER, "How was the game?",
+             "Rate the organizer of Ticket to Ride Evening.", "ticket"),
+    ]  # fmt: skip
+
+
+async def seed_database(session: AsyncSession) -> dict[str, int]:
     if settings.is_production:
         raise RuntimeError("Seeding is disabled when ENVIRONMENT=production")
 
-    if reset:
-        await _reset_seed_data(session)
-
-    users_by_email: dict[str, User] = {}
-    created_users = 0
-    pwd_hash = get_password_hash(SEED_PASSWORD)
-
-    for spec in SEED_USERS:
-        email = str(spec["email"])
-        existing = await session.scalar(select(User).where(User.email == email))
-        if existing is None:
-            user = User(
-                email=email,
-                hashed_password=pwd_hash,
-                first_name=spec["first_name"],
-                last_name=spec["last_name"],
-                city=spec["city"],
-                is_verified=spec["is_verified"],
-                is_superuser=spec["is_superuser"],
-                bio=spec.get("bio"),
-                contact_info=spec.get("contact_info"),
-                status=UserStatus.ACTIVE,
-                is_deleted=False,
-            )
-            session.add(user)
-            await session.flush()
-            users_by_email[email] = user
-            created_users += 1
-        else:
-            users_by_email[email] = existing
-
-    admin = users_by_email["admin@yupiboard.com"]
-    org1 = users_by_email["organizer1@yupiboard.com"]
-    org2 = users_by_email["organizer2@yupiboard.com"]
-    p1 = users_by_email["player1@yupiboard.com"]
-    p2 = users_by_email["player2@yupiboard.com"]
-    p3 = users_by_email["player3@yupiboard.com"]
-
     now = datetime.now(UTC)
-    event_specs: list[dict[str, Any]] = [
-        {
-            "title": "[Seed] Dune: Imperium Championship",
-            "description": "Competitive 4-player Dune: Imperium session with Rise of Ix expansion.",
-            "game_title": "Dune: Imperium",
-            "location_name": "Geekach Club",
-            "address": "Sumska St, 10",
-            "city": "Kharkiv",
-            "lat": 49.9947,
-            "lon": 36.2338,
-            "start_datetime": now + timedelta(days=2, hours=2),
-            "end_datetime": now + timedelta(days=2, hours=6),
-            "min_players": 2,
-            "max_players": 4,
-            "current_confirmed": 1,
-            "entry_cost": Decimal("150.00"),
-            "status": EventStatus.PUBLISHED,
-            "is_verified": True,
-            "promoted_to_datetime": now + timedelta(days=1),
-            "organizer": org1,
-        },
-        {
-            "title": "[Seed] Brass: Birmingham Full Table",
-            "description": "Heavy industrial strategy night — table is full, waitlist open!",
-            "game_title": "Brass: Birmingham",
-            "location_name": "CBGames Hub",
-            "address": "Pushkinska St, 32",
-            "city": "Kharkiv",
-            "lat": 49.9973,
-            "lon": 36.2414,
-            "start_datetime": now + timedelta(days=3),
-            "end_datetime": now + timedelta(days=3, hours=4),
-            "min_players": 2,
-            "max_players": 2,
-            "current_confirmed": 2,
-            "entry_cost": Decimal("100.00"),
-            "status": EventStatus.PUBLISHED,
-            "is_verified": True,
-            "promoted_to_datetime": None,
-            "organizer": org1,
-        },
-        {
-            "title": "[Seed] Root: Woodland Alliance (Pending Moderation)",
-            "description": "Asymmetric woodland strategy evening for newcomers and veterans.",
-            "game_title": "Root",
-            "location_name": "Kharkiv Meeple Lounge",
-            "address": "Svobody Square, 5",
-            "city": "Kharkiv",
-            "lat": 50.006,
-            "lon": 36.2313,
-            "start_datetime": now + timedelta(days=5),
-            "end_datetime": now + timedelta(days=5, hours=4),
-            "min_players": 2,
-            "max_players": 4,
-            "current_confirmed": 0,
-            "entry_cost": Decimal("0.00"),
-            "status": EventStatus.ON_MODERATION,
-            "is_verified": False,
-            "promoted_to_datetime": None,
-            "organizer": org2,
-        },
-        {
-            "title": "[Seed] Gloomhaven: Jaws of the Lion (Pending Moderation)",
-            "description": "Tactical campaign scenario 1 & 2.",
-            "game_title": "Gloomhaven",
-            "location_name": "Portal Cafe",
-            "address": "Nauky Ave, 27",
-            "city": "Kharkiv",
-            "lat": 50.013,
-            "lon": 36.2275,
-            "start_datetime": now + timedelta(days=6),
-            "end_datetime": now + timedelta(days=6, hours=5),
-            "min_players": 2,
-            "max_players": 4,
-            "current_confirmed": 0,
-            "entry_cost": Decimal("50.00"),
-            "status": EventStatus.ON_MODERATION,
-            "is_verified": False,
-            "promoted_to_datetime": None,
-            "organizer": org1,
-        },
-        {
-            "title": "[Seed] Unclear Venue Session (Rejected)",
-            "description": "Board game meetup.",
-            "game_title": "Catan",
-            "location_name": None,
-            "address": "TBD",
-            "city": "Kharkiv",
-            "lat": 49.9935,
-            "lon": 36.2304,
-            "start_datetime": now + timedelta(days=4),
-            "end_datetime": now + timedelta(days=4, hours=3),
-            "min_players": 2,
-            "max_players": 4,
-            "current_confirmed": 0,
-            "entry_cost": Decimal("0.00"),
-            "status": EventStatus.REJECTED,
-            "rejection_reason": "Please provide a specific venue address instead of TBD.",
-            "is_verified": False,
-            "promoted_to_datetime": None,
-            "organizer": org2,
-        },
-        {
-            "title": "[Seed] Terraforming Mars Live Session",
-            "description": "Ongoing session currently in progress.",
-            "game_title": "Terraforming Mars",
-            "location_name": "Saltivka Games",
-            "address": "Heroiv Pratsi St, 7",
-            "city": "Kharkiv",
-            "lat": 50.027,
-            "lon": 36.333,
-            "start_datetime": now - timedelta(hours=1),
-            "end_datetime": now + timedelta(hours=3),
-            "min_players": 2,
-            "max_players": 5,
-            "current_confirmed": 2,
-            "entry_cost": Decimal("80.00"),
-            "status": EventStatus.ONGOING,
-            "is_verified": True,
-            "promoted_to_datetime": None,
-            "organizer": org1,
-        },
-        {
-            "title": "[Seed] Catan Classic Evening (Completed)",
-            "description": "Recently completed session open for attendance & reviews.",
-            "game_title": "Catan",
-            "location_name": "Geekach Club",
-            "address": "Sumska St, 10",
-            "city": "Kharkiv",
-            "lat": 49.9947,
-            "lon": 36.2338,
-            "start_datetime": now - timedelta(hours=6),
-            "end_datetime": now - timedelta(hours=2),
-            "min_players": 2,
-            "max_players": 4,
-            "current_confirmed": 2,
-            "entry_cost": Decimal("0.00"),
-            "status": EventStatus.COMPLETED,
-            "is_verified": True,
-            "promoted_to_datetime": None,
-            "organizer": org1,
-        },
-        {
-            "title": "[Seed] Scythe Tournament (Cancelled)",
-            "description": "Cancelled due to venue maintenance.",
-            "game_title": "Scythe",
-            "location_name": "Kharkiv Meeple Lounge",
-            "address": "Svobody Square, 5",
-            "city": "Kharkiv",
-            "lat": 50.006,
-            "lon": 36.2313,
-            "start_datetime": now + timedelta(days=7),
-            "end_datetime": now + timedelta(days=7, hours=4),
-            "min_players": 2,
-            "max_players": 5,
-            "current_confirmed": 0,
-            "entry_cost": Decimal("120.00"),
-            "status": EventStatus.CANCELLED,
-            "is_verified": True,
-            "promoted_to_datetime": None,
-            "organizer": org2,
-        },
-    ]
-
-    events_by_title: dict[str, Event] = {}
-    created_events = 0
-    for spec in event_specs:
-        title = str(spec["title"])
-        organizer = spec["organizer"]
-        assert isinstance(organizer, User)
-        existing_ev = await session.scalar(
-            select(Event).where(
-                Event.title == title, Event.organizer_id == organizer.id
-            )
-        )
-        if existing_ev is None:
-            ev = Event(
-                organizer_id=organizer.id,
-                title=title,
-                description=spec["description"],
-                game_title=spec["game_title"],
-                location_name=spec["location_name"],
-                address=spec["address"],
-                city=spec["city"],
-                lat=spec["lat"],
-                lon=spec["lon"],
-                start_datetime=spec["start_datetime"],
-                end_datetime=spec["end_datetime"],
-                min_players=spec["min_players"],
-                max_players=spec["max_players"],
-                current_confirmed=spec["current_confirmed"],
-                entry_cost=spec["entry_cost"],
-                status=spec["status"],
-                rejection_reason=spec.get("rejection_reason"),
-                is_verified=spec["is_verified"],
-                promoted_to_datetime=spec["promoted_to_datetime"],
-                is_deleted=False,
-            )
-            session.add(ev)
-            await session.flush()
-            events_by_title[title] = ev
-            created_events += 1
-        else:
-            events_by_title[title] = existing_ev
-
-    dune = events_by_title["[Seed] Dune: Imperium Championship"]
-    brass = events_by_title["[Seed] Brass: Birmingham Full Table"]
-    rejected_ev = events_by_title["[Seed] Unclear Venue Session (Rejected)"]
-    ongoing_ev = events_by_title["[Seed] Terraforming Mars Live Session"]
-    completed_ev = events_by_title["[Seed] Catan Classic Evening (Completed)"]
-
-    booking_specs = [
-        (dune.id, p1.id, BookingStatus.CONFIRMED),
-        (dune.id, p2.id, BookingStatus.PENDING),
-        (brass.id, p1.id, BookingStatus.CONFIRMED),
-        (brass.id, p2.id, BookingStatus.CONFIRMED),
-        (brass.id, p3.id, BookingStatus.WAITLIST),
-        (ongoing_ev.id, p1.id, BookingStatus.CONFIRMED),
-        (ongoing_ev.id, p2.id, BookingStatus.ATTENDED),
-        (completed_ev.id, p1.id, BookingStatus.ATTENDED),
-        (completed_ev.id, p2.id, BookingStatus.ATTENDED),
-        (completed_ev.id, p3.id, BookingStatus.NO_SHOW),
-    ]
-    for ev_id, u_id, b_status in booking_specs:
-        existing_b = await session.scalar(
-            select(Booking).where(Booking.event_id == ev_id, Booking.user_id == u_id)
-        )
-        if existing_b is None:
-            session.add(Booking(event_id=ev_id, user_id=u_id, status=b_status))
-
-    existing_fav = await session.get(Favorite, (p1.id, dune.id))
-    if existing_fav is None:
-        session.add(Favorite(user_id=p1.id, event_id=dune.id))
-
-    existing_rev = await session.scalar(
-        select(Review).where(
-            Review.event_id == completed_ev.id,
-            Review.reviewer_id == p1.id,
-            Review.reviewee_id == org1.id,
-        )
-    )
-    if existing_rev is None:
-        session.add(
-            Review(
-                event_id=completed_ev.id,
-                reviewer_id=p1.id,
-                reviewee_id=org1.id,
-                target_role=ReviewTargetRole.ORGANIZER,
-                score=5,
-            )
-        )
-        org1.rating_as_organizer = Decimal("5.00")
-        org1.rating_as_organizer_count = 1
-        session.add(org1)
-
-    existing_audit = await session.scalar(
-        select(AdminAuditLog).where(
-            AdminAuditLog.target_entity == "Event",
-            AdminAuditLog.target_id == rejected_ev.id,
-        )
-    )
-    if existing_audit is None:
-        session.add(
-            AdminAuditLog(
-                admin_id=admin.id,
-                action_type=AuditActionType.EVENT_REJECTED,
-                target_entity="Event",
-                target_id=rejected_ev.id,
-                justification_reason=rejected_ev.rejection_reason,
-            )
-        )
-
-    existing_notif = await session.scalar(
-        select(Notification).where(Notification.user_id == p1.id)
-    )
-    if existing_notif is None:
-        session.add_all(
-            [
-                Notification(
-                    user_id=p1.id,
-                    notification_type=NotificationType.BOOKING_APPROVED,
-                    title="Application Approved",
-                    message=f"Great news! Your seat at {dune.title} is confirmed.",
-                    metadata_payload={"event_id": str(dune.id)},
-                ),
-                Notification(
-                    user_id=org1.id,
-                    notification_type=NotificationType.BOOKING_REQUESTED,
-                    title="New Booking Request",
-                    message=f"Sofia Bondar requested a seat at {dune.title}.",
-                    metadata_payload={"event_id": str(dune.id)},
-                ),
-            ]
-        )
-
+    users = await _create_users(session)
+    events = await _create_events(session, users, now)
+    _create_reviews(session, users, events)
+    for user_key, event_key in SEED_FAVORITES:
+        session.add(Favorite(user_id=users[user_key].id, event_id=events[event_key].id))
+    session.add_all(_notifications(users, events))
     await session.flush()
-    return {
-        "created_users": created_users,
-        "created_events": created_events,
-    }
+    return {"created_users": len(users), "created_events": len(events)}
 
 
-async def _run(reset: bool) -> None:
+async def _run(remove: bool) -> None:
     async with async_session_maker() as session, session.begin():
-        summary = await seed_database(session, reset=reset)
+        if remove:
+            removed = await remove_seed_data(session)
+        else:
+            summary = await seed_database(session)
+    # Files are handled only once the transaction has committed.
+    if remove:
+        _cover_target().unlink(missing_ok=True)
+        logger.info("Removed %d seed users and everything they owned.", removed)
+        return
+    _cover_target().parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(COVER_SOURCE, _cover_target())
     logger.info(
-        "Seed complete: %d new users, %d new events (dev password: %s)",
+        "Seed complete: %d users, %d events.",
         summary["created_users"],
         summary["created_events"],
-        SEED_PASSWORD,
     )
+    logger.info(SEED_GUIDE)
 
 
 def main() -> None:
@@ -493,15 +478,19 @@ def main() -> None:
         description="Seed YupiBoard development test data."
     )
     parser.add_argument(
-        "--reset",
+        "--remove",
         action="store_true",
-        help="Delete existing seeded records before re-creating them.",
+        help="Delete all seeded records instead of adding them.",
     )
     args = parser.parse_args()
     if settings.is_production:
         logger.error("Refusing to run test data seeder in production environment.")
         sys.exit(1)
-    asyncio.run(_run(reset=args.reset))
+    try:
+        asyncio.run(_run(remove=args.remove))
+    except IntegrityError:
+        logger.error("Seed data already exists; run `pnpm be seed:remove` first.")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

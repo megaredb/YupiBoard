@@ -47,7 +47,7 @@ export function CompleteProfileForm({ user, isPending, onSubmit }: CompleteProfi
     <FormProvider {...form}>
       <form noValidate className="space-y-4" onSubmit={submit}>
         <PersonNameFields isPending={isPending} className="grid grid-cols-1 gap-4 sm:grid-cols-2" />
-        <ProfileCityField savedCity={user.city} isPending={isPending} />
+        <ProfileCityField isPending={isPending} />
         <TextField
           label={t("profile.fields.contacts")}
           optionalText={t("common.optional")}

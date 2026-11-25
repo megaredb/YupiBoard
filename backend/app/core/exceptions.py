@@ -47,3 +47,8 @@ class ForbiddenException(AppException):
 class ConflictException(AppException):
     def __init__(self, detail: str = "Resource already exists") -> None:
         super().__init__(status_code=status.HTTP_409_CONFLICT, detail=detail)
+
+
+class ServiceUnavailableException(AppException):
+    def __init__(self, detail: str = "Service temporarily unavailable") -> None:
+        super().__init__(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=detail)

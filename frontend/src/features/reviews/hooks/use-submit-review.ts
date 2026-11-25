@@ -10,7 +10,7 @@ import { getApiErrorKey } from "@/shared/i18n/get-api-error-key";
 import { showToast } from "@/shared/lib/toast/toast-store";
 
 /** Who is being rated: the organizer, or one of the players (rated by the organizer). */
-type ReviewTarget = { role: "organizer" } | { role: "player"; userId: string };
+export type ReviewTarget = { role: "organizer" } | { role: "player"; userId: string };
 
 interface SubmitReview {
   submit: (target: ReviewTarget, score: number, onDone: () => void) => void;

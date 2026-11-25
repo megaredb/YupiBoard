@@ -5,9 +5,10 @@ export const BOOKING_STATE_LABEL_KEYS = {
   hosting: "events.booking.hosting",
   closed: "events.booking.closed",
   approved: "events.booking.approved",
+  awaitingAttendance: "events.booking.awaitingAttendance",
   attended: "events.booking.attended",
   waitlist: "events.booking.waitlist",
   pending: "events.booking.pending",
   rejected: "events.booking.rejected",
-  full: "events.booking.full",
+  full: "events.booking.joinWaitlist",
 } as const satisfies Record<BookingState, string>;

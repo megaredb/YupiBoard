@@ -349,6 +349,62 @@ async def test_organizer_removing_confirmed_seat_promotes_waitlist() -> None:
 
 
 @pytest.mark.asyncio
+async def test_accepting_request_on_full_table_preapproves_waitlist_seat() -> None:
+    service, booking_repo, _, notifications, event, _ = _waitlist_setup(waiting=False)
+    organizer = User(id=event.organizer_id, email="host@example.com")
+    pending = Booking(
+        id=uuid.uuid7(),
+        event_id=event.id,
+        user_id=uuid.uuid7(),
+        status=BookingStatus.PENDING,
+    )
+    booking_repo.get_by_id_for_event.return_value = pending
+
+    result = await service.decide(event.id, pending.id, organizer, approve=True)
+
+    assert result.status == BookingStatus.WAITLIST
+    assert result.is_preapproved is True
+    sent = notifications.notify.await_args.args[0]
+    assert sent.notification_type == NotificationType.WAITLIST_PROMOTED
+
+
+@pytest.mark.asyncio
+async def test_freed_seat_confirms_preapproved_waitlisted_player() -> None:
+    service, booking_repo, event_repo, notifications, event, waiting = _waitlist_setup(
+        waiting=True
+    )
+    assert waiting is not None
+    waiting.is_preapproved = True
+
+    def _apply_event_update(obj: Event, **kwargs: object) -> Event:
+        for key, value in kwargs.items():
+            setattr(obj, key, value)
+        return obj
+
+    event_repo.update.side_effect = _apply_event_update
+    booking_repo.session.get.return_value = User(
+        id=event.organizer_id, email="host@example.com", first_name="Olena"
+    )
+    player_id = uuid.uuid7()
+    booking_repo.get_active_booking.return_value = Booking(
+        id=uuid.uuid7(),
+        event_id=event.id,
+        user_id=player_id,
+        status=BookingStatus.CONFIRMED,
+    )
+
+    await service.cancel_for_player(event.id, player_id)
+
+    assert waiting.status == BookingStatus.CONFIRMED
+    assert waiting.is_preapproved is False
+    assert event.current_confirmed == event.max_players
+    last = notifications.notify.await_args_list[-1].args[0]
+    assert last.user_id == waiting.user_id
+    assert last.notification_type == NotificationType.BOOKING_APPROVED
+    assert last.metadata_payload["host_name"] == "Olena"
+
+
+@pytest.mark.asyncio
 async def test_freed_seat_without_waitlist_promotes_nobody() -> None:
     service, booking_repo, _, notifications, event, _ = _waitlist_setup(waiting=False)
     player_id = uuid.uuid7()
@@ -772,11 +828,11 @@ async def test_mark_attendance_sets_attended_and_notifies_player() -> None:
     sent = notifications.notify.call_args.args[0]
     assert sent.user_id == booking.user_id
     assert sent.notification_type == NotificationType.ATTENDANCE_MARKED
-    assert "rate the organizer within 48 hours" in sent.message
+    assert "can now rate the organizer" in sent.message
 
 
 @pytest.mark.asyncio
-async def test_mark_attendance_during_event_hints_rating_after_end() -> None:
+async def test_mark_attendance_during_event_lets_player_rate_now() -> None:
     organizer = User(id=uuid.uuid7(), email="org@example.com")
     event = _held_event(
         organizer.id,
@@ -790,7 +846,9 @@ async def test_mark_attendance_during_event_hints_rating_after_end() -> None:
 
     await service.mark_attendance(event.id, booking.id, organizer, attended=True)
 
-    assert "once the event ends" in notifications.notify.call_args.args[0].message
+    assert (
+        "can now rate the organizer" in notifications.notify.call_args.args[0].message
+    )
 
 
 @pytest.mark.asyncio
@@ -846,13 +904,35 @@ async def test_mark_attendance_outside_window_is_rejected(
 
 
 @pytest.mark.asyncio
-async def test_mark_attendance_cannot_revoke_attended() -> None:
+async def test_mark_attendance_attended_can_be_corrected_to_no_show() -> None:
     organizer = User(id=uuid.uuid7(), email="org@example.com")
     event = _held_event(organizer.id)
-    service, _, _, booking = _attendance_setup(event, BookingStatus.ATTENDED)
+    service, booking_repo, notifications, booking = _attendance_setup(
+        event, BookingStatus.ATTENDED
+    )
 
-    with pytest.raises(ConflictException, match="cannot be revoked"):
-        await service.mark_attendance(event.id, booking.id, organizer, attended=False)
+    result = await service.mark_attendance(
+        event.id, booking.id, organizer, attended=False
+    )
+
+    assert result.status == BookingStatus.NO_SHOW
+    booking_repo.delete_reviews_between.assert_awaited_once_with(
+        event.id, organizer.id, booking.user_id
+    )
+    notifications.notify.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_mark_attendance_keeps_reviews_when_marking_present() -> None:
+    organizer = User(id=uuid.uuid7(), email="org@example.com")
+    event = _held_event(organizer.id)
+    service, booking_repo, _, booking = _attendance_setup(
+        event, BookingStatus.CONFIRMED
+    )
+
+    await service.mark_attendance(event.id, booking.id, organizer, attended=True)
+
+    booking_repo.delete_reviews_between.assert_not_awaited()
 
 
 @pytest.mark.asyncio

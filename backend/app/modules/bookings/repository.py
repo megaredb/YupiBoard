@@ -4,7 +4,7 @@ from datetime import datetime
 from math import ceil
 from typing import Literal
 
-from sqlalchemy import func, select, update
+from sqlalchemy import and_, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -17,6 +17,7 @@ from app.modules.bookings.models import (
     BookingStatus,
 )
 from app.modules.events.models import Event, EventStatus
+from app.modules.reviews.models import Review
 from app.modules.users.models import User
 
 
@@ -48,7 +49,7 @@ class BookingRepository(BaseRepository[Booking]):
                 Booking.event_id == event_id,
                 Booking.status == BookingStatus.WAITLIST,
             )
-            .order_by(Booking.created_at, Booking.id)
+            .order_by(Booking.is_preapproved.desc(), Booking.created_at, Booking.id)
             .limit(1)
         )
         return result.scalar_one_or_none()
@@ -158,6 +159,30 @@ class BookingRepository(BaseRepository[Booking]):
             .limit(limit)
         )
         return list(result.scalars().all()), total, ceil(total / limit) if total else 1
+
+    async def delete_reviews_between(
+        self, event_id: uuid.UUID, organizer_id: uuid.UUID, player_id: uuid.UUID
+    ) -> None:
+        """Removes the reviews the organizer and the player left each other for the
+        event. Deleted one by one so the Review listener recomputes both ratings."""
+        result = await self.session.execute(
+            select(Review).where(
+                Review.event_id == event_id,
+                or_(
+                    and_(
+                        Review.reviewer_id == player_id,
+                        Review.reviewee_id == organizer_id,
+                    ),
+                    and_(
+                        Review.reviewer_id == organizer_id,
+                        Review.reviewee_id == player_id,
+                    ),
+                ),
+            )
+        )
+        for review in result.scalars().all():
+            await self.session.delete(review)
+        await self.session.flush()
 
     async def get_latest_for_user(
         self, event_id: uuid.UUID, user_id: uuid.UUID

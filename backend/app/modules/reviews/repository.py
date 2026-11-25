@@ -1,12 +1,11 @@
 import uuid
 from collections.abc import Sequence
-from decimal import Decimal
 
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.repositories import BaseRepository
-from app.modules.reviews.models import Review, ReviewTargetRole
+from app.modules.reviews.models import Review
 
 
 class ReviewRepository(BaseRepository[Review]):
@@ -34,15 +33,3 @@ class ReviewRepository(BaseRepository[Review]):
             .order_by(Review.created_at, Review.id)
         )
         return result.scalars().all()
-
-    async def aggregate_for(
-        self, reviewee_id: uuid.UUID, target_role: ReviewTargetRole
-    ) -> tuple[Decimal | None, int]:
-        result = await self.session.execute(
-            select(func.avg(Review.score), func.count(Review.id)).where(
-                Review.reviewee_id == reviewee_id,
-                Review.target_role == target_role,
-            )
-        )
-        average, count = result.one()
-        return (Decimal(average) if average is not None else None), int(count)

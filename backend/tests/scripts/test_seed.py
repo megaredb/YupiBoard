@@ -6,33 +6,52 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.events.models import Event
 from app.modules.users.models import User
-from app.scripts.seed import SEED_USER_EMAILS, seed_database
+from app.scripts.seed import SEED_USER_EMAILS, remove_seed_data, seed_database
+
+
+async def _count_seed_users(session: AsyncSession) -> int:
+    return (
+        await session.scalar(
+            select(func.count(User.id)).where(User.email.in_(SEED_USER_EMAILS))
+        )
+        or 0
+    )
+
+
+async def _count_seed_events(session: AsyncSession) -> int:
+    return (
+        await session.scalar(
+            select(func.count(Event.id))
+            .join(User, Event.organizer_id == User.id)
+            .where(User.email.in_(SEED_USER_EMAILS))
+        )
+        or 0
+    )
 
 
 @pytest.mark.asyncio
-async def test_seed_database_is_idempotent_and_blocked_in_production(
-    db_session: AsyncSession,
-) -> None:
-    with (
-        patch("app.scripts.seed.settings.ENVIRONMENT", "production"),
-        pytest.raises(RuntimeError, match="production"),
-    ):
-        await seed_database(db_session)
+async def test_seed_is_blocked_in_production(db_session: AsyncSession) -> None:
+    with patch("app.scripts.seed.settings.ENVIRONMENT", "production"):
+        with pytest.raises(RuntimeError, match="production"):
+            await seed_database(db_session)
+        with pytest.raises(RuntimeError, match="production"):
+            await remove_seed_data(db_session)
 
-    first = await seed_database(db_session, reset=True)
-    assert first["created_users"] == len(SEED_USER_EMAILS)
-    assert first["created_events"] >= 6
 
-    second = await seed_database(db_session, reset=False)
-    assert second["created_users"] == 0
-    assert second["created_events"] == 0
+@pytest.mark.asyncio
+async def test_seed_adds_data_and_remove_deletes_it(db_session: AsyncSession) -> None:
+    # The tests share the development database: everything here is rolled back so an
+    # existing seed survives the test run.
+    await remove_seed_data(db_session)
 
-    user_count = await db_session.scalar(
-        select(func.count(User.id)).where(User.email.in_(SEED_USER_EMAILS))
-    )
-    assert user_count == len(SEED_USER_EMAILS)
+    created = await seed_database(db_session)
+    assert created["created_users"] == len(SEED_USER_EMAILS)
+    assert created["created_events"] >= 10
+    assert await _count_seed_users(db_session) == len(SEED_USER_EMAILS)
+    assert await _count_seed_events(db_session) == created["created_events"]
 
-    events_count = await db_session.scalar(
-        select(func.count(Event.id)).where(Event.title.like("[Seed]%"))
-    )
-    assert events_count == first["created_events"]
+    removed = await remove_seed_data(db_session)
+    assert removed == len(SEED_USER_EMAILS)
+    assert await _count_seed_users(db_session) == 0
+    assert await _count_seed_events(db_session) == 0
+    await db_session.rollback()

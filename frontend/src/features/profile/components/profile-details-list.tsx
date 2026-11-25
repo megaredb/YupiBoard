@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import type { UserRead } from "@/shared/api/generated/model";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
+import { useCityLabel } from "@/features/locations";
 import { DetailsRow } from "@/features/profile/components/details-row";
 
 interface ProfileDetailsListProps {
@@ -13,6 +14,7 @@ interface ProfileDetailsListProps {
 export function ProfileDetailsList({ user, onChangePassword }: ProfileDetailsListProps) {
   const { t } = useTranslation();
   const dash = t("common.notProvided");
+  const cityLabel = useCityLabel(user.city);
 
   return (
     <dl className="divide-y divide-border text-sm">
@@ -33,7 +35,7 @@ export function ProfileDetailsList({ user, onChangePassword }: ProfileDetailsLis
         </span>
       </DetailsRow>
       <DetailsRow label={t("profile.fields.location")} note={t("profile.locationHint")}>
-        {user.city || dash}
+        {cityLabel || dash}
       </DetailsRow>
       <DetailsRow label={t("profile.fields.password")}>
         <span className="flex items-center justify-between gap-4">

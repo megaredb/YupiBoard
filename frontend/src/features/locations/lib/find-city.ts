@@ -3,7 +3,7 @@ import type { CityRead } from "@/shared/api/generated/model";
 const DEFAULT_CITY_NAME = "Kyiv";
 
 export function findCityByName(cities: CityRead[], name: string | null | undefined) {
-  return name ? cities.find((city) => city.name === name) : undefined;
+  return name ? cities.find((city) => city.canonical_name === name) : undefined;
 }
 
 export function getPreferredCity(

@@ -33,6 +33,7 @@ const DEFAULT_VALUES: Omit<CreateEventFormInput, "city"> = {
   time: "",
   venueName: "",
   address: "",
+  addressLocation: null,
   maxPlayers: CREATE_EVENT_LIMITS.playersMin,
   price: 0,
   coverImage: null,
@@ -48,7 +49,7 @@ export function CreateEventForm({
   const { t } = useTranslation();
   const preferredCity = usePreferredCity();
   const form = useAppForm(createEventSchema, {
-    defaultValues: { ...DEFAULT_VALUES, city: preferredCity?.name ?? "" },
+    defaultValues: { ...DEFAULT_VALUES, city: preferredCity?.canonical_name ?? "" },
   });
 
   return (

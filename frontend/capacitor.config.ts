@@ -12,6 +12,9 @@ const config: CapacitorConfig = {
     Preferences: {
       group: "YupiBoardPreferences",
     },
+    SocialLogin: {
+      providers: { google: true, facebook: false, apple: false, twitter: false },
+    },
   },
 };
 

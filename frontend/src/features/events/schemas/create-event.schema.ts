@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { TranslationKey } from "@/shared/i18n/translation-key";
 import { coverImageFileSchema } from "@/shared/lib/validators/image-file";
+import { containsHouseNumber } from "@/features/events/lib/address-suggestion-status";
 
 /** Mirrors `EventCreate` in the OpenAPI schema; inputs read their `maxLength` from here. */
 export const CREATE_EVENT_LIMITS = {
@@ -25,9 +26,13 @@ const MESSAGES = {
   dateFuture: "validation.dateFuture",
   addressRequired: "validation.addressRequired",
   addressMax: "validation.addressMax",
+  addressHouseNumber: "validation.addressHouseNumber",
   venueNameMax: "validation.venueNameMax",
   priceInvalid: "validation.priceInvalid",
 } as const satisfies Record<string, TranslationKey>;
+
+/** Reported on `date`; the time picker is outlined too, since either part can fix it. */
+export const START_IN_PAST_MESSAGE = MESSAGES.dateFuture;
 
 function startsInFuture({ date, time }: { date: string; time: string }): boolean {
   return !date || !time || new Date(`${date}T${time}`).getTime() > Date.now();
@@ -58,7 +63,10 @@ export const createEventSchema = z
       .string()
       .trim()
       .min(1, MESSAGES.addressRequired)
-      .max(CREATE_EVENT_LIMITS.addressMax, MESSAGES.addressMax),
+      .max(CREATE_EVENT_LIMITS.addressMax, MESSAGES.addressMax)
+      .refine(containsHouseNumber, MESSAGES.addressHouseNumber),
+    /** Set when the address was picked from the suggestions, for the city it was picked in. */
+    addressLocation: z.object({ lat: z.number(), lon: z.number(), city: z.string() }).nullable(),
     maxPlayers: z
       .number()
       .int()
@@ -67,7 +75,7 @@ export const createEventSchema = z
     price: z.number({ error: MESSAGES.priceInvalid }).min(0, MESSAGES.priceInvalid),
     coverImage: coverImageFileSchema,
   })
-  .refine(startsInFuture, { path: ["date"], message: MESSAGES.dateFuture });
+  .refine(startsInFuture, { path: ["date"], message: START_IN_PAST_MESSAGE });
 
 export type CreateEventFormInput = z.input<typeof createEventSchema>;
 export type CreateEventFormValues = z.infer<typeof createEventSchema>;

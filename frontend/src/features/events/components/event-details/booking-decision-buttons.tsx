@@ -5,7 +5,8 @@ import { DeclineParticipantDialog } from "@/features/events/components/event-det
 
 interface BookingDecisionButtonsProps {
   playerName: string;
-  showAccept?: boolean;
+  /** Shown instead of "Accept" once the player is accepted ("Confirmed", "Gets the next seat"). */
+  acceptedLabel: string | null;
   isPending: boolean;
   isDisabled: boolean;
   onDecide: (isApproved: boolean, reason?: string) => void;
@@ -14,7 +15,7 @@ interface BookingDecisionButtonsProps {
 /** "Accept" right away; "Decline" asks for a mandatory reason first. */
 export function BookingDecisionButtons({
   playerName,
-  showAccept = true,
+  acceptedLabel,
   isPending,
   isDisabled,
   onDecide,
@@ -28,19 +29,17 @@ export function BookingDecisionButtons({
 
   return (
     <>
-      {showAccept ? (
+      {acceptedLabel === null ? (
         <Button size="lg" isLoading={isPending} disabled={isDisabled} onClick={handleAccept}>
           {t("events.participants.accept")}
         </Button>
       ) : (
-        <span className="text-xs font-semibold text-foreground">
-          {t("events.bookingStatus.confirmed")}
-        </span>
+        <span className="text-xs font-semibold text-foreground">{acceptedLabel}</span>
       )}
       <Button
         variant="secondary"
         size="lg"
-        isLoading={!showAccept && isPending}
+        isLoading={acceptedLabel !== null && isPending}
         disabled={isDisabled || isPending}
         onClick={handleAskDecline}
       >

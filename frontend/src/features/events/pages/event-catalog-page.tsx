@@ -10,6 +10,8 @@ import { EventList } from "@/features/events/components/event-list";
 import { EventPagination } from "@/features/events/components/event-pagination";
 import { useCatalogFilters } from "@/features/events/hooks/use-catalog-filters";
 import { useEventCatalog } from "@/features/events/hooks/use-event-catalog";
+import { isUsingMyLocation } from "@/features/events/lib/to-my-location";
+import { useCityLabel } from "@/features/locations";
 
 export function EventCatalogPage() {
   const { t } = useTranslation();
@@ -17,6 +19,10 @@ export function EventCatalogPage() {
   const { list, total, totalPages, isRefreshing } = useEventCatalog(filters, page);
   const [isSheetOpen, setSheetOpen] = useState(false);
   const foundLabel = total === null ? null : t("events.catalog.found", { count: total });
+  const cityLabel = useCityLabel(filters.city) ?? "";
+  const subtitle = isUsingMyLocation(filters)
+    ? t("events.catalog.subtitleNearby")
+    : t("events.catalog.subtitle", { city: cityLabel });
   const handleOpenSheet = () => setSheetOpen(true);
 
   return (
@@ -24,7 +30,7 @@ export function EventCatalogPage() {
       <PageHeader
         className="hidden desktop:flex"
         title={t("events.catalog.title")}
-        description={t("events.catalog.subtitle", { city: filters.city })}
+        description={subtitle}
       />
 
       <div className="desktop:mt-6 desktop:grid desktop:grid-with-filters desktop:items-start desktop:gap-7">

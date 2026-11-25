@@ -13,7 +13,10 @@ class CountryRead(BaseModel):
 
 class CityRead(BaseModel):
     id: uuid.UUID
+    # Localized by `Accept-Language`; for display only.
     name: str
+    # The English name that events and profiles store; stable across languages.
+    canonical_name: str
     country_code: str
     lat: float
     lon: float
@@ -33,6 +36,9 @@ class CountryWithCitiesRead(BaseModel):
 class GeocodeResult(BaseModel):
     display_name: str
     address: str
+    house_number: str | None = None
+    # A whole street, offered while no house number is typed yet; not a location.
+    is_street: bool = False
     city: str | None = None
     country_code: str | None = None
     lat: float
