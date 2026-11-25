@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  getGetUserApiV1UsersUserIdGetQueryKey,
   updateCurrentUserProfileApiV1UsersMePatch,
   uploadAvatarApiV1UsersMeAvatarPost,
   uploadBannerApiV1UsersMeBannerPost,
@@ -9,6 +8,7 @@ import type { UserRead } from "@/shared/api/generated/model";
 import { getApiErrorKey } from "@/shared/i18n/get-api-error-key";
 import type { TranslationKey } from "@/shared/i18n/translation-key";
 import { currentUserQueryOptions } from "@/features/auth";
+import { publicUserQueryOptions } from "@/features/profile/api/public-user-query";
 import { toUserUpdate } from "@/features/profile/lib/to-user-update";
 import type { ProfileUpdateValues } from "@/features/profile/schemas/profile.schema";
 
@@ -40,9 +40,7 @@ export function useUpdateProfile(onSuccess: (user: UserRead) => void): UseUpdate
       queryClient.setQueryData(currentUserQueryOptions().queryKey, user);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: currentUserQueryOptions().queryKey }),
-        queryClient.invalidateQueries({
-          queryKey: getGetUserApiV1UsersUserIdGetQueryKey(user.id),
-        }),
+        queryClient.invalidateQueries({ queryKey: publicUserQueryOptions(user.id).queryKey }),
       ]);
       onSuccess(user);
     },

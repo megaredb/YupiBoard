@@ -39,6 +39,8 @@ export function toListParams({
   limit,
 }: ListParamsInput): ListEventsApiV1EventsGetParams {
   const origin = getSearchOrigin(filters, cities);
+  // A city picked from the worldwide search is not in the local list, so it has no centre here:
+  // filter by its name instead, and fall back to date order since distance needs an origin.
   const area = origin
     ? { lat: origin.lat, lon: origin.lon, radius_km: filters.distance }
     : { city: filters.city || undefined };
