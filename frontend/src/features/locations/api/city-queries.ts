@@ -20,7 +20,7 @@ export function citiesQueryOptions(language: string = getActiveLocale()) {
 }
 
 /** Most cities a search suggests at once. */
-const CITY_SEARCH_LIMIT = 3;
+const CITY_SEARCH_LIMIT = 25;
 
 /**
  * Server-side city search: matches the English name and every translation. An empty query

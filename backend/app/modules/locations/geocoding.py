@@ -2,13 +2,18 @@ import hashlib
 import json
 import logging
 import re
+import uuid
 from typing import Any
 
 import httpx
 import redis.asyncio as aioredis
 
 from app.core.config import settings
-from app.modules.locations.schemas import GeocodeResult, ReverseGeocodeResult
+from app.modules.locations.schemas import (
+    CityRead,
+    GeocodeResult,
+    ReverseGeocodeResult,
+)
 
 logger = logging.getLogger("yupiboard.geocoding")
 
@@ -254,3 +259,94 @@ class GeocodingService:
         )
         await self._cache_set(cache_key, json.dumps(result.model_dump()))
         return result
+
+    async def search_cities(
+        self,
+        query: str,
+        *,
+        country_code: str | None = None,
+        limit: int = 10,
+    ) -> list[CityRead]:
+        """Search cities worldwide via Photon using lang=en for a stable canonical name."""
+        clean_query = query.strip()
+        if len(clean_query) < SUGGEST_MIN_QUERY_LENGTH or limit <= 0:
+            return []
+
+        cc_filter = country_code.upper() if country_code else ""
+        cache_digest = hashlib.sha256(
+            f"{clean_query.lower()}|{cc_filter}|{limit}".encode()
+        ).hexdigest()
+        cache_key = f"geocode:cities:v1:{cache_digest}"
+        cached = await self._cache_get(cache_key)
+        if cached is not None:
+            try:
+                return [CityRead.model_validate(item) for item in json.loads(cached)]
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("Ignoring stale city geocode cache entry: %s", exc)
+
+        params: dict[str, Any] = {
+            "q": clean_query,
+            "lang": "en",
+            "limit": min(limit * 2, 20),
+            "osm_tag": ["place:city", "place:town"],
+        }
+        try:
+            payload = await self._get_json("/api", params)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Photon city search failed for %r: %s", clean_query, exc)
+            return []
+
+        features = payload.get("features") if isinstance(payload, dict) else None
+        results: list[CityRead] = []
+        seen: set[tuple[str, str]] = set()
+        for feature in features if isinstance(features, list) else []:
+            if not isinstance(feature, dict):
+                continue
+            props = feature.get("properties")
+            geometry = feature.get("geometry")
+            if not isinstance(props, dict) or not isinstance(geometry, dict):
+                continue
+            name = props.get("name")
+            raw_cc = props.get("countrycode")
+            if not isinstance(name, str) or not name.strip():
+                continue
+            if not isinstance(raw_cc, str) or len(raw_cc) != 2:
+                continue
+            cc = raw_cc.upper()
+            if cc_filter and cc != cc_filter:
+                continue
+            try:
+                lon, lat = (float(value) for value in geometry["coordinates"][:2])
+            except KeyError, TypeError, ValueError:
+                continue
+            canonical = name.strip()
+            dedup_key = (canonical.lower(), cc)
+            if dedup_key in seen:
+                continue
+            seen.add(dedup_key)
+            results.append(
+                CityRead(
+                    id=uuid.uuid5(
+                        uuid.NAMESPACE_DNS,
+                        f"photon-city:{cc}:{canonical.lower()}",
+                    ),
+                    name=canonical,
+                    canonical_name=canonical,
+                    country_code=cc,
+                    lat=lat,
+                    lon=lon,
+                )
+            )
+            if len(results) >= limit:
+                break
+
+        await self._cache_set(
+            cache_key, json.dumps([r.model_dump(mode="json") for r in results])
+        )
+        return results
+
+    async def geocode_city_center(self, city: str) -> tuple[float, float] | None:
+        matches = await self.search_cities(city, limit=1)
+        if not matches:
+            return None
+        return (matches[0].lat, matches[0].lon)

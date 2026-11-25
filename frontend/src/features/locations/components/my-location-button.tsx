@@ -9,6 +9,7 @@ import { useCurrentPosition } from "@/features/locations/hooks/use-current-posit
 interface MyLocationButtonProps {
   onFound: (position: Coordinates) => void;
   isGuest?: boolean;
+  isIconOnly?: boolean;
   isDisabled?: boolean;
   className?: string;
 }
@@ -16,11 +17,13 @@ interface MyLocationButtonProps {
 export function MyLocationButton({
   onFound,
   isGuest = false,
+  isIconOnly = false,
   isDisabled,
   className,
 }: MyLocationButtonProps) {
   const { t } = useTranslation();
   const { locate, isLocating } = useCurrentPosition(onFound);
+  const label = isLocating ? t("common.location.locating") : t("common.location.useMyLocation");
   const handleClick = () => {
     if (isGuest) {
       showToast(t("common.location.signInRequired"), { tone: "info" });
@@ -28,6 +31,24 @@ export function MyLocationButton({
     }
     locate();
   };
+
+  if (isIconOnly) {
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        size="lg"
+        aria-label={label}
+        title={label}
+        isLoading={isLocating}
+        disabled={isDisabled}
+        onClick={handleClick}
+        className={cn("size-9 shrink-0 px-0", className)}
+      >
+        {!isLocating && <LocateFixed aria-hidden />}
+      </Button>
+    );
+  }
 
   return (
     <Button
@@ -40,7 +61,7 @@ export function MyLocationButton({
       className={cn("touch-hitbox h-auto px-0", className)}
     >
       {!isLocating && <LocateFixed aria-hidden />}
-      {isLocating ? t("common.location.locating") : t("common.location.useMyLocation")}
+      {label}
     </Button>
   );
 }

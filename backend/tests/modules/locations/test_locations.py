@@ -41,7 +41,9 @@ async def test_city_search_localizes_name_using_accept_language() -> None:
     )
     city_repo = AsyncMock()
     city_repo.search.return_value = [city]
-    service = LocationService(city_repo, AsyncMock())
+    geocoding = AsyncMock()
+    geocoding.search_cities.return_value = []
+    service = LocationService(city_repo, AsyncMock(), geocoding_service=geocoding)
 
     ukrainian = await service.search_cities(
         query="Kyiv", country_code="UA", accept_language="en;q=0.8,uk-UA;q=0.9"
@@ -53,6 +55,7 @@ async def test_city_search_localizes_name_using_accept_language() -> None:
     assert ukrainian[0].name == "Київ"
     assert english[0].name == "Kyiv"
     city_repo.search.assert_awaited_with(query="Київ", country_code="UA", limit=20)
+    geocoding.search_cities.assert_not_awaited()
 
 
 @pytest.mark.asyncio
@@ -183,3 +186,47 @@ async def test_locations_countries_and_cities_endpoints(
     )
     ua_group_uk = next(g for g in res_grouped_uk.json() if g["code"] == "UA")
     assert any(c["name"] == "Київ" for c in ua_group_uk["cities"])
+
+
+@pytest.mark.asyncio
+async def test_city_search_appends_deduped_photon_results() -> None:
+    db_city = SimpleNamespace(
+        id=uuid.uuid7(),
+        name="Kyiv",
+        translations=[SimpleNamespace(language_code="uk", name="Київ")],
+        lat=50.4501,
+        lon=30.5234,
+        country=SimpleNamespace(code="UA"),
+    )
+    city_repo = AsyncMock()
+    city_repo.search.return_value = [db_city]
+    geocoding = AsyncMock()
+    geocoding.search_cities.return_value = [
+        CityRead(
+            id=uuid.uuid7(),
+            name="Kyiv",
+            canonical_name="Kyiv",
+            country_code="UA",
+            lat=50.4501,
+            lon=30.5234,
+        ),
+        CityRead(
+            id=uuid.uuid7(),
+            name="Prague",
+            canonical_name="Prague",
+            country_code="CZ",
+            lat=50.0755,
+            lon=14.4378,
+        ),
+    ]
+    service = LocationService(city_repo, AsyncMock(), geocoding_service=geocoding)
+
+    results = await service.search_cities(query="Pra", limit=10, accept_language="uk")
+
+    assert [c.canonical_name for c in results] == ["Kyiv", "Prague"]
+    assert results[0].name == "Київ"
+    assert results[1].name == "Prague"
+    assert results[1].country_code == "CZ"
+    geocoding.search_cities.assert_awaited_once_with(
+        "Pra", country_code=None, limit=9
+    )

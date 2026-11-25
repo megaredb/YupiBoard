@@ -119,7 +119,7 @@ class LocationService:
         cities = await self.city_repo.search(
             query=query, country_code=country_code, limit=limit
         )
-        return [
+        results = [
             CityRead(
                 id=city.id,
                 name=_localized_city_name(city, languages),
@@ -131,10 +131,43 @@ class LocationService:
             for city in cities
         ]
 
+        clean_query = query.strip() if query else ""
+        lower_query = clean_query.lower()
+        has_exact_db_match = any(
+            city.name.lower() == lower_query
+            or any(tr.name.lower() == lower_query for tr in city.translations)
+            for city in cities
+        )
+        if len(clean_query) >= 3 and len(results) < limit and not has_exact_db_match:
+            photon_cities = await self.geocoding_service.search_cities(
+                clean_query,
+                country_code=country_code,
+                limit=limit - len(results),
+            )
+            seen = {
+                (item.canonical_name.lower(), item.country_code.upper())
+                for item in results
+            }
+            for item in photon_cities:
+                key = (item.canonical_name.lower(), item.country_code.upper())
+                if key not in seen:
+                    seen.add(key)
+                    results.append(item)
+
+        return results
+
+    async def _resolve_city_center(self, city: str | None) -> tuple[float, float] | None:
+        if not city:
+            return None
+        center = await self.city_repo.get_center(city)
+        if center is not None:
+            return center
+        return await self.geocoding_service.geocode_city_center(city)
+
     async def geocode(
         self, query: str, *, city: str | None = None, limit: int = 5
     ) -> list[GeocodeResult]:
-        center = await self.city_repo.get_center(city) if city else None
+        center = await self._resolve_city_center(city)
         try:
             return await self.geocoding_service.geocode(
                 query, city=city, center=center, limit=limit, raise_on_failure=True
@@ -145,7 +178,7 @@ class LocationService:
     async def suggest_addresses(
         self, query: str, *, city: str | None = None, limit: int = 5
     ) -> list[GeocodeResult]:
-        center = await self.city_repo.get_center(city) if city else None
+        center = await self._resolve_city_center(city)
         try:
             return await self.geocoding_service.suggest(
                 query, center=center, limit=limit

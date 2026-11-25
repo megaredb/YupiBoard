@@ -31,7 +31,7 @@ class MediaService:
     async def upload_banner(self, file: UploadFile, user_id: uuid.UUID) -> str:
         file_bytes = await file.read()
         processed_bytes, content_type, ext = process_event_image(file_bytes)
-        filename = f"banners/{user_id}_{uuid.uuid7().hex}.{ext}"
+        filename = f"covers/{user_id}_{uuid.uuid7().hex}.{ext}"
         return await self.storage.save(
             processed_bytes, filename=filename, content_type=content_type
         )

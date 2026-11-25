@@ -43,12 +43,16 @@ export function CityCombobox({
   const cities = useCities();
   const [query, setQuery] = useState("");
   const search = useCitySearch(query);
-  const items = search.status === "ready" ? search.cities.map((city) => city.canonical_name) : [];
+  const searchCities = search.status === "ready" ? search.cities : [];
+  const items = searchCities.map((city) => city.canonical_name);
 
+  // Check active search results first (includes Photon cities not in the static DB list).
+  const lookupCity = (name: string) =>
+    findCityByName(searchCities, name) ?? findCityByName(cities, name);
   // A stored name the backend no longer lists is shown as it is.
-  const toLabel = (name: string) => findCityByName(cities, name)?.name ?? name;
+  const toLabel = (name: string) => lookupCity(name)?.name ?? name;
   const toCountry = (name: string) => {
-    const city = findCityByName(cities, name);
+    const city = lookupCity(name);
     return city ? formatCountryName(city.country_code) : null;
   };
 
