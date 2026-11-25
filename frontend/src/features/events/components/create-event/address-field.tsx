@@ -106,7 +106,9 @@ export function AddressField() {
               render={<InputGroup.Input />}
             />
           </InputGroup>
-          <SuggestionList statusText={statusKey && t(statusKey)} />
+          {suggestions.status !== "idle" && (
+            <SuggestionList statusText={statusKey && t(statusKey)} />
+          )}
         </Autocomplete>
       )}
     </FormField>

@@ -36,7 +36,7 @@ export function MyLocationChip({ lat, lon, onDismiss, className }: MyLocationChi
         aria-label={t("events.filters.myLocation.dismiss")}
         title={t("events.filters.myLocation.dismiss")}
         onClick={onDismiss}
-        className="flex size-9 shrink-0 items-center justify-center rounded-lg outline-none hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring/50"
+        className="touch-hitbox flex size-9 shrink-0 items-center justify-center rounded-lg outline-none hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring/50"
       >
         <X aria-hidden className="size-4" />
       </button>

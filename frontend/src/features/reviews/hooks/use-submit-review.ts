@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { getListEventBookingsApiV1EventsEventIdBookingsGetQueryKey } from "@/shared/api/generated/endpoints/bookings/bookings";
 import { getGetEventApiV1EventsEventIdGetQueryKey } from "@/shared/api/generated/endpoints/events/events";
 import {
   getGetMyEventReviewsApiV1EventsEventIdReviewsMeGetQueryKey,
@@ -29,12 +30,21 @@ export function useSubmitReview(eventId: string): SubmitReview {
     onError: (error) =>
       showToast(t(getApiErrorKey(error, "reviews.saveFailed")), { tone: "error" }),
     onSettled: () =>
-      Promise.all(
-        [
-          getGetMyEventReviewsApiV1EventsEventIdReviewsMeGetQueryKey(eventId),
-          getGetEventApiV1EventsEventIdGetQueryKey(eventId),
-        ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
-      ),
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: getGetMyEventReviewsApiV1EventsEventIdReviewsMeGetQueryKey(eventId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: getGetEventApiV1EventsEventIdGetQueryKey(eventId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: getListEventBookingsApiV1EventsEventIdBookingsGetQueryKey(eventId),
+        }),
+        queryClient.invalidateQueries({
+          predicate: (query) =>
+            typeof query.queryKey[0] === "string" && query.queryKey[0].startsWith("/api/v1/users/"),
+        }),
+      ]),
   });
 
   return {

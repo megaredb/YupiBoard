@@ -78,13 +78,18 @@ def _photon_result(feature: Any) -> GeocodeResult | None:
 def _photon_results(payload: Any) -> list[GeocodeResult]:
     features = payload.get("features") if isinstance(payload, dict) else None
     results: list[GeocodeResult] = []
-    seen: set[str] = set()
+    seen: set[tuple[str, bool, str]] = set()
     for feature in features if isinstance(features, list) else []:
         result = _photon_result(feature)
         if result is None:
             continue
-        # Shops in one building share its address at slightly different points.
-        key = result.address.lower()
+        # Shops in one building share its address at slightly different points; keep
+        # street features separate from POIs and distinguish neighboring settlements.
+        key = (
+            result.address.lower(),
+            result.is_street,
+            (result.city or "").lower(),
+        )
         if key not in seen:
             seen.add(key)
             results.append(result)

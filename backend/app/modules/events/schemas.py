@@ -170,6 +170,7 @@ class EventFilterParams(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=100)
     organizer_id: uuid.UUID | None = None
     participant_id: uuid.UUID | None = None
+    include_past: bool = False
     organizer_name: str | None = Field(
         default=None,
         min_length=1,

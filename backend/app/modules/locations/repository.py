@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -69,8 +69,22 @@ class CityRepository(BaseRepository[City]):
         return result.unique().scalars().all()
 
     async def get_center(self, name: str) -> tuple[float, float] | None:
-        """Centre of the city whose English name is `name` (what events store)."""
+        """Centre of the city matching `name` (English or localized)."""
         clean_name = name.strip().lower()
-        cities = await self.search(query=name, limit=20)
-        match = next((c for c in cities if c.name.lower() == clean_name), None)
-        return (match.lat, match.lon) if match else None
+        if not clean_name:
+            return None
+        stmt = (
+            select(City.lat, City.lon)
+            .where(
+                City.is_active.is_(True),
+                or_(
+                    func.lower(City.name) == clean_name,
+                    City.translations.any(
+                        func.lower(CityTranslation.name) == clean_name
+                    ),
+                ),
+            )
+            .limit(1)
+        )
+        row = (await self.session.execute(stmt)).first()
+        return (row[0], row[1]) if row is not None else None

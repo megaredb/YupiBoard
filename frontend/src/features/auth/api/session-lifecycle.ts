@@ -1,5 +1,6 @@
 import { hashKey, type QueryClient } from "@tanstack/react-query";
 import type { TokenResponse, UserRead } from "@/shared/api/generated/model";
+import { signOutGoogle } from "@/shared/platform/google-sign-in";
 import { clearUserData } from "@/shared/platform/storage";
 import { currentUserQueryOptions } from "@/features/auth/api/current-user-query";
 import { sessionTokenStore } from "@/features/auth/lib/session-storage";
@@ -45,6 +46,7 @@ export async function startSession(
 export async function endSession(queryClient: QueryClient): Promise<void> {
   const userId = queryClient.getQueryData(currentUserQueryOptions().queryKey)?.id ?? null;
   await sessionTokenStore.clear();
+  await signOutGoogle();
   if (userId) await clearUserData(userId);
   queryClient.setQueryData(currentUserQueryOptions().queryKey, null);
   dropAccountScopedQueries(queryClient);

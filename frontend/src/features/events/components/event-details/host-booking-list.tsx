@@ -25,10 +25,17 @@ const DECIDABLE_STATUSES: ReadonlySet<BookingStatus> = new Set([
   "Waitlist",
 ]);
 
+const NON_PENDING_PAGE_SIZE = 100;
+
 export function HostBookingList({ eventId, status, emptyText }: HostBookingListProps) {
   const { t } = useTranslation();
   const { page, goToPage } = useBookingsPage();
-  const bookings = useEventBookings(eventId, status === "Pending" ? page : 1, status);
+  const bookings = useEventBookings(
+    eventId,
+    status === "Pending" ? page : 1,
+    status,
+    status === "Pending" ? EVENT_BOOKINGS_PAGE_SIZE : NON_PENDING_PAGE_SIZE,
+  );
   const decision = useBookingDecision(eventId);
 
   const getAcceptedLabel = (booking: BookingRead) => {

@@ -31,6 +31,7 @@ const DEFAULT_VALUES: Omit<CreateEventFormInput, "city"> = {
   description: "",
   date: "",
   time: "",
+  durationHours: CREATE_EVENT_LIMITS.durationDefault,
   venueName: "",
   address: "",
   addressLocation: null,

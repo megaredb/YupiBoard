@@ -300,11 +300,12 @@ class BookingService:
                 await self.booking_repo.update(
                     booking,
                     status=BookingStatus.REJECTED,
+                    is_preapproved=False,
                     rejection_reason=clean_reason,
                 )
                 if clean_reason is not None
                 else await self.booking_repo.update(
-                    booking, status=BookingStatus.REJECTED
+                    booking, status=BookingStatus.REJECTED, is_preapproved=False
                 )
             )
             if self.notification_service is not None:
@@ -397,7 +398,7 @@ class BookingService:
                 event, current_confirmed=max(0, event.current_confirmed - 1)
             )
         updated = await self.booking_repo.update(
-            booking, status=BookingStatus.CANCELLED_BY_PLAYER
+            booking, status=BookingStatus.CANCELLED_BY_PLAYER, is_preapproved=False
         )
         if self.notification_service is not None:
             await self.notification_service.notify(
@@ -455,12 +456,17 @@ class BookingService:
                 "Attendance can only be marked for confirmed participants"
             )
 
-        if booking.status == BookingStatus.ATTENDED:
+        revoked_attendance = booking.status == BookingStatus.ATTENDED
+        if revoked_attendance:
             # Reviews require attendance, so a revoked one takes the pair's reviews with it.
             await self.booking_repo.delete_reviews_between(
                 event.id, event.organizer_id, booking.user_id
             )
         updated = await self.booking_repo.update(booking, status=new_status)
+        if revoked_attendance and updated.user is not None:
+            session = getattr(self.booking_repo, "session", None)
+            if session is not None:
+                await session.refresh(updated.user)
         if attended and self.notification_service is not None:
             await self.notification_service.notify(
                 NotificationCreate(

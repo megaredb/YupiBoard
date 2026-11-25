@@ -16,6 +16,7 @@ import { OrganizerCard } from "@/features/events/components/event-details/organi
 import { MobileTopBar } from "@/features/events/components/mobile-top-bar";
 import { useBookingAction } from "@/features/events/hooks/use-booking-action";
 import { useCancelEvent } from "@/features/events/hooks/use-cancel-event";
+import { useCompleteEvent } from "@/features/events/hooks/use-complete-event";
 import { useEventDetails } from "@/features/events/hooks/use-event-details";
 import { useEventOrganizer } from "@/features/events/hooks/use-event-organizer";
 import { useEventStream } from "@/features/events/hooks/use-event-stream";
@@ -50,6 +51,7 @@ export function EventDetailsPage() {
   useRefreshOnStart(event);
   const booking = useBookingAction(event);
   const cancelEvent = useCancelEvent(event);
+  const completeEvent = useCompleteEvent(event);
   const organizer = useEventOrganizer(event);
   const { isFavorite, toggleFavorite } = useFavoriteToggle(event);
   const shareEvent = useShareEvent(event);
@@ -97,11 +99,17 @@ export function EventDetailsPage() {
             isModerating={isModerating}
             booking={booking}
             cancelEvent={cancelEvent}
+            completeEvent={completeEvent}
           />
         </div>
       </PageContainer>
       {!isDisqualified && !isModerating && (
-        <MobileBookingBar event={event} action={booking} cancelEvent={cancelEvent} />
+        <MobileBookingBar
+          event={event}
+          action={booking}
+          cancelEvent={cancelEvent}
+          completeEvent={completeEvent}
+        />
       )}
       {isDisqualified && <DisqualificationModal reason={event.user_booking_rejection_reason} />}
     </>

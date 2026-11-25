@@ -6,6 +6,7 @@ import { TextField } from "@/shared/components/text-field";
 import { useFieldError } from "@/shared/i18n/use-field-error";
 import { getTodayIsoDate } from "@/shared/lib/date/iso-date";
 import { DatePicker } from "@/shared/ui/date-picker";
+import { NumberStepper } from "@/shared/ui/number-stepper";
 import { TimePicker } from "@/shared/ui/time-picker";
 import { AddressField } from "@/features/events/components/create-event/address-field";
 import { FormSection } from "@/features/events/components/create-event/form-section";
@@ -15,6 +16,33 @@ import {
   START_IN_PAST_MESSAGE,
 } from "@/features/events/schemas/create-event.schema";
 import { CityCombobox } from "@/features/locations";
+
+function DurationField() {
+  const { t } = useTranslation();
+  const { control } = useCreateEventFormContext();
+
+  return (
+    <FormField label={t("events.create.fields.duration")} isRequired>
+      {(fieldControl) => (
+        <Controller
+          control={control}
+          name="durationHours"
+          render={({ field }) => (
+            <NumberStepper
+              {...fieldControl}
+              value={field.value}
+              onChange={field.onChange}
+              min={CREATE_EVENT_LIMITS.durationMin}
+              max={CREATE_EVENT_LIMITS.durationMax}
+              decreaseLabel={t("events.create.fields.durationDecrease")}
+              increaseLabel={t("events.create.fields.durationIncrease")}
+            />
+          )}
+        />
+      )}
+    </FormField>
+  );
+}
 
 function ScheduleDateTimeRow() {
   const { t, i18n } = useTranslation();
@@ -26,7 +54,7 @@ function ScheduleDateTimeRow() {
   const isStartInPast = errors.date?.message === START_IN_PAST_MESSAGE;
 
   return (
-    <div className="grid gap-5 sm:grid-cols-2">
+    <div className="grid gap-5 sm:grid-cols-3">
       <Controller
         control={control}
         name="date"
@@ -70,6 +98,7 @@ function ScheduleDateTimeRow() {
           </FormField>
         )}
       />
+      <DurationField />
     </div>
   );
 }

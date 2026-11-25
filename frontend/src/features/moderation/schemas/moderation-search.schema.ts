@@ -17,7 +17,13 @@ const DEFAULT_SORT: ModerationSort = "date-asc";
 export const moderationSearchSchema = pageSearchSchema.extend({
   tab: z.enum(MODERATION_TABS).default(DEFAULT_TAB).catch(DEFAULT_TAB),
   sort: z.enum(MODERATION_SORTS).default(DEFAULT_SORT).catch(DEFAULT_SORT),
-  q: z.string().trim().min(1).max(MODERATION_QUERY_MAX_LENGTH).optional().catch(undefined),
+  q: z
+    .preprocess(
+      (value) => (typeof value === "number" ? String(value) : value),
+      z.string().trim().min(1).max(MODERATION_QUERY_MAX_LENGTH),
+    )
+    .optional()
+    .catch(undefined),
 });
 
 export type ModerationSearch = z.infer<typeof moderationSearchSchema>;
