@@ -49,6 +49,9 @@ class SeedUser:
     last_name: str | None
     city: str | None
     bio: str | None = None
+    contact_info: str | None = None
+    # False keeps the account on the "complete your profile" screen after sign-in.
+    is_profile_complete: bool = True
     is_verified: bool = True
     is_superuser: bool = False
     status: UserStatus = UserStatus.ACTIVE
@@ -56,22 +59,27 @@ class SeedUser:
 
 SEED_USERS = [
     SeedUser("admin", "admin@example.com", "Admin", "YupiBoard", "Kharkiv",
-             "Platform moderator.", is_superuser=True),
+             "Platform moderator.", contact_info="support@yupiboard.example",
+             is_superuser=True),
     SeedUser("org1", "organizer1@example.com", "Olena", "Kovalenko", "Kharkiv",
-             "Eurogames host in Kharkiv."),
+             "Eurogames host in Kharkiv.", contact_info="Telegram: @olena_games"),
     SeedUser("org2", "organizer2@example.com", "Taras", "Shevchuk", "Lviv",
-             "Campaign and strategy nights."),
+             "Campaign and strategy nights.", contact_info="+380 67 123 4567"),
     SeedUser("p1", "player1@example.com", "Andrii", "Melnyk", "Kharkiv",
-             "Always up for Dune or Brass."),
+             "Always up for Dune or Brass.", contact_info="Telegram: @andrii_m"),
     SeedUser("p2", "player2@example.com", "Sofia", "Bondar", "Kharkiv",
-             "Party games and deckbuilders."),
+             "Party games and deckbuilders.", contact_info="Instagram: @sofia.plays"),
     SeedUser("p3", "player3@example.com", "Dmytro", "Tkachenko", "Lviv",
              "Sci-fi and RPG fan."),
     SeedUser("p4", "player4@example.com", "Iryna", "Savchenko", "Kharkiv"),
     SeedUser("p5", "player5@example.com", "Maksym", "Lysenko", "Kharkiv"),
     SeedUser("unverified", "unverified@example.com", "Nina", "Unverified", "Kharkiv",
              is_verified=False),
-    SeedUser("incomplete", "incomplete@example.com", None, None, None),
+    SeedUser("incomplete", "incomplete@example.com", None, None, None,
+             is_profile_complete=False),
+    # Names already filled but never confirmed, like a fresh Google sign-up.
+    SeedUser("prefilled", "prefilled@example.com", "Petro", "Prefilled", None,
+             is_profile_complete=False),
     SeedUser("banned", "banned@example.com", "Bohdan", "Banned", "Kharkiv",
              status=UserStatus.BANNED),
     SeedUser("deleteme", "deleteme@example.com", "Dana", "Deleteme", "Kharkiv"),
@@ -93,6 +101,7 @@ Seed accounts (password: Password123!)
                            disqualified from Dune
   unverified@example.com   cannot create events (email not verified)
   incomplete@example.com   no name yet: lands on "complete your profile"
+  prefilled@example.com    names prefilled (like a Google sign-up): still confirms the profile
   banned@example.com       banned account: sign-in is refused
   deleteme@example.com     nothing organized: "Delete my profile" succeeds
 """
@@ -286,7 +295,7 @@ async def remove_seed_data(session: AsyncSession) -> int:
     return len(user_ids)
 
 
-async def _create_users(session: AsyncSession) -> dict[str, User]:
+async def _create_users(session: AsyncSession, now: datetime) -> dict[str, User]:
     pwd_hash = get_password_hash(SEED_PASSWORD)
     users: dict[str, User] = {}
     for spec in SEED_USERS:
@@ -297,6 +306,8 @@ async def _create_users(session: AsyncSession) -> dict[str, User]:
             last_name=spec.last_name,
             city=spec.city,
             bio=spec.bio,
+            contact_info=spec.contact_info,
+            profile_completed_at=now - 30 * DAY if spec.is_profile_complete else None,
             is_verified=spec.is_verified,
             is_superuser=spec.is_superuser,
             status=spec.status,
@@ -441,7 +452,7 @@ async def seed_database(session: AsyncSession) -> dict[str, int]:
         raise RuntimeError("Seeding is disabled when ENVIRONMENT=production")
 
     now = datetime.now(UTC)
-    users = await _create_users(session)
+    users = await _create_users(session, now)
     events = await _create_events(session, users, now)
     _create_reviews(session, users, events)
     for user_key, event_key in SEED_FAVORITES:
