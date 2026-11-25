@@ -67,15 +67,15 @@ export function ModerationEventRow({ event, tab }: ModerationEventRowProps) {
                 fallbackClassName="text-[10px]"
               />
               <span className="truncate">{event.organizer.name}</span>
-              {rating && (
-                <span className="flex items-center gap-1">
-                  <Star aria-hidden className="size-3 fill-rating text-rating" />
-                  {t("moderation.row.organizerRating", {
-                    rating,
-                    count: event.organizer.rating_as_organizer_count ?? 0,
-                  })}
-                </span>
-              )}
+              <span className="flex items-center gap-1">
+                <Star aria-hidden className="size-3 fill-rating text-rating" />
+                {rating
+                  ? t("moderation.row.organizerRating", {
+                      rating,
+                      count: event.organizer.rating_as_organizer_count ?? 0,
+                    })
+                  : t("common.notProvided")}
+              </span>
             </div>
             <p className="flex items-center gap-2 text-xs text-muted-foreground">
               <Calendar aria-hidden className="size-3.5 shrink-0" />

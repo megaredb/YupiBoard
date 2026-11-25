@@ -1,16 +1,10 @@
 import { useRouter } from "@tanstack/react-router";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { TermsSections } from "@/shared/components/terms-dialog";
 import { PageContainer } from "@/shared/layout/page-container";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
-
-const SECTIONS = [
-  { titleKey: "auth.terms.eligibilityTitle", bodyKey: "auth.terms.eligibilityBody" },
-  { titleKey: "auth.terms.eventsTitle", bodyKey: "auth.terms.eventsBody" },
-  { titleKey: "auth.terms.conductTitle", bodyKey: "auth.terms.conductBody" },
-  { titleKey: "auth.terms.privacyTitle", bodyKey: "auth.terms.privacyBody" },
-] as const;
 
 export function TermsPage() {
   const { t } = useTranslation();
@@ -41,14 +35,8 @@ export function TermsPage() {
             </div>
           </div>
         </Card.Header>
-        <Card.Content className="space-y-6 pt-2 text-sm leading-relaxed text-foreground">
-          <p className="text-muted-foreground">{t("auth.terms.intro")}</p>
-          {SECTIONS.map((section) => (
-            <section key={section.titleKey} className="space-y-1.5">
-              <h2 className="text-base font-semibold text-foreground">{t(section.titleKey)}</h2>
-              <p className="text-muted-foreground">{t(section.bodyKey)}</p>
-            </section>
-          ))}
+        <Card.Content className="pt-2">
+          <TermsSections />
         </Card.Content>
       </Card>
     </PageContainer>

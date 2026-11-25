@@ -11,6 +11,7 @@ from app.core.config import settings
 from app.core.exceptions import (
     BadRequestException,
     ConflictException,
+    ForbiddenException,
     NotFoundException,
     UnauthorizedException,
 )
@@ -98,6 +99,9 @@ class AuthService:
 
         if not verify_password(data.password, user.hashed_password):
             raise UnauthorizedException("Invalid email or password")
+
+        if user.status == UserStatus.BANNED:
+            raise ForbiddenException("Account is banned")
 
         if user.status != UserStatus.ACTIVE or user.is_deleted:
             raise UnauthorizedException("Account is deactivated")
@@ -388,6 +392,9 @@ class AuthService:
                     is_verified=True,
                     is_superuser=False,
                 )
+
+        if user.status == UserStatus.BANNED:
+            raise ForbiddenException("Account is banned")
 
         if user.status != UserStatus.ACTIVE or user.is_deleted:
             raise UnauthorizedException("Account is deactivated")

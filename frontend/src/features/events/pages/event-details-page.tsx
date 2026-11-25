@@ -11,7 +11,6 @@ import { EventParticipantsSection } from "@/features/events/components/event-det
 import { EventRejectionNotice } from "@/features/events/components/event-details/event-rejection-notice";
 import { EventSummary } from "@/features/events/components/event-details/event-summary";
 import { MobileBookingBar } from "@/features/events/components/event-details/mobile-booking-bar";
-import { MobileOrganizerRow } from "@/features/events/components/event-details/mobile-organizer-row";
 import { OrganizerCard } from "@/features/events/components/event-details/organizer-card";
 import { MobileTopBar } from "@/features/events/components/mobile-top-bar";
 import { useBookingAction } from "@/features/events/hooks/use-booking-action";
@@ -80,7 +79,7 @@ export function EventDetailsPage() {
         )}
       >
         <EventBreadcrumbs title={event.title} isModerating={isModerating} />
-        <div className="desktop:grid desktop:grid-with-aside desktop:items-start desktop:gap-8">
+        <div className="space-y-6 desktop:grid desktop:grid-with-aside desktop:items-start desktop:gap-8 desktop:space-y-0">
           <div className="space-y-6">
             <EventSummary event={event} heroActions={renderActions("overlay")} />
             <div className="space-y-6 max-desktop:px-4">
@@ -90,7 +89,6 @@ export function EventDetailsPage() {
                 <EventParticipantsSection event={event} viewer={participantsViewer} />
               )}
               {!isHost && <OrganizerCard organizer={organizer} />}
-              {!isHost && <MobileOrganizerRow organizer={organizer} />}
             </div>
           </div>
           <EventDetailsAside

@@ -16,11 +16,11 @@ export function OrganizerCard({ organizer }: { organizer: EventOrganizer }) {
     .join(" · ");
 
   return (
-    <Card size="lg" className="max-desktop:hidden">
+    <Card size="lg">
       <Card.Header>
         <Card.Title size="xl">{t("events.details.meetOrganizer")}</Card.Title>
       </Card.Header>
-      <Card.Content className="flex items-center justify-between gap-4">
+      <Card.Content className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <UserAvatar
             name={organizer.name}

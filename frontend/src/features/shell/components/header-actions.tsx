@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Plus, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { buttonVariants } from "@/shared/ui/button-variants";
 import { useCurrentUser, useLogout } from "@/features/auth";
@@ -20,7 +20,7 @@ export function HeaderActions() {
   if (user) {
     return (
       <div className="ml-auto flex items-center gap-1.5 sm:gap-3">
-        <div className="max-desktop:hidden">
+        <div className="max-[48rem]:hidden">
           <Link to="/events/new" className={buttonVariants({ size: "lg", className: "px-4" })}>
             <Plus aria-hidden />
             {t("shell.createEvent")}
@@ -28,8 +28,17 @@ export function HeaderActions() {
         </div>
         <LanguageToggle />
         <ThemeToggle />
+        {user.is_superuser && (
+          <Link
+            to="/moderation"
+            aria-label={t("shell.nav.moderation")}
+            className="inline-flex size-9 items-center justify-center rounded-xl text-foreground transition-colors hover:bg-muted min-[48rem]:hidden"
+          >
+            <ShieldCheck aria-hidden className="size-5" />
+          </Link>
+        )}
         <NotificationBell />
-        <div className="max-desktop:hidden">
+        <div className="max-[48rem]:hidden">
           <UserMenu user={user} onLogout={logout} />
         </div>
       </div>

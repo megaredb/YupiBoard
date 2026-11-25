@@ -24,6 +24,10 @@ export function useGoogleSignIn(redirectTo: string | undefined): UseGoogleSignIn
   return {
     signInWithGoogle: () => mutation.mutate(undefined),
     isPending: mutation.isPending,
-    errorKey: mutation.isError ? getSignInErrorKey(mutation.error, "auth.google.failed") : null,
+    errorKey: mutation.isError
+      ? getSignInErrorKey(mutation.error, "auth.google.failed", {
+          403: "errors.accountBanned",
+        })
+      : null,
   };
 }
