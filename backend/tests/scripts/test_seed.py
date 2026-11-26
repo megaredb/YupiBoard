@@ -6,7 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.events.models import Event
 from app.modules.users.models import User
-from app.scripts.seed import SEED_USER_EMAILS, remove_seed_data, seed_database
+from app.scripts.seed import (
+    SEED_USER_EMAILS,
+    SEED_USERS,
+    remove_seed_data,
+    seed_database,
+)
 
 
 async def _count_seed_users(session: AsyncSession) -> int:
@@ -49,6 +54,13 @@ async def test_seed_adds_data_and_remove_deletes_it(db_session: AsyncSession) ->
     assert created["created_events"] >= 10
     assert await _count_seed_users(db_session) == len(SEED_USER_EMAILS)
     assert await _count_seed_events(db_session) == created["created_events"]
+    completed = {
+        user.email: user.profile_completed_at is not None
+        for user in await db_session.scalars(
+            select(User).where(User.email.in_(SEED_USER_EMAILS))
+        )
+    }
+    assert completed == {spec.email: spec.is_profile_complete for spec in SEED_USERS}
 
     removed = await remove_seed_data(db_session)
     assert removed == len(SEED_USER_EMAILS)

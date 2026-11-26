@@ -622,7 +622,11 @@ class EventRepository(BaseRepository[Event]):
                 Booking.event_id == event.id,
                 Booking.status.in_(ACTIVE_BOOKING_STATUSES),
             )
-            .values(status=BookingStatus.CANCELLED_BY_SYSTEM, is_preapproved=False)
+            .values(
+                status=BookingStatus.CANCELLED_BY_SYSTEM,
+                is_preapproved=False,
+                preapproved_at=None,
+            )
         )
         await self.session.flush()
         return event

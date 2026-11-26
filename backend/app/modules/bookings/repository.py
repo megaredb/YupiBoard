@@ -20,6 +20,15 @@ from app.modules.events.models import Event, EventStatus
 from app.modules.reviews.models import Review
 from app.modules.users.models import User
 
+# The waitlist is a queue: players the organizer accepted come first, in the order they were
+# accepted, then the rest in the order they joined.
+WAITLIST_ORDER = (
+    Booking.is_preapproved.desc(),
+    Booking.preapproved_at.asc().nullslast(),
+    Booking.created_at.asc(),
+    Booking.id.asc(),
+)
+
 
 class BookingRepository(BaseRepository[Booking]):
     def __init__(self, session: AsyncSession) -> None:
@@ -49,7 +58,7 @@ class BookingRepository(BaseRepository[Booking]):
                 Booking.event_id == event_id,
                 Booking.status == BookingStatus.WAITLIST,
             )
-            .order_by(Booking.is_preapproved.desc(), Booking.created_at, Booking.id)
+            .order_by(*WAITLIST_ORDER)
             .limit(1)
         )
         return result.scalar_one_or_none()
@@ -146,8 +155,12 @@ class BookingRepository(BaseRepository[Booking]):
             else func.lower(func.coalesce(User.first_name, User.email))
         )
         ordering = (
-            sort_column.asc() if sort_order == "asc" else sort_column.desc(),
-            Booking.id,
+            WAITLIST_ORDER
+            if status == BookingStatus.WAITLIST
+            else (
+                sort_column.asc() if sort_order == "asc" else sort_column.desc(),
+                Booking.id,
+            )
         )
         result = await self.session.execute(
             select(Booking)
@@ -225,6 +238,25 @@ class BookingRepository(BaseRepository[Booking]):
                 Booking.event_id.in_(closed_events),
             )
             .values(status=BookingStatus.NO_SHOW)
+            .execution_options(synchronize_session=False)
+        )
+        return int(getattr(result, "rowcount", 0) or 0)
+
+    async def close_open_requests_of_started_events(self, now: datetime) -> int:
+        """PENDING/WAITLIST -> CANCELLED_BY_SYSTEM once the event has started: nobody can
+        accept them any more, so they must not keep showing as waiting for a seat."""
+        started_events = select(Event.id).where(Event.start_datetime <= now)
+        result = await self.session.execute(
+            update(Booking)
+            .where(
+                Booking.status.in_((BookingStatus.PENDING, BookingStatus.WAITLIST)),
+                Booking.event_id.in_(started_events),
+            )
+            .values(
+                status=BookingStatus.CANCELLED_BY_SYSTEM,
+                is_preapproved=False,
+                preapproved_at=None,
+            )
             .execution_options(synchronize_session=False)
         )
         return int(getattr(result, "rowcount", 0) or 0)

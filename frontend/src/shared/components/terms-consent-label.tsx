@@ -1,4 +1,5 @@
 import { useState, type MouseEvent } from "react";
+import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { TermsDialog } from "@/shared/components/terms-dialog";
 
@@ -6,7 +7,7 @@ export function TermsConsentLabel() {
   const { t } = useTranslation();
   const [isOpen, setOpen] = useState(false);
 
-  const handleOpen = (event: MouseEvent<HTMLButtonElement>) => {
+  const handleOpen = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.stopPropagation();
     setOpen(true);
@@ -15,13 +16,13 @@ export function TermsConsentLabel() {
   return (
     <>
       {t("auth.register.termsConfirmPrefix")}
-      <button
-        type="button"
+      <Link
+        to="/terms"
         onClick={handleOpen}
-        className="cursor-pointer font-medium text-primary underline-offset-4 hover:underline"
+        className="font-medium text-primary underline-offset-4 hover:underline"
       >
         {t("auth.register.termsConfirmLink")}
-      </button>
+      </Link>
       <TermsDialog open={isOpen} onOpenChange={setOpen} />
     </>
   );

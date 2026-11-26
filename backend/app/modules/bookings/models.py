@@ -1,10 +1,21 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, Enum, ForeignKey, Index, String, false, func, select
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    String,
+    false,
+    func,
+    select,
+)
 from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 
 from app.core.models import Base, TimestampMixin, UUIDMixin
@@ -73,6 +84,11 @@ class Booking(Base, UUIDMixin, TimestampMixin):
     # automatically when a seat frees up, instead of going back to Pending.
     is_preapproved: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default=false(), nullable=False
+    )
+    # When the organizer accepted the waitlisted booking: accepted players get free seats
+    # in this order, not in the order they joined the waitlist.
+    preapproved_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
     )
 
     event: Mapped[Event] = relationship("Event", lazy="selectin")
